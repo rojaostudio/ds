@@ -1,0 +1,107 @@
+/* ─────────────────────────────────────────────────────────────
+   ROJAO DS — Rojao theme  ·  GERADO (não editar à mão)
+   Brand Rojão (loja). Neutro preto + accent green, Inter.
+
+   Fonte: recipes/index.ts (rojao) → generate/emitCss.ts
+   Regerar: pnpm build:themes
+
+     <html class="theme-rojao">       → light
+     <html class="theme-rojao dark">  → dark
+
+   Este arquivo é seu. Gerado a partir da sua marca, sem amarra de licença:
+   use, edite e redistribua como quiser. O gerador é MIT; o resultado é seu.
+   ───────────────────────────────────────────────────────────── */
+
+.theme-rojao {
+  /* ── Tipografia ── */
+  --font-family                 : var(--font-inter), system-ui, sans-serif;
+  --font-family-display         : var(--font-inter), system-ui, sans-serif;
+
+  /* ── Brand ── */
+  --brand-primary-50            : var(--color-neutral-50);
+  --brand-primary-100           : var(--color-neutral-100);
+  --brand-primary-200           : var(--color-neutral-200);
+  --brand-primary-300           : var(--color-neutral-300);
+  --brand-primary-400           : var(--color-neutral-400);
+  --brand-primary-500           : var(--color-neutral-500);
+  --brand-primary-600           : var(--color-neutral-600);
+  --brand-primary-700           : var(--color-neutral-700);
+  --brand-primary-800           : var(--color-neutral-800);
+  --brand-primary-900           : var(--color-neutral-900);
+  --brand-primary               : var(--color-neutral-900);
+  --brand-hover                 : var(--color-neutral-700);
+  --brand-on-primary            : var(--color-white);
+  --brand-secondary             : var(--color-white);
+  --brand-on-secondary          : var(--color-neutral-900);
+  --brand-secondary-surface     : var(--brand-secondary);
+  --brand-secondary-band        : var(--brand-secondary);
+  --brand-secondary-texture     : none;
+  --brand-secondary-texture-size: 18px 18px;
+  --brand-accent                : var(--color-green-500);
+  --brand-accent-light          : var(--color-green-50);
+  --brand-on-accent             : var(--color-white);
+  --brand-text                  : var(--color-neutral-900);
+
+  /* ── Surface ── */
+  --surface-page                : var(--color-neutral-50);
+  --surface-default             : var(--color-white);
+  --surface-raised              : var(--color-neutral-100);
+  --surface-overlay             : var(--color-neutral-900);
+  --surface-invert              : var(--color-neutral-900);
+
+  /* ── Border ── */
+  --border-subtle               : var(--color-neutral-100);
+  --border-default              : var(--color-neutral-200);
+  --border-strong               : var(--color-neutral-300);
+  --border-control              : var(--color-neutral-500);
+  --border-focus                : var(--color-neutral-900);
+
+  /* ── Text ── */
+  --text-primary                : var(--color-neutral-900);
+  --text-secondary              : var(--color-neutral-700);
+  --text-muted                  : var(--color-neutral-600);
+  --text-disabled               : var(--color-neutral-400);
+  --text-inverse                : var(--color-white);
+  --text-placeholder            : var(--color-neutral-600);
+
+  /* ── Icon ── */
+  --icon-default                : var(--color-neutral-800);
+}
+
+.theme-rojao.dark,
+:is(.dark).theme-rojao {
+  /* ── Brand ── */
+  --brand-primary          : var(--color-white);
+  --brand-hover            : var(--color-neutral-100);
+  --brand-on-primary       : var(--color-neutral-900);
+  --brand-secondary        : var(--color-neutral-900);
+  --brand-on-secondary     : var(--color-white);
+  --brand-text             : var(--color-neutral-50);
+  --brand-secondary-surface: var(--surface-page);
+  --brand-secondary-band   : transparent;
+
+  /* ── Surface ── */
+  --surface-page           : var(--color-neutral-900);
+  --surface-default        : var(--color-neutral-800);
+  --surface-raised         : var(--color-neutral-700);
+  --surface-overlay        : var(--color-neutral-200);
+  --surface-invert         : var(--color-neutral-50);
+
+  /* ── Border ── */
+  --border-subtle          : color-mix(in srgb, var(--color-white) 8%, transparent);
+  --border-default         : color-mix(in srgb, var(--color-white) 14%, transparent);
+  --border-strong          : color-mix(in srgb, var(--color-white) 22%, transparent);
+  --border-control         : color-mix(in srgb, var(--color-white) 40%, transparent);
+  --border-focus           : var(--color-neutral-400);
+
+  /* ── Text ── */
+  --text-primary           : var(--color-neutral-50);
+  --text-secondary         : var(--color-neutral-200);
+  --text-muted             : var(--color-neutral-300);
+  --text-disabled          : var(--color-neutral-600);
+  --text-inverse           : var(--color-neutral-900);
+  --text-placeholder       : var(--color-neutral-300);
+
+  /* ── Icon ── */
+  --icon-default           : var(--color-neutral-400);
+}

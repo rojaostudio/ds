@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+
+# Cancela runs anteriores da mesma PR ao receber novo push.
+# GitHub Flow: toda branch curta abre PR pra main e roda este CI.
+concurrency:
+  group: ci-${{ github.event.pull_request.head.ref }}
+  cancel-in-progress: true
+
+# Menor privilégio: nenhum job escreve em nada.
+permissions: read-all
+
+jobs:
+  verify:
+    # O nome do job É o contexto do check obrigatório na proteção da main. Renomear aqui
+    # (mesmo pra refletir que o lint entrou) faz o check exigido sumir e trava TODO PR em
+    # BLOCKED, sem jeito de destravar por dentro — enforce_admins está ligado. Mudar este
+    # texto exige atualizar a branch protection na mesma leva.
+    name: Typecheck · Test · Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # turbo --affected precisa do histórico pra diffar com a base
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      # --ignore-scripts: com o repositorio publico, PR de fork dispara este install. Um PR que
+      # altere o lockfile pra puxar uma dependencia com postinstall executaria codigo arbitrario
+      # no runner. O impacto e contido (sem secret, permissions: read-all), mas e compute gratis
+      # pra quem quiser. O pnpm 10 ja nao roda script de dependencia por padrao — a flag torna
+      # isso explicito em vez de depender do default de uma versao.
+      - name: Install
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      # DS é consumido por workspace:*; apps precisam dos artefatos gerados
+      # (tokens/themes/native) pra typecheck e build.
+      # turbo, nao --filter: com a #99 o `ds` depende do `ds-core`, e um filter direto builda
+      # so o `ds` — o build dele importa `@rojaostudio/ds-core/tokens`, que aponta pro dist que
+      # ainda nao existe. O turbo respeita o `dependsOn: ["^build"]` e resolve a ordem.
+      - name: Build design system
+        run: pnpm exec turbo run build --filter=@rojaostudio/ds --filter=@rojaostudio/ds-core
+
+      # O gate do tarball (#105): empacota de verdade e olha o que saiu, em vez de confiar no
+      # files[]. Tres defeitos desta familia ja chegaram a versoes publicadas.
+      - name: Gate do tarball
+        run: pnpm check:pack
+
+      # Informativo, NAO bloqueante — e essa e a decisao, nao um esquecimento. As 27
+      # vulnerabilidades de hoje estao todas na cadeia de dev (Expo, Metro, PostCSS) e nenhuma
+      # alcanca quem instala: o `check:pack` verifica que os pacotes publicados nao carregam
+      # dependencia de terceiro em runtime, o que e uma garantia mais forte e que nao envelhece
+      # com o feed de avisos. Travar o CI aqui so ensinaria todo mundo a ignorar o passo.
+      - name: Auditoria de dependências (informativo)
+        run: pnpm audit --prod || true
+
+      - name: Verify (affected)
+        run: pnpm exec turbo run lint typecheck test build --affected
+        env:
+          TURBO_SCM_BASE: ${{ github.event.pull_request.base.sha }}
+          TURBO_SCM_HEAD: ${{ github.event.pull_request.head.sha }}

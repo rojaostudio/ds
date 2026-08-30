@@ -1,0 +1,192 @@
+{
+  "name": "@rojaostudio/ds",
+  "version": "1.0.1",
+  "type": "module",
+  "description": "Rojão Design System — componentes React, estilos e alvo React Native. O motor vive em @rojaostudio/ds-core.",
+  "license": "MIT",
+  "author": "Rojão Studio (https://rojao.studio)",
+  "homepage": "https://ds.rojao.ai",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rojaostudio/ds.git",
+    "directory": "packages/ds"
+  },
+  "bugs": {
+    "url": "https://github.com/rojaostudio/ds/issues"
+  },
+  "keywords": [
+    "design-system",
+    "design-tokens",
+    "theme",
+    "tailwind",
+    "css-variables",
+    "wcag",
+    "accessibility",
+    "react",
+    "oklch",
+    "brand"
+  ],
+  "sideEffects": [
+    "**/*.css",
+    "./styles/**"
+  ],
+  "scripts": {
+    "build": "pnpm run build:tokens && pnpm run build:themes && pnpm run build:native && tsup",
+    "build:tokens": "tsx scripts/build-tokens.ts",
+    "build:native": "tsx scripts/build-native.ts",
+    "prepack": "pnpm run build",
+    "prepublishOnly": "node ../../scripts/guard-publisher.mjs",
+    "pack:release": "pnpm run build:tokens && pnpm run build:native && pnpm pack",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "detect": "tsx scripts/detect.ts",
+    "validate:themes": "tsx scripts/validate-themes.ts",
+    "build:themes": "tsx scripts/build-themes.ts",
+    "lint": "eslint .",
+    "build:brands": "tsx scripts/build-brands.ts"
+  },
+  "exports": {
+    "./styles/base.css": "./styles/base.css",
+    "./styles/themes/rojao.css": "./styles/themes/rojao.css",
+    "./tokens": {
+      "types": "./dist/compat/tokens.d.ts",
+      "import": "./dist/compat/tokens.js",
+      "default": "./dist/compat/tokens.js"
+    },
+    "./generate": {
+      "types": "./dist/compat/generate.d.ts",
+      "import": "./dist/compat/generate.js",
+      "default": "./dist/compat/generate.js"
+    },
+    "./recipes": {
+      "types": "./dist/compat/recipes.d.ts",
+      "import": "./dist/compat/recipes.js",
+      "default": "./dist/compat/recipes.js"
+    },
+    "./themes": {
+      "types": "./dist/compat/themes.d.ts",
+      "import": "./dist/compat/themes.js",
+      "default": "./dist/compat/themes.js"
+    },
+    "./native": {
+      "types": "./dist/targets/native/index.d.ts",
+      "import": "./dist/targets/native/index.js",
+      "default": "./dist/targets/native/index.js"
+    },
+    "./native/preset": "./dist/targets/native/preset.cjs",
+    "./native/nativewind-preset": "./dist/targets/native/preset.cjs",
+    "./native/theme.css": "./dist/targets/native/theme.css",
+    "./native/theme": {
+      "types": "./dist/targets/native/theme.d.ts",
+      "import": "./dist/targets/native/theme.js",
+      "default": "./dist/targets/native/theme.js"
+    },
+    "./native/tokens": {
+      "types": "./dist/targets/native/theme.d.ts",
+      "import": "./dist/targets/native/theme.js",
+      "default": "./dist/targets/native/theme.js"
+    },
+    "./native/components": {
+      "types": "./dist/targets/native/components/index.d.ts",
+      "import": "./dist/targets/native/components/index.js",
+      "default": "./dist/targets/native/components/index.js"
+    },
+    "./native/icons": {
+      "types": "./dist/targets/native/icons.d.ts",
+      "import": "./dist/targets/native/icons.js",
+      "default": "./dist/targets/native/icons.js"
+    },
+    "./components": {
+      "types": "./dist/components/index.d.ts",
+      "import": "./dist/components/index.js",
+      "default": "./dist/components/index.js"
+    },
+    "./components/*": {
+      "types": "./dist/components/*.d.ts",
+      "import": "./dist/components/*.js",
+      "default": "./dist/components/*.js"
+    },
+    "./icons": {
+      "types": "./dist/icons/index.d.ts",
+      "import": "./dist/icons/index.js",
+      "default": "./dist/icons/index.js"
+    }
+  },
+  "files": [
+    "LICENSE",
+    "README.md",
+    "dist",
+    "styles"
+  ],
+  "peerDependencies": {
+    "expo-image": ">=1.10",
+    "expo-image-picker": ">=15",
+    "lucide-react": ">=0.300.0",
+    "lucide-react-native": ">=0.300.0",
+    "next": ">=15",
+    "react": ">=19",
+    "react-dom": ">=19",
+    "react-image-crop": ">=11",
+    "react-international-phone": ">=4",
+    "react-native": ">=0.79",
+    "react-native-safe-area-context": ">=4",
+    "react-native-svg": ">=15",
+    "tailwindcss": ">=4"
+  },
+  "peerDependenciesMeta": {
+    "next": {
+      "optional": true
+    },
+    "lucide-react": {
+      "optional": true
+    },
+    "lucide-react-native": {
+      "optional": true
+    },
+    "react-image-crop": {
+      "optional": true
+    },
+    "react-international-phone": {
+      "optional": true
+    },
+    "react-native": {
+      "optional": true
+    },
+    "react-native-svg": {
+      "optional": true
+    },
+    "expo-image": {
+      "optional": true
+    },
+    "expo-image-picker": {
+      "optional": true
+    },
+    "react-native-safe-area-context": {
+      "optional": true
+    }
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org",
+    "access": "public",
+    "provenance": true
+  },
+  "devDependencies": {
+    "@rojao/config": "workspace:*",
+    "@types/node": "^20.19.43",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^6.0.2",
+    "eslint": "^9.18.0",
+    "next": "^16.2.7",
+    "react-image-crop": "^11.0.10",
+    "react-international-phone": "^4.8.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5",
+    "vitest": "^4.1.7",
+    "tsup": "^8.5.1"
+  },
+  "dependencies": {
+    "@rojaostudio/ds-core": "workspace:*"
+  }
+}

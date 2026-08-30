@@ -1,0 +1,118 @@
+/* AUTO-GERADO por scripts/build-native.ts — não editar à mão. */
+
+/* Tema rojao resolvido (hex/rgba) para React Native via NativeWind. */
+
+:root {
+  --ds-border-control: #737373;
+  --ds-border-default: #d6d6d6;
+  --ds-border-focus: #0d0d0d;
+  --ds-border-strong: #b9b9b9;
+  --ds-border-subtle: #ededed;
+  --ds-brand-accent: #379c3d;
+  --ds-brand-accent-light: #f0ffef;
+  --ds-brand-hover: #3c3c3c;
+  --ds-brand-on-accent: #ffffff;
+  --ds-brand-on-primary: #ffffff;
+  --ds-brand-on-secondary: #0d0d0d;
+  --ds-brand-primary: #0d0d0d;
+  --ds-brand-primary-100: #ededed;
+  --ds-brand-primary-200: #d6d6d6;
+  --ds-brand-primary-300: #b9b9b9;
+  --ds-brand-primary-400: #979797;
+  --ds-brand-primary-50: #fafafa;
+  --ds-brand-primary-500: #737373;
+  --ds-brand-primary-600: #575757;
+  --ds-brand-primary-700: #3c3c3c;
+  --ds-brand-primary-800: #232323;
+  --ds-brand-primary-900: #0d0d0d;
+  --ds-brand-secondary: #ffffff;
+  --ds-brand-secondary-band: var(--brand-secondary);
+  --ds-brand-secondary-surface: var(--brand-secondary);
+  --ds-brand-text: #0d0d0d;
+  --ds-danger: #f44336;
+  --ds-danger-border: #ef9a9a;
+  --ds-danger-soft: #ffcdd2;
+  --ds-danger-text: #991b1b;
+  --ds-icon-default: #232323;
+  --ds-info: #2196f3;
+  --ds-info-border: #90caf9;
+  --ds-info-soft: #bbdefb;
+  --ds-info-text: #1e40af;
+  --ds-success: #4caf50;
+  --ds-success-border: #a5d6a7;
+  --ds-success-soft: #c8e6c9;
+  --ds-success-text: #1b5e20;
+  --ds-surface-default: #ffffff;
+  --ds-surface-invert: #0d0d0d;
+  --ds-surface-overlay: #0d0d0d;
+  --ds-surface-page: #fafafa;
+  --ds-surface-raised: #ededed;
+  --ds-text-disabled: #979797;
+  --ds-text-inverse: #ffffff;
+  --ds-text-muted: #575757;
+  --ds-text-placeholder: #575757;
+  --ds-text-primary: #0d0d0d;
+  --ds-text-secondary: #3c3c3c;
+  --ds-warning: #ffc107;
+  --ds-warning-border: #ffe082;
+  --ds-warning-soft: #ffecb3;
+  --ds-warning-text: #92400e;
+}
+
+.dark {
+  --ds-border-control: rgba(255, 255, 255, 0.4);
+  --ds-border-default: rgba(255, 255, 255, 0.14);
+  --ds-border-focus: #979797;
+  --ds-border-strong: rgba(255, 255, 255, 0.22);
+  --ds-border-subtle: rgba(255, 255, 255, 0.08);
+  --ds-brand-accent: #379c3d;
+  --ds-brand-accent-light: #f0ffef;
+  --ds-brand-hover: #ededed;
+  --ds-brand-on-accent: #ffffff;
+  --ds-brand-on-primary: #0d0d0d;
+  --ds-brand-on-secondary: #ffffff;
+  --ds-brand-primary: #ffffff;
+  --ds-brand-primary-100: #ededed;
+  --ds-brand-primary-200: #d6d6d6;
+  --ds-brand-primary-300: #b9b9b9;
+  --ds-brand-primary-400: #979797;
+  --ds-brand-primary-50: #fafafa;
+  --ds-brand-primary-500: #737373;
+  --ds-brand-primary-600: #575757;
+  --ds-brand-primary-700: #3c3c3c;
+  --ds-brand-primary-800: #232323;
+  --ds-brand-primary-900: #0d0d0d;
+  --ds-brand-secondary: #0d0d0d;
+  --ds-brand-secondary-band: transparent;
+  --ds-brand-secondary-surface: var(--surface-page);
+  --ds-brand-text: #fafafa;
+  --ds-danger: #f44336;
+  --ds-danger-border: rgba(244, 67, 54, 0.4);
+  --ds-danger-soft: rgba(244, 67, 54, 0.2);
+  --ds-danger-text: #ef9a9a;
+  --ds-icon-default: #979797;
+  --ds-info: #2196f3;
+  --ds-info-border: rgba(33, 150, 243, 0.4);
+  --ds-info-soft: rgba(33, 150, 243, 0.2);
+  --ds-info-text: #90caf9;
+  --ds-success: #4caf50;
+  --ds-success-border: rgba(76, 175, 80, 0.4);
+  --ds-success-soft: rgba(76, 175, 80, 0.2);
+  --ds-success-text: #a5d6a7;
+  --ds-surface-default: #232323;
+  --ds-surface-invert: #fafafa;
+  --ds-surface-overlay: #d6d6d6;
+  --ds-surface-page: #0d0d0d;
+  --ds-surface-raised: #3c3c3c;
+  --ds-text-disabled: #575757;
+  --ds-text-inverse: #0d0d0d;
+  --ds-text-muted: #b9b9b9;
+  --ds-text-placeholder: #b9b9b9;
+  --ds-text-primary: #fafafa;
+  --ds-text-secondary: #d6d6d6;
+  --ds-warning: #ffc107;
+  --ds-warning-border: rgba(255, 193, 7, 0.4);
+  --ds-warning-soft: rgba(255, 193, 7, 0.2);
+  --ds-warning-text: #ffe082;
+}
+

@@ -1,0 +1,950 @@
+/* ─────────────────────────────────────────────────────────────
+   ROJAO DS — base.css
+   Import this AFTER @import "tailwindcss" in each project:
+
+     @import "tailwindcss";
+     @import "@rojaostudio/ds/styles/base.css";
+
+   Then either override semantic vars in :root, or import a brand
+   theme that already references primitives:
+     @import "@rojaostudio/ds/styles/themes/rojao.css";
+
+   Primitives (--color-cream-900, --color-cobalt-700, etc) come from
+   _primitives.generated.css, which is built from tokens/index.ts.
+   Run `pnpm build:tokens` in the DS to regenerate.
+   ───────────────────────────────────────────────────────────── */
+
+/* Primitives — auto-generated from tokens/index.ts */
+@import "./_primitives.generated.css";
+
+/* ── CSS Custom Properties — light (default, neutral theme) ── */
+/* .ds-scope: qualquer wrapper que precise recalcular tokens de COMPONENTE (ex.
+   --option-tile-bg) sob um override local de token SEMÂNTICO (ex. --surface-default)
+   adota esta classe — var() dentro de custom property só resolve 1x, no elemento onde a
+   regra é casada; sem um seletor casando aqui, o token derivado herda o valor já resolvido
+   de :root e nunca recalcula (rojaostudio/rojao-ds#69). */
+:root, .ds-scope {
+  /* Font — override per project; generic fallbacks here */
+  --font-family:         sans-serif;
+  --font-family-mono:    monospace;
+  --font-family-display: var(--font-family);
+
+  /* Brand — primary é a cor que pinta CTA, sidebar, marca. Override per project */
+  --brand-primary:      #171717;
+  --brand-hover:        #404040;
+  --brand-on-primary:   #ffffff;
+  --brand-secondary:    #ffffff;
+  --brand-on-secondary: #171717;
+  --brand-text:         #171717; /* cor de marca legível como TEXTO sobre surface (AA) */
+
+  /* Brand accent — destaque (badge, link, focus). */
+  --brand-accent:       #9c27b0; /* deep-purple/500 — override per project */
+  --brand-accent-light: #f3e5f5; /* deep-purple/50 */
+  --brand-on-accent:    #ffffff;
+
+  /* Surface */
+  --surface-page:    #fafafa;
+  --surface-default: #ffffff;
+  --surface-raised:  #f5f5f5;
+  --surface-overlay: #171717;
+
+  /* Scrim atrás de overlays (Modal, Drawer, BottomSheet) — antes hardcoded bg-black/50 */
+  --overlay-scrim: var(--color-blackAlpha-500);
+
+  /* Shell — superfície escura permanente (sidebar, topbar, widgets sobre o shell).
+     Texto/borda "on-shell" são branco translúcido (sempre sobre fundo escuro),
+     então não mudam entre light/dark. Tema pode sobrescrever --surface-shell. */
+  --surface-shell:        #0f1115;
+  --text-on-shell:        #f4f4f5;
+  --text-on-shell-muted:  color-mix(in srgb, #ffffff 60%, transparent);
+  --text-on-shell-subtle: color-mix(in srgb, #ffffff 32%, transparent);
+  --border-on-shell:      color-mix(in srgb, #ffffff 12%, transparent);
+
+  /* Border */
+  --border-subtle:  #f5f5f5;
+  --border-default: #e5e5e5;
+  --border-strong:  #d4d4d4;
+  /* Borda de CONTROLE — 3:1 sobre a superfície (WCAG 1.4.11). As de cima são decoração
+     e ficam sutis de propósito; esta identifica o componente. Ver rojao-ds#87. */
+  --border-control: #737373;
+  --border-focus:   #000000;
+
+  /* Text */
+  --text-primary:     #171717;
+  --text-secondary:   #404040;
+  /* 600, nao 500: sobre a --surface-raised (#f5f5f5) o #737373 da 4.35 e reprova. #109 */
+  --text-muted:       #525252;
+  --text-disabled:    #a3a3a3;
+  --text-inverse:     #ffffff;
+  --text-placeholder: #525252;   /* conteudo, nao isento — o #a3a3a3 dava 2.49 */
+  /* Superficie invertida — par do --text-inverse acima. O @theme inline exporta
+     --color-surface-invert, mas a origem nunca existiu aqui: bg-surface-invert nao
+     pintava nada e o par dava 1:1 (branco sobre transparente). Ver rojao-ds#93. */
+  --surface-invert:   #171717;
+
+  /* Icon */
+  --icon-default: #262626;
+
+  /* State — disabled (alphas pra esmaecer sobre qualquer fundo)
+     Set padrão usa blackAlpha — pra superfícies CLARAS (paper, white, cream).
+     Pra superfícies ESCURAS (overlay, dark modal), usar --state-disabled-on-dark-*. */
+  --state-disabled-surface: var(--color-blackAlpha-50);   /* 5% preto */
+  --state-disabled-text:    var(--color-blackAlpha-400);  /* 40% preto */
+  --state-disabled-border:  var(--color-blackAlpha-100);  /* 10% preto */
+
+  --state-disabled-on-dark-surface: var(--color-whiteAlpha-50);   /* 5% branco */
+  --state-disabled-on-dark-text:    var(--color-whiteAlpha-400);  /* 40% branco */
+  --state-disabled-on-dark-border:  var(--color-whiteAlpha-100);  /* 10% branco */
+
+  /* ── Semantic feedback — 4 categorias (danger/success/warning/info)
+     × 4 tokens (forte / soft / border / text). Override por tema. ── */
+  /* Referenciam as paletas core (Rojão) — seguem a mecânica e flipam no dark.
+     -text aponta pro step que passa 4.5:1 SOBRE o -soft (medido nas cores Rojão). */
+  --danger:         var(--color-red-500);
+  --danger-soft:    var(--color-red-100);
+  --danger-border:  var(--color-red-200);
+  --danger-text:    var(--color-red-800);    /* 10.7:1 on soft */
+
+  --success:        var(--color-green-500);
+  --success-soft:   var(--color-green-100);
+  --success-border: var(--color-green-200);
+  --success-text:   var(--color-green-800);  /* 10.1:1 on soft */
+
+  --warning:        var(--color-amber-500);
+  --warning-soft:   var(--color-amber-100);
+  --warning-border: var(--color-amber-200);
+  --warning-text:   var(--color-amber-900);  /* âmbar Rojão é dourado → 900 (4.6:1); 800 não passa */
+
+  --info:           var(--color-blue-500);
+  --info-soft:      var(--color-blue-100);
+  --info-border:    var(--color-blue-200);
+  --info-text:      var(--color-blue-800);    /* 10.2:1 on soft */
+
+  /* ── Attention — escala de URGÊNCIA temporal (countdown/trial), 3 degraus de
+     intensidade crescente (low → medium → high). Diferente de warning, que é um
+     estado pontual: attention comunica "o tempo está correndo", subindo a saturação
+     do amarelo Rojão (yellow-50 → 100 → 200), nunca vermelho (não é erro, é oferta
+     com prazo). Texto SEMPRE quase-preto (neutral-900) — par amarelo+preto é o de
+     maior legibilidade que existe (~13:1, calibrado p/ baixa visão). Amarelo é claro
+     o bastante p/ NÃO flipar no dark: a faixa fica amarela nos dois modos. ── */
+  --attention-low-soft:      var(--color-yellow-50);
+  --attention-low-border:    var(--color-yellow-100);
+  --attention-low-text:      var(--color-neutral-900);   /* ~16:1 on soft */
+  --attention-medium-soft:   var(--color-yellow-100);
+  --attention-medium-border: var(--color-yellow-200);
+  --attention-medium-text:   var(--color-neutral-900);   /* ~15:1 on soft */
+  --attention-high-soft:     var(--color-yellow-200);
+  --attention-high-border:   var(--color-yellow-300);
+  --attention-high-text:     var(--color-neutral-900);   /* ~13:1 on soft */
+  /* CTA sobre o banner: o fundo amarelo é FIXO (não flipa), então a ação também precisa
+     ser fixa — brand-primary viraria branco no dark e sumiria no amarelo. Escuro sólido
+     + texto claro; o outline usa -action como borda/texto. */
+  --attention-action:        var(--color-neutral-900);
+  --attention-on-action:     var(--color-white);
+
+  /* ── Avatar/monograma — paleta categórica DECORATIVA para placeholder
+     de produto/cliente sem foto: fundo soft + inicial em tom escuro (≥4.5:1).
+     O app escolhe o índice por hash do nome (cor estável por item). Evita
+     red/green (feedback) e amber/yellow (attention) para não confundir significado.
+     Flipa para tonalidades escuras no .dark. */
+  --avatar-1-bg: var(--color-blue-100);    --avatar-1-fg: var(--color-blue-800);
+  --avatar-2-bg: var(--color-purple-100);  --avatar-2-fg: var(--color-purple-800);
+  --avatar-3-bg: var(--color-teal-100);    --avatar-3-fg: var(--color-teal-800);
+  --avatar-4-bg: var(--color-orange-100);  --avatar-4-fg: var(--color-orange-800);
+  --avatar-5-bg: var(--color-pink-100);    --avatar-5-fg: var(--color-pink-800);
+  --avatar-6-bg: var(--color-indigo-100);  --avatar-6-fg: var(--color-indigo-800);
+
+  /* ── Data-viz: paleta categórica (gráficos/donuts). Okabe-Ito —
+     colorblind-safe, distinguível em light e dark. Override no .dark. ── */
+  --chart-1: #0072b2;  /* azul */
+  --chart-2: #e69f00;  /* laranja */
+  --chart-3: #009e73;  /* verde */
+  --chart-4: #d55e00;  /* vermelho-tijolo */
+  --chart-5: #cc79a7;  /* roxo */
+  --chart-6: #56b4e9;  /* azul-céu */
+
+  --neutral:        var(--color-neutral-500);
+  --neutral-soft:   var(--color-neutral-100);
+  --neutral-border: var(--color-neutral-200);
+  --neutral-text:   var(--color-neutral-700);  /* 9.4:1 on soft */
+
+  /* ── Aliases legados — apontam pros tokens unificados acima.
+     Migrar consumers gradualmente; os components do DS já usam os novos. ── */
+  --action-danger-fill:       var(--danger);
+  --action-danger-fill-hover: var(--danger);
+  --action-danger-border:     var(--danger);
+  --action-danger-text:       var(--danger-text);
+  --action-danger-hover:      var(--danger-soft);
+
+  /* @deprecated — use --danger/--success/--warning/--info diretamente.
+     --feedback-* são aliases mantidos por compat (só --insight-alert-* ainda os
+     consome); serão removidos na v1.0. NÃO usar em código novo. (Rojão) */
+  --feedback-danger:        var(--danger);
+  --feedback-danger-badge:  var(--danger-soft);
+  --feedback-danger-border: var(--danger-border);
+  --feedback-danger-text:   var(--danger-text);
+
+  --feedback-success:        var(--success);
+  --feedback-success-badge:  var(--success-soft);
+  --feedback-success-border: var(--success-border);
+  --feedback-success-text:   var(--success-text);
+
+  --feedback-warning:        var(--warning);
+  --feedback-warning-badge:  var(--warning-soft);
+  --feedback-warning-border: var(--warning-border);
+  --feedback-warning-text:   var(--warning-text);
+
+  --feedback-info:        var(--info);
+  --feedback-info-badge:  var(--info-soft);
+  --feedback-info-border: var(--info-border);
+  --feedback-info-text:   var(--info-text);
+
+  --status-active:        var(--success);
+  --status-active-text:   var(--success-text);
+  --status-pending:       var(--warning);
+  --status-pending-text:  var(--warning-text);
+  --status-error:         var(--danger);
+  --status-error-text:    var(--danger-text);
+  /* Inactive fundiu com --state-disabled-*. Tokens legados apontam pra lá. */
+  --status-inactive:      var(--state-disabled-text);
+  --status-inactive-text: var(--state-disabled-text);
+
+  /* Radius */
+  --radius-control: 0.5rem;                    /* 8px */
+  --radius-card:    0.5rem;                    /* 8px */
+  --radius-avatar:  var(--radius-control);     /* herda control; temas com pill/square sobrescrevem */
+  --radius-badge:   9999px;                    /* full — px intencional */
+  --radius-tooltip: 0.5rem;                    /* 8px */
+  --radius-toast:   1rem;                      /* 16px */
+
+  /* Space — control */
+  --space-control-height-sm:    2rem;      /* 32px */
+  --space-control-height-md:    2.5rem;    /* 40px */
+  --space-control-height-lg:    3rem;      /* 48px */
+  --space-control-padding-x-sm: 0.75rem;  /* 12px */
+  --space-control-padding-x-md: 1rem;     /* 16px */
+  --space-control-padding-x-lg: 1.25rem;  /* 20px */
+  --space-control-padding-y-sm: 0.25rem;  /* 4px */
+  --space-control-padding-y-md: 0.5rem;   /* 8px */
+  --space-control-padding-y-lg: 0.75rem;  /* 12px */
+  --space-control-gap-sm:       0.25rem;  /* 4px */
+  --space-control-gap-md:       0.5rem;   /* 8px */
+  --space-control-gap-lg:       0.5rem;   /* 8px */
+
+  /* Typography — rem para WCAG 1.4.4; clamp() em textos de conteúdo para fluidez */
+  --font-size-caption:    clamp(0.6875rem, 0.6875rem + 0.15vw, 0.75rem);
+  --font-size-label:      clamp(0.75rem,   0.75rem   + 0.2vw,  0.875rem);
+  --font-size-body:       clamp(0.875rem,  0.875rem  + 0.25vw, 1rem);
+  --font-size-button-sm:  0.75rem;   /* botões: fixo para affordance consistente */
+  --font-size-button-md:  0.875rem;
+  --font-size-button-lg:  1rem;
+  --font-size-heading-sm: clamp(1rem,      1rem      + 0.25vw, 1.125rem);
+  --font-size-heading-md: clamp(1.125rem,  1.125rem  + 0.3vw,  1.25rem);
+  --font-size-heading-lg: clamp(1.375rem,  1.375rem  + 0.4vw,  1.5rem);
+  /* Display — headlines de landing/hero. Responsivo (mobile → desktop) por padrão,
+     no lugar dos text-[Npx] fixos. Consumir: text-[length:var(--font-size-display-lg)]. */
+  --font-size-display-sm: clamp(2rem,   1.6rem + 2vw,   2.5rem);  /* 32 → 40 */
+  --font-size-display-md: clamp(2.5rem, 1.8rem + 3.5vw, 3.5rem);  /* 40 → 56 */
+  --font-size-display-lg: clamp(3rem,   2rem   + 5vw,   4.5rem);  /* 48 → 72 */
+  --font-size-display-xl: clamp(3.5rem, 2.2rem + 6.5vw, 5.5rem);  /* 56 → 88 */
+
+  --font-weight-label:   400;
+  --font-weight-button:  500;
+  --font-weight-caption: 400;
+  --font-weight-heading: 600;
+
+  /* Eyebrow / overline — micro-rótulo uppercase de section headers (SectionHeader) */
+  --font-size-eyebrow:      0.6875rem; /* 11px — fixo: rótulo, não conteúdo */
+  --font-weight-eyebrow:    600;
+  --letter-spacing-eyebrow: 0.12em;
+
+  /* Line-height unitless — proporcional ao font-size do elemento */
+  --line-height-caption:    1.33;
+  --line-height-label:      1.43;
+  --line-height-body:       1.5;
+  --line-height-heading-sm: 1.5;
+  --line-height-heading-md: 1.6;
+
+  /*
+   * Component tokens — padrão de arquitetura
+   *
+   * Cada componente tem seus tokens definidos aqui com valores semânticos como defaults.
+   * Os themes (styles/themes/*.css) sobrescrevem APENAS os tokens cujo comportamento
+   * de marca desvia do semântico (ex.: um dark que usa zinc-100, não --brand-primary).
+   * Nunca referenciar primitivos diretamente aqui — sempre via vars semânticas.
+   */
+
+  /* FilterChip — component tokens */
+  --filter-chip-padding-x: 0.75rem;  /* 12px */
+  --filter-chip-padding-y: 0.25rem;  /* 4px */
+  --filter-chip-radius:    9999px;
+
+  --filter-chip-color-surface-inactive: var(--surface-default);
+  --filter-chip-color-surface-active:   color-mix(in srgb, var(--brand-primary) 12%, transparent);
+  --filter-chip-color-surface-hover:    var(--surface-raised);
+  --filter-chip-color-surface-disabled: var(--surface-default);
+
+  --filter-chip-color-stroke-inactive:  var(--border-default);
+  --filter-chip-color-stroke-active:    var(--brand-primary);
+  --filter-chip-color-stroke-hover:     var(--border-strong);
+  --filter-chip-color-stroke-disabled:  var(--border-default);
+
+  --filter-chip-color-text-inactive:    var(--text-muted);
+  --filter-chip-color-text-active:      var(--brand-primary);
+  --filter-chip-color-text-hover:       var(--text-secondary);
+  --filter-chip-color-text-disabled:    var(--text-disabled);
+
+  /* FilterChipGroup — component tokens */
+  --filter-chip-group-gap: var(--space-control-gap-md);
+
+  /* FAB — component tokens */
+  --fab-cta-bg:                      var(--brand-primary);
+  --fab-cta-bg-hover:                var(--brand-hover);
+  --fab-cta-text:                    var(--brand-on-primary);
+
+  --fab-save-bg:                     var(--surface-overlay);
+  --fab-save-shadow:                 0 20px 25px -5px rgb(0 0 0 / 0.25), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --fab-save-discard-border:         color-mix(in srgb, var(--text-inverse) 30%, transparent);
+  --fab-save-discard-border-hover:   color-mix(in srgb, var(--text-inverse) 50%, transparent);
+  --fab-save-discard-text:           var(--text-disabled);
+  --fab-save-discard-text-hover:     var(--text-inverse);
+  --fab-save-primary-bg:             var(--brand-secondary);
+  --fab-save-primary-bg-hover:       var(--surface-raised);
+  --fab-save-primary-text:           var(--brand-on-secondary);
+
+  /* SavingBar — component tokens */
+  --saving-bar-bg:                    var(--surface-overlay);
+  --saving-bar-shadow:                0 20px 25px -5px rgb(0 0 0 / 0.25), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --saving-bar-message:               var(--text-muted);
+  --saving-bar-discard-border:        color-mix(in srgb, var(--text-inverse) 30%, transparent);
+  --saving-bar-discard-border-hover:  color-mix(in srgb, var(--text-inverse) 50%, transparent);
+  --saving-bar-discard-text:          var(--text-disabled);
+  --saving-bar-discard-text-hover:    var(--text-inverse);
+  --saving-bar-save-bg:               var(--brand-on-primary);
+  --saving-bar-save-bg-hover:         color-mix(in srgb, var(--brand-on-primary) 85%, transparent);
+  --saving-bar-save-text:             var(--brand-primary);
+
+  /* PageTabs — component tokens */
+  --page-tabs-bg:               var(--surface-default);
+  --page-tabs-border:           var(--border-default);
+  --page-tabs-text:             var(--text-muted);
+  --page-tabs-text-hover:       var(--text-secondary);
+  --page-tabs-text-active:      var(--text-primary);
+  --page-tabs-indicator-active: var(--brand-primary);
+  --page-tabs-indicator-hover:  var(--border-strong);
+  --page-tabs-count-bg:         var(--surface-raised);
+  --page-tabs-count-text:       var(--text-secondary);
+  --page-tabs-count-bg-active:  var(--brand-primary);
+  --page-tabs-count-text-active: var(--brand-on-primary);
+  --page-tabs-soon-bg:          var(--surface-raised);
+  --page-tabs-soon-text:        var(--text-disabled);
+  --page-tabs-dot-bg:           color-mix(in srgb, var(--status-active) 15%, transparent);
+  --page-tabs-dot-text:         var(--status-active-text);
+  --page-tabs-dot-indicator:    var(--status-active);
+
+  /* Form controls — active state color (toggle track, checkbox, radio).
+     Separate from brand-primary so themes can use a functional indicator
+     (e.g. green) instead of the brand accent color. */
+  --toggle-track-active: var(--brand-primary);
+
+  /* Selection fill — CTAs, filled pills, cart item selected, finalize button.
+     Decoupled from --brand-primary so themes can set black/white instead of
+     the brand accent color for interactive selections. */
+  --selection-fill-active:    var(--brand-primary);
+  --selection-on-fill-active: var(--brand-on-primary);
+
+  /* ChoiceCard — component tokens */
+  --choice-card-bg:                   var(--surface-default);
+  --choice-card-bg-active:            var(--brand-primary);
+  --choice-card-border:               var(--border-default);
+  --choice-card-border-hover:         var(--border-strong);
+  --choice-card-border-active:        var(--brand-primary);
+  --choice-card-label:                var(--text-primary);
+  --choice-card-label-active:         var(--brand-on-primary);
+  --choice-card-description:          var(--text-muted);
+  --choice-card-description-active:   color-mix(in srgb, var(--brand-on-primary) 70%, transparent);
+  --choice-card-icon-bg:              var(--surface-raised);
+  --choice-card-icon-bg-active:       color-mix(in srgb, var(--brand-on-primary) 10%, transparent);
+  --choice-card-icon:                 var(--text-secondary);
+  --choice-card-icon-active:          var(--brand-on-primary);
+  --choice-card-radio-border:         var(--border-strong);
+  --choice-card-radio-border-active:  var(--brand-on-primary);
+  --choice-card-radio-dot:            var(--brand-on-primary);
+
+  /* OptionTile — grade de setores/sub-nichos do onboarding (#449).
+     MESMA FAMÍLIA visual do ChoiceCard (os dois single-choice): casca idle suave
+     (border-default, hover border-strong) e selecionado = fill SÓLIDO, derivado dos
+     tokens SEMÂNTICOS de seleção (--selection-fill-active/--selection-on-fill-active) —
+     temas que sobrescrevem a camada de seleção (ex.: um dark → zinc-100) propagam pra
+     cá sem redeclarar cada token de componente. Baixa visão: a seleção é distinguível
+     por MAIS que cor (fill sólido de alto contraste + check redundante — o check
+     inverte: badge on-fill, glifo fill). Todo conteúdo sobre o fill ativo usa o par
+     on-fill, nunca tokens de superfície clara. */
+  --option-tile-bg:                var(--surface-default);
+  --option-tile-bg-active:         var(--selection-fill-active);
+  --option-tile-border:            var(--border-default);
+  --option-tile-border-hover:      var(--border-strong);
+  --option-tile-border-active:     var(--selection-fill-active);
+  --option-tile-label:             var(--text-primary);
+  --option-tile-label-active:      var(--selection-on-fill-active);
+  --option-tile-icon-bg:           var(--surface-raised);
+  --option-tile-icon:              var(--text-secondary);
+  --option-tile-icon-bg-active:    color-mix(in srgb, var(--selection-on-fill-active) 10%, transparent);
+  --option-tile-icon-active:       var(--selection-on-fill-active);
+  --option-tile-check:             var(--selection-on-fill-active);
+  --option-tile-check-icon:        var(--selection-fill-active);
+
+  /* SectionCard — component tokens */
+  --section-card-border:           var(--border-default);
+  --section-card-border-active:    var(--brand-primary);
+  --section-card-header-bg-active: var(--brand-primary);
+  --section-card-header-bg-hover:  var(--surface-raised);
+  --section-card-label:            var(--text-secondary);
+  --section-card-label-active:     var(--brand-on-primary);
+  --section-card-badge:            var(--text-muted);
+  --section-card-badge-active:     var(--text-disabled);
+  --section-card-chevron:          var(--text-muted);
+  --section-card-divider:          var(--border-subtle);
+
+  /* InsightCard — component tokens */
+  --insight-alert-border:            var(--feedback-warning-border);
+  --insight-alert-bg:                var(--feedback-warning-badge);
+  --insight-alert-badge-bg:          var(--feedback-warning-badge);
+  --insight-alert-badge-text:        var(--feedback-warning-text);
+
+  --insight-opportunity-border:      var(--feedback-success-border);
+  --insight-opportunity-bg:          var(--feedback-success-badge);
+  --insight-opportunity-badge-bg:    var(--feedback-success-badge);
+  --insight-opportunity-badge-text:  var(--feedback-success-text);
+
+  --insight-tip-border:              var(--feedback-info-border);
+  --insight-tip-bg:                  var(--feedback-info-badge);
+  --insight-tip-badge-bg:            var(--feedback-info-badge);
+  --insight-tip-badge-text:          var(--feedback-info-text);
+
+  --insight-title-color:             var(--text-primary);
+  --insight-description-color:       var(--text-secondary);
+  --insight-potential-color:         var(--text-muted);
+
+  --insight-action-bg:               var(--surface-default);
+  --insight-action-bg-hover:         var(--surface-raised);
+  --insight-action-border:           var(--border-default);
+  --insight-action-text:             var(--text-secondary);
+
+  /* SummaryBar — component tokens (reference semantic vars → flip with .dark automatically) */
+  --summary-bar-bg:             var(--surface-default);
+  --summary-bar-border:         var(--border-subtle);
+  --summary-bar-divider:        var(--border-subtle);
+  --summary-bar-label:          var(--text-muted);
+  --summary-bar-value:          var(--text-primary);
+  --summary-bar-value-positive: var(--success-text);
+  --summary-bar-value-negative: var(--danger-text);
+  --summary-bar-value-warning:  var(--warning-text);
+  --summary-bar-value-muted:    var(--text-muted);
+
+  /* EmptyState — component tokens */
+  --empty-state-icon-color:        var(--border-strong);
+  --empty-state-title-color:       var(--text-primary);
+  --empty-state-description-color: var(--text-muted);
+  --empty-state-cta-bg:            var(--brand-primary);
+  --empty-state-cta-bg-hover:      var(--brand-hover);
+  --empty-state-cta-text:          var(--brand-on-primary);
+
+  /* ChatBubble — component tokens */
+  --chat-bubble-bot-bg:           color-mix(in srgb, var(--brand-primary) 12%, var(--surface-default));
+  --chat-bubble-bot-text:         var(--text-primary);
+  --chat-bubble-user-bg:          var(--surface-raised);
+  --chat-bubble-user-text:        var(--text-primary);
+  --chat-bubble-radius-lg:        1rem;     /* 16px */
+  --chat-bubble-radius-sm:        0.25rem;  /* 4px */
+  --chat-bubble-padding-y:        0.75rem;  /* 12px */
+  --chat-bubble-padding-x:        1rem;     /* 16px */
+  --chat-bubble-max-width:        30rem;    /* 480px */
+  --chat-bubble-editing-border:   var(--brand-primary);
+  --chat-bubble-dim-opacity:      0.4;
+
+  /* TypingIndicator — component tokens */
+  --typing-dot-size:  0.375rem;  /* 6px */
+  --typing-dot-gap:   0.25rem;   /* 4px */
+  --typing-dot-color: var(--text-muted);
+
+  /* ChoiceCarousel — component tokens */
+  --choice-carousel-card-width-mobile:  10rem;    /* 160px */
+  --choice-carousel-card-width-desktop: 12.5rem;  /* 200px */
+  --choice-carousel-gap:                0.75rem;  /* 12px */
+  --choice-carousel-chevron-bg:         var(--surface-default);
+  --choice-carousel-chevron-border:     var(--border-default);
+  --choice-carousel-chevron-text:       var(--text-secondary);
+  --choice-carousel-chevron-bg-hover:   var(--surface-raised);
+
+  /* Tooltip */
+  --tooltip-bg:   #171717;
+  --tooltip-text: #ffffff;
+
+  /* Toast — notification card escura nos DOIS themes (inverse surface, como
+     Tooltip). Tint lateral e badge vêm das cores semânticas via color-mix. */
+  --toast-bg:         #1e1e1e;
+  --toast-text:       #fafafa;
+  --toast-text-muted: #a3a3a3;
+  --toast-border:     color-mix(in srgb, white 10%, transparent);
+
+  /* Shadow */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+
+  /* Z-index */
+  --z-dropdown: 1000;
+  --z-modal:    1050;
+  --z-drawer:   1050;
+  --z-tooltip:  9999;
+
+  /* Opacity */
+  --opacity-disabled: 0.5;
+
+  /* Misc */
+  --size-icon:    1.5rem;  /* 24px */
+  --border-width: 1px;     /* px intencional — 1px é sempre 1 pixel físico */
+}
+
+/* ── Dark mode overrides ── */
+/* .ds-scope.dark: mesma razão do .ds-scope acima, versão escura — ver #69. */
+.dark, .ds-scope.dark {
+  color-scheme: dark;
+
+  /* Brand inverts in dark */
+  --brand-primary:      #ffffff;
+  --brand-hover:        #e5e5e5;
+  --brand-on-primary:   #000000;
+  --brand-secondary:    #000000;
+  --brand-on-secondary: #ffffff;
+
+  /* Surface */
+  --surface-page:    #111111;
+  --surface-default: #1e1e1e;
+  --surface-raised:  #262626;
+  --surface-overlay: #f5f5f5;
+
+  /* Border — alpha-based so they adapt to any surface underneath */
+  --border-subtle:  color-mix(in srgb, white 8%, transparent);
+  --border-default: color-mix(in srgb, white 8%, transparent);
+  --border-strong:  color-mix(in srgb, white 22%, transparent);
+  --border-control: color-mix(in srgb, white 40%, transparent);
+  --border-focus:   #ffffff;
+
+  /* Text */
+  --text-primary:     #fafafa;   /* neutral[50]  */
+  /* O muted estava no mesmo degrau do claro (#737373) e reprovava em AA nas TRES
+     superficies escuras — 3.98 / 3.52 / 3.19. Subir so ele o empataria com o
+     secondary, entao a escala inteira sobe um degrau e a hierarquia se mantem:
+     12.74 / 11.25 / 10.21 no secondary e 7.49 / 6.61 / 6.00 no muted. rojao-ds#91 e #92. */
+  --text-secondary:   #d4d4d4;   /* neutral[300] */
+  --text-muted:       #a3a3a3;   /* neutral[400] */
+  --text-disabled:    #525252;   /* neutral[600] */
+  --text-inverse:     #171717;   /* neutral[900] */
+  --text-placeholder: #a3a3a3;   /* neutral[400] — o #737373 dava 3.19 sobre a raised */
+  --surface-invert:   #fafafa;   /* neutral[50] — par do --text-inverse. rojao-ds#93 */
+
+  /* Icon */
+  --icon-default: #a3a3a3;
+
+  /* Data-viz — variantes mais claras p/ contraste ≥3:1 no fundo escuro */
+  --chart-1: #4da3db;
+  --chart-2: #f0b84d;
+  --chart-3: #3fc79a;
+  --chart-4: #f07a3d;
+  --chart-5: #dd9bc2;
+  --chart-6: #8fd0f2;
+
+  /* Action */
+  /* Action — danger */
+  --action-danger-fill:       #ef4444;
+  --action-danger-fill-hover: #dc2626;
+  --action-danger-border:     #f87171;
+  --action-danger-text:       #f87171;
+  --action-danger-hover:      rgb(220 38 38 / 0.1);
+
+  /* State — disabled */
+  --state-disabled-surface: var(--surface-default);
+  --state-disabled-text:    var(--text-disabled);
+  --state-disabled-border:  var(--border-default);
+
+  /* Semantic feedback — dark (transparent overlay on dark surface) */
+  --danger-soft:   color-mix(in srgb, var(--color-red-500) 20%, transparent);
+  --danger-border: color-mix(in srgb, var(--color-red-500) 40%, transparent);
+  --danger-text:   var(--color-red-200);
+
+  --success-soft:   color-mix(in srgb, var(--color-green-500) 20%, transparent);
+  --success-border: color-mix(in srgb, var(--color-green-500) 40%, transparent);
+  --success-text:   var(--color-green-200);
+
+  --warning-soft:   color-mix(in srgb, var(--color-amber-500) 20%, transparent);
+  --warning-border: color-mix(in srgb, var(--color-amber-500) 40%, transparent);
+  --warning-text:   var(--color-amber-200);
+
+  --info-soft:   color-mix(in srgb, var(--color-blue-500) 20%, transparent);
+  --info-border: color-mix(in srgb, var(--color-blue-500) 40%, transparent);
+  --info-text:   var(--color-blue-200);
+
+  /* Attention NÃO flipa no dark: amarelo+preto é legível em qualquer tema (faixa de
+     advertência). Herda os valores do :root acima — sem override aqui de propósito. */
+
+  /* Avatar/monograma — tonalidades escuras para contraste ≥4.5:1 sobre fundo escuro */
+  --avatar-1-bg: var(--color-blue-900);    --avatar-1-fg: var(--color-blue-200);
+  --avatar-2-bg: var(--color-purple-900);  --avatar-2-fg: var(--color-purple-200);
+  --avatar-3-bg: var(--color-teal-900);    --avatar-3-fg: var(--color-teal-200);
+  --avatar-4-bg: var(--color-orange-900);  --avatar-4-fg: var(--color-orange-200);
+  --avatar-5-bg: var(--color-pink-900);    --avatar-5-fg: var(--color-pink-200);
+  --avatar-6-bg: var(--color-indigo-900);  --avatar-6-fg: var(--color-indigo-200);
+
+  /* Feedback legacy aliases — dark (kept for compat, mirrors semantic tokens above) */
+  --feedback-danger:        #f44336;
+  --feedback-danger-badge:  rgb(244 67 54 / 0.2);
+  --feedback-danger-border: rgb(244 67 54 / 0.4);
+  --feedback-danger-text:   #ef9a9a;
+
+  --feedback-success:        #4caf50;
+  --feedback-success-badge:  rgb(76 175 80 / 0.2);
+  --feedback-success-border: rgb(76 175 80 / 0.4);
+  --feedback-success-text:   #a5d6a7;
+
+  --feedback-warning:        #ffc107;
+  --feedback-warning-badge:  rgb(255 193 7 / 0.2);
+  --feedback-warning-border: rgb(255 193 7 / 0.4);
+  --feedback-warning-text:   #ffe082;
+
+  --feedback-info:        #2196f3;
+  --feedback-info-badge:  rgb(33 150 243 / 0.2);
+  --feedback-info-border: rgb(33 150 243 / 0.4);
+  --feedback-info-text:   #90caf9;
+
+  /* Status — unchanged in dark */
+
+  /* Tooltip — dark (inverted: light bg on dark surface) */
+  --tooltip-bg:   #f5f5f5;
+  --tooltip-text: #171717;
+
+  /* Toast — continua escuro, mas um degrau acima das surfaces escuras */
+  --toast-bg: #262626;
+
+  /* ChatBubble — dark */
+  --chat-bubble-bot-bg:    color-mix(in srgb, var(--brand-primary) 18%, var(--surface-raised));
+  --chat-bubble-user-bg:   var(--surface-raised);
+}
+
+/* Headers usam a fonte display do tema atual (cai pra --font-family se theme
+   não definiu display). Aplicado em cascata pra qualquer h1-h6 ou elemento
+   com classe .font-display. Components customizados podem sobrescrever. */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-family-display, var(--font-family));
+}
+
+/* TypingIndicator dot animation */
+@keyframes rojao-typing-pulse {
+  0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
+  30%           { opacity: 1;   transform: translateY(-2px); }
+}
+
+/* Slider — esconde track nativo (visual é via div), customiza thumb */
+.rojao-slider {
+  height: var(--rojao-slider-thumb-size);
+}
+.rojao-slider::-webkit-slider-runnable-track {
+  background: transparent;
+  height: var(--rojao-slider-track-h);
+}
+.rojao-slider::-moz-range-track {
+  background: transparent;
+  height: var(--rojao-slider-track-h);
+}
+.rojao-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: var(--rojao-slider-thumb-size);
+  height: var(--rojao-slider-thumb-size);
+  border-radius: 9999px;
+  background: var(--brand-primary);
+  border: 2px solid var(--surface-default);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.2);
+  cursor: pointer;
+  margin-top: calc((var(--rojao-slider-track-h) - var(--rojao-slider-thumb-size)) / 2);
+  position: relative;
+  z-index: 2;
+}
+.rojao-slider::-moz-range-thumb {
+  width: var(--rojao-slider-thumb-size);
+  height: var(--rojao-slider-thumb-size);
+  border-radius: 9999px;
+  background: var(--brand-primary);
+  border: 2px solid var(--surface-default);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.2);
+  cursor: pointer;
+}
+.rojao-slider:focus-visible::-webkit-slider-thumb {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+.rojao-slider:focus-visible::-moz-range-thumb {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+/* BottomSheet — slide-up + backdrop fade */
+@keyframes rojao-bottom-sheet-slide-up {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+@keyframes rojao-bottom-sheet-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.rojao-bottom-sheet--enter         { animation: rojao-bottom-sheet-slide-up 250ms cubic-bezier(0.16, 1, 0.3, 1); }
+.rojao-bottom-sheet--backdrop-enter { animation: rojao-bottom-sheet-fade-in 200ms ease-out; }
+@media (prefers-reduced-motion: reduce) {
+  .rojao-bottom-sheet--enter, .rojao-bottom-sheet--backdrop-enter { animation: none; }
+}
+
+/* Toaster — Material 3 motion (150ms ease-out enter, 75ms ease-in exit) */
+@keyframes rojao-toast-enter-bottom {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+@keyframes rojao-toast-exit-bottom {
+  from { opacity: 1; transform: translateY(0);    }
+  to   { opacity: 0; transform: translateY(20px); }
+}
+@keyframes rojao-toast-enter-top {
+  from { opacity: 0; transform: translateY(-20px); }
+  to   { opacity: 1; transform: translateY(0);     }
+}
+@keyframes rojao-toast-exit-top {
+  from { opacity: 1; transform: translateY(0);     }
+  to   { opacity: 0; transform: translateY(-20px); }
+}
+.rojao-toast--enter-bottom { animation: rojao-toast-enter-bottom 150ms ease-out; }
+.rojao-toast--enter-top    { animation: rojao-toast-enter-top    150ms ease-out; }
+.rojao-toast--exit-bottom  { animation: rojao-toast-exit-bottom   75ms ease-in forwards; }
+.rojao-toast--exit-top     { animation: rojao-toast-exit-top      75ms ease-in forwards; }
+@media (prefers-reduced-motion: reduce) {
+  .rojao-toast--enter-top, .rojao-toast--enter-bottom,
+  .rojao-toast--exit-top,  .rojao-toast--exit-bottom { animation: none; }
+}
+
+/* ── Control size utilities — h-control-sm/md/lg, size-control-sm/md/lg ── */
+@utility h-control-sm   { height: var(--space-control-height-sm); }
+@utility h-control-md   { height: var(--space-control-height-md); }
+@utility h-control-lg   { height: var(--space-control-height-lg); }
+@utility size-control-sm { width: var(--space-control-height-sm); height: var(--space-control-height-sm); }
+@utility size-control-md { width: var(--space-control-height-md); height: var(--space-control-height-md); }
+@utility size-control-lg { width: var(--space-control-height-lg); height: var(--space-control-height-lg); }
+
+/* ── Semantic text styles — the per-brand editable type layer ──────────────
+   Components use these instead of the raw Tailwind scale (text-sm/text-base),
+   so a brand's type override (--font-size-*) propagates. Defaults match the raw
+   scale 1:1 (caption=12=xs, label=14=sm, body=16=base, heading-sm=18=lg…).
+   Weight stays on the component (font-medium etc.) to avoid conflicts. */
+@utility text-caption    { font-size: var(--font-size-caption);    line-height: var(--line-height-caption); }
+@utility text-label      { font-size: var(--font-size-label);      line-height: var(--line-height-label); }
+@utility text-body       { font-size: var(--font-size-body);       line-height: var(--line-height-body); }
+@utility text-button-sm  { font-size: var(--font-size-button-sm);  line-height: var(--line-height-caption); }
+@utility text-button-md  { font-size: var(--font-size-button-md);  line-height: var(--line-height-label); }
+@utility text-button-lg  { font-size: var(--font-size-button-lg);  line-height: var(--line-height-body); }
+@utility text-heading-sm { font-size: var(--font-size-heading-sm); line-height: var(--line-height-heading-sm); }
+@utility text-heading-md { font-size: var(--font-size-heading-md); line-height: var(--line-height-heading-md); }
+@utility text-heading-lg { font-size: var(--font-size-heading-lg); line-height: 1.25; }
+
+/* ── @theme — exporta utilities Tailwind a partir das CSS vars ── */
+@theme inline {
+  /* Font */
+  --font-sans:      var(--font-family);
+  --font-mono:      var(--font-family-mono);
+  --font-display:   var(--font-family-display, var(--font-family));
+  /* editorial: serifa de marketing/landing (cai pra display, depois sans). Gera font-editorial. */
+  --font-editorial: var(--font-family-editorial, var(--font-family-display, var(--font-family)));
+
+  /* Brand */
+  --color-selection-fill-active:    var(--selection-fill-active);
+  --color-selection-on-fill-active: var(--selection-on-fill-active);
+
+  --color-brand-primary:      var(--brand-primary);
+  --color-brand-hover:        var(--brand-hover);
+  --color-brand-on-primary:   var(--brand-on-primary);
+  --color-brand-secondary:    var(--brand-secondary);
+  --color-brand-on-secondary: var(--brand-on-secondary);
+
+  /* Brand accent */
+  --color-brand-accent:       var(--brand-accent);
+  --color-brand-accent-light: var(--brand-accent-light);
+  --color-brand-on-accent:    var(--brand-on-accent);
+
+  /* Surface */
+  --color-surface-page:    var(--surface-page);
+  --color-surface-default: var(--surface-default);
+  --color-surface-raised:  var(--surface-raised);
+  --color-surface-overlay: var(--surface-overlay);
+  --color-surface-invert:  var(--surface-invert);
+  /* Shell: --color-on-shell gera text-on-shell + bg-on-shell; -line gera border-on-shell-line.
+     (Tailwind v4: `--color-{nome}` vira utilities `text-{nome}`/`bg-{nome}`/`border-{nome}`.) */
+  --color-surface-shell:    var(--surface-shell);
+  --color-on-shell:         var(--text-on-shell);
+  --color-on-shell-muted:   var(--text-on-shell-muted);
+  --color-on-shell-subtle:  var(--text-on-shell-subtle);
+  --color-on-shell-line:    var(--border-on-shell);
+
+  /* Stroke (border colors) */
+  --color-stroke-subtle:  var(--border-subtle);
+  --color-stroke-default: var(--border-default);
+  --color-stroke-strong:  var(--border-strong);
+  --color-stroke-control: var(--border-control);
+  --color-stroke-focus:   var(--border-focus);
+
+  /* Fg (foreground / text colors) */
+  --color-fg-primary:     var(--text-primary);
+  --color-fg-secondary:   var(--text-secondary);
+  --color-fg-muted:       var(--text-muted);
+  --color-fg-disabled:    var(--text-disabled);
+  --color-fg-inverse:     var(--text-inverse);
+  --color-fg-placeholder: var(--text-placeholder);
+
+  /* Icon */
+  --color-icon-default: var(--icon-default);
+
+  /* Action */
+  /* Action — danger */
+  --color-action-danger-fill:       var(--action-danger-fill);
+  --color-action-danger-fill-hover: var(--action-danger-fill-hover);
+  --color-action-danger-border:     var(--action-danger-border);
+  --color-action-danger-text:       var(--action-danger-text);
+  --color-action-danger-hover:      var(--action-danger-hover);
+
+  /* State — disabled */
+  --color-state-disabled-surface: var(--state-disabled-surface);
+  --color-state-disabled-text:    var(--state-disabled-text);
+  --color-state-disabled-border:  var(--state-disabled-border);
+
+  --color-state-disabled-on-dark-surface: var(--state-disabled-on-dark-surface);
+  --color-state-disabled-on-dark-text:    var(--state-disabled-on-dark-text);
+  --color-state-disabled-on-dark-border:  var(--state-disabled-on-dark-border);
+
+  /* Semantic feedback (unificado: danger/success/warning/info) */
+  --color-danger:         var(--danger);
+  --color-danger-soft:    var(--danger-soft);
+  --color-danger-border:  var(--danger-border);
+  --color-danger-text:    var(--danger-text);
+
+  --color-success:        var(--success);
+  --color-success-soft:   var(--success-soft);
+  --color-success-border: var(--success-border);
+  --color-success-text:   var(--success-text);
+
+  --color-warning:        var(--warning);
+  --color-warning-soft:   var(--warning-soft);
+  --color-warning-border: var(--warning-border);
+  --color-warning-text:   var(--warning-text);
+
+  --color-info:           var(--info);
+  --color-info-soft:      var(--info-soft);
+  --color-info-border:    var(--info-border);
+  --color-info-text:      var(--info-text);
+
+  /* Attention — escala de urgência (countdown/trial). Gera bg-attention-{low,medium,high}-soft,
+     text-attention-*-text, border-attention-*-border. 3 fundos amarelos + texto quase-preto. */
+  --color-attention-low-soft:      var(--attention-low-soft);
+  --color-attention-low-border:    var(--attention-low-border);
+  --color-attention-low-text:      var(--attention-low-text);
+  --color-attention-medium-soft:   var(--attention-medium-soft);
+  --color-attention-medium-border: var(--attention-medium-border);
+  --color-attention-medium-text:   var(--attention-medium-text);
+  --color-attention-high-soft:     var(--attention-high-soft);
+  --color-attention-high-border:   var(--attention-high-border);
+  --color-attention-high-text:     var(--attention-high-text);
+  --color-attention-action:        var(--attention-action);
+  --color-attention-on-action:     var(--attention-on-action);
+
+  /* Avatar/monograma — bg-avatar-1, text-avatar-1-fg, …, até avatar-6 */
+  --color-avatar-1-bg: var(--avatar-1-bg);  --color-avatar-1-fg: var(--avatar-1-fg);
+  --color-avatar-2-bg: var(--avatar-2-bg);  --color-avatar-2-fg: var(--avatar-2-fg);
+  --color-avatar-3-bg: var(--avatar-3-bg);  --color-avatar-3-fg: var(--avatar-3-fg);
+  --color-avatar-4-bg: var(--avatar-4-bg);  --color-avatar-4-fg: var(--avatar-4-fg);
+  --color-avatar-5-bg: var(--avatar-5-bg);  --color-avatar-5-fg: var(--avatar-5-fg);
+  --color-avatar-6-bg: var(--avatar-6-bg);  --color-avatar-6-fg: var(--avatar-6-fg);
+
+  /* Data-viz categórica (gráficos) — bg-chart-1, text-chart-1, … */
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-chart-6: var(--chart-6);
+
+  --color-neutral:        var(--neutral);
+  --color-neutral-soft:   var(--neutral-soft);
+  --color-neutral-border: var(--neutral-border);
+  --color-neutral-text:   var(--neutral-text);
+
+  /* Legacy feedback aliases (mantém compat enquanto migra consumers) */
+  --color-feedback-danger:        var(--feedback-danger);
+  --color-feedback-danger-badge:  var(--feedback-danger-badge);
+  --color-feedback-danger-border: var(--feedback-danger-border);
+  --color-feedback-danger-text:   var(--feedback-danger-text);
+
+  --color-feedback-success:        var(--feedback-success);
+  --color-feedback-success-badge:  var(--feedback-success-badge);
+  --color-feedback-success-border: var(--feedback-success-border);
+  --color-feedback-success-text:   var(--feedback-success-text);
+
+  --color-feedback-warning:        var(--feedback-warning);
+  --color-feedback-warning-badge:  var(--feedback-warning-badge);
+  --color-feedback-warning-border: var(--feedback-warning-border);
+  --color-feedback-warning-text:   var(--feedback-warning-text);
+
+  --color-feedback-info:        var(--feedback-info);
+  --color-feedback-info-badge:  var(--feedback-info-badge);
+  --color-feedback-info-border: var(--feedback-info-border);
+  --color-feedback-info-text:   var(--feedback-info-text);
+
+  /* Status */
+  --color-status-active:        var(--status-active);
+  --color-status-active-text:   var(--status-active-text);
+  --color-status-pending:       var(--status-pending);
+  --color-status-pending-text:  var(--status-pending-text);
+  --color-status-error:         var(--status-error);
+  --color-status-error-text:    var(--status-error-text);
+  --color-status-inactive:      var(--status-inactive);
+  --color-status-inactive-text: var(--status-inactive-text);
+}
+
+/**
+ * Foco visível — o padrão do sistema, e não decisão de cada produto.
+ *
+ * Até 13/08/2026 o DS não definia foco em lugar nenhum além do slider. Todo
+ * produto que o consome herdava o outline do navegador, que qualquer `border`
+ * ou `rounded` acaba encobrindo — e um painel inteiro navegado por teclado sem
+ * saber onde se está viola o 2.4.7 (WCAG AA) por omissão do sistema, não por
+ * descuido de quem consome.
+ *
+ * `:focus-visible` e não `:focus`: o anel aparece para quem navega por teclado
+ * e não para quem clica com o mouse, que é a diferença entre indicar e poluir.
+ *
+ * O `offset` existe para o anel não encostar na borda do próprio controle —
+ * sem ele, num botão com borda da mesma família de cor, o anel some dentro da
+ * borda. E ele é desenhado com a cor da superfície, então funciona igual sobre
+ * fundo claro e sobre o escuro do chrome.
+ */
+@layer base {
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--border-focus);
+    outline-offset: 2px;
+    border-radius: inherit;
+  }
+
+  /**
+   * Quem já resolve o próprio foco fica de fora: `:where()` tem
+   * especificidade zero, então qualquer regra do componente vence esta sem
+   * precisar de `!important`.
+   */
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus:not(:focus-visible) {
+    outline: none;
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "name": "@rojaostudio/ds-core",
+  "version": "1.0.0",
+  "description": "O motor do Rojão DS — tokens, derivação de tema e emissores. Sem React, sem Tailwind, sem CSS.",
+  "license": "MIT",
+  "author": "Rojão Studio (https://rojao.studio)",
+  "homepage": "https://ds.rojao.ai",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rojaostudio/ds.git",
+    "directory": "packages/ds-core"
+  },
+  "bugs": {
+    "url": "https://github.com/rojaostudio/ds/issues"
+  },
+  "keywords": [
+    "design-tokens",
+    "theme-generator",
+    "color-scale",
+    "oklch",
+    "wcag",
+    "contrast",
+    "css-variables",
+    "design-system"
+  ],
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./tokens": {
+      "types": "./dist/tokens.d.ts",
+      "import": "./dist/tokens.js",
+      "default": "./dist/tokens.js"
+    },
+    "./generate": {
+      "types": "./dist/generate.d.ts",
+      "import": "./dist/generate.js",
+      "default": "./dist/generate.js"
+    },
+    "./recipes": {
+      "types": "./dist/recipes.d.ts",
+      "import": "./dist/recipes.js",
+      "default": "./dist/recipes.js"
+    },
+    "./themes": {
+      "types": "./dist/themes.d.ts",
+      "import": "./dist/themes.js",
+      "default": "./dist/themes.js"
+    }
+  },
+  "files": [
+    "LICENSE",
+    "README.md",
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "prepack": "tsup",
+    "prepublishOnly": "node ../../scripts/guard-publisher.mjs",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint ."
+  },
+  "devDependencies": {
+    "@rojao/config": "workspace:*",
+    "eslint": "^9.18.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5",
+    "vitest": "^4.1.7",
+    "tsup": "^8.5.1"
+  },
+  "type": "module",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org",
+    "access": "public",
+    "provenance": true
+  }
+}

@@ -1,0 +1,62 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      # id-token: e o que faz o Trusted Publishing funcionar. O runner pede um token OIDC de
+      # vida curta ao GitHub, o npm valida que veio deste repo e deste workflow, e publica —
+      # sem NPM_TOKEN guardado em secret nenhum. Sem esta permissao o publish com provenance
+      # falha. `packages: write` saiu: nao publicamos mais no GitHub Packages.
+      id-token: write
+    steps:
+      # O checkout usa um PAT em vez do GITHUB_TOKEN padrão porque PRs criados por
+      # Actions não disparam workflows (regra anti-loop do GitHub) — sem isso o PR
+      # de release nasce sem o check obrigatório e trava. Fallback pro GITHUB_TOKEN
+      # quando o secret não existe.
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.RELEASE_PAT || secrets.GITHUB_TOKEN }}
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          # Trusted publishing exige npm >= 11.5.1 e Node >= 22.14 — no 20 o publish com OIDC
+          # nao funciona.
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      # turbo, nao --filter: com a #99 o `ds` depende do `ds-core`, e um filter direto builda
+      # so o `ds` — o build dele importa `@rojaostudio/ds-core/tokens`, que aponta pro dist que
+      # ainda nao existe. O turbo respeita o `dependsOn: ["^build"]` e resolve a ordem.
+      - name: Build design system
+        run: pnpm exec turbo run build --filter=@rojaostudio/ds --filter=@rojaostudio/ds-core
+
+      # Abre/atualiza o PR "Version Packages" quando ha changesets pendentes. Quando esse PR
+      # e mergeado (sem changesets pendentes), publica no npmjs via `pnpm release`, por OIDC.
+      - name: Create Release PR or publish
+        uses: changesets/action@v1
+        with:
+          version: pnpm version:packages
+          publish: pnpm release
+          commit: "chore(release): version packages"
+          title: "chore(release): version packages"
+        env:
+          # PR de release precisa nascer com o PAT p/ disparar o CI (ver checkout acima).
+          GITHUB_TOKEN: ${{ secrets.RELEASE_PAT || secrets.GITHUB_TOKEN }}
+          # Sem NODE_AUTH_TOKEN: o publish autentica por OIDC (Trusted Publishing). Se um dia
+          # aparecer um NPM_TOKEN aqui, e regressao — foi essa credencial de vida longa que a
+          # auditoria apontou como o vetor dos incidentes recentes de npm.
