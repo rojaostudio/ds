@@ -1,5 +1,9 @@
 # Rojão DS
 
+[![@rojaostudio/ds-core](https://img.shields.io/npm/v/@rojaostudio/ds-core?label=%40rojaostudio%2Fds-core&color=0d6e85)](https://www.npmjs.com/package/@rojaostudio/ds-core)
+[![@rojaostudio/ds](https://img.shields.io/npm/v/@rojaostudio/ds?label=%40rojaostudio%2Fds&color=0d6e85)](https://www.npmjs.com/package/@rojaostudio/ds)
+[![license](https://img.shields.io/npm/l/@rojaostudio/ds-core?color=444)](./LICENSE)
+
 Design system built around one idea: **your brand becomes the design system your AI builds
 with.** A colour goes in; a full token system comes out, contrast-verified, ready for your
 project and readable by Claude Code or Cursor.
