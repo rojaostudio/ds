@@ -52,6 +52,20 @@ describe("contrato do dist", () => {
     expect(ruins.slice(0, 10)).toEqual([]);
   });
 
+  it.skipIf(!temDist)("o JSX sai no runtime automático, não no clássico", () => {
+    // O transform clássico emite `React.createElement` e NÃO injeta o import. 40 dos 83
+    // componentes saíram assim na 1.0.1 e estouraram `ReferenceError: React is not defined`
+    // no servidor de quem instalou — produção fora do ar. Invisível no monorepo, onde quem
+    // transpilava era o Next, com o runtime automático. Ver #5.
+    const classicos: string[] = [];
+    for (const arquivo of varrer(join(dist, "components"), /\.js$/)) {
+      if (/React\.createElement/.test(readFileSync(arquivo, "utf8"))) {
+        classicos.push(arquivo.replace(raiz, ""));
+      }
+    }
+    expect(classicos.slice(0, 5)).toEqual([]);
+  });
+
   it.skipIf(!temDist)("o preset do NativeWind continua CJS", () => {
     // O config do consumidor faz require(). Com "type": "module" no pacote, um .js ali
     // seria lido como ESM e o require quebraria.

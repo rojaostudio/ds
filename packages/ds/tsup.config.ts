@@ -24,6 +24,14 @@ export default defineConfig({
   format: ["esm"],
   dts: true,
   bundle: false,
+  // O tsconfig diz `jsx: preserve` (pro Next compilar a FONTE), e com isso o esbuild caía no
+  // transform CLÁSSICO: 83 arquivos saíam chamando React.createElement e só 43 importavam
+  // React. Os outros 40 estouravam `ReferenceError: React is not defined` em runtime, no
+  // servidor do consumidor — invisível no monorepo, onde o Next transpilava o .tsx e usava o
+  // runtime automático. Trocar quem transpila trocou o resultado. Ver #5.
+  esbuildOptions(options) {
+    options.jsx = "automatic";
+  },
   sourcemap: false,
   clean: true,
   outDir: "dist",
