@@ -30,11 +30,19 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          # Trusted publishing exige npm >= 11.5.1 e Node >= 22.14 — no 20 o publish com OIDC
-          # nao funciona.
+          # Node >= 22.14 e o piso pro publish com OIDC. Note que a versao do npm NAO vem daqui:
+          # o Node 22 embarca npm 10.x, abaixo do que o trusted publishing exige. Ver step abaixo.
           node-version: 22
           registry-url: https://registry.npmjs.org
           cache: pnpm
+
+      # O npm que vem no Node 22 e o 10.9.x, e a troca de token OIDC so existe a partir do
+      # 11.5.1. Com o 10.x o CLI nem tenta autenticar: publica sem credencial e o registry
+      # responde E404 (o npm devolve 404 em vez de 403 pra nao confirmar a existencia do
+      # pacote a quem nao tem acesso). O provenance ainda e assinado, o que faz o log parecer
+      # saudavel ate a ultima linha. Fixar o Node nao fixa o npm — tem que ser explicito.
+      - name: Pin npm com suporte a trusted publishing
+        run: npm install -g npm@^11.5.1
 
       - name: Install
         run: pnpm install --frozen-lockfile --ignore-scripts
