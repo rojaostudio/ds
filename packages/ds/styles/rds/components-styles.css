@@ -5298,6 +5298,23 @@ input:focus-visible + .rds-checkbox__box {
   font: inherit;
 }
 
+/*
+ * Browser autofill paints the control's own background (blue in light, yellow in dark) and the control is smaller
+ * than the box that draws the border: it showed as a patch in the middle of the field. Cover it with the box
+ * colour and keep the value colour. The background-color transition is the fallback for browsers that ignore the
+ * inset shadow on autofill.
+ */
+.rds-field__control:-webkit-autofill,
+.rds-field__control:-webkit-autofill:hover,
+.rds-field__control:-webkit-autofill:focus,
+.rds-field__control:autofill {
+  -webkit-box-shadow: 0 0 0 1000px var(--_background) inset;
+  box-shadow: 0 0 0 1000px var(--_background) inset;
+  -webkit-text-fill-color: var(--_value);
+  caret-color: var(--_value);
+  transition: background-color 600000s 0s;
+}
+
 .rds-field__control::placeholder {
   color: var(--_placeholder);
   opacity: 1;
