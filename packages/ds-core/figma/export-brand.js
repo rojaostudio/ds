@@ -5,6 +5,7 @@
 //
 // Each theme role is followed through the aliases of the `base` collection (in the brand's mode) down to a
 // primitive of the [RDS] Primitives library, kept by name ("accyan/400") with the colour Figma resolves.
+// The brand's own variables in the `brand` collection (`<brand>/<name>`, as acassius/cyan) come along in `vars`.
 const BRAND = "rojao";
 
 const cols = await figma.variables.getLocalVariableCollectionsAsync();
@@ -47,5 +48,11 @@ for (const m of theme.modes) {
   }
   modes[m.name] = roles;
 }
+const vars = {};
+const brandCol = cols.find((c) => c.name === "brand");
+for (const id of brandCol?.variableIds ?? []) {
+  const v = await figma.variables.getVariableByIdAsync(id);
+  if (v.name.startsWith(`${BRAND}/`)) vars[v.name] = await resolve(v, theme.modes[0].modeId);
+}
 const sorted = Object.fromEntries(Object.entries(primitives).sort(([a], [b]) => a.localeCompare(b)));
-return { $schema: "rds-brand-table/1", name: BRAND, primitives: sorted, modes };
+return { $schema: "rds-brand-table/1", name: BRAND, primitives: sorted, modes, vars };

@@ -1,5 +1,11 @@
 # @rojaostudio/ds-core
 
+## 1.1.0-next.3
+
+### Minor Changes
+
+- A tabela da marca traz também as variáveis próprias da marca na coleção `brand` do Figma (ex.: `acassius/cyan`). O `rdsThemeFromTable` as resolve, e o `emitRdsCss` as emite como `--<marca>-<nome>` no escopo claro.
+
 ## 1.1.0-next.2
 
 ### Minor Changes

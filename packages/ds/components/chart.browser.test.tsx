@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { userEvent } from 'vitest/browser';
 import { Chart, type ChartType } from './chart';
 import { MODES, axeViolations, cleanup, render, settle } from './__tests__/render';
@@ -50,6 +50,23 @@ const charts: Record<ChartType, ReactElement> = {
 describe.each(MODES)('Chart (%s)', (mode) => {
   it.each(Object.keys(charts) as ChartType[])('type %s passes axe', async (type) => {
     const el = await render(<div style={{ width: 640 }}>{charts[type]}</div>, mode);
+    expect(await axeViolations(el)).toEqual([]);
+  });
+
+  it('bar with links and the visible table pass axe', async () => {
+    const el = await render(
+      <div style={{ width: 640 }}>
+        <Chart
+          type="bar"
+          label="Pedidos por etapa"
+          labels={['Em análise', 'Em produção', 'Pronto']}
+          series={[{ name: 'Pedidos', data: [12, 31, 7] }]}
+          hrefs={['#/analise', '#/producao', '#/pronto']}
+          showTable
+        />
+      </div>,
+      mode,
+    );
     expect(await axeViolations(el)).toEqual([]);
   });
 
@@ -167,5 +184,75 @@ describe('Chart inside a scrolling container', () => {
     );
     const page = document.scrollingElement!;
     expect(page.scrollHeight).toBeLessThanOrEqual(page.clientHeight + 1);
+  });
+});
+
+describe('Chart dates', () => {
+  const days = Array.from({ length: 30 }, (_, i) => `${i + 1} set`);
+  const labelsOf = (el: HTMLElement) => [...el.querySelectorAll('.rds-chart__label')].map((l) => l.textContent);
+
+  it('edges is the default: the first, middle and last label', async () => {
+    const el = await render(<Chart label="Volume" labels={dates} series={[{ name: 'Volume', data: [1, 2, 3, 4, 5] }]} />);
+    expect(labelsOf(el)).toEqual(['27 ago', '4 set', '12 set']);
+  });
+
+  it('dates="all" shows every label', async () => {
+    const el = await render(<Chart label="Volume" labels={dates} series={[{ name: 'Volume', data: [1, 2, 3, 4, 5] }]} dates="all" />);
+    expect(labelsOf(el)).toEqual(dates);
+  });
+
+  it('dateEvery={4}: one label every 4 points and a tick on every point', async () => {
+    const el = await render(
+      <div style={{ width: 640 }}>
+        <Chart label="Pedidos por dia" type="column" labels={days} series={[{ name: 'Pedidos', data: days.map((_, i) => i) }]} dateEvery={4} />
+      </div>,
+    );
+    expect(labelsOf(el)).toEqual(['1 set', '5 set', '9 set', '13 set', '17 set', '21 set', '25 set', '29 set']);
+    expect(el.querySelectorAll('.rds-chart__tick')).toHaveLength(30);
+  });
+});
+
+describe('Chart with destinations', () => {
+  const stages = ['Em análise', 'Em produção', 'Pronto'];
+  const pedidos = [{ name: 'Pedidos', data: [12, 31, 7] }];
+
+  it('bar with hrefs: each bar is a link named "<label>: <value>", reached by Tab', async () => {
+    const el = await render(
+      <div style={{ width: 640 }}>
+        <Chart type="bar" label="Pedidos por etapa" labels={stages} series={pedidos} hrefs={['#/a', '#/b', '#/c']} />
+      </div>,
+    );
+    const links = [...el.querySelectorAll<HTMLAnchorElement>('a.rds-chart__bar-row')];
+    expect(links.map((a) => a.getAttribute('aria-label'))).toEqual(['Em análise: 12', 'Em produção: 31', 'Pronto: 7']);
+    expect(links[1].getAttribute('href')).toBe('#/b');
+    await userEvent.tab();
+    expect(document.activeElement).toBe(links[0]);
+    // The hidden alternative table stays plain: no second set of tab stops.
+    expect(el.querySelector('.rds-visually-hidden a, .rds-visually-hidden button')).toBeNull();
+  });
+
+  it('bar with onSelect: each bar is a button that reports its index', async () => {
+    const onSelect = vi.fn();
+    const el = await render(<Chart type="bar" label="Pedidos por etapa" labels={stages} series={pedidos} onSelect={onSelect} />);
+    el.querySelectorAll<HTMLButtonElement>('button.rds-chart__bar-row')[2].click();
+    expect(onSelect).toHaveBeenCalledWith(2);
+  });
+
+  it('column with onSelect: Enter on the plot chooses the point under the keyboard', async () => {
+    const onSelect = vi.fn();
+    const el = await render(
+      <div style={{ width: 640 }}>
+        <Chart type="column" label="Pedidos por etapa" labels={stages} series={pedidos} onSelect={onSelect} />
+      </div>,
+    );
+    el.querySelector<HTMLElement>('[role="slider"]')!.focus();
+    await userEvent.keyboard('{ArrowRight}{Enter}');
+    expect(onSelect).toHaveBeenCalledWith(1);
+  });
+
+  it('without a destination nothing is interactive', async () => {
+    const el = await render(<Chart type="bar" label="Pedidos por etapa" labels={stages} series={pedidos} />);
+    expect(el.querySelector('a, button')).toBeNull();
+    expect(el.querySelector('.rds-chart__bars')!.getAttribute('aria-hidden')).toBe('true');
   });
 });
