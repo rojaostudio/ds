@@ -196,12 +196,29 @@
   white-space: nowrap;
 }
 
-.rds-chart__labels-track--line .rds-chart__label:first-child {
+.rds-chart__labels-track--line .rds-chart__label:first-of-type {
   transform: none;
 }
 
-.rds-chart__labels-track--line .rds-chart__label:last-child {
+.rds-chart__labels-track--line .rds-chart__label:last-of-type {
   transform: translateX(-100%);
+}
+
+/* dateEvery: a 1x4 tick on every point, the labels under them. */
+.rds-chart__labels-track--ticks {
+  height: calc(var(--type-caption-line) + var(--space-4));
+}
+
+.rds-chart__labels-track--ticks .rds-chart__label {
+  top: var(--space-4);
+}
+
+.rds-chart__tick {
+  position: absolute;
+  top: 0;
+  width: 1px;
+  height: var(--space-4);
+  background: var(--chart-tick);
 }
 
 /* Bars: label, track, value. */
@@ -232,6 +249,50 @@
 .rds-chart__bar {
   border-radius: 0 var(--radius-xs) var(--radius-xs) 0;
   background: var(--_series);
+}
+
+/* A bar with a destination (hrefs or onSelect): the row is the link or button. */
+.rds-chart__bar-row--link {
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-focus);
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.rds-chart__bar-row--link:hover .rds-chart__track {
+  background: var(--chart-bar-hover);
+}
+
+.rds-chart__bar-row--link:hover .rds-chart__bar-label {
+  text-decoration: underline;
+}
+
+.rds-chart__bar-row--link:focus-visible,
+.rds-chart__table-link:focus-visible {
+  outline: var(--focus-ring-width) solid var(--chart-focus-ring);
+  outline-offset: var(--focus-ring-width);
+}
+
+.rds-chart--linked.rds-chart--column .rds-chart__plot {
+  cursor: pointer;
+}
+
+.rds-chart__table-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
 }
 
 .rds-chart__bar-value {
@@ -267,7 +328,8 @@
     background: CanvasText;
   }
 
-  .rds-chart__plot:focus-visible {
+  .rds-chart__plot:focus-visible,
+  .rds-chart__bar-row--link:focus-visible {
     outline-color: Highlight;
   }
 }

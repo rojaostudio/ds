@@ -17,7 +17,10 @@ import type { BrandDef, ColorRef } from "../tokens/recipe.schema";
 import { buildScale, contrastRatio, isHex, onColor, refToHex, type Scale, type ScaleStep } from "./scale";
 
 export type RdsMode = "light" | "dark" | "brand";
-export type RdsTheme = Record<RdsMode, Record<string, string>>;
+export type RdsTheme = Record<RdsMode, Record<string, string>> & {
+  /** The brand's own variables (Figma `brand` collection, `<brand>/<name>`), one value for every mode. */
+  vars?: Record<string, string>;
+};
 
 type PaletteMap = Record<string, Record<number, string> | string>;
 const palettes = primitives.color as PaletteMap;
@@ -285,7 +288,7 @@ export function emitRdsCss(theme: RdsTheme, opts: RdsCssOptions = {}): string {
   const scopes = scope.split(",").map((s) => s.trim());
   const darkSel = scopes.map((s) => (s === ":root" ? `:root${dark}, ${dark}` : `${s}${dark}, ${dark} ${s}`)).join(", ");
   return [
-    block(scope, theme.light),
+    block(scope, { ...theme.light, ...theme.vars }),
     block(darkSel, theme.dark, theme.light),
     block(plate, theme.brand, theme.light),
   ].join("\n\n") + "\n";
@@ -308,6 +311,8 @@ export type RdsBrandTable = {
   name: string;
   primitives: Record<string, string>;
   modes: Record<RdsMode, Record<string, string>>;
+  /** The brand's own variables of the `brand` collection, by Figma path ("acassius/cyan") → primitive or value. */
+  vars?: Record<string, string>;
 };
 
 const isColourRef = (v: string) => /^[a-z][a-z0-9-]*\/[a-z]?\d+$/i.test(v);
@@ -330,6 +335,19 @@ export function rdsThemeFromTable(table: RdsBrandTable): RdsTheme {
         if (value === undefined) problems.push(`${mode}: "${role}" points to unknown primitive "${ref}"`);
         else out[mode][roleVar(role)] = value.toLowerCase();
       } else out[mode][roleVar(role)] = ref;
+    }
+  }
+  const valueOf = (where: string, ref: string) => {
+    if (!isColourRef(ref)) return ref;
+    const value = table.primitives[ref];
+    if (value === undefined) problems.push(`${where} points to unknown primitive "${ref}"`);
+    return value?.toLowerCase();
+  };
+  if (table.vars) {
+    out.vars = {};
+    for (const [name, ref] of Object.entries(table.vars)) {
+      const value = valueOf(`var "${name}"`, ref);
+      if (value !== undefined) out.vars[roleVar(name)] = value;
     }
   }
   if (problems.length) throw new Error(`rdsThemeFromTable(${table.name}):\n  ${problems.join("\n  ")}`);

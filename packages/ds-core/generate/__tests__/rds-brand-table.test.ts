@@ -41,4 +41,12 @@ describe("[RDS] theme from a brand table", () => {
     expect(css).toMatch(/\.dark[^{]*\{\n {2}--colors-primary-default: #22bbf2;\n\}/);
     expect(css).toMatch(/\.ds-plate \{\n\n?\}/);
   });
+
+  it("the brand's own variables come out as --<brand>-<name> in the light scope", () => {
+    const t = { ...table(), vars: { "sample/cyan": "brandcyan/500", "sample/key": "#111111" } };
+    const theme = rdsThemeFromTable(t);
+    expect(theme.vars).toEqual({ "--sample-cyan": "#00aeef", "--sample-key": "#111111" });
+    expect(emitRdsCss(theme)).toMatch(/:root, \.ds-scope \{[^}]*--sample-cyan: #00aeef;/);
+    expect(() => rdsThemeFromTable({ ...t, vars: { "sample/x": "nope/1" } })).toThrow(/var "sample\/x" points to unknown primitive/);
+  });
 });

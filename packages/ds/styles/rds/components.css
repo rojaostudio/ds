@@ -292,6 +292,9 @@
   --chart-tooltip-border: var(--border-default);
   --chart-label: var(--text-body);
   --chart-tooltip-title: var(--text-heading);
+  --chart-bar-hover: var(--surface-muted);
+  --chart-focus-ring: var(--focus-ring);
+  --chart-tick: var(--border-strong);
   --carousel-slide-background: var(--surface-muted);
   --carousel-dot: var(--border-strong);
   --carousel-dot-active: var(--colors-primary-default);

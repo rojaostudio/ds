@@ -1,5 +1,19 @@
 # @rojaostudio/ds
 
+## 2.0.0-next.7
+
+### Minor Changes
+
+- Chart, como no Figma [RDS] (`dates` e barras com destino):
+  - `dates="edges" | "all"`: troca o `showAllDates`, que fica deprecado. O padrão passa a ser `edges` (primeira, meio e última data).
+  - `dateEvery={N}`: uma data a cada N pontos, com um tique em cada ponto (token `chart/tick`).
+  - `hrefs` (um por item) ou `onSelect(index)`: no bar, cada barra vira link ou botão, com o nome "<rótulo>: <valor>", hover em `chart/bar/hover` e anel de foco em `chart/focus/ring`. No column, clique ou Enter no gráfico escolhe o ponto. Na tabela visível, o rótulo vira link.
+
+### Patch Changes
+
+- Updated dependencies
+  - @rojaostudio/ds-core@1.1.0-next.3
+
 ## 2.0.0-next.6
 
 ### Patch Changes

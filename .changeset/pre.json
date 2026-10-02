@@ -9,10 +9,12 @@
   "changesets": [
     "barril-sem-peers",
     "button-size",
+    "chart-dates-links",
     "chart-tabela-oculta",
     "ds-2-0",
     "field-autofill",
     "rds-brand-table",
+    "rds-brand-vars",
     "rds-paletas-custom",
     "sidebar-section-label"
   ]

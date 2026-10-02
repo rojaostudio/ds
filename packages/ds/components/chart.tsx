@@ -14,7 +14,7 @@ export interface ChartSeries {
   axis?: 'left' | 'right';
 }
 
-export interface ChartProps extends Omit<HTMLAttributes<HTMLElement>, 'children'> {
+export interface ChartProps extends Omit<HTMLAttributes<HTMLElement>, 'children' | 'onSelect'> {
   /** What the chart shows, with the period. It names the chart and captions its data table. */
   label: string;
   /** line: lines over time; bar: a ranking in horizontal bars; column: columns by category. */
@@ -36,8 +36,22 @@ export interface ChartProps extends Omit<HTMLAttributes<HTMLElement>, 'children'
   showLegend?: boolean;
   /** The values of the point under the pointer or the keyboard (Figma: `showTooltip`). */
   showTooltip?: boolean;
-  /** Off: only the first, middle and last label (Figma: `showAllDates`). Use it under about 360 px. */
+  /**
+   * line and column: which x labels show (Figma: `dates`). edges, the default: the first, middle and last; all: every
+   * label, for short series only.
+   */
+  dates?: 'edges' | 'all';
+  /** line and column: one label every N points, with a tick on every point (Figma: `dates=every`). Wins over `dates`. */
+  dateEvery?: number;
+  /** @deprecated Use `dates="all"` (true) or `dates="edges"` (false). */
   showAllDates?: boolean;
+  /**
+   * bar and column: where each item leads, in the order of `labels`. In bar each bar becomes a link named
+   * "<label>: <value>"; in column a click or Enter on the plot follows the item's link.
+   */
+  hrefs?: Array<string | undefined>;
+  /** bar and column: called with the item's index when it is chosen (click, Enter). In bar each bar becomes a button. */
+  onSelect?: (index: number) => void;
   /** Show the data table under the chart. By default it is there only for screen readers. */
   showTable?: boolean;
   /** Height of the plot area, in px (Figma: 200). */
@@ -88,7 +102,11 @@ export function Chart({
   showRightAxis = true,
   showLegend = true,
   showTooltip = true,
-  showAllDates = true,
+  dates,
+  dateEvery,
+  showAllDates,
+  hrefs,
+  onSelect,
   showTable = false,
   height = 200,
   className,
@@ -116,7 +134,20 @@ export function Chart({
   };
   const describe = (index: number) => `${labels[index]}: ` + shown.map((s) => `${s.name} ${formatFor(s)(s.data[index] ?? 0)}`).join(', ');
   const legendName = (s: ChartSeries) => (dual ? `${s.name} (${onRight(s) ? 'direita' : 'esquerda'})` : s.name);
-  const labelIndexes = showAllDates || count <= 3 ? labels.map((_, i) => i) : [0, Math.floor((count - 1) / 2), count - 1];
+  const every = dateEvery && dateEvery > 1 ? Math.floor(dateEvery) : null;
+  const allDates = (dates ?? (showAllDates === undefined ? 'edges' : showAllDates ? 'all' : 'edges')) === 'all';
+  const labelIndexes = every
+    ? labels.map((_, i) => i).filter((i) => i % every === 0)
+    : allDates || count <= 3
+      ? labels.map((_, i) => i)
+      : [0, Math.floor((count - 1) / 2), count - 1];
+
+  // An item with a destination: its link, or onSelect. Without either, the chart is not interactive.
+  const linked = type !== 'line' && Boolean(onSelect || hrefs?.some(Boolean));
+  const choose = (index: number) => {
+    if (onSelect) onSelect(index);
+    else if (hrefs?.[index]) window.location.assign(hrefs[index]!);
+  };
 
   const onPointerMove = (event: PointerEvent<HTMLDivElement>) => {
     const box = event.currentTarget.getBoundingClientRect();
@@ -133,6 +164,11 @@ export function Chart({
       Home: 0,
       End: count - 1,
     };
+    if (linked && event.key === 'Enter' && active !== null) {
+      event.preventDefault();
+      choose(active);
+      return;
+    }
     if (!(event.key in keys)) return;
     event.preventDefault();
     setActive(keys[event.key]!);
@@ -178,6 +214,7 @@ export function Chart({
     onPointerLeave: (event: PointerEvent<HTMLDivElement>) => {
       if (document.activeElement !== event.currentTarget) setActive(null);
     },
+    onClick: linked ? () => active !== null && choose(active) : undefined,
     onFocus: () => setActive((current) => current ?? 0),
     onBlur: () => setActive(null),
     onKeyDown,
@@ -190,19 +227,47 @@ export function Chart({
     const s = shown[0];
     const top = Math.max(0, ...(s?.data ?? [0]));
     body = (
-      <div className="rds-chart__bars" aria-hidden="true">
-        {labels.map((name, i) => (
-          <div key={name} className="rds-chart__bar-row">
-            <span className="rds-chart__bar-label">{name}</span>
-            <span className="rds-chart__track">
-              <span
-                className="rds-chart__bar"
-                style={{ ...seriesStyle(i + 1), width: `${top ? ((s?.data[i] ?? 0) / top) * 100 : 0}%` }}
-              />
-            </span>
-            <span className="rds-chart__bar-value">{s ? formatLeft(s.data[i] ?? 0) : ''}</span>
-          </div>
-        ))}
+      <div className="rds-chart__bars" aria-hidden={linked ? undefined : true}>
+        {labels.map((name, i) => {
+          const value = s ? formatLeft(s.data[i] ?? 0) : '';
+          const parts = (
+            <>
+              <span className="rds-chart__bar-label">{name}</span>
+              <span className="rds-chart__track">
+                <span
+                  className="rds-chart__bar"
+                  style={{ ...seriesStyle(i + 1), width: `${top ? ((s?.data[i] ?? 0) / top) * 100 : 0}%` }}
+                />
+              </span>
+              <span className="rds-chart__bar-value">{value}</span>
+            </>
+          );
+          const href = hrefs?.[i];
+          const accessibleName = `${name}: ${value}`;
+          if (linked && href && !onSelect)
+            return (
+              <a key={name} href={href} className="rds-chart__bar-row rds-chart__bar-row--link" aria-label={accessibleName}>
+                {parts}
+              </a>
+            );
+          if (linked && onSelect)
+            return (
+              <button
+                key={name}
+                type="button"
+                className="rds-chart__bar-row rds-chart__bar-row--link"
+                aria-label={accessibleName}
+                onClick={() => onSelect(i)}
+              >
+                {parts}
+              </button>
+            );
+          return (
+            <div key={name} className="rds-chart__bar-row">
+              {parts}
+            </div>
+          );
+        })}
       </div>
     );
   } else {
@@ -263,7 +328,8 @@ export function Chart({
           {rightScale && <Axis ticks={rightScale.ticks} format={formatRight} side="right" />}
         </div>
         <div className="rds-chart__labels" aria-hidden="true">
-          <div className={`rds-chart__labels-track rds-chart__labels-track--${type}`}>
+          <div className={`rds-chart__labels-track rds-chart__labels-track--${type}${every ? ' rds-chart__labels-track--ticks' : ''}`}>
+            {every && labels.map((_, i) => <i key={`t${i}`} className="rds-chart__tick" style={{ left: `${x(i)}%` }} />)}
             {labelIndexes.map((i) => (
               <span key={i} className="rds-chart__label" style={{ left: `${x(i)}%` }}>
                 {labels[i]}
@@ -280,7 +346,7 @@ export function Chart({
     <figure
       {...rest}
       aria-label={label}
-      className={['rds-chart', `rds-chart--${type}`, dual && 'rds-chart--dual', className].filter(Boolean).join(' ')}
+      className={['rds-chart', `rds-chart--${type}`, dual && 'rds-chart--dual', linked && 'rds-chart--linked', className].filter(Boolean).join(' ')}
     >
       {body}
       {showLegend && type !== 'bar' && (
@@ -308,7 +374,19 @@ export function Chart({
           <TableBody>
             {labels.map((name, i) => (
               <TableRow key={name}>
-                <TableCell>{name}</TableCell>
+                <TableCell>
+                  {linked && onSelect ? (
+                    <button type="button" className="rds-chart__table-link" onClick={() => onSelect(i)}>
+                      {name}
+                    </button>
+                  ) : linked && hrefs?.[i] ? (
+                    <a className="rds-chart__table-link" href={hrefs[i]}>
+                      {name}
+                    </a>
+                  ) : (
+                    name
+                  )}
+                </TableCell>
                 {shown.map((s) => (
                   <TableCell key={s.name} align="end">
                     {formatFor(s)(s.data[i] ?? 0)}
