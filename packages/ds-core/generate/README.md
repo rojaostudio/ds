@@ -43,3 +43,22 @@ temas existentes (garantido por `pnpm validate:themes`).
 - Puro e determinístico (mesma entrada → mesma saída).
 - Sem dependências nativas; o build script (`fs`) vive em `scripts/`, fora do core.
 - Testes: `generate/__tests__/*` (`pnpm test`).
+
+## Tema de uma marca do Figma [RDS] (um para um)
+
+Uma marca desenhada no [RDS] Base Tokens (um modo da coleção `base`) vira tema sem regra nenhuma no meio: cada papel aponta para o primitivo que o Figma escolheu.
+
+1. **Exportar a tabela da marca.** Rode `figma/export-brand.js` (vem no pacote) dentro do arquivo [RDS] Base Tokens, pelo console de plugin ou por um agente com o MCP do Figma, com `BRAND` no nome do modo. Salve o retorno como JSON no projeto (ex.: `brand/<marca>.rds.json`).
+2. **Gerar o CSS por script:**
+
+```ts
+import { readFileSync, writeFileSync } from "node:fs";
+import { emitRdsCss, rdsThemeFromTable } from "@rojaostudio/ds-core/generate";
+
+const table = JSON.parse(readFileSync("brand/minha-marca.rds.json", "utf8"));
+writeFileSync("app/theme.css", emitRdsCss(rdsThemeFromTable(table)));
+```
+
+Importe o CSS gerado depois de `@rojaostudio/ds/styles/rds.css`. Mudou a marca no Figma: exporte de novo e rode o script.
+
+`generateRdsTheme(def)` continua para quem só tem uma cor (sem Figma): ele deriva os papéis pela regra da marca Rojão.
