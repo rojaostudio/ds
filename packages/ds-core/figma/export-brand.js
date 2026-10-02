@@ -1,3 +1,4 @@
+/* global figma */
 // Exports one brand of the [RDS] Base Tokens file as a brand table for rdsThemeFromTable().
 // Run inside the Base Tokens file with the Figma Plugin API (a plugin console or an agent with use_figma),
 // after setting BRAND to the mode name of the `base` collection. The return value is the JSON to save.
