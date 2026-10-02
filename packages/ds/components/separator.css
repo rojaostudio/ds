@@ -1,0 +1,23 @@
+/* @tokens separator */
+/* Separator: a 1px line (Content collection, separator/line). It stretches to what it separates. */
+.rds-separator {
+  flex: none;
+  background: var(--separator-line);
+}
+
+.rds-separator--horizontal {
+  width: 100%;
+  height: var(--border-width);
+}
+
+.rds-separator--vertical {
+  align-self: stretch;
+  width: var(--border-width);
+  min-height: 1em;
+}
+
+@media (forced-colors: active) {
+  .rds-separator {
+    background: CanvasText;
+  }
+}

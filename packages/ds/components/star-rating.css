@@ -1,0 +1,79 @@
+/* @tokens rating */
+/*
+ * StarRating (Indicators collection, rating/*): stars 16 (sm), 20 or 24, 2 apart in sm and 4 above; 8 to the
+ * label, caption 12/16 in sm and small 14/20 above. Full star in rating/star; empty is the outline in rating/empty;
+ * half is the left half of the full star over the empty one.
+ */
+.rds-rating {
+  --_star: var(--size-20);
+  --_gap: var(--space-4);
+
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+  font-family: var(--type-font-stack);
+}
+
+.rds-rating--sm {
+  --_star: var(--size-16);
+  /* The Figma's 2 is half of space/4. */
+  --_gap: calc(var(--space-4) / 2);
+}
+
+.rds-rating--lg {
+  --_star: var(--size-24);
+}
+
+.rds-rating__stars {
+  display: inline-flex;
+  gap: var(--_gap);
+}
+
+.rds-rating__star {
+  position: relative;
+  display: block;
+  width: var(--_star);
+  height: var(--_star);
+}
+
+.rds-rating__empty,
+.rds-rating__fill {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.rds-rating__empty {
+  color: var(--rating-empty);
+}
+
+.rds-rating__fill {
+  color: var(--rating-star);
+}
+
+.rds-rating__star svg {
+  display: block;
+  width: var(--_star);
+  height: var(--_star);
+}
+
+.rds-rating__star--half .rds-rating__fill {
+  right: 50%;
+}
+
+.rds-rating__label {
+  color: var(--rating-label);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+}
+
+.rds-rating--sm .rds-rating__label {
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+}
+
+@media (forced-colors: active) {
+  .rds-rating__fill {
+    color: CanvasText;
+  }
+}

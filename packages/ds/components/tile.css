@@ -1,0 +1,100 @@
+/* @tokens tile */
+/* Tile: an icon in a circle (Content collection, tile/<tone>/<style>/*). sm 32, default 48, lg 64; icon 16, 24, 32. */
+.rds-tile {
+  --_size: var(--size-48);
+  --_icon: var(--size-24);
+
+  box-sizing: border-box;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--_size);
+  height: var(--_size);
+  border-radius: var(--radius-full);
+  background: var(--_background);
+  color: var(--_icon-color);
+}
+
+.rds-tile > svg {
+  flex: none;
+  width: var(--_icon);
+  height: var(--_icon);
+}
+
+.rds-tile--sm {
+  --_size: var(--size-32);
+  --_icon: var(--size-16);
+}
+
+.rds-tile--lg {
+  --_size: var(--space-64);
+  --_icon: var(--size-32);
+}
+
+.rds-tile--action-fill {
+  --_background: var(--tile-action-fill-background);
+  --_icon-color: var(--tile-action-fill-icon);
+}
+
+.rds-tile--action-soft {
+  --_background: var(--tile-action-soft-background);
+  --_icon-color: var(--tile-action-soft-icon);
+}
+
+.rds-tile--neutral-fill {
+  --_background: var(--tile-neutral-fill-background);
+  --_icon-color: var(--tile-neutral-fill-icon);
+}
+
+.rds-tile--neutral-soft {
+  --_background: var(--tile-neutral-soft-background);
+  --_icon-color: var(--tile-neutral-soft-icon);
+}
+
+.rds-tile--info-fill {
+  --_background: var(--tile-info-fill-background);
+  --_icon-color: var(--tile-info-fill-icon);
+}
+
+.rds-tile--info-soft {
+  --_background: var(--tile-info-soft-background);
+  --_icon-color: var(--tile-info-soft-icon);
+}
+
+.rds-tile--success-fill {
+  --_background: var(--tile-success-fill-background);
+  --_icon-color: var(--tile-success-fill-icon);
+}
+
+.rds-tile--success-soft {
+  --_background: var(--tile-success-soft-background);
+  --_icon-color: var(--tile-success-soft-icon);
+}
+
+.rds-tile--warning-fill {
+  --_background: var(--tile-warning-fill-background);
+  --_icon-color: var(--tile-warning-fill-icon);
+}
+
+.rds-tile--warning-soft {
+  --_background: var(--tile-warning-soft-background);
+  --_icon-color: var(--tile-warning-soft-icon);
+}
+
+.rds-tile--danger-fill {
+  --_background: var(--tile-danger-fill-background);
+  --_icon-color: var(--tile-danger-fill-icon);
+}
+
+.rds-tile--danger-soft {
+  --_background: var(--tile-danger-soft-background);
+  --_icon-color: var(--tile-danger-soft-icon);
+}
+
+@media (forced-colors: active) {
+  .rds-tile {
+    border: var(--border-width) solid CanvasText;
+    color: CanvasText;
+  }
+}

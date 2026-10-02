@@ -1,0 +1,80 @@
+/* @tokens internal */
+/*
+ * The public-page blocks (Blocks collection). The block is a size container: below 640 wide it takes the Figma
+ * mobile layout (screen=mobile) wherever it is — a side panel, a showroom column —, not only on a small screen.
+ * Desktop: 64 48 padding, 40 between the heading and the content. Mobile: 40 16, 32.
+ * Heading: eyebrow 14/20 medium, title in type/band bold (mobile type/heading), description in type/body (mobile
+ * type/small), 8 apart, centred. Each block sets --_background, --_eyebrow, --_title and --_text from its own tokens.
+ * The background takes the full width; the content is at most 1200 wide, centred.
+ */
+.rds-block {
+  box-sizing: border-box;
+  width: 100%;
+  container-type: inline-size;
+  background: var(--_background);
+  font-family: var(--type-font-stack);
+}
+
+.rds-block__inner {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-40);
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-64) var(--space-48);
+}
+
+.rds-block__heading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-8);
+  width: 100%;
+  text-align: center;
+}
+
+.rds-block__eyebrow,
+.rds-block__title,
+.rds-block__description {
+  margin: 0;
+}
+
+.rds-block__eyebrow {
+  color: var(--_eyebrow);
+  font-size: var(--type-small-size);
+  font-weight: 500;
+  line-height: var(--type-small-line);
+}
+
+.rds-block__title {
+  color: var(--_title);
+  font-size: var(--type-band-size);
+  font-weight: 700;
+  line-height: var(--type-band-line);
+}
+
+.rds-block__description {
+  color: var(--_text);
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+}
+
+@container (max-width: 639px) {
+  .rds-block__inner {
+    gap: var(--space-32);
+    padding: var(--space-40) var(--space-16);
+  }
+
+  .rds-block__title {
+    font-size: var(--type-heading-size);
+    font-weight: var(--type-heading-weight);
+    line-height: var(--type-heading-line);
+  }
+
+  .rds-block__description {
+    font-size: var(--type-small-size);
+    line-height: var(--type-small-line);
+  }
+}

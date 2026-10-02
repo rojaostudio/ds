@@ -1,0 +1,114 @@
+/* @tokens filter-chip */
+/*
+ * FilterChip (Forms collection, filter-chip/*): 32 tall, pill, 12 inside, 4 between icon, label and count;
+ * label 14/20 medium. inactive: card fill and a hairline; hover: muted fill, strong hairline; active: the brand
+ * at 12% over what is behind, brand border and label; disabled: the whole chip at 50%, the label at 40%.
+ * The count reads at 60% of the label. Icon 14, in the label's colour.
+ */
+.rds-filter-chip-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+}
+
+.rds-filter-chip {
+  --_surface: var(--filter-chip-surface-inactive);
+  --_stroke: var(--filter-chip-stroke-inactive);
+  --_text: var(--filter-chip-text-inactive);
+
+  position: relative;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: var(--size-32);
+  max-width: 100%;
+  margin: 0;
+  padding: 0 var(--space-12);
+  border: var(--border-width) solid var(--_stroke);
+  border-radius: var(--radius-full);
+  background: var(--_surface);
+  color: var(--_text);
+  font-family: var(--type-font-stack);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+/* 32 visible, 44 to touch: an invisible band above and below that does not push the layout. */
+.rds-filter-chip::before {
+  content: '';
+  position: absolute;
+  inset: calc((var(--size-32) - (var(--space-12) * 2 + var(--type-button-line))) / 2) 0;
+}
+
+@media (hover: hover) {
+  .rds-filter-chip:not(.rds-filter-chip--active, [aria-disabled='true']):hover {
+    --_surface: var(--filter-chip-surface-hover);
+    --_stroke: var(--filter-chip-stroke-hover);
+    --_text: var(--filter-chip-text-hover);
+  }
+}
+
+.rds-filter-chip--active {
+  --_surface: color-mix(in srgb, var(--filter-chip-surface-active) 12%, transparent);
+  --_stroke: var(--filter-chip-stroke-active);
+  --_text: var(--filter-chip-text-active);
+}
+
+/* The FilterChip has no ring token: the Button's, so every control rings alike. */
+.rds-filter-chip:focus-visible {
+  outline: var(--focus-ring-width) solid var(--button-focus-ring);
+  outline-offset: var(--focus-ring-width);
+}
+
+.rds-filter-chip[aria-disabled='true'] {
+  --_surface: var(--filter-chip-surface-disabled);
+  --_stroke: var(--filter-chip-stroke-disabled);
+  --_text: color-mix(in srgb, var(--filter-chip-text-disabled) 40%, transparent);
+
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.rds-filter-chip__icon {
+  display: inline-flex;
+  flex: none;
+  width: 1em;
+  height: 1em;
+}
+
+.rds-filter-chip__icon > svg {
+  width: 100%;
+  height: 100%;
+}
+
+.rds-filter-chip__label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rds-filter-chip__count {
+  color: color-mix(in srgb, currentColor 60%, transparent);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (forced-colors: active) {
+  .rds-filter-chip {
+    border-color: CanvasText;
+  }
+
+  .rds-filter-chip--active {
+    border-color: Highlight;
+    outline: var(--border-width) solid Highlight;
+  }
+
+  .rds-filter-chip:focus-visible {
+    outline-color: Highlight;
+  }
+}

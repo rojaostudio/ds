@@ -1,0 +1,148 @@
+/* @tokens footer */
+/*
+ * Footer (Blocks collection, footer/*). Desktop: 48 32 24 padding, 48 between the sitemap and the legal line.
+ * Sitemap: the brand (220: logo, tagline 14/20 and the profiles, 24 icons 12 apart; 16 between them) and the
+ * columns, 32 apart; columns 24 apart. Column (.footer/column): title 12/16 medium, 12 above the links (14/20,
+ * 8 apart). Legal: a top divider, 24 above the copyright (12/16). Below 640 of container width: 32 16 24 padding,
+ * 32 between everything, all stacked. The background takes the full width; the content is at most 1200, centred.
+ * There is no footer focus token in the Figma: the links' focus ring borrows the Button's (button/focus-ring).
+ */
+.rds-footer {
+  box-sizing: border-box;
+  width: 100%;
+  container-type: inline-size;
+  background: var(--footer-background);
+  font-family: var(--type-font-stack);
+}
+
+.rds-footer__inner {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-48);
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-48) var(--space-32) var(--space-24);
+}
+
+.rds-footer__sitemap {
+  display: flex;
+  gap: var(--space-32);
+}
+
+.rds-footer__brand {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-16);
+  width: 220px;
+}
+
+.rds-footer__logo {
+  display: flex;
+}
+
+.rds-footer__tagline {
+  margin: 0;
+  color: var(--footer-tagline);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+}
+
+.rds-footer__social {
+  display: flex;
+  gap: var(--space-12);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rds-footer__social a {
+  display: flex;
+  color: var(--footer-link);
+  border-radius: var(--radius-focus);
+}
+
+.rds-footer__social svg {
+  width: var(--size-24);
+  height: var(--size-24);
+}
+
+.rds-footer__columns {
+  display: flex;
+  flex: 1;
+  gap: var(--space-24);
+}
+
+.rds-footer__column {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-12);
+}
+
+.rds-footer__title {
+  margin: 0;
+  color: var(--footer-title);
+  font-size: var(--type-caption-size);
+  font-weight: 500;
+  line-height: var(--type-caption-line);
+}
+
+.rds-footer__links {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rds-footer__links a {
+  color: var(--footer-link);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  text-decoration: none;
+}
+
+.rds-footer__links a:hover {
+  text-decoration: underline;
+}
+
+.rds-footer a:focus-visible {
+  outline: var(--focus-ring-width) solid var(--button-focus-ring);
+  outline-offset: var(--focus-ring-width);
+}
+
+.rds-footer__legal {
+  margin: 0;
+  padding-top: var(--space-24);
+  border-top: var(--border-width) solid var(--footer-divider);
+  color: var(--footer-legal);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+}
+
+@container (max-width: 639px) {
+  .rds-footer__inner {
+    gap: var(--space-32);
+    padding: var(--space-32) var(--space-16) var(--space-24);
+  }
+
+  .rds-footer__sitemap,
+  .rds-footer__columns {
+    flex-direction: column;
+    gap: var(--space-32);
+  }
+
+  .rds-footer__brand {
+    width: auto;
+  }
+}
+
+@media (forced-colors: active) {
+  .rds-footer a:focus-visible {
+    outline-color: Highlight;
+  }
+}

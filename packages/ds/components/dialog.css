@@ -1,0 +1,59 @@
+/* @tokens dialog */
+/*
+ * Dialog (Overlays collection, dialog/*): centred, sm 400 · default 560 · lg 720 wide, 16 between header, content
+ * and footer (8 more above the footer), corners radius/container, shadow elevation/modal (internal/modal.css).
+ */
+.rds-dialog__scrim {
+  background: var(--dialog-scrim);
+}
+
+.rds-dialog {
+  top: 50%;
+  left: 50%;
+  gap: var(--space-16);
+  width: min(560px, calc(100vw - var(--space-32)));
+  max-height: calc(100dvh - var(--space-32));
+  border: var(--border-width) solid var(--dialog-border);
+  border-radius: var(--radius-container);
+  background: var(--dialog-background);
+  transform: translate(-50%, -50%);
+}
+
+.rds-dialog--sm {
+  width: min(400px, calc(100vw - var(--space-32)));
+}
+
+.rds-dialog--lg {
+  width: min(720px, calc(100vw - var(--space-32)));
+}
+
+.rds-dialog__title {
+  color: var(--dialog-title);
+}
+
+.rds-dialog__text {
+  color: var(--dialog-text);
+}
+
+.rds-dialog__footer {
+  padding-top: var(--space-8);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .rds-dialog[data-state='open'] {
+    animation: rds-dialog-in var(--motion-duration-base) var(--motion-easing-enter);
+  }
+}
+
+@keyframes rds-dialog-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + var(--space-8)));
+  }
+}
+
+@media (forced-colors: active) {
+  .rds-dialog {
+    border-color: CanvasText;
+  }
+}

@@ -1,0 +1,225 @@
+/* @tokens phone */
+/*
+ * Phone (External collection): a MOCKUP of another company's interface. ios: 414 × 868 with a 12 bezel (corners
+ * 56 outside, 44 inside), a 54 status bar with the island, the screen, and Safari's bar at the bottom (a 44 address
+ * in a 56 strip, corners 12) over the 34 home indicator. android: 436 × 939 (44 and 32), a 40 status bar with the
+ * camera, Chrome's 56 bar on top (a 40 address, corners 20, the tabs and the menu), the screen and the 24 gesture
+ * bar.
+ * Colours: External phone/*. The interface (status bar, screen, browser bars, address, system bar) follows the
+ * theme, so the mockup changes in dark mode; the frame and the notch are the device's, raw in the Figma.
+ */
+.rds-phone {
+  box-sizing: border-box;
+  display: inline-flex;
+  flex: none;
+  width: 414px;
+  height: 868px;
+  padding: var(--space-12);
+  border-radius: 56px;
+  background: var(--phone-frame);
+  color: var(--phone-status-bar-content);
+  font-family: var(--type-font-stack);
+}
+
+.rds-phone--android {
+  width: 436px;
+  height: 939px;
+  border-radius: var(--space-48);
+}
+
+.rds-phone__device {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: 44px;
+  background: var(--phone-screen);
+}
+
+.rds-phone--android .rds-phone__device {
+  border-radius: var(--space-32);
+}
+
+.rds-phone__status {
+  --_content: var(--phone-status-bar-content);
+
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  height: 54px;
+  padding: 6px 32px 0 48px;
+  background: var(--phone-status-bar-background);
+}
+
+.rds-phone--android .rds-phone__status {
+  height: var(--size-40);
+  padding: 0 var(--space-24);
+}
+
+.rds-phone__time {
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.rds-phone--android .rds-phone__time {
+  font-size: var(--type-small-size);
+  font-weight: 500;
+}
+
+.rds-phone__island,
+.rds-phone__camera {
+  position: absolute;
+  top: 11px;
+  left: 50%;
+  translate: -50% 0;
+  background: var(--phone-notch);
+}
+
+.rds-phone__island {
+  width: 126px;
+  height: 37px;
+  border-radius: var(--radius-full);
+}
+
+.rds-phone__camera {
+  width: 18px;
+  height: 18px;
+  border-radius: var(--radius-full);
+}
+
+.rds-phone__indicators {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rds-phone__signal {
+  width: 18px;
+  height: 11px;
+  background: linear-gradient(90deg, var(--_content) 0 3px, transparent 3px 5px, var(--_content) 5px 8px, transparent 8px 10px, var(--_content) 10px 13px, transparent 13px 15px, var(--_content) 15px);
+  clip-path: polygon(0 100%, 100% 0, 100% 100%);
+}
+
+.rds-phone__battery {
+  box-sizing: border-box;
+  width: 25px;
+  height: var(--space-12);
+  border: var(--border-width) solid var(--_content);
+  border-radius: 3.5px;
+  background: var(--_content) content-box;
+  padding: 1.5px 3.5px 1.5px 1.5px;
+}
+
+.rds-phone__screen {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  background: var(--phone-screen);
+}
+
+.rds-phone__browser {
+  box-sizing: border-box;
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-12);
+  height: var(--size-56);
+  padding: 0 var(--space-8) 0 var(--space-12);
+  background: var(--phone-browser-bar-background);
+  color: var(--phone-browser-bar-icon);
+}
+
+.rds-phone__browser--bottom {
+  padding: var(--space-8) var(--space-16) var(--space-4);
+}
+
+.rds-phone__address {
+  box-sizing: border-box;
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  height: var(--size-40);
+  padding: 0 var(--space-16);
+  border-radius: 20px;
+  background: var(--phone-address-background);
+  color: var(--phone-address-text);
+  font-size: var(--type-body-size);
+  line-height: 1.2;
+}
+
+.rds-phone__browser--bottom .rds-phone__address {
+  justify-content: center;
+  height: 44px;
+  border-radius: var(--radius-container);
+  font-size: 15px;
+}
+
+.rds-phone__address > svg {
+  flex: none;
+  width: 13px;
+  height: 13px;
+  color: var(--phone-browser-bar-icon);
+}
+
+.rds-phone__address > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rds-phone__tabs {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 2px solid;
+  border-radius: var(--radius-xs);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.rds-phone__menu {
+  width: var(--size-20);
+  height: 18px;
+  background: radial-gradient(circle, var(--phone-browser-bar-icon) 2px, transparent 2.5px) center / 4px 7px repeat-y;
+}
+
+.rds-phone__system {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  height: 34px;
+  background: var(--phone-system-bar-background);
+}
+
+/* ios: Safari's bar goes down to the bottom edge, around the home indicator. */
+.rds-phone__browser--bottom + .rds-phone__system {
+  background: var(--phone-browser-bar-background);
+}
+
+.rds-phone--android .rds-phone__system {
+  height: var(--size-24);
+}
+
+.rds-phone__home {
+  width: 134px;
+  height: 5px;
+  border-radius: var(--radius-full);
+  background: var(--phone-home-indicator);
+}
+
+.rds-phone--android .rds-phone__home {
+  width: 108px;
+  height: 4px;
+}

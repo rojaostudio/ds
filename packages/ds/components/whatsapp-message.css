@@ -1,0 +1,83 @@
+/* @tokens whatsapp */
+/*
+ * WhatsAppMessage (External collection, whatsapp/*): the bubble up to 80% of the row, received on the left
+ * (bubble-in) and the others on the right (bubble-out). android: 6 8 6 9 padding, corners 8 with the speaker's top
+ * corner square, 16/21 text; ios: 7 12, corners 18 with the speaker's bottom corner at 4, 17/22. The meta (11/15
+ * time and the 16 ticks, 3 apart) on the right under the text. read ticks in tick-read; the others in meta-out.
+ */
+.rds-whatsapp-message {
+  display: flex;
+  width: 100%;
+}
+
+.rds-whatsapp-message--out {
+  justify-content: flex-end;
+}
+
+.rds-whatsapp-message__bubble {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  max-width: 80%;
+  padding: 6px var(--space-8) 6px 9px;
+  border-radius: var(--_radius);
+  background: var(--_in);
+  box-shadow: 0 1px 0.5px color-mix(in srgb, var(--_text) 13%, transparent);
+  color: var(--_text);
+}
+
+.rds-whatsapp-message--in .rds-whatsapp-message__bubble {
+  border-start-start-radius: 0;
+}
+
+.rds-whatsapp-message--out .rds-whatsapp-message__bubble {
+  background: var(--_out);
+  border-start-end-radius: 0;
+}
+
+.rds-whatsapp--ios .rds-whatsapp-message__bubble {
+  padding: 7px var(--space-12);
+  border-radius: var(--_radius);
+}
+
+.rds-whatsapp--ios.rds-whatsapp-message--in .rds-whatsapp-message__bubble {
+  border-end-start-radius: var(--radius-xs);
+}
+
+.rds-whatsapp--ios.rds-whatsapp-message--out .rds-whatsapp-message__bubble {
+  border-end-end-radius: var(--radius-xs);
+}
+
+.rds-whatsapp-message__text {
+  font-size: var(--_text-size);
+  line-height: var(--_text-line);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.rds-whatsapp-message__meta {
+  display: flex;
+  align-items: center;
+  align-self: flex-end;
+  gap: 3px;
+  color: var(--_meta);
+  font-size: 11px;
+  line-height: 15px;
+}
+
+.rds-whatsapp-message--out .rds-whatsapp-message__meta {
+  color: var(--_meta-out);
+}
+
+.rds-whatsapp-message__ticks {
+  display: inline-flex;
+}
+
+.rds-whatsapp-message__ticks > svg {
+  width: var(--size-16);
+  height: var(--size-16);
+}
+
+.rds-whatsapp-message__ticks--read {
+  color: var(--_tick);
+}

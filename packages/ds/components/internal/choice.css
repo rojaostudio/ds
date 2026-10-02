@@ -1,0 +1,67 @@
+/* @tokens internal */
+/*
+ * The row shared by Checkbox, Radio and Switch. 44 tall: the label line (24) with 10 above and below,
+ * computed from the 44 touch size (10 is not on the scale). The control aligns with the label's first line.
+ * Each component sets --_control-width, --_text-size, --_text-line, --_support-size and --_support-line.
+ */
+.rds-choice {
+  --_touch: calc(var(--space-12) * 2 + var(--type-button-line));
+  --_pad: calc((var(--_touch) - var(--_text-line)) / 2);
+
+  display: flex;
+  flex-direction: column;
+  font-family: var(--type-font-stack);
+}
+
+.rds-choice__row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-12);
+  padding-block: var(--_pad);
+  font-size: var(--_text-size);
+  line-height: var(--_text-line);
+  cursor: pointer;
+}
+
+.rds-choice:has(.rds-choice__support) .rds-choice__row {
+  padding-bottom: 0;
+}
+
+.rds-choice__control {
+  position: relative;
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--_control-width);
+  height: var(--_text-line);
+}
+
+/* The native input covers the drawn control: it takes the clicks, the focus, the keyboard and the form value. */
+.rds-choice__control > input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: inherit;
+}
+
+.rds-choice__label {
+  min-width: 0;
+}
+
+.rds-choice__support {
+  padding-inline-start: calc(var(--_control-width) + var(--space-12));
+  font-size: var(--_support-size);
+  line-height: var(--_support-line);
+}
+
+.rds-choice__support:last-child {
+  padding-bottom: var(--_pad);
+}
+
+.rds-choice:has(input:disabled) .rds-choice__row {
+  cursor: not-allowed;
+}

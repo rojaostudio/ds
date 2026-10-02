@@ -1,0 +1,149 @@
+/* @tokens avatar */
+/*
+ * Avatar (Content collection, avatar/*). sm 24, default 32, lg 40, xl 56. person is a circle; brand is a square in
+ * radius/xs (sm), radius/small (default, lg) or radius/large (xl), as in Figma. Initials: caption, small, body, body
+ * for a person; caption then body, bold, for a brand. Icon: 16, 16, 20, 24.
+ */
+.rds-avatar {
+  --_size: var(--size-32);
+  --_radius: var(--radius-full);
+  --_icon: var(--size-16);
+
+  position: relative;
+  box-sizing: border-box;
+  display: inline-flex;
+  flex: none;
+  width: var(--_size);
+  height: var(--_size);
+  border-radius: var(--_radius);
+  font-family: var(--type-font-stack);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  vertical-align: middle;
+}
+
+.rds-avatar__image,
+.rds-avatar__fallback {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+}
+
+.rds-avatar__image {
+  display: block;
+  object-fit: cover;
+}
+
+.rds-avatar__fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  user-select: none;
+}
+
+.rds-avatar__fallback > svg {
+  flex: none;
+  width: var(--_icon);
+  height: var(--_icon);
+}
+
+.rds-avatar--fallback .rds-avatar__fallback {
+  background: var(--avatar-fallback-background);
+  color: var(--avatar-fallback-label);
+}
+
+.rds-avatar--icon .rds-avatar__fallback {
+  background: var(--avatar-icon-background);
+  color: var(--avatar-icon-icon);
+}
+
+.rds-avatar--brand .rds-avatar__fallback {
+  background: var(--avatar-brand-background);
+  color: var(--avatar-brand-label);
+  font-weight: 700;
+}
+
+.rds-avatar--sm {
+  --_size: var(--size-24);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+}
+
+.rds-avatar--lg {
+  --_size: var(--size-40);
+  --_icon: var(--size-20);
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+}
+
+.rds-avatar--xl {
+  --_size: var(--size-56);
+  --_icon: var(--size-24);
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+}
+
+.rds-avatar--brand.rds-avatar--default {
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+}
+
+.rds-avatar--brand {
+  --_radius: var(--radius-small);
+}
+
+.rds-avatar--brand.rds-avatar--sm {
+  --_radius: var(--radius-xs);
+}
+
+.rds-avatar--brand.rds-avatar--xl {
+  --_radius: var(--radius-large);
+}
+
+/* Presence dot (AvatarBadge): 8px, a 2px ring in the surface colour, at the bottom-right corner. */
+.rds-avatar__badge {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: var(--space-8);
+  height: var(--space-8);
+  border-radius: var(--radius-full);
+  background: var(--avatar-presence-background);
+  box-shadow: 0 0 0 calc(var(--border-width) * 2) var(--avatar-presence-border);
+}
+
+/* Group: each avatar overlaps the previous one (Figma: -11, -12, -14) with a ring that separates them. */
+.rds-avatar-group {
+  --_overlap: calc(var(--space-12) * -1);
+
+  display: inline-flex;
+  align-items: center;
+}
+
+.rds-avatar-group--sm {
+  --_overlap: calc((var(--space-12) - var(--border-width)) * -1);
+}
+
+.rds-avatar-group--lg {
+  --_overlap: calc((var(--space-12) + var(--border-width) * 2) * -1);
+}
+
+.rds-avatar-group > .rds-avatar {
+  box-shadow: 0 0 0 calc(var(--border-width) * 2) var(--avatar-group-border);
+}
+
+.rds-avatar-group > .rds-avatar + .rds-avatar {
+  margin-inline-start: var(--_overlap);
+}
+
+@media (forced-colors: active) {
+  .rds-avatar__fallback {
+    border: var(--border-width) solid CanvasText;
+  }
+
+  .rds-avatar__badge {
+    background: CanvasText;
+  }
+}

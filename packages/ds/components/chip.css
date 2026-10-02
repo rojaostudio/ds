@@ -1,0 +1,123 @@
+/* @tokens chip */
+/* Chip: a chosen value that can be removed (Actions collection, chip/*). 32 tall, pill, card fill with a hairline. */
+.rds-chip {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: var(--size-32);
+  max-width: 100%;
+  padding-inline: var(--space-12);
+  border: var(--border-width) solid var(--chip-border);
+  border-radius: var(--radius-full);
+  background: var(--chip-background);
+  color: var(--chip-label);
+  font-family: var(--type-font-stack);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+  font-weight: 500;
+  vertical-align: middle;
+}
+
+/* With the ×, the right side is 8 (Figma): the ×'s own box gives the rest of the air. */
+.rds-chip--removable {
+  padding-inline-end: var(--space-8);
+}
+
+.rds-chip__label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rds-chip__icon {
+  display: inline-flex;
+  flex: none;
+  width: var(--size-16);
+  height: var(--size-16);
+  color: var(--chip-icon);
+}
+
+.rds-chip__icon > svg,
+.rds-chip__remove-icon > svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* The ×: 20 visible, 44 to touch. The extra target is an invisible margin that does not push the layout. */
+.rds-chip__remove {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--size-20);
+  height: var(--size-20);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--chip-icon);
+  cursor: pointer;
+}
+
+.rds-chip__remove::before {
+  content: '';
+  position: absolute;
+  /* 20 + 12 on each side = 44, the minimum touch target. */
+  inset: calc(var(--space-12) * -1);
+}
+
+.rds-chip__remove-icon {
+  display: inline-flex;
+  width: var(--size-16);
+  height: var(--size-16);
+}
+
+/* The ring goes around the whole pill (below), as in Figma. */
+.rds-chip__remove:focus-visible {
+  outline: none;
+}
+
+/* The chip is not a button, but it answers the ×: hover and focus paint the whole pill. */
+@media (hover: hover) {
+  .rds-chip:has(.rds-chip__remove:hover) {
+    background: var(--chip-background-hover);
+  }
+}
+
+/* The Chip has no ring token of its own: the Button's, so every control rings alike. */
+.rds-chip:has(.rds-chip__remove:focus-visible) {
+  outline: var(--focus-ring-width) solid var(--button-focus-ring);
+  outline-offset: var(--focus-ring-width);
+}
+
+.rds-chip--disabled,
+.rds-chip--disabled .rds-chip__icon,
+.rds-chip--disabled .rds-chip__remove {
+  color: var(--chip-label-disabled);
+}
+
+.rds-chip--disabled .rds-chip__remove {
+  cursor: not-allowed;
+}
+
+.rds-chip--disabled:has(.rds-chip__remove:hover) {
+  background: var(--chip-background);
+}
+
+@media (forced-colors: active) {
+  .rds-chip {
+    border-color: CanvasText;
+  }
+
+  .rds-chip:has(.rds-chip__remove:focus-visible) {
+    outline-color: Highlight;
+  }
+
+  .rds-chip--disabled,
+  .rds-chip--disabled .rds-chip__remove {
+    color: GrayText;
+  }
+}

@@ -1,0 +1,43 @@
+import { afterEach, describe, expect, it } from 'vitest';
+import { Status, type StatusTone, type StatusVariant } from './status';
+import { MODES, axeViolations, cleanup, render } from './__tests__/render';
+
+afterEach(cleanup);
+
+const TONES: StatusTone[] = ['neutral', 'info', 'success', 'warning', 'danger'];
+const VARIANTS: StatusVariant[] = ['outline', 'soft', 'fill'];
+
+describe.each(MODES)('Status (%s)', (mode) => {
+  it('every tone × variant × size passes axe', async () => {
+    const el = await render(
+      <div style={{ display: 'grid', gap: 8 }}>
+        {VARIANTS.map((variant) => (
+          <div key={variant} style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {TONES.flatMap((tone) => [
+              <Status key={tone} tone={tone} variant={variant}>Em análise</Status>,
+              <Status key={`${tone}-sm`} tone={tone} variant={variant} size="sm">Em análise</Status>,
+            ])}
+          </div>
+        ))}
+      </div>,
+      mode,
+    );
+    expect(await axeViolations(el)).toEqual([]);
+  });
+});
+
+describe('Status behaviour', () => {
+  it('is 32 tall by default and 24 in sm, in every variant; the dot is hidden from screen readers', async () => {
+    const el = await render(
+      <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+        {VARIANTS.map((v) => <Status key={v} variant={v}>Pendente</Status>)}
+        {VARIANTS.map((v) => <Status key={`${v}-sm`} variant={v} size="sm">Pendente</Status>)}
+      </div>,
+    );
+    const pills = [...el.querySelectorAll<HTMLElement>('.rds-status')];
+    expect(pills.slice(0, 3).map((p) => p.getBoundingClientRect().height)).toEqual([32, 32, 32]);
+    expect(pills.slice(3).map((p) => p.getBoundingClientRect().height)).toEqual([24, 24, 24]);
+    expect(el.querySelector('.rds-status__dot')!.getAttribute('aria-hidden')).toBe('true');
+    expect(pills[0].textContent).toBe('Pendente');
+  });
+});

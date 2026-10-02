@@ -1,0 +1,74 @@
+/* @tokens data-table-header */
+/*
+ * DataTableHeader: no tokens of its own; the Input, FilterChip, Chip, Button, Badge, Separator, DropdownMenu,
+ * Popover and Drawer bring theirs. One row, 8 apart, 12 above the table; the search takes the free width. The wide
+ * parts show from 768, the narrow ones below it. In the Popover and the Drawer the filters stack 16 apart, each
+ * one a caption-sized label over its chips.
+ */
+.rds-data-table-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-8);
+  margin-bottom: var(--space-12);
+}
+
+.rds-data-table-header__search {
+  flex: 1 1 calc(var(--space-64) * 4);
+}
+
+.rds-data-table-header__wide,
+.rds-data-table-header__actions,
+.rds-data-table-header__narrow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+.rds-data-table-header__wide {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .rds-data-table-header__wide {
+    display: flex;
+  }
+
+  .rds-data-table-header__narrow {
+    display: none;
+  }
+}
+
+.rds-data-table-header__scroll {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.rds-data-table-header__groups {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-16);
+}
+
+.rds-data-table-header__group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.rds-data-table-header__group-label {
+  margin: 0;
+  font-family: var(--type-font-stack);
+  font-size: var(--type-caption-size);
+  font-weight: var(--type-caption-weight);
+  line-height: var(--type-caption-line);
+  text-transform: uppercase;
+}
+
+.rds-data-table-header__drawer-actions {
+  align-self: stretch;
+  padding-top: var(--space-16);
+  border-top: var(--border-width) solid var(--separator-line);
+}

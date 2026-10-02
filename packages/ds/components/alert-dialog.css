@@ -1,0 +1,87 @@
+/* @tokens alertdialog */
+/*
+ * AlertDialog (Feedback collection, alertdialog/*): the veil over the page and, centred, a 400 box, 24 inside,
+ * 24 between the text and the buttons (8 between title and description), shadow elevation/modal.
+ */
+.rds-alert-dialog__scrim {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+  background: var(--alertdialog-scrim);
+}
+
+.rds-alert-dialog__scrim--clear {
+  background: transparent;
+}
+
+.rds-alert-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: var(--z-modal);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-24);
+  width: min(400px, calc(100vw - var(--space-32)));
+  max-height: calc(100vh - var(--space-32));
+  overflow-y: auto;
+  padding: var(--space-24);
+  border: var(--border-width) solid var(--alertdialog-border);
+  border-radius: var(--radius-container);
+  background: var(--alertdialog-background);
+  box-shadow: var(--elevation-modal);
+  font-family: var(--type-font-stack);
+  transform: translate(-50%, -50%);
+}
+
+.rds-alert-dialog:focus {
+  outline: none;
+}
+
+.rds-alert-dialog__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.rds-alert-dialog__title {
+  margin: 0;
+  color: var(--alertdialog-title);
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  font-weight: 500;
+}
+
+.rds-alert-dialog__description {
+  margin: 0;
+  color: var(--alertdialog-text);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+}
+
+.rds-alert-dialog__footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-8);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .rds-alert-dialog[data-state='open'] {
+    animation: rds-alert-dialog-in var(--motion-duration-base) var(--motion-easing-enter);
+  }
+}
+
+@keyframes rds-alert-dialog-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + var(--space-8)));
+  }
+}
+
+@media (forced-colors: active) {
+  .rds-alert-dialog {
+    border-color: CanvasText;
+  }
+}

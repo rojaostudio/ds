@@ -1,0 +1,64 @@
+/* @tokens badge */
+/* Badge (Indicators collection, badge/*): 32 tall, pill, caption bold, 8 × 12 inside; the number is a 32 circle. */
+.rds-badge {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-8);
+  min-height: var(--size-32);
+  padding: var(--space-8) var(--space-12);
+  border-radius: var(--radius-full);
+  background: var(--_background);
+  color: var(--_label);
+  font-family: var(--type-font-stack);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+  font-weight: 700;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.rds-badge--number {
+  min-width: var(--size-32);
+  padding: var(--space-8);
+  font-variant-numeric: tabular-nums;
+}
+
+.rds-badge--neutral-fill {
+  --_background: var(--badge-neutral-fill-background);
+  --_label: var(--badge-neutral-fill-label);
+}
+.rds-badge--neutral-soft {
+  --_background: var(--badge-neutral-soft-background);
+  --_label: var(--badge-neutral-soft-label);
+}
+.rds-badge--action-fill {
+  --_background: var(--badge-action-fill-background);
+  --_label: var(--badge-action-fill-label);
+}
+.rds-badge--action-soft {
+  --_background: var(--badge-action-soft-background);
+  --_label: var(--badge-action-soft-label);
+}
+.rds-badge--accent-fill {
+  --_background: var(--badge-accent-fill-background);
+  --_label: var(--badge-accent-fill-label);
+}
+/* The brand's highlighter: the one badge that reads as a marker. */
+.rds-badge--accent-highlight {
+  --_background: var(--badge-accent-highlight-background);
+  --_label: var(--badge-accent-highlight-label);
+}
+/* Only on the dark brand band (colors/primary). */
+.rds-badge--inverse-fill {
+  --_background: var(--badge-inverse-fill-background);
+  --_label: var(--badge-inverse-fill-label);
+}
+
+/* Windows high contrast drops backgrounds: keep the pill visible with a border. */
+@media (forced-colors: active) {
+  .rds-badge {
+    border: var(--border-width) solid CanvasText;
+  }
+}

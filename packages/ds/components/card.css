@@ -1,0 +1,140 @@
+/* @tokens card */
+/*
+ * Card (Content collection, card/*): header, content and footer. default pads 16, sm pads 12. tint is the brand's
+ * light background, with no border. Corners in radius/container, shadow elevation/raised.
+ */
+.rds-card {
+  --_pad: var(--space-16);
+  --_background: var(--card-background);
+  --_footer: var(--card-footer-background);
+  --_border: var(--card-border);
+
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: var(--border-width) solid var(--_border);
+  border-radius: var(--radius-container);
+  background: var(--_background);
+  box-shadow: var(--elevation-raised);
+  font-family: var(--type-font-stack);
+}
+
+.rds-card--sm {
+  --_pad: var(--space-12);
+}
+
+.rds-card--tint {
+  --_background: var(--card-tint-background);
+  --_footer: var(--card-tint-footer-background);
+  --_border: transparent;
+}
+
+.rds-card__header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-12);
+  padding: var(--_pad) var(--_pad) 0;
+}
+
+.rds-card__header--center {
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  text-align: center;
+}
+
+.rds-card__heading {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.rds-card__header--center .rds-card__heading {
+  flex: none;
+}
+
+.rds-card__title {
+  margin: 0;
+  color: var(--card-title);
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  font-weight: 500;
+}
+
+.rds-card__description {
+  margin: 0;
+  color: var(--card-description);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+}
+
+.rds-card--sm .rds-card__title {
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+}
+
+.rds-card--sm .rds-card__description {
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+}
+
+.rds-card__action {
+  flex: none;
+}
+
+/* The content keeps the colour of where the card sits: the slot holds any component. */
+.rds-card__content {
+  flex: 1;
+  padding: var(--_pad);
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+}
+
+.rds-card__footer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  padding: var(--_pad);
+  border-top: var(--border-width) solid var(--card-border);
+  background: var(--_footer);
+}
+
+.rds-card--tint .rds-card__footer {
+  border-top-color: transparent;
+}
+
+.rds-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-16);
+}
+
+.rds-card__footer--end .rds-card__actions {
+  justify-content: flex-end;
+}
+
+.rds-card__footer--full .rds-card__actions {
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.rds-card__footer--full .rds-card__actions > * {
+  width: 100%;
+}
+
+.rds-card__note {
+  margin: 0;
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  text-align: center;
+}
+
+@media (forced-colors: active) {
+  .rds-card,
+  .rds-card--tint .rds-card__footer {
+    border-color: CanvasText;
+  }
+}

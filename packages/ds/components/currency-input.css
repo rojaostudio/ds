@@ -1,0 +1,8 @@
+/* @tokens currency-input */
+/*
+ * CurrencyInput: no tokens of its own; the Input brings its own (the symbol is its prefix). The value lines up
+ * by its digits.
+ */
+.rds-currency-input .rds-field__control {
+  font-variant-numeric: tabular-nums;
+}

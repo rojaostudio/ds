@@ -1,0 +1,113 @@
+/* @tokens toggle */
+/*
+ * Toggle and ToggleGroupItem: a button that stays on or off (Actions collection, toggle/*). 44 tall,
+ * like the Button. Radix sets data-state="on|off" and aria-pressed; the colours follow data-state.
+ */
+.rds-toggle {
+  --_background: transparent;
+  --_background-hover: var(--toggle-background-hover);
+  --_border: transparent;
+  --_label: var(--toggle-label);
+  --_border-width: var(--border-width);
+  /* The touch minimum: padding 12 + line 20 + padding 12. */
+  --_min-size: calc(var(--space-12) * 2 + var(--type-button-line));
+
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-8);
+  min-width: var(--_min-size);
+  min-height: var(--_min-size);
+  max-width: 100%;
+  /*
+   * The border exists on both variants (transparent on ghost) and comes out of the padding, so the
+   * toggle keeps its size when the outline thickens to 2px on "on".
+   */
+  padding: calc(var(--space-12) - var(--_border-width));
+  border: var(--_border-width) solid var(--_border);
+  border-radius: var(--radius-control);
+  background: var(--_background);
+  color: var(--_label);
+  font-family: var(--type-font-stack);
+  font-size: var(--type-button-size);
+  line-height: var(--type-button-line);
+  font-weight: 500;
+  text-align: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (hover: hover) {
+  .rds-toggle:hover {
+    background: var(--_background-hover);
+  }
+}
+
+/* The Toggle has no ring token of its own: the Button's, so every control rings alike. */
+.rds-toggle:focus-visible {
+  outline: var(--focus-ring-width) solid var(--button-focus-ring);
+  outline-offset: var(--focus-ring-width);
+}
+
+.rds-toggle__icon {
+  display: inline-flex;
+  flex: none;
+  width: var(--size-20);
+  height: var(--size-20);
+}
+
+.rds-toggle__icon > svg {
+  width: 100%;
+  height: 100%;
+}
+
+.rds-toggle--outline {
+  --_border: var(--toggle-border);
+}
+
+.rds-toggle[data-state='on'] {
+  --_background: var(--toggle-background-pressed);
+  --_background-hover: var(--toggle-background-pressed-hover);
+  --_label: var(--toggle-label-pressed);
+}
+
+/* Outline "on": a 2px border (Figma: border-width-strong), also when disabled, so the state still shows. */
+.rds-toggle--outline[data-state='on'] {
+  --_border: var(--toggle-border-pressed);
+  --_border-width: var(--border-width-strong);
+}
+
+/* Disabled = aria-disabled: stays focusable; an "on" toggle keeps its fill so the state still shows. */
+.rds-toggle[aria-disabled='true'] {
+  --_background-hover: var(--_background);
+  --_label: var(--toggle-label-disabled);
+  cursor: not-allowed;
+}
+
+.rds-toggle--outline[aria-disabled='true'] {
+  --_border: var(--toggle-border-disabled);
+}
+
+/* Windows high contrast: backgrounds are dropped, so "on" is shown with the system selection colours. */
+@media (forced-colors: active) {
+  .rds-toggle {
+    border-color: ButtonText;
+  }
+
+  .rds-toggle[data-state='on'] {
+    forced-color-adjust: none;
+    border-color: SelectedItem;
+    background: SelectedItem;
+    color: SelectedItemText;
+  }
+
+  .rds-toggle[aria-disabled='true'] {
+    border-color: GrayText;
+    color: GrayText;
+  }
+
+  .rds-toggle:focus-visible {
+    outline-color: Highlight;
+  }
+}

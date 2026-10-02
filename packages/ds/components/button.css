@@ -1,0 +1,310 @@
+/* @tokens button */
+/*
+ * Button and IconButton: same anatomy and same tokens (Actions collection, button/*).
+ * Each tone × variant only swaps the local variables (--_*); there is a single drawing.
+ */
+.rds-button {
+  --_background: transparent;
+  --_background-hover: transparent;
+  --_background-active: transparent;
+  --_border: transparent;
+  --_label: currentColor;
+  --_icon: currentColor;
+  --_ring: var(--button-focus-ring);
+  --_disabled-background: transparent;
+  --_disabled-border: transparent;
+  --_disabled-label: var(--button-disabled-ghost-label);
+  --_disabled-icon: var(--_disabled-label);
+  /* The size (button/size/<sm|md|lg>/*): md here, sm and lg below swap the same locals. */
+  --_height: var(--button-size-md-height);
+  --_padding-x: var(--button-size-md-padding-x);
+  --_padding-y: var(--button-size-md-padding-y);
+  --_gap: var(--button-size-md-gap);
+  --_icon-size: var(--button-size-md-icon);
+  --_icon-only-size: var(--button-size-md-icon-only);
+  --_text-size: var(--button-size-md-text-size);
+  --_text-line: var(--button-size-md-text-line);
+
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--_gap);
+  /* Every variant has the 1px border (transparent on fill and ghost) taken out of the padding, so all three
+     variants measure the same: sm 8 + 20 + 8, md 12 + 20 + 12, lg 12 + 24 + 12. */
+  padding: calc(var(--_padding-y) - var(--border-width)) calc(var(--_padding-x) - var(--border-width));
+  /* The height is guaranteed, not only the result of the padding sum (lg: 48 of content, 52 minimum). */
+  min-height: var(--_height);
+  max-width: 100%;
+  border: var(--border-width) solid var(--_border);
+  border-radius: var(--radius-control);
+  background: var(--_background);
+  color: var(--_label);
+  font-family: var(--type-font-stack);
+  font-size: var(--_text-size);
+  line-height: var(--_text-line);
+  font-weight: 500;
+  /* Long labels wrap instead of overflowing narrow screens (WCAG 1.4.10 reflow at 320px). */
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Hover only where there is a pointer that hovers; on touch it would stick after the tap. */
+@media (hover: hover) {
+  .rds-button:hover {
+    background: var(--_background-hover);
+  }
+}
+
+.rds-button:active {
+  background: var(--_background-active);
+}
+
+/* A single outline, 2px wide, 2px away. */
+.rds-button:focus-visible {
+  outline: var(--focus-ring-width) solid var(--_ring);
+  outline-offset: var(--focus-ring-width);
+}
+
+.rds-button__icon {
+  display: inline-flex;
+  flex: none;
+  width: var(--_icon-size);
+  height: var(--_icon-size);
+  color: var(--_icon);
+}
+
+.rds-button__icon > svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* ---------- size ---------- */
+.rds-button--sm {
+  --_height: var(--button-size-sm-height);
+  --_padding-x: var(--button-size-sm-padding-x);
+  --_padding-y: var(--button-size-sm-padding-y);
+  --_gap: var(--button-size-sm-gap);
+  --_icon-size: var(--button-size-sm-icon);
+  --_icon-only-size: var(--button-size-sm-icon-only);
+  --_text-size: var(--button-size-sm-text-size);
+  --_text-line: var(--button-size-sm-text-line);
+}
+
+.rds-button--lg {
+  --_height: var(--button-size-lg-height);
+  --_padding-x: var(--button-size-lg-padding-x);
+  --_padding-y: var(--button-size-lg-padding-y);
+  --_gap: var(--button-size-lg-gap);
+  --_icon-size: var(--button-size-lg-icon);
+  --_icon-only-size: var(--button-size-lg-icon-only);
+  --_text-size: var(--button-size-lg-text-size);
+  --_text-line: var(--button-size-lg-text-line);
+}
+
+/* IconButton: a square of the size's height (36, 44, 52), the icon-only icon (16, 20, 24) in the middle. */
+.rds-button--icon-only {
+  --_icon-size: var(--_icon-only-size);
+  min-width: var(--_height);
+  padding: calc(var(--_padding-y) - var(--border-width));
+}
+
+/*
+ * Touch target: 44 × 44 in every size. sm is 36, so under a coarse pointer an invisible layer (no paint, no
+ * layout, outside the focus ring's drawing) grows the hit area by (44 - 36) / 2 = 4px on each side: vertically
+ * on the Button, on all four sides on the IconButton. 44 is the md height. Two sm stay 8px or more apart.
+ */
+@media (pointer: coarse) {
+  .rds-button--sm {
+    /* The layer is placed from the padding box: the 1px border is taken out too. */
+    --_touch-inset: calc((var(--button-size-sm-height) - var(--button-size-md-height)) / 2 - var(--border-width));
+    position: relative;
+  }
+
+  .rds-button--sm::after {
+    content: '';
+    position: absolute;
+    inset: var(--_touch-inset) calc(0px - var(--border-width));
+  }
+
+  .rds-button--sm.rds-button--icon-only::after {
+    inset: var(--_touch-inset);
+  }
+}
+
+/* Disabled = aria-disabled: stays in the tab order and takes focus; the variant stays, the color goes. */
+.rds-button[aria-disabled='true'],
+.rds-button[aria-disabled='true']:hover,
+.rds-button[aria-disabled='true']:active {
+  background: var(--_disabled-background);
+  border-color: var(--_disabled-border);
+  color: var(--_disabled-label);
+  cursor: not-allowed;
+}
+
+.rds-button[aria-disabled='true'] .rds-button__icon {
+  color: var(--_disabled-icon);
+}
+
+/* ---------- action ---------- */
+.rds-button--action.rds-button--fill {
+  --_background: var(--button-action-fill-background-default);
+  --_background-hover: var(--button-action-fill-background-hover);
+  --_background-active: var(--button-action-fill-background-active);
+  --_label: var(--button-action-fill-label);
+  --_icon: var(--button-action-fill-icon);
+}
+.rds-button--action.rds-button--outline {
+  --_border: var(--button-action-outline-border);
+  --_background-hover: var(--button-action-outline-background-hover);
+  --_background-active: var(--button-action-outline-background-active);
+  --_label: var(--button-action-outline-label);
+  --_icon: var(--button-action-outline-icon);
+}
+.rds-button--action.rds-button--ghost {
+  --_background-hover: var(--button-action-ghost-background-hover);
+  --_background-active: var(--button-action-ghost-background-active);
+  --_label: var(--button-action-ghost-label);
+  --_icon: var(--button-action-ghost-icon);
+}
+
+/* ---------- neutral ---------- */
+.rds-button--neutral.rds-button--fill {
+  --_background: var(--button-neutral-fill-background-default);
+  --_background-hover: var(--button-neutral-fill-background-hover);
+  --_background-active: var(--button-neutral-fill-background-active);
+  --_label: var(--button-neutral-fill-label);
+  --_icon: var(--button-neutral-fill-icon);
+}
+.rds-button--neutral.rds-button--outline {
+  --_border: var(--button-neutral-outline-border);
+  --_background-hover: var(--button-neutral-outline-background-hover);
+  --_background-active: var(--button-neutral-outline-background-active);
+  --_label: var(--button-neutral-outline-label);
+  --_icon: var(--button-neutral-outline-icon);
+}
+.rds-button--neutral.rds-button--ghost {
+  --_background-hover: var(--button-neutral-ghost-background-hover);
+  --_background-active: var(--button-neutral-ghost-background-active);
+  --_label: var(--button-neutral-ghost-label);
+  --_icon: var(--button-neutral-ghost-icon);
+}
+
+/* ---------- danger ---------- */
+.rds-button--danger.rds-button--fill {
+  --_background: var(--button-danger-fill-background-default);
+  --_background-hover: var(--button-danger-fill-background-hover);
+  --_background-active: var(--button-danger-fill-background-active);
+  --_label: var(--button-danger-fill-label);
+  --_icon: var(--button-danger-fill-icon);
+}
+.rds-button--danger.rds-button--outline {
+  --_border: var(--button-danger-outline-border);
+  --_background-hover: var(--button-danger-outline-background-hover);
+  --_background-active: var(--button-danger-outline-background-active);
+  --_label: var(--button-danger-outline-label);
+  --_icon: var(--button-danger-outline-icon);
+}
+.rds-button--danger.rds-button--ghost {
+  --_background-hover: var(--button-danger-ghost-background-hover);
+  --_background-active: var(--button-danger-ghost-background-active);
+  --_label: var(--button-danger-ghost-label);
+  --_icon: var(--button-danger-ghost-icon);
+}
+
+/* Disabled shared by the three tones used on light surfaces. */
+.rds-button--fill:not(.rds-button--inverse) {
+  --_disabled-background: var(--button-disabled-fill-background);
+  --_disabled-label: var(--button-disabled-fill-label);
+  --_disabled-icon: var(--button-disabled-fill-icon);
+}
+.rds-button--outline:not(.rds-button--inverse) {
+  --_disabled-border: var(--button-disabled-outline-border);
+  --_disabled-label: var(--button-disabled-outline-label);
+  --_disabled-icon: var(--button-disabled-outline-icon);
+}
+.rds-button--ghost:not(.rds-button--inverse) {
+  --_disabled-label: var(--button-disabled-ghost-label);
+  --_disabled-icon: var(--button-disabled-ghost-icon);
+}
+
+/* ---------- inverse: only on the dark brand band (colors/primary) ---------- */
+.rds-button--inverse {
+  --_ring: var(--button-inverse-focus-ring);
+  --_disabled-label: var(--button-inverse-disabled-label);
+  --_disabled-icon: var(--button-inverse-disabled-label);
+}
+.rds-button--inverse.rds-button--fill {
+  --_background: var(--button-inverse-fill-background-default);
+  --_background-hover: var(--button-inverse-fill-background-hover);
+  --_background-active: var(--button-inverse-fill-background-active);
+  --_label: var(--button-inverse-fill-label);
+  --_icon: var(--button-inverse-fill-icon);
+  --_disabled-background: var(--button-inverse-disabled-fill-background);
+}
+.rds-button--inverse.rds-button--outline {
+  --_border: var(--button-inverse-outline-border);
+  --_background-hover: var(--button-inverse-outline-background-hover);
+  --_background-active: var(--button-inverse-outline-background-active);
+  --_label: var(--button-inverse-outline-label);
+  --_icon: var(--button-inverse-outline-icon);
+  --_disabled-border: var(--button-inverse-disabled-label);
+}
+.rds-button--inverse.rds-button--ghost {
+  --_background-hover: var(--button-inverse-ghost-background-hover);
+  --_background-active: var(--button-inverse-ghost-background-active);
+  --_label: var(--button-inverse-ghost-label);
+  --_icon: var(--button-inverse-ghost-icon);
+}
+
+/*
+ * Windows high contrast (forced colors): the browser replaces every color, so aria-disabled would
+ * look like an enabled button. Use the system colors for "disabled" and for the focus ring. The
+ * transparent border every variant carries is what draws the button's outline in this mode.
+ */
+@media (forced-colors: active) {
+  .rds-button {
+    border-color: ButtonText;
+  }
+
+  .rds-button[aria-disabled='true'],
+  .rds-button[aria-disabled='true'] .rds-button__icon {
+    border-color: GrayText;
+    color: GrayText;
+  }
+
+  .rds-button:focus-visible {
+    outline-color: Highlight;
+  }
+}
+
+/* loading: the loader in the icon's place, turning; slower with reduced motion. Without an icon, the label
+   turns transparent (it still holds the width and the name) and the loader sits over it, centered. */
+.rds-button--loading {
+  position: relative;
+  color: transparent;
+}
+
+.rds-button--loading > .rds-button__loader {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+}
+
+.rds-button__loader > svg {
+  animation: rds-button-turn 1s linear infinite;
+}
+
+@keyframes rds-button-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rds-button__loader > svg {
+    animation-duration: 3s;
+  }
+}

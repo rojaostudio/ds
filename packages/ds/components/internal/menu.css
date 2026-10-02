@@ -1,0 +1,112 @@
+/* @tokens menu */
+/*
+ * The menu (Overlays collection, menu/*; Figma DropdownMenu and .menu/item), shared by DropdownMenu, ContextMenu
+ * and Command. The box: 4 inside, at least 220 for the items, corners radius/container, shadow elevation/overlay.
+ * The item: 44 tall, 12 inside, 12 between icon (20), label (14/20) and shortcut; corners radius/xs. Hover and
+ * the keyboard's item share menu/item/background/hover; danger for what destroys; disabled stays in the list.
+ * The shortcut is drawn as the Kbd (kbd/*). The line between groups is the Separator's (separator/line).
+ */
+.rds-menu {
+  z-index: var(--_layer-floating, var(--z-dropdown));
+  box-sizing: border-box;
+  min-width: calc(220px + var(--space-4) * 2);
+  max-height: var(--radix-dropdown-menu-content-available-height, var(--radix-context-menu-content-available-height));
+  overflow-y: auto;
+  padding: var(--space-4);
+  border: var(--border-width) solid var(--menu-border);
+  border-radius: var(--radius-container);
+  background: var(--menu-background);
+  box-shadow: var(--elevation-overlay);
+  font-family: var(--type-font-stack);
+}
+
+.rds-menu:focus {
+  outline: none;
+}
+
+.rds-menu__item {
+  --_label: var(--menu-item-label);
+  --_icon: var(--menu-item-icon);
+
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  min-height: calc(var(--space-12) * 2 + var(--size-20));
+  padding: 0 var(--space-12);
+  border-radius: var(--radius-xs);
+  color: var(--_label);
+  font-family: var(--type-font-stack);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  text-decoration: none;
+  cursor: pointer;
+  outline: none;
+  user-select: none;
+}
+
+.rds-menu__item[data-highlighted],
+.rds-menu__item[data-active] {
+  background: var(--menu-item-background-hover);
+}
+
+.rds-menu__item--danger {
+  --_label: var(--menu-item-danger);
+  --_icon: var(--menu-item-danger);
+}
+
+.rds-menu__item[data-disabled],
+.rds-menu__item[aria-disabled='true'] {
+  --_label: var(--menu-item-disabled);
+  --_icon: var(--menu-item-disabled);
+
+  cursor: not-allowed;
+}
+
+.rds-menu__icon,
+.rds-menu__check {
+  display: inline-flex;
+  flex: none;
+  color: var(--_icon);
+}
+
+.rds-menu__icon > svg,
+.rds-menu__check > svg {
+  width: var(--size-20);
+  height: var(--size-20);
+}
+
+.rds-menu__label {
+  flex: 1;
+  min-width: 0;
+}
+
+.rds-menu__shortcut {
+  flex: none;
+  padding: 0 var(--space-4);
+  border: var(--border-width) solid var(--kbd-border);
+  border-radius: var(--radius-xs);
+  background: var(--kbd-background);
+  color: var(--kbd-label);
+  font-family: inherit;
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+}
+
+.rds-menu__separator {
+  height: var(--border-width);
+  margin: var(--space-4) 0;
+  background: var(--separator-line);
+}
+
+@media (forced-colors: active) {
+  .rds-menu {
+    border-color: CanvasText;
+  }
+
+  .rds-menu__item[data-highlighted],
+  .rds-menu__item[data-active] {
+    outline: var(--focus-ring-width) solid Highlight;
+    outline-offset: calc(var(--focus-ring-width) * -1);
+  }
+}

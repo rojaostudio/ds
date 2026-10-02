@@ -1,0 +1,38 @@
+# deps
+node_modules
+
+# builds
+.next
+out
+dist
+build
+
+# turbo
+.turbo
+
+# env
+.env
+.env.*
+!.env.example
+
+# vercel
+.vercel
+
+# misc
+*.log
+coverage
+.DS_Store
+*.tsbuildinfo
+
+# entrega de marca (build:brands) — saida, nao fonte
+brands-out
+
+# credencial local, nunca versionada
+.npm/
+
+# config local do Claude Code — nunca versionada
+.claude/settings.local.json
+
+# vitest browser mode: failure screenshots and attachments
+__screenshots__/
+.vitest-attachments/

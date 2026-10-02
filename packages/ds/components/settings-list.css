@@ -1,0 +1,14 @@
+/* @tokens settings-list */
+/*
+ * SettingsList: no tokens of its own; the PageHeader, the Card and the Item bring theirs. The header 12 above the
+ * rows; a line in the Item's border colour between rows.
+ */
+.rds-settings-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+}
+
+.rds-settings-list .rds-settings-list__rows > * + * {
+  border-top: var(--border-width) solid var(--item-border);
+}

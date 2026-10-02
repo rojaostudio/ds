@@ -1,0 +1,140 @@
+/* @tokens insight-card */
+/*
+ * InsightCard (Content collection, insight-card/*): 16 inside, 16 between the body and the action, radius/container.
+ * The type paints the border, the background and the tag. Tag: caption, semibold, uppercase (the Figma draws it at
+ * 10/14, which is not on the type scale). Title 16/24 semibold with the potential (14/20 medium) beside it.
+ */
+.rds-insight-card {
+  box-sizing: border-box;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-16);
+  padding: calc(var(--space-16) - var(--border-width));
+  border: var(--border-width) solid var(--_border);
+  border-radius: var(--radius-container);
+  background: var(--_background);
+  font-family: var(--type-font-stack);
+}
+
+.rds-insight-card__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: calc(var(--space-4) + var(--space-4) / 2);
+  min-width: 0;
+}
+
+.rds-insight-card__badge {
+  padding: calc(var(--space-4) / 2) calc(var(--space-4) + var(--space-4) / 2);
+  border-radius: var(--radius-xs);
+  background: var(--_badge-background);
+  color: var(--_badge-text);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.rds-insight-card__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-8);
+}
+
+.rds-insight-card__title {
+  margin: 0;
+  color: var(--insight-card-title);
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  font-weight: 600;
+}
+
+.rds-insight-card__potential {
+  color: var(--insight-card-potential);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.rds-insight-card__description {
+  margin: 0;
+  color: var(--insight-card-description);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+}
+
+/*
+ * The action: 6 12 inside, radius/container, a light shadow (the Figma's is a raw 0 1 2 black 5%, here
+ * elevation/raised). The visible box is 32 tall; an invisible layer takes the touch area to 44.
+ */
+.rds-insight-card__action {
+  position: relative;
+  flex: none;
+  padding: calc(var(--space-4) + var(--space-4) / 2 - var(--border-width)) calc(var(--space-12) - var(--border-width));
+  border: var(--border-width) solid var(--insight-card-action-border);
+  border-radius: var(--radius-container);
+  background: var(--insight-card-action-background);
+  box-shadow: var(--elevation-raised);
+  color: var(--insight-card-action-text);
+  font: inherit;
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.rds-insight-card__action::before {
+  content: '';
+  position: absolute;
+  /* 32 + 6 above + 6 below = the 44 touch minimum. */
+  inset: calc(var(--space-4) * -1.5) 0;
+}
+
+.rds-insight-card__action:focus-visible {
+  outline: var(--focus-ring-width) solid var(--_border);
+  outline-offset: var(--focus-ring-width);
+}
+
+@media (hover: hover) {
+  .rds-insight-card__action:hover {
+    text-decoration: underline;
+  }
+}
+
+.rds-insight-card--alert {
+  --_border: var(--insight-card-alert-border);
+  --_background: var(--insight-card-alert-background);
+  --_badge-background: var(--insight-card-alert-badge-background);
+  --_badge-text: var(--insight-card-alert-badge-text);
+}
+
+.rds-insight-card--opportunity {
+  --_border: var(--insight-card-opportunity-border);
+  --_background: var(--insight-card-opportunity-background);
+  --_badge-background: var(--insight-card-opportunity-badge-background);
+  --_badge-text: var(--insight-card-opportunity-badge-text);
+}
+
+.rds-insight-card--tip {
+  --_border: var(--insight-card-tip-border);
+  --_background: var(--insight-card-tip-background);
+  --_badge-background: var(--insight-card-tip-badge-background);
+  --_badge-text: var(--insight-card-tip-badge-text);
+}
+
+@media (forced-colors: active) {
+  .rds-insight-card,
+  .rds-insight-card__action {
+    border-color: CanvasText;
+  }
+
+  .rds-insight-card__action:focus-visible {
+    outline-color: Highlight;
+  }
+}

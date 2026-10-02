@@ -1,0 +1,271 @@
+/* @tokens chart */
+/*
+ * Chart (Content collection, chart/*). Axes 48 wide with an 8 gap, 5 grid lines, 2px lines, 12 between the plot and
+ * the labels, legend 16 apart and aligned with the plot. bar: label, track and value 12 apart, 16-tall bars 12
+ * apart, end corners in radius/xs. column: the band's columns with top corners in radius/xs. The series colour comes
+ * in --_series: chart.tsx picks one of the --_series-N locals below, each one a chart/series-color/N token.
+ */
+.rds-chart {
+  --_series-1: var(--chart-series-color-1);
+  --_series-2: var(--chart-series-color-2);
+  --_series-3: var(--chart-series-color-3);
+  --_series-4: var(--chart-series-color-4);
+  --_series-5: var(--chart-series-color-5);
+  --_axis: var(--space-48);
+  --_gap: var(--space-8);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+  min-width: 0;
+  margin: 0;
+  color: var(--chart-label);
+  font-family: var(--type-font-stack);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+}
+
+.rds-chart__row {
+  display: flex;
+  gap: var(--_gap);
+  min-height: calc(var(--space-64) * 3 - var(--space-12));
+}
+
+.rds-chart__axis {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  justify-content: space-between;
+  width: var(--_axis);
+  margin-block: calc(var(--type-caption-line) / -2);
+  color: var(--chart-axis);
+  font-variant-numeric: tabular-nums;
+}
+
+.rds-chart__axis--left {
+  text-align: end;
+}
+
+.rds-chart__plot {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  cursor: crosshair;
+  touch-action: pan-y;
+}
+
+.rds-chart__plot:focus-visible {
+  outline: var(--focus-ring-width) solid var(--chart-crosshair);
+  outline-offset: var(--focus-ring-width);
+}
+
+.rds-chart__grid {
+  position: absolute;
+  inset-inline: 0;
+  height: var(--border-width);
+  background: var(--chart-grid);
+}
+
+.rds-chart__svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.rds-chart__line {
+  fill: none;
+  stroke: var(--_series);
+  stroke-width: calc(var(--border-width) * 2);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.rds-chart__crosshair {
+  position: absolute;
+  inset-block: 0;
+  width: var(--border-width);
+  background: var(--chart-crosshair);
+  pointer-events: none;
+}
+
+.rds-chart__band {
+  position: absolute;
+  inset-block: 0;
+  border-inline: var(--border-width) solid var(--chart-crosshair);
+  pointer-events: none;
+}
+
+.rds-chart__point {
+  position: absolute;
+  box-sizing: border-box;
+  width: var(--space-8);
+  height: var(--space-8);
+  border: calc(var(--border-width) * 2) solid var(--chart-tooltip-background);
+  border-radius: var(--radius-full);
+  background: var(--_series);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+/* Tooltip (Figma: .chart/tooltip): 8 12 padding, 4 between rows, radius/container. */
+.rds-chart__tooltip {
+  position: absolute;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-inline: var(--space-12);
+  padding: var(--space-8) var(--space-12);
+  border: var(--border-width) solid var(--chart-tooltip-border);
+  border-radius: var(--radius-container);
+  background: var(--chart-tooltip-background);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.rds-chart__tooltip-title,
+.rds-chart__tooltip-value {
+  color: var(--chart-tooltip-title);
+  font-weight: var(--type-caption-weight);
+}
+
+.rds-chart__tooltip-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+.rds-chart__tooltip-name {
+  flex: 1;
+}
+
+.rds-chart__dot {
+  flex: none;
+  width: var(--space-8);
+  height: var(--space-8);
+  border-radius: var(--radius-full);
+  background: var(--_series);
+}
+
+/* Columns: one band per category, the series side by side in the middle half of it. */
+.rds-chart__columns {
+  position: absolute;
+  inset: 0;
+  display: flex;
+}
+
+.rds-chart__column-group {
+  display: flex;
+  flex: 1;
+  align-items: flex-end;
+  justify-content: center;
+  gap: var(--space-4);
+  padding-inline: 24%;
+}
+
+.rds-chart__column {
+  flex: 1;
+  border-radius: var(--radius-xs) var(--radius-xs) 0 0;
+  background: var(--_series);
+}
+
+.rds-chart__labels {
+  padding-inline: calc(var(--_axis) + var(--_gap));
+  color: var(--chart-axis);
+}
+
+.rds-chart:not(.rds-chart--dual) .rds-chart__labels {
+  padding-inline-end: 0;
+}
+
+.rds-chart__labels-track {
+  position: relative;
+  height: var(--type-caption-line);
+}
+
+.rds-chart__label {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.rds-chart__labels-track--line .rds-chart__label:first-child {
+  transform: none;
+}
+
+.rds-chart__labels-track--line .rds-chart__label:last-child {
+  transform: translateX(-100%);
+}
+
+/* Bars: label, track, value. */
+.rds-chart__bars {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+}
+
+.rds-chart__bar-row {
+  display: grid;
+  grid-template-columns: minmax(0, calc(var(--space-56) * 3 + var(--space-8))) 1fr auto;
+  align-items: center;
+  gap: var(--space-12);
+}
+
+.rds-chart__bar-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rds-chart__track {
+  display: flex;
+  height: var(--size-16);
+}
+
+.rds-chart__bar {
+  border-radius: 0 var(--radius-xs) var(--radius-xs) 0;
+  background: var(--_series);
+}
+
+.rds-chart__bar-value {
+  color: var(--chart-axis);
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+}
+
+.rds-chart__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-16);
+  margin: 0;
+  padding: 0 0 0 calc(var(--_axis) + var(--_gap));
+  list-style: none;
+}
+
+.rds-chart__legend li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+@media (forced-colors: active) {
+  .rds-chart__line {
+    stroke: CanvasText;
+  }
+
+  .rds-chart__dot,
+  .rds-chart__point,
+  .rds-chart__bar,
+  .rds-chart__column {
+    background: CanvasText;
+  }
+
+  .rds-chart__plot:focus-visible {
+    outline-color: Highlight;
+  }
+}

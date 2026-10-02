@@ -1,0 +1,104 @@
+/* @tokens item */
+/*
+ * Item (Content collection, item/*): one list row, at least 44 tall. default pads 12 16, gap 16; sm pads 8 12,
+ * gap 12. Corners in radius/container. Title in label (16/24 medium), description in small (14/20); sm one step down.
+ */
+.rds-item-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rds-item-group:has(> .rds-item--default) {
+  gap: 0;
+}
+
+.rds-item-group > .rds-item--default + .rds-item--default {
+  border-top: var(--border-width) solid var(--item-border);
+}
+
+.rds-item {
+  --_pad-y: var(--space-12);
+  --_pad-x: var(--space-16);
+  --_gap: var(--space-16);
+
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: var(--_gap);
+  min-height: calc(var(--space-12) * 2 + var(--type-button-line));
+  padding: calc(var(--_pad-y) - var(--border-width)) calc(var(--_pad-x) - var(--border-width));
+  border: var(--border-width) solid transparent;
+  border-radius: var(--radius-container);
+  font-family: var(--type-font-stack);
+}
+
+.rds-item--sm {
+  --_pad-y: var(--space-8);
+  --_pad-x: var(--space-12);
+  --_gap: var(--space-12);
+}
+
+.rds-item--default {
+  padding: var(--_pad-y) var(--_pad-x);
+  border-width: 0;
+  border-radius: 0;
+}
+
+.rds-item--outline {
+  border-color: var(--item-border);
+}
+
+.rds-item--muted {
+  background: var(--item-muted-background);
+}
+
+.rds-item__media {
+  display: inline-flex;
+  flex: none;
+}
+
+.rds-item__content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.rds-item__title {
+  color: var(--item-title);
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  font-weight: 500;
+}
+
+.rds-item__description {
+  color: var(--item-description);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+}
+
+.rds-item--sm .rds-item__title {
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+}
+
+.rds-item--sm .rds-item__description {
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+}
+
+.rds-item__action {
+  display: inline-flex;
+  flex: none;
+}
+
+@media (forced-colors: active) {
+  .rds-item--outline,
+  .rds-item--muted {
+    border-color: CanvasText;
+  }
+}

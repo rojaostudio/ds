@@ -1,0 +1,197 @@
+/* @tokens whatsapp */
+/*
+ * WhatsAppNotification (External collection): a 360 × 780 lock screen. android: 56 12 0 padding, the clock 72/80
+ * light and the date 16/22, 40 above a card (corners 24, 16 padding, 12 between the text and the 40 picture): the
+ * app row (16 icon, "WhatsApp • agora", 12/16), the title 15/20 medium and the message 14/20. ios: 64 10 0, the
+ * date 20/24 and the clock 88/96 semibold, the card far below (corners 22, 12 14 padding): the 38 picture with the
+ * app icon over its corner, the title row (15/20 semibold, the time 13/18) and the message 15/20.
+ * Colours: External whatsapp/notification/*. The card and its text follow the theme, so the mockup changes in dark
+ * mode; the wallpaper (a neutral gradient, no real picture) and the clock are raw in the Figma. The app icon is
+ * whatsapp/<platform>/accent.
+ */
+.rds-whatsapp-notification {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 360px;
+  max-width: 100%;
+  height: 780px;
+  padding: var(--space-56) var(--space-12) 0;
+  overflow: hidden;
+  background: linear-gradient(170deg, var(--whatsapp-notification-wallpaper-start), var(--whatsapp-notification-wallpaper-end));
+  color: var(--whatsapp-notification-card-text);
+}
+
+/* The chat mockups stay light (the WhatsApp palette is raw); the notification card follows the theme. */
+.rds-whatsapp-notification.rds-whatsapp--android,
+.rds-whatsapp-notification.rds-whatsapp--ios {
+  color-scheme: normal;
+}
+
+.rds-whatsapp-notification__clock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: var(--space-40);
+  color: var(--whatsapp-notification-clock);
+}
+
+.rds-whatsapp-notification__time {
+  order: -1;
+  font-size: 72px;
+  font-weight: 300;
+  line-height: 80px;
+}
+
+.rds-whatsapp-notification__date {
+  font-size: var(--type-body-size);
+  line-height: 22px;
+}
+
+.rds-whatsapp--ios.rds-whatsapp-notification {
+  padding: var(--space-64) 10px 0;
+}
+
+.rds-whatsapp--ios .rds-whatsapp-notification__clock {
+  margin-bottom: 220px;
+}
+
+.rds-whatsapp--ios .rds-whatsapp-notification__time {
+  order: 0;
+  font-size: 88px;
+  font-weight: 600;
+  line-height: 96px;
+}
+
+.rds-whatsapp--ios .rds-whatsapp-notification__date {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: var(--type-heading-line);
+}
+
+.rds-whatsapp-notification__card {
+  box-sizing: border-box;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-12);
+  width: 100%;
+  padding: var(--space-16);
+  border-radius: var(--space-24);
+  background: var(--whatsapp-notification-card-background);
+}
+
+.rds-whatsapp--ios .rds-whatsapp-notification__card {
+  align-items: center;
+  padding: var(--space-12) 14px;
+  border-radius: 22px;
+}
+
+.rds-whatsapp-notification__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: calc(var(--space-4) / 2);
+  min-width: 0;
+}
+
+.rds-whatsapp-notification__app-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: var(--space-4);
+  color: var(--whatsapp-notification-card-meta);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+}
+
+.rds-whatsapp-notification__app {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--size-16);
+  height: var(--size-16);
+  border-radius: var(--radius-full);
+  background: var(--_accent);
+  color: var(--_in);
+}
+
+.rds-whatsapp-notification__app > svg {
+  width: 10px;
+  height: 10px;
+}
+
+.rds-whatsapp-notification__title {
+  color: var(--whatsapp-notification-card-title);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: var(--type-small-line);
+}
+
+.rds-whatsapp-notification__message {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--whatsapp-notification-card-text);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.rds-whatsapp-notification__avatar {
+  box-sizing: border-box;
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--size-40);
+  height: var(--size-40);
+  overflow: hidden;
+  border: var(--border-width) solid var(--whatsapp-notification-avatar-border);
+  border-radius: var(--radius-full);
+  background: var(--whatsapp-notification-avatar-background);
+}
+
+.rds-whatsapp-notification__avatar > * {
+  max-width: 75%;
+  max-height: 75%;
+}
+
+.rds-whatsapp--ios .rds-whatsapp-notification__picture {
+  position: relative;
+  flex: none;
+}
+
+.rds-whatsapp--ios .rds-whatsapp-notification__avatar {
+  width: 38px;
+  height: 38px;
+  border: 0;
+}
+
+.rds-whatsapp--ios .rds-whatsapp-notification__app {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+}
+
+.rds-whatsapp-notification__title-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-8);
+}
+
+.rds-whatsapp--ios .rds-whatsapp-notification__title {
+  font-weight: 600;
+}
+
+.rds-whatsapp-notification__when {
+  color: var(--whatsapp-notification-card-meta);
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.rds-whatsapp--ios .rds-whatsapp-notification__message {
+  font-size: 15px;
+}

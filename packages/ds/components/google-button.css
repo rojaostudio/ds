@@ -1,0 +1,61 @@
+/* @tokens google */
+/*
+ * GoogleButton (External collection, google/button/*): a MOCKUP in Google's raw colours. 40 tall, 0 12 padding,
+ * 10 between the G (20) and the label (14/20 medium); icon: 40 × 40, the G centred. rectangular: corners 4;
+ * pill: 20. light and dark have a 1px border; neutral has none. The focus ring is the system's (Highlight), as the
+ * Figma gives this button no focus token.
+ */
+.rds-google-button {
+  --_background: var(--google-button-light-background);
+  --_border: var(--google-button-light-border);
+  --_label: var(--google-button-light-label);
+
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: var(--size-40);
+  padding: 0 var(--space-12);
+  border: var(--border-width) solid var(--_border);
+  border-radius: var(--radius-xs);
+  background: var(--_background);
+  color: var(--_label);
+  cursor: pointer;
+  font-family: 'Google Sans', Roboto, var(--type-font-stack);
+  font-size: var(--type-small-size);
+  font-weight: 500;
+  line-height: var(--type-small-line);
+  white-space: nowrap;
+}
+
+.rds-google-button:focus-visible {
+  outline: var(--focus-ring-width) solid Highlight;
+  outline-offset: var(--focus-ring-width);
+}
+
+.rds-google-button .rds-google-g {
+  width: var(--size-20);
+  height: var(--size-20);
+}
+
+.rds-google-button--dark {
+  --_background: var(--google-button-dark-background);
+  --_border: var(--google-button-dark-border);
+  --_label: var(--google-button-dark-label);
+}
+
+.rds-google-button--neutral {
+  --_background: var(--google-button-neutral-background);
+  --_border: var(--google-button-neutral-background);
+  --_label: var(--google-button-neutral-label);
+}
+
+.rds-google-button--pill {
+  border-radius: 20px;
+}
+
+.rds-google-button--icon {
+  width: var(--size-40);
+  padding: 0;
+}

@@ -1,0 +1,41 @@
+/* @tokens empty */
+/* Empty (Content collection, empty/*): Tile, title, description and actions, centred. Pads 32, gap 16. */
+.rds-empty {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-16);
+  padding: var(--space-32);
+  font-family: var(--type-font-stack);
+  text-align: center;
+}
+
+.rds-empty__text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 100%;
+}
+
+.rds-empty__title {
+  margin: 0;
+  color: var(--empty-title);
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  font-weight: 500;
+}
+
+.rds-empty__description {
+  margin: 0;
+  color: var(--empty-description);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+}
+
+.rds-empty__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-8);
+}

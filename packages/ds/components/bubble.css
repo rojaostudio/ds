@@ -1,0 +1,170 @@
+/* @tokens bubble */
+/*
+ * Bubble (Chat collection, bubble/*): 12 16 padding, 8 between the text (16/24) and the reactions, up to 480 wide.
+ * Corners in radius/container, except the bottom one on the speaker's side, in radius/xs. ghost has no box.
+ * Reactions: a pill (2 8 padding, 4 between the 16 icon and the count in 12/16), on the right in start and on the
+ * left in end.
+ * typing: the same box in bubble/typing/background around three 6 dots 4 apart, centred in a 24 line. Each dot
+ * pulses in 1400 ms, 200 ms after the previous; under reduced motion they stand still at 1, 0.6 and 0.3 (the Figma).
+ */
+.rds-bubble {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  width: fit-content;
+  max-width: min(480px, 100%);
+  padding: var(--space-12) var(--space-16);
+  border: var(--border-width) solid transparent;
+  border-radius: var(--radius-container);
+  background: var(--_background);
+  color: var(--_text);
+  font-family: var(--type-font-stack);
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+}
+
+.rds-bubble--start {
+  border-end-start-radius: var(--radius-xs);
+}
+
+.rds-bubble--end {
+  margin-inline-start: auto;
+  border-end-end-radius: var(--radius-xs);
+}
+
+.rds-bubble__text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.rds-bubble__reactions-row {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.rds-bubble--end .rds-bubble__reactions-row {
+  justify-content: flex-start;
+}
+
+.rds-bubble__reactions {
+  display: inline-flex;
+  padding: calc(var(--space-4) / 2) var(--space-8);
+  border: var(--border-width) solid var(--bubble-reactions-border);
+  border-radius: var(--radius-full);
+  background: var(--bubble-reactions-background);
+  color: var(--bubble-reactions-text);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+}
+
+.rds-bubble__reactions-count {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.rds-bubble__reactions-count > svg {
+  width: var(--size-16);
+  height: var(--size-16);
+}
+
+.rds-bubble--fill {
+  --_background: var(--bubble-fill-background);
+  --_text: var(--bubble-fill-text);
+}
+
+.rds-bubble--muted {
+  --_background: var(--bubble-muted-background);
+  --_text: var(--bubble-muted-text);
+}
+
+.rds-bubble--tinted {
+  --_background: var(--bubble-tinted-background);
+  --_text: var(--bubble-tinted-text);
+}
+
+.rds-bubble--outline {
+  --_background: var(--bubble-outline-background);
+  --_text: var(--bubble-outline-text);
+  border-color: var(--bubble-outline-border);
+}
+
+.rds-bubble--error {
+  --_background: var(--bubble-error-background);
+  --_text: var(--bubble-error-text);
+}
+
+.rds-bubble--ghost {
+  --_background: transparent;
+  --_text: var(--bubble-ghost-text);
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+}
+
+.rds-bubble--typing {
+  --_background: var(--bubble-typing-background);
+
+  /* No stroke in the Figma: the transparent border (for forced colours) comes out of the padding, 58 × 48. */
+  padding: calc(var(--space-12) - var(--border-width)) calc(var(--space-16) - var(--border-width));
+}
+
+.rds-bubble__dots {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  height: var(--size-24);
+}
+
+.rds-bubble__dots > span {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--bubble-typing-dot);
+  animation: rds-bubble-typing 1400ms infinite;
+}
+
+.rds-bubble__dots > span:nth-child(2) {
+  animation-delay: 200ms;
+}
+
+.rds-bubble__dots > span:nth-child(3) {
+  animation-delay: 400ms;
+}
+
+@keyframes rds-bubble-typing {
+  0%,
+  60%,
+  100% {
+    opacity: 0.3;
+  }
+
+  30% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rds-bubble__dots > span {
+    animation: none;
+  }
+
+  .rds-bubble__dots > span:nth-child(2) {
+    opacity: 0.6;
+  }
+
+  .rds-bubble__dots > span:nth-child(3) {
+    opacity: 0.3;
+  }
+}
+
+@media (forced-colors: active) {
+  .rds-bubble__dots > span {
+    background: CanvasText;
+  }
+
+  .rds-bubble:not(.rds-bubble--ghost) {
+    border-color: CanvasText;
+  }
+}

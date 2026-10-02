@@ -1,0 +1,93 @@
+/* @tokens carousel */
+/*
+ * Carousel (Content collection, carousel/*): the arrows (IconButton outline), the slide, and the position dots. 16
+ * between arrows and slide, 16 above the dots. Each dot is an 8 circle in a 24 × 24 target, centres 24 apart
+ * (WCAG 2.5.8), as in Figma. The slide's corners are radius/container.
+ */
+.rds-carousel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-16);
+  font-family: var(--type-font-stack);
+}
+
+.rds-carousel__stage {
+  display: flex;
+  align-items: center;
+  gap: var(--space-16);
+  width: 100%;
+}
+
+.rds-carousel__viewport {
+  flex: 1;
+  min-width: 0;
+  touch-action: pan-y;
+}
+
+.rds-carousel__slide {
+  box-sizing: border-box;
+  overflow: hidden;
+  border-radius: var(--radius-container);
+  background: var(--carousel-slide-background);
+}
+
+.rds-carousel__slide[hidden] {
+  display: none;
+}
+
+.rds-carousel__dots {
+  display: flex;
+}
+
+.rds-carousel__dot {
+  display: grid;
+  place-items: center;
+  width: var(--size-24);
+  height: var(--size-24);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: none;
+  cursor: pointer;
+}
+
+.rds-carousel__dot::before {
+  content: '';
+  width: var(--space-8);
+  height: var(--space-8);
+  border-radius: var(--radius-full);
+  background: var(--carousel-dot);
+}
+
+.rds-carousel__dot[aria-current='true']::before {
+  background: var(--carousel-dot-active);
+}
+
+.rds-carousel__dot:focus-visible {
+  outline: var(--focus-ring-width) solid var(--carousel-dot-active);
+  outline-offset: calc(var(--focus-ring-width) * -1);
+}
+
+.rds-carousel__placeholder {
+  display: grid;
+  place-items: center;
+  min-height: calc(var(--space-64) * 3 + var(--space-48));
+  color: var(--carousel-placeholder);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+}
+
+@media (forced-colors: active) {
+  .rds-carousel__dot::before {
+    background: GrayText;
+  }
+
+  .rds-carousel__dot[aria-current='true']::before {
+    background: Highlight;
+  }
+
+  .rds-carousel__dot:focus-visible {
+    outline-color: Highlight;
+  }
+}

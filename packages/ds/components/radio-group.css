@@ -1,0 +1,24 @@
+/* @tokens radiogroup */
+/* RadioGroup (Forms collection, radiogroup/*): the colours and type of the shared fieldset (internal/fieldset.css). */
+.rds-radio-group__legend {
+  color: var(--radiogroup-legend-color);
+  font-size: var(--radiogroup-legend-size);
+  line-height: var(--radiogroup-legend-line);
+}
+
+.rds-radio-group__required {
+  color: var(--radiogroup-required-color);
+}
+
+.rds-radio-group__support {
+  font-size: var(--radiogroup-support-size);
+  line-height: var(--radiogroup-support-line);
+}
+
+.rds-radio-group__hint {
+  color: var(--radiogroup-hint-color);
+}
+
+.rds-radio-group__error-message {
+  color: var(--radiogroup-error-message-color);
+}

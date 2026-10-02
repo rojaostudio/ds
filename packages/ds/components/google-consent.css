@@ -1,0 +1,12 @@
+/* @tokens google */
+/*
+ * GoogleConsent (External collection): on top of internal/google.css, the sharing notice and 40 below it the
+ * actions (Cancelar and Continuar). In oauth the chip sits 12 under the title.
+ */
+.rds-google-consent .rds-google__actions {
+  margin-top: var(--space-40);
+}
+
+.rds-google-consent.rds-google--oauth .rds-google__title {
+  margin-bottom: var(--space-12);
+}

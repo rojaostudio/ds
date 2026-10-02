@@ -1,0 +1,38 @@
+/* @tokens faq */
+/*
+ * FAQ (Blocks collection, faq/*): the block heading (internal/block.css, no description), the Accordion (up to
+ * 640) and the support line: text 14/20 and a ghost Button, 8 apart in a row; a column 4 apart below 640 of
+ * container width.
+ */
+.rds-faq {
+  --_background: var(--faq-background);
+  --_eyebrow: var(--faq-eyebrow);
+  --_title: var(--faq-title);
+  --_text: var(--faq-text);
+}
+
+.rds-faq__questions {
+  width: 100%;
+  max-width: 640px;
+}
+
+.rds-faq__support {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+.rds-faq__support-text {
+  margin: 0;
+  color: var(--faq-text);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  text-align: center;
+}
+
+@container (max-width: 639px) {
+  .rds-faq__support {
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+}

@@ -1,0 +1,138 @@
+/* @tokens tabs */
+/*
+ * Tabs (Navigation collection, tabs/*): tabs of 44 on a 1px baseline, 16 on the sides, 11 above and below the
+ * label plus the 2px line of the open tab. Label 14/20 medium, the count 14/20 regular, 6 apart. The "em breve"
+ * tag: 10/12 medium on surface/muted, radius 4, 2 × 6 inside. The dot: an 18 × 14 pill of the success colour at
+ * 15% with a 6 dot inside. The trailing slot sits at the right end of the strip, on the same baseline.
+ */
+.rds-tabs {
+  font-family: var(--type-font-stack);
+}
+
+.rds-tabs__bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-16);
+  /* The baseline as an inset shadow: the open tab's line paints over it without leaving the box. */
+  box-shadow: inset 0 calc(var(--border-width) * -1) 0 var(--tabs-border);
+}
+
+.rds-tabs__list {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.rds-tabs__trailing {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+.rds-tabs__tab {
+  box-sizing: border-box;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  min-height: calc(var(--space-12) * 2 + var(--type-button-line));
+  padding: 11px var(--space-16);
+  border: 0;
+  border-bottom: calc(var(--border-width) * 2) solid transparent;
+  background: none;
+  color: var(--tabs-label-default);
+  font: inherit;
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.rds-tabs__label {
+  font-weight: 500;
+}
+
+.rds-tabs__count {
+  color: var(--tabs-count-default);
+  font-variant-numeric: tabular-nums;
+}
+
+.rds-tabs__soon {
+  padding: 2px 6px;
+  border-radius: var(--radius-xs);
+  background: var(--tabs-soon-background);
+  color: var(--tabs-soon-text);
+  font-size: 10px;
+  line-height: 12px;
+  font-weight: 500;
+}
+
+.rds-tabs__dot {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 14px;
+  border-radius: var(--radius-full);
+}
+
+.rds-tabs__dot::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--tabs-dot-background);
+  opacity: 0.15;
+}
+
+.rds-tabs__dot::after {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--tabs-dot-indicator);
+}
+
+@media (hover: hover) {
+  .rds-tabs__tab:not([data-disabled], [data-state='active']):hover {
+    color: var(--tabs-label-hover);
+  }
+}
+
+.rds-tabs__tab[data-state='active'] {
+  border-bottom-color: var(--tabs-indicator);
+  color: var(--tabs-label-selected);
+}
+
+.rds-tabs__tab:focus-visible {
+  outline: var(--focus-ring-width) solid var(--tabs-focus-ring);
+  outline-offset: calc(var(--focus-ring-width) * -1);
+}
+
+.rds-tabs__tab[data-disabled] {
+  color: var(--tabs-label-disabled);
+  cursor: default;
+}
+
+.rds-tabs__tab[data-disabled] .rds-tabs__count {
+  color: var(--tabs-count-disabled);
+}
+
+.rds-tabs__panel:focus-visible {
+  outline: var(--focus-ring-width) solid var(--tabs-focus-ring);
+  outline-offset: var(--focus-ring-width);
+}
+
+@media (forced-colors: active) {
+  .rds-tabs__tab[data-state='active'] {
+    border-bottom-color: Highlight;
+  }
+
+  .rds-tabs__dot::after {
+    background: CanvasText;
+  }
+}

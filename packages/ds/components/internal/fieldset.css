@@ -1,0 +1,27 @@
+/* @tokens internal */
+/* The <fieldset> of CheckboxGroup and RadioGroup: legend medium, hint 4 below, the options, the error. */
+.rds-fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-family: var(--type-font-stack);
+}
+
+.rds-fieldset__legend {
+  padding: 0;
+  font-weight: 500;
+}
+
+.rds-fieldset__support {
+  display: block;
+}
+
+.rds-fieldset__legend + .rds-fieldset__support {
+  padding-top: var(--space-4);
+}
+
+.rds-fieldset__options {
+  display: flex;
+  flex-direction: column;
+}

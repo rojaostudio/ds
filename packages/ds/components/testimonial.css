@@ -1,0 +1,86 @@
+/* @tokens testimonial */
+/*
+ * Testimonial (Blocks collection, testimonial/*): the block heading (internal/block.css) and a grid of cards, 3 per
+ * row, 16 apart; one column below 640 of container width. Card (.testimonial/item): 16 padding, 16 between the
+ * quote mark (20), the quote (14/20) and the author (Avatar 32, 12 from the name 14/20 medium and the job title
+ * 12/16). Corners in radius/container.
+ */
+.rds-testimonial {
+  --_background: var(--testimonial-background);
+  --_eyebrow: var(--testimonial-eyebrow);
+  --_title: var(--testimonial-title);
+  --_text: var(--testimonial-text);
+}
+
+.rds-testimonial__items {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-16);
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rds-testimonial__item {
+  box-sizing: border-box;
+  padding: var(--space-16);
+  border: var(--border-width) solid var(--testimonial-item-border);
+  border-radius: var(--radius-container);
+  background: var(--testimonial-item-background);
+}
+
+.rds-testimonial__figure {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  margin: 0;
+}
+
+.rds-testimonial__mark {
+  display: flex;
+  color: var(--testimonial-item-quote);
+}
+
+.rds-testimonial__mark > svg {
+  width: var(--size-20);
+  height: var(--size-20);
+}
+
+.rds-testimonial__quote {
+  margin: 0;
+  color: var(--testimonial-item-quote);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+}
+
+.rds-testimonial__author {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+}
+
+.rds-testimonial__byline {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.rds-testimonial__name {
+  color: var(--testimonial-item-name);
+  font-size: var(--type-small-size);
+  font-weight: 500;
+  line-height: var(--type-small-line);
+}
+
+.rds-testimonial__role {
+  color: var(--testimonial-item-role);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+}
+
+@container (max-width: 639px) {
+  .rds-testimonial__items {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

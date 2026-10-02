@@ -1,0 +1,142 @@
+/* @tokens navmenu */
+/*
+ * NavigationMenu (Navigation collection, navmenu/*): items of 44 (12 × 16 inside, label 14/20 medium, a 16 chevron
+ * 4 after it); the panel 8 below, floating over the page, 8 inside, links in two columns, 4 apart;
+ * each link 12 inside, title 14/20 medium and a 12/16 phrase. Shadow elevation/overlay.
+ * Links and trigger in radius/control; the panel in radius/container.
+ */
+.rds-navmenu {
+  position: relative;
+  font-family: var(--type-font-stack);
+}
+
+.rds-navmenu__items {
+  display: flex;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rds-navmenu__item {
+  position: relative;
+}
+
+/*
+ * Radix puts an aria-hidden focus proxy (tabindex 0) after an open trigger, to send Tab into a panel that lives in a
+ * viewport elsewhere. Here the panel follows the trigger in the DOM, so Tab already gets there; the proxy only made a
+ * focusable element hidden from screen readers (axe aria-hidden-focus). Out of the way.
+ */
+.rds-navmenu__item > span[aria-hidden='true'] {
+  display: none;
+}
+
+.rds-navmenu__trigger {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: calc(var(--space-12) * 2 + var(--type-button-line));
+  padding: var(--space-12) var(--space-12) var(--space-12) var(--space-16);
+  border: 0;
+  border-radius: var(--radius-control);
+  background: none;
+  color: var(--navmenu-trigger-label);
+  font: inherit;
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.rds-navmenu__chevron {
+  display: inline-flex;
+  flex: none;
+}
+
+.rds-navmenu__chevron > svg {
+  width: var(--size-16);
+  height: var(--size-16);
+}
+
+.rds-navmenu__trigger[data-state='open'] {
+  background: var(--navmenu-trigger-background-open);
+}
+
+.rds-navmenu__trigger[data-state='open'] .rds-navmenu__chevron {
+  transform: rotate(180deg);
+}
+
+@media (hover: hover) {
+  .rds-navmenu__trigger:hover {
+    background: var(--navmenu-trigger-background-hover);
+  }
+  .rds-navmenu__link:hover {
+    background: var(--navmenu-link-background-hover);
+  }
+}
+
+.rds-navmenu__trigger:focus-visible,
+.rds-navmenu__link:focus-visible {
+  outline: var(--focus-ring-width) solid var(--navmenu-focus-ring);
+  outline-offset: calc(var(--focus-ring-width) * -1);
+}
+
+.rds-navmenu__panel {
+  position: absolute;
+  top: calc(100% + var(--space-8));
+  left: 0;
+  z-index: var(--z-dropdown);
+  box-sizing: border-box;
+  width: max-content;
+  max-width: min(480px, calc(100vw - var(--space-32)));
+  padding: var(--space-8);
+  border: var(--border-width) solid var(--navmenu-panel-border);
+  border-radius: var(--radius-container);
+  background: var(--navmenu-panel-background);
+  box-shadow: var(--elevation-overlay);
+}
+
+.rds-navmenu__links {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 220px));
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rds-navmenu__link {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-12);
+  border-radius: var(--radius-control);
+  text-decoration: none;
+}
+
+.rds-navmenu__link-title {
+  color: var(--navmenu-link-title);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  font-weight: 500;
+}
+
+.rds-navmenu__link-description {
+  color: var(--navmenu-link-description);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .rds-navmenu__chevron {
+    transition: transform var(--motion-duration-fast) var(--motion-easing-standard);
+  }
+}
+
+@media (forced-colors: active) {
+  .rds-navmenu__panel {
+    border-color: CanvasText;
+  }
+}

@@ -1,0 +1,89 @@
+/* @tokens media-tile */
+/*
+ * MediaTile (Content collection, media-tile/*): a 1px border in radius/container around the media (1:1 or 16:9,
+ * media-tile/media behind it) and the label row (8 inside, 12/16 medium, cut at two lines). The fallback is the
+ * 20 image-off icon, centred. As a link, hover and keyboard focus draw a 2px outline in media-tile/border/hover,
+ * inside the corners, over the media (Figma: state=hover).
+ */
+.rds-media-tile {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  border: var(--border-width) solid var(--media-tile-border-default);
+  border-radius: var(--radius-container);
+  background: var(--media-tile-background);
+  color: var(--media-tile-label);
+  font-family: var(--type-font-stack);
+  text-decoration: none;
+}
+
+.rds-media-tile__media {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: var(--media-tile-media);
+}
+
+.rds-media-tile--video .rds-media-tile__media {
+  aspect-ratio: 16 / 9;
+}
+
+.rds-media-tile__media > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.rds-media-tile__fallback {
+  display: inline-flex;
+  color: var(--media-tile-fallback);
+}
+
+.rds-media-tile__fallback > svg {
+  width: var(--size-20);
+  height: var(--size-20);
+}
+
+.rds-media-tile__label {
+  display: -webkit-box;
+  overflow: hidden;
+  margin: var(--space-8);
+  font-size: var(--type-caption-size);
+  font-weight: var(--type-caption-weight);
+  line-height: var(--type-caption-line);
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.rds-media-tile--link {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.rds-media-tile--link:focus-visible {
+  outline: var(--border-width-strong) solid var(--media-tile-border-hover);
+  outline-offset: calc(var(--border-width-strong) * -1);
+}
+
+@media (hover: hover) {
+  .rds-media-tile--link:hover {
+    outline: var(--border-width-strong) solid var(--media-tile-border-hover);
+    outline-offset: calc(var(--border-width-strong) * -1);
+  }
+}
+
+@media (forced-colors: active) {
+  .rds-media-tile {
+    border-color: CanvasText;
+  }
+
+  .rds-media-tile--link:focus-visible {
+    outline-color: Highlight;
+  }
+}

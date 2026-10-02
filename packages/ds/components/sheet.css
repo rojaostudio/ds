@@ -1,0 +1,60 @@
+/* @tokens sheet */
+/*
+ * Sheet (Overlays collection, sheet/*): 400 wide, the screen's height, stuck to its side with a line on the inner
+ * edge, 24 between header, content and footer; the content takes the rest of the height.
+ */
+.rds-sheet__scrim {
+  background: var(--sheet-scrim);
+}
+
+.rds-sheet {
+  top: 0;
+  bottom: 0;
+  gap: var(--space-24);
+  width: min(400px, 100vw);
+  background: var(--sheet-background);
+}
+
+.rds-sheet--right {
+  right: 0;
+  border-left: var(--border-width) solid var(--sheet-border);
+}
+
+.rds-sheet--left {
+  left: 0;
+  border-right: var(--border-width) solid var(--sheet-border);
+}
+
+.rds-sheet .rds-modal__body {
+  flex: 1;
+}
+
+.rds-sheet__title {
+  color: var(--sheet-title);
+}
+
+.rds-sheet__text {
+  color: var(--sheet-text);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .rds-sheet--right[data-state='open'] {
+    animation: rds-sheet-in-right var(--motion-duration-base) var(--motion-easing-enter);
+  }
+
+  .rds-sheet--left[data-state='open'] {
+    animation: rds-sheet-in-left var(--motion-duration-base) var(--motion-easing-enter);
+  }
+}
+
+@keyframes rds-sheet-in-right {
+  from {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes rds-sheet-in-left {
+  from {
+    transform: translateX(-100%);
+  }
+}

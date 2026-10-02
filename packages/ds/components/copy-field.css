@@ -1,0 +1,7 @@
+/* @tokens copy-field */
+/*
+ * CopyField: no tokens of its own; the Button brings its own (outline, neutral). fullWidth stretches it.
+ */
+.rds-copy-field--full {
+  width: 100%;
+}

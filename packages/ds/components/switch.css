@@ -1,0 +1,109 @@
+/* @tokens switch */
+/*
+ * Switch (Forms collection, switch/*): a 40 × 24 track with a 16 thumb, 4 from the edge; on, it slides 16.
+ * The row (44 tall, label, hint) is internal/choice.css.
+ */
+.rds-switch {
+  --_control-width: var(--size-40);
+  --_text-size: var(--switch-text-size);
+  --_text-line: var(--switch-text-line);
+  --_support-size: var(--switch-support-size);
+  --_support-line: var(--switch-support-line);
+  --_off: var(--switch-track-off);
+  --_on: var(--switch-track-on);
+}
+
+.rds-switch__label {
+  color: var(--switch-label-color);
+}
+
+.rds-switch__hint {
+  color: var(--switch-hint-color);
+}
+
+.rds-switch__track {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  width: var(--size-40);
+  height: var(--size-24);
+  padding: var(--space-4);
+  border-radius: var(--radius-full);
+  background: var(--_off);
+  pointer-events: none;
+}
+
+.rds-switch__thumb {
+  width: var(--size-16);
+  height: var(--size-16);
+  border-radius: var(--radius-full);
+  background: var(--switch-thumb-default);
+}
+
+input:checked + .rds-switch__track {
+  background: var(--_on);
+}
+
+input:checked + .rds-switch__track .rds-switch__thumb {
+  transform: translateX(var(--size-16));
+}
+
+/* Right to left, on is on the left. */
+:dir(rtl) input:checked + .rds-switch__track .rds-switch__thumb {
+  transform: translateX(calc(var(--size-16) * -1));
+}
+
+input:focus-visible + .rds-switch__track {
+  outline: var(--focus-ring-width) solid var(--switch-focus-ring);
+  outline-offset: var(--focus-ring-width);
+}
+
+@media (hover: hover) {
+  .rds-choice__row:hover input:enabled + .rds-switch__track {
+    --_off: var(--switch-track-off-hover);
+    --_on: var(--switch-track-on-hover);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .rds-switch__thumb {
+    transition: transform var(--motion-duration-fast) var(--motion-easing-standard);
+  }
+}
+
+.rds-switch--disabled {
+  --_off: var(--switch-track-disabled);
+  --_on: var(--switch-track-on-disabled);
+}
+
+.rds-switch--disabled .rds-switch__label {
+  color: var(--switch-label-disabled);
+}
+
+@media (forced-colors: active) {
+  .rds-switch__track {
+    border: var(--border-width) solid CanvasText;
+  }
+
+  .rds-switch__thumb {
+    forced-color-adjust: none;
+    background: CanvasText;
+  }
+
+  input:checked + .rds-switch__track {
+    forced-color-adjust: none;
+    background: Highlight;
+  }
+
+  input:checked + .rds-switch__track .rds-switch__thumb {
+    background: HighlightText;
+  }
+
+  .rds-switch--disabled .rds-switch__track {
+    border-color: GrayText;
+  }
+
+  input:focus-visible + .rds-switch__track {
+    outline-color: Highlight;
+  }
+}

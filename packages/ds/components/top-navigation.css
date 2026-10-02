@@ -1,0 +1,99 @@
+/* @tokens topnav */
+/*
+ * TopNavigation (Blocks collection, topnav/*): a bar with the bottom border. Desktop: 16 24 padding, 16 between
+ * the brand, the links (ghost Buttons, 4 apart) and the actions (8 apart): logo left, actions right. The bar's
+ * content is at most 1200 wide, centred. Below 768 of container width (Figma: screen=mobile): an 8 16 bar with the
+ * logo and the menu button; open, the panel below it (8 8 24 padding, 24 between links and actions): links full
+ * width and aligned left, actions stacked and full width, the main one on top.
+ */
+.rds-topnav {
+  box-sizing: border-box;
+  width: 100%;
+  container-type: inline-size;
+  border-bottom: var(--border-width) solid var(--topnav-border);
+  background: var(--topnav-background);
+  font-family: var(--type-font-stack);
+}
+
+.rds-topnav__bar {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: var(--space-16);
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-16) var(--space-24);
+}
+
+.rds-topnav__brand {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  min-width: 0;
+}
+
+.rds-topnav__panel {
+  display: contents;
+}
+
+.rds-topnav__links {
+  display: flex;
+  gap: var(--space-4);
+}
+
+.rds-topnav__actions {
+  display: flex;
+  flex: 1;
+  justify-content: flex-end;
+  gap: var(--space-8);
+}
+
+.rds-topnav__toggle {
+  display: none;
+}
+
+@container (max-width: 767px) {
+  .rds-topnav__bar {
+    flex-wrap: wrap;
+    gap: 0;
+    padding: var(--space-8) var(--space-16);
+  }
+
+  .rds-topnav .rds-topnav__toggle {
+    display: inline-flex;
+  }
+
+  .rds-topnav__panel {
+    display: none;
+  }
+
+  .rds-topnav[data-open] .rds-topnav__panel {
+    order: 1;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-24);
+    width: calc(100% + var(--space-16) * 2);
+    margin: var(--space-8) calc(var(--space-16) * -1) 0;
+    padding: var(--space-8) var(--space-8) var(--space-24);
+  }
+
+  .rds-topnav__links {
+    flex-direction: column;
+  }
+
+  .rds-topnav__links > .rds-button {
+    justify-content: flex-start;
+    width: 100%;
+    padding-inline-start: var(--space-8);
+  }
+
+  .rds-topnav__actions {
+    flex-direction: column-reverse;
+    padding: 0 var(--space-8);
+  }
+
+  .rds-topnav__actions > .rds-button {
+    width: 100%;
+  }
+}

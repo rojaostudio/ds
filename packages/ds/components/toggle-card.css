@@ -1,0 +1,16 @@
+/* @tokens toggle-card */
+/*
+ * ToggleCard: no tokens of its own; the Card and the Switch bring theirs. The Switch row pads 16 on the sides (4 top and
+ * bottom); the options under it pad 16, 16 apart, after a line in the card's border colour.
+ */
+.rds-toggle-card__header {
+  padding: var(--space-4) var(--space-16);
+}
+
+.rds-toggle-card__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  padding: var(--space-16);
+  border-top: var(--border-width) solid var(--card-border);
+}

@@ -1,0 +1,13 @@
+node_modules/
+figma-plugin/node_modules/
+figma-plugin/dist/
+tsconfig.tsbuildinfo
+*.tgz
+.npmrc
+.env
+.env.*
+gen/.env
+gen/.env.*
+gen/_preview*.png
+
+.vercel

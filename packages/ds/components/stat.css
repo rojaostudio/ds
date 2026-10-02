@@ -1,0 +1,80 @@
+/* @tokens stat */
+/*
+ * Stat (Content collection, stat/*): 8 between the text and the sparkline. Text: the label 14/20, the row (the
+ * value in type/value bold and the Delta, 8 apart, wrapping 4 below) and the caption 12/16, 4 apart.
+ * framed=true: 16 inside, a 1px border, corners radius/container. framed=false (the SummaryBar cell): 12 16, no border.
+ */
+.rds-stat {
+  --_value: var(--stat-value-default);
+
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  min-width: 0;
+  padding: var(--space-12) var(--space-16);
+  background: var(--stat-background);
+  font-family: var(--type-font-stack);
+}
+
+.rds-stat--framed {
+  padding: calc(var(--space-16) - var(--border-width));
+  border: var(--border-width) solid var(--stat-border);
+  border-radius: var(--radius-container);
+}
+
+.rds-stat--positive {
+  --_value: var(--stat-value-positive);
+}
+
+.rds-stat--negative {
+  --_value: var(--stat-value-negative);
+}
+
+.rds-stat--warning {
+  --_value: var(--stat-value-warning);
+}
+
+.rds-stat--muted {
+  --_value: var(--stat-value-muted);
+}
+
+.rds-stat__pair {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.rds-stat__label {
+  color: var(--stat-label);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+}
+
+.rds-stat__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4) var(--space-8);
+}
+
+.rds-stat__value {
+  color: var(--_value);
+  font-size: var(--type-value-size);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: var(--type-value-line);
+}
+
+.rds-stat__caption {
+  color: var(--stat-caption);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+}
+
+@media (forced-colors: active) {
+  .rds-stat--framed {
+    border-color: CanvasText;
+  }
+}

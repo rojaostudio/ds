@@ -1,0 +1,15 @@
+/* @tokens row-actions */
+/*
+ * RowActions: no tokens of its own; the Button, the IconButton and the DropdownMenu bring theirs. At the end of
+ * the row, 4 apart.
+ */
+.rds-row-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-4);
+}
+
+.rds-row-actions__more {
+  display: inline-flex;
+}

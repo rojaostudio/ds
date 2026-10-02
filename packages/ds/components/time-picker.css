@@ -1,0 +1,21 @@
+/* @tokens time-picker */
+/*
+ * TimePicker: no tokens of its own (Figma: the Input's and the Listbox's, as the DatePicker). The Input's field
+ * (internal/field.css) ends on the clock, which opens the list like the field; the Listbox (internal/listbox.css)
+ * opens 4 under the box and as wide, showing five times and scrolling the rest.
+ */
+.rds-time-picker__clock {
+  cursor: pointer;
+}
+
+.rds-field--disabled .rds-time-picker__clock {
+  cursor: not-allowed;
+}
+
+.rds-time-picker__list {
+  position: absolute;
+  top: calc(100% + var(--space-4));
+  inset-inline: calc(var(--border-width) * -1);
+  z-index: var(--_layer-floating, var(--z-dropdown));
+  max-height: calc(5 * (var(--space-12) * 2 + var(--type-button-line)) + var(--space-8));
+}

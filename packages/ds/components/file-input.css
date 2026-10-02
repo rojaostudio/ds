@@ -1,0 +1,252 @@
+/* @tokens file-input */
+/*
+ * FileInput. field (Figma: built on the Input's box, input/*): the clip, "Escolher arquivo" in the value colour and
+ * the file name (placeholder colour while empty), 8 apart. In every variant the native file input lies transparent
+ * over the whole box: it takes the click, the keyboard and the focus, so the box's focus border is the field's own.
+ * The × and the tile's buttons sit above it.
+ *
+ * dropzone and tile (Forms collection, file-input/*): the box becomes a dashed area. "hover" in the Figma is a file
+ * dragged over it (the --dragging class), not the mouse. dropzone: radius/card, 24 × 16 inside, 12 apart: a 40 circle
+ * with the upload icon, the call 16/24 medium and the hint 14/20 inside the area. Filled, 16 inside: the file row in
+ * file-input/file/background (radius/field, 8 inside, 12 apart): the clip circle, name 16/24 and size 14/20, the ×.
+ * tile: a 112 square, radius/field, 8 on the sides, 4 apart: the image-plus icon 24 and the text 14/20 medium.
+ * Filled, the preview fills it (file-input/tile/preview/background behind it) and the swap and remove buttons sit
+ * in the corner on file-input/tile/action/*.
+ */
+.rds-file-input .rds-field__box {
+  cursor: pointer;
+}
+
+.rds-file-input__control.rds-field__control {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* Filled tile: the input leaves the surface (the swap button opens it) and stays in the form, labelled. */
+.rds-file-input__control--off.rds-field__control {
+  inset: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  pointer-events: none;
+}
+
+.rds-file-input__face {
+  display: flex;
+  flex: 1;
+  gap: var(--space-8);
+  min-width: 0;
+}
+
+.rds-file-input__choose {
+  flex: none;
+  color: var(--_value);
+}
+
+.rds-file-input__name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--_value);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.rds-file-input__name--empty {
+  color: var(--_placeholder);
+}
+
+.rds-field--disabled .rds-file-input__choose,
+.rds-field--disabled .rds-file-input__name {
+  color: var(--_value-disabled);
+}
+
+.rds-field--disabled .rds-file-input__name--empty {
+  color: var(--_placeholder-disabled);
+}
+
+.rds-file-input .rds-field__action {
+  position: relative;
+  z-index: 1;
+}
+
+.rds-field--disabled.rds-file-input .rds-field__box,
+.rds-field--disabled .rds-file-input__control {
+  cursor: not-allowed;
+}
+
+/* ── dropzone and tile: the area ──────────────────────────────────────────── */
+
+.rds-field__box.rds-file-input__area {
+  --_background: var(--file-input-area-background-default);
+  --_background-disabled: var(--file-input-area-background-disabled);
+  --_border: var(--file-input-area-border-default);
+  --_border-hover: var(--file-input-area-border-default);
+  --_border-focus: var(--file-input-area-border-focus);
+  --_border-error: var(--file-input-area-border-error);
+  --_border-disabled: var(--file-input-area-border-disabled);
+  --_circle: var(--file-input-area-icon-background-default);
+  --_area-icon: var(--file-input-area-icon-default);
+  --_title: var(--file-input-area-title-default);
+  --_caption: var(--file-input-area-caption-default);
+
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-12);
+  padding: var(--space-24) var(--space-16);
+  border-style: dashed;
+  border-radius: var(--radius-card);
+  text-align: center;
+}
+
+.rds-file-input__area--dragging {
+  --_edge: var(--file-input-area-border-hover);
+
+  background: var(--file-input-area-background-hover);
+}
+
+.rds-field--disabled .rds-file-input__area {
+  --_circle: var(--file-input-area-icon-background-disabled);
+  --_area-icon: var(--file-input-area-icon-disabled);
+  --_title: var(--file-input-area-title-disabled);
+  --_caption: var(--file-input-area-caption-disabled);
+}
+
+.rds-file-input__circle {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: var(--size-40);
+  height: var(--size-40);
+  border-radius: var(--radius-full);
+  background: var(--_circle);
+  color: var(--_area-icon);
+}
+
+.rds-file-input__circle > svg,
+.rds-file-input__tile-icon > svg {
+  width: var(--size-20);
+  height: var(--size-20);
+}
+
+.rds-file-input__texts,
+.rds-file-input__file-texts {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.rds-file-input__file-texts {
+  flex: 1;
+}
+
+.rds-file-input__title {
+  color: var(--_title);
+  font-size: var(--file-input-area-title-size);
+  line-height: var(--file-input-area-title-line);
+  font-weight: 500;
+}
+
+.rds-file-input__caption {
+  color: var(--_caption);
+  font-size: var(--file-input-area-caption-size);
+  line-height: var(--file-input-area-caption-line);
+}
+
+.rds-file-input--dropzone .rds-file-input__area--filled {
+  flex-direction: row;
+  gap: var(--space-12);
+  padding: var(--space-16);
+  text-align: start;
+}
+
+.rds-file-input__file {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--space-12);
+  min-width: 0;
+  min-height: var(--size-40);
+  padding: var(--space-8);
+  border-radius: var(--radius-field);
+  background: var(--file-input-file-background);
+}
+
+.rds-file-input__file-name {
+  overflow: hidden;
+  color: var(--_value);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.rds-field--disabled .rds-file-input__file-name {
+  color: var(--_value-disabled);
+}
+
+/* ── tile ─────────────────────────────────────────────────────────────────── */
+
+.rds-field__box.rds-file-input__tile {
+  gap: var(--space-4);
+  width: calc(var(--size-56) * 2);
+  height: calc(var(--size-56) * 2);
+  min-height: 0;
+  padding: 0 var(--space-8);
+  overflow: hidden;
+  border-radius: var(--radius-field);
+}
+
+.rds-file-input__tile-icon {
+  display: inline-flex;
+  color: var(--_area-icon);
+}
+
+.rds-file-input__tile-icon > svg {
+  width: var(--size-24);
+  height: var(--size-24);
+}
+
+.rds-file-input__tile-text {
+  color: var(--_caption);
+  font-size: var(--file-input-area-caption-size);
+  line-height: var(--file-input-area-caption-line);
+  font-weight: 500;
+}
+
+.rds-field__box.rds-file-input__tile.rds-file-input__area--filled {
+  padding: 0;
+  border-style: solid;
+  background: var(--file-input-tile-preview-background);
+  cursor: default;
+}
+
+.rds-file-input__preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.rds-file-input__actions {
+  position: absolute;
+  top: var(--space-4);
+  inset-inline-end: var(--space-4);
+  z-index: 1;
+  display: flex;
+  gap: var(--space-4);
+}
+
+.rds-file-input__actions .rds-field__action {
+  box-sizing: border-box;
+  border: var(--border-width) solid var(--file-input-tile-action-border);
+  background: var(--file-input-tile-action-background);
+}
+
+@media (forced-colors: active) {
+  .rds-file-input__area--dragging {
+    outline: var(--focus-ring-width) solid Highlight;
+  }
+}

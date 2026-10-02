@@ -1,0 +1,30 @@
+/* @tokens floating-stepper */
+/*
+ * FloatingStepper: no tokens of its own; the Card and the Buttons bring theirs. A pill (radius/full) of 44 Buttons,
+ * 4 inside and 4 apart, raised by elevation/overlay because it floats over the page. A 1 × 24 line in the card's
+ * border colour before the action.
+ */
+.rds-floating-stepper {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-4);
+  width: max-content;
+  max-width: 100%;
+  padding: var(--space-4);
+  border-radius: var(--radius-full);
+  box-shadow: var(--elevation-overlay);
+  overflow-x: auto;
+}
+
+.rds-floating-stepper > .rds-button {
+  flex: none;
+  border-radius: var(--radius-full);
+}
+
+.rds-floating-stepper__divider {
+  flex: none;
+  width: var(--border-width);
+  height: var(--size-24);
+  margin-inline: var(--space-4);
+  background: var(--card-border);
+}

@@ -1,0 +1,68 @@
+/* @tokens image-crop-modal */
+/*
+ * ImageCropModal: no tokens of its own; the Dialog, the ToggleGroup, the Alert and the Spinner bring theirs. 12
+ * apart: the presets (they share the width), the stage (at least 300, at most 60% of the viewport, the image
+ * letterboxed inside 16 of padding, a line in the dialog's border colour), the error or the hint. While sending,
+ * the dialog's scrim covers the image.
+ */
+.rds-image-crop {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+}
+
+.rds-image-crop__presets {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.rds-image-crop__presets > * {
+  flex: 1 1 calc(var(--space-64) + var(--space-16));
+}
+
+.rds-image-crop__stage {
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  max-height: 60vh;
+  padding: var(--space-16);
+  overflow: hidden;
+  border: var(--border-width) solid var(--dialog-border);
+  border-radius: var(--radius-control);
+}
+
+.rds-image-crop__crop {
+  max-width: 100%;
+  max-height: calc(60vh - var(--space-32));
+}
+
+.rds-image-crop__image {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.rds-image-crop__layer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.rds-image-crop__layer--busy {
+  z-index: 1;
+  background: var(--dialog-scrim);
+  pointer-events: auto;
+}
+
+.rds-image-crop__hint {
+  margin: 0;
+  color: var(--dialog-text);
+  font-family: var(--type-font-stack);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+}

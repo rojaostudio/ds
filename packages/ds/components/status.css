@@ -1,0 +1,145 @@
+/* @tokens status */
+/*
+ * Status (Indicators collection, status/*): a pill with a dot and the word, caption bold. default 32 (dot 8, 8 to
+ * the word, 8 × 12 inside); sm 24 (dot 6, 6 to the word, 4 × 8 inside). Every variant carries the 1px border
+ * (transparent on soft and fill), taken out of the padding, so the three measure the same.
+ */
+.rds-status {
+  --_border: transparent;
+  --_dot-size: var(--space-8);
+
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+  min-height: var(--size-32);
+  padding: calc(var(--space-8) - var(--border-width)) calc(var(--space-12) - var(--border-width));
+  border: var(--border-width) solid var(--_border);
+  border-radius: var(--radius-full);
+  background: var(--_background);
+  color: var(--_label);
+  font-family: var(--type-font-stack);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+  font-weight: 700;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.rds-status__dot {
+  flex: none;
+  width: var(--_dot-size);
+  height: var(--_dot-size);
+  border-radius: var(--radius-full);
+  background: var(--_dot);
+}
+
+/* sm: 24 tall; the Figma's 6 (dot and gap) is half of space/12. */
+.rds-status--sm {
+  --_dot-size: calc(var(--space-12) / 2);
+
+  gap: calc(var(--space-12) / 2);
+  min-height: var(--size-24);
+  padding: calc(var(--space-4) - var(--border-width)) calc(var(--space-8) - var(--border-width));
+}
+
+/* ---------- neutral ---------- */
+.rds-status--neutral-outline {
+  --_background: var(--status-neutral-outline-background);
+  --_border: var(--status-neutral-outline-border);
+  --_label: var(--status-neutral-outline-label);
+  --_dot: var(--status-neutral-outline-dot);
+}
+.rds-status--neutral-soft {
+  --_background: var(--status-neutral-soft-background);
+  --_label: var(--status-neutral-soft-label);
+  --_dot: var(--status-neutral-soft-dot);
+}
+.rds-status--neutral-fill {
+  --_background: var(--status-neutral-fill-background);
+  --_label: var(--status-neutral-fill-label);
+  --_dot: var(--status-neutral-fill-dot);
+}
+
+/* ---------- info ---------- */
+.rds-status--info-outline {
+  --_background: var(--status-info-outline-background);
+  --_border: var(--status-info-outline-border);
+  --_label: var(--status-info-outline-label);
+  --_dot: var(--status-info-outline-dot);
+}
+.rds-status--info-soft {
+  --_background: var(--status-info-soft-background);
+  --_label: var(--status-info-soft-label);
+  --_dot: var(--status-info-soft-dot);
+}
+.rds-status--info-fill {
+  --_background: var(--status-info-fill-background);
+  --_label: var(--status-info-fill-label);
+  --_dot: var(--status-info-fill-dot);
+}
+
+/* ---------- success ---------- */
+.rds-status--success-outline {
+  --_background: var(--status-success-outline-background);
+  --_border: var(--status-success-outline-border);
+  --_label: var(--status-success-outline-label);
+  --_dot: var(--status-success-outline-dot);
+}
+.rds-status--success-soft {
+  --_background: var(--status-success-soft-background);
+  --_label: var(--status-success-soft-label);
+  --_dot: var(--status-success-soft-dot);
+}
+.rds-status--success-fill {
+  --_background: var(--status-success-fill-background);
+  --_label: var(--status-success-fill-label);
+  --_dot: var(--status-success-fill-dot);
+}
+
+/* ---------- warning ---------- */
+.rds-status--warning-outline {
+  --_background: var(--status-warning-outline-background);
+  --_border: var(--status-warning-outline-border);
+  --_label: var(--status-warning-outline-label);
+  --_dot: var(--status-warning-outline-dot);
+}
+.rds-status--warning-soft {
+  --_background: var(--status-warning-soft-background);
+  --_label: var(--status-warning-soft-label);
+  --_dot: var(--status-warning-soft-dot);
+}
+.rds-status--warning-fill {
+  --_background: var(--status-warning-fill-background);
+  --_label: var(--status-warning-fill-label);
+  --_dot: var(--status-warning-fill-dot);
+}
+
+/* ---------- danger ---------- */
+.rds-status--danger-outline {
+  --_background: var(--status-danger-outline-background);
+  --_border: var(--status-danger-outline-border);
+  --_label: var(--status-danger-outline-label);
+  --_dot: var(--status-danger-outline-dot);
+}
+.rds-status--danger-soft {
+  --_background: var(--status-danger-soft-background);
+  --_label: var(--status-danger-soft-label);
+  --_dot: var(--status-danger-soft-dot);
+}
+.rds-status--danger-fill {
+  --_background: var(--status-danger-fill-background);
+  --_label: var(--status-danger-fill-label);
+  --_dot: var(--status-danger-fill-dot);
+}
+
+/* Windows high contrast: keep the pill outlined and the dot drawn. */
+@media (forced-colors: active) {
+  .rds-status {
+    border-color: CanvasText;
+  }
+
+  .rds-status__dot {
+    background: CanvasText;
+  }
+}

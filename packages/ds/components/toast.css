@@ -1,0 +1,196 @@
+/* @tokens toast */
+/*
+ * Toast (Feedback collection, toast/*): 460 wide, 8 8 8 16 inside, 12 between icon, text, action and ×,
+ * elevation/overlay. outline: white with a border, the icon in the tone; soft and fill: the tone's plate, and
+ * everything on it (icon, text, action, ×) in the plate's text colour. Stacked in the bottom-right corner,
+ * 16 from the edges and 8 apart.
+ */
+.rds-toast-viewport {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  z-index: var(--z-toast);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  width: min(calc(460px + var(--space-16) * 2), 100vw);
+  max-width: 100vw;
+  margin: 0;
+  padding: var(--space-16);
+  list-style: none;
+  outline: none;
+}
+
+.rds-toast {
+  --_background: var(--toast-background);
+  --_border: var(--toast-border);
+  --_title: var(--toast-title);
+  --_text: var(--toast-text);
+
+  box-sizing: border-box;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-12);
+  width: min(460px, 100%);
+  padding: var(--space-8) var(--space-8) var(--space-8) var(--space-16);
+  border: var(--border-width) solid var(--_border);
+  border-radius: var(--radius-container);
+  background: var(--_background);
+  box-shadow: var(--elevation-overlay);
+  font-family: var(--type-font-stack);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+}
+
+/* The 24 icon sits on the title's line, in a box as tall as a 44 control. */
+.rds-toast__icon {
+  display: flex;
+  flex: none;
+  align-items: center;
+  height: calc(var(--space-12) * 2 + var(--type-small-line));
+  color: var(--_icon);
+}
+
+.rds-toast__icon > svg {
+  width: var(--size-24);
+  height: var(--size-24);
+}
+
+.rds-toast__content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+  padding: var(--space-12) 0;
+}
+
+.rds-toast__title {
+  margin: 0;
+  color: var(--_title);
+  font-weight: 500;
+}
+
+.rds-toast__description {
+  margin: 0;
+  color: var(--_text);
+}
+
+.rds-toast__action,
+.rds-toast__close {
+  flex: none;
+}
+
+/* outline: the icon in the tone. */
+.rds-toast--neutral-outline {
+  --_icon: var(--toast-neutral-icon);
+}
+.rds-toast--info-outline {
+  --_icon: var(--toast-info-icon);
+}
+.rds-toast--success-outline {
+  --_icon: var(--toast-success-icon);
+}
+.rds-toast--warning-outline {
+  --_icon: var(--toast-warning-icon);
+}
+.rds-toast--danger-outline {
+  --_icon: var(--toast-danger-icon);
+}
+
+/* soft and fill: one colour for everything on the plate. */
+.rds-toast--plate {
+  --_border: transparent;
+  --_title: var(--_on);
+  --_text: var(--_on);
+  --_icon: var(--_on);
+}
+
+.rds-toast--neutral-soft {
+  --_background: var(--toast-neutral-soft-background);
+  --_on: var(--toast-neutral-soft-text);
+}
+.rds-toast--neutral-fill {
+  --_background: var(--toast-neutral-fill-background);
+  --_on: var(--toast-neutral-fill-text);
+}
+.rds-toast--info-soft {
+  --_background: var(--toast-info-soft-background);
+  --_on: var(--toast-info-soft-text);
+}
+.rds-toast--info-fill {
+  --_background: var(--toast-info-fill-background);
+  --_on: var(--toast-info-fill-text);
+}
+.rds-toast--success-soft {
+  --_background: var(--toast-success-soft-background);
+  --_on: var(--toast-success-soft-text);
+}
+.rds-toast--success-fill {
+  --_background: var(--toast-success-fill-background);
+  --_on: var(--toast-success-fill-text);
+}
+.rds-toast--warning-soft {
+  --_background: var(--toast-warning-soft-background);
+  --_on: var(--toast-warning-soft-text);
+}
+.rds-toast--warning-fill {
+  --_background: var(--toast-warning-fill-background);
+  --_on: var(--toast-warning-fill-text);
+}
+.rds-toast--danger-soft {
+  --_background: var(--toast-danger-soft-background);
+  --_on: var(--toast-danger-soft-text);
+}
+.rds-toast--danger-fill {
+  --_background: var(--toast-danger-fill-background);
+  --_on: var(--toast-danger-fill-text);
+}
+
+/* On the plate, the action and the × take the plate's text colour (Figma). The Figma has no hover token for
+   them: hover and pressed are that same colour at 12% and 20% over the plate. */
+.rds-toast.rds-toast--plate .rds-button {
+  --_label: var(--_on);
+  --_icon: var(--_on);
+  --_ring: var(--_on);
+  --_background-hover: color-mix(in srgb, currentColor 12%, transparent);
+  --_background-active: color-mix(in srgb, currentColor 20%, transparent);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .rds-toast[data-state='open'] {
+    animation: rds-toast-in var(--motion-duration-base) var(--motion-easing-enter);
+  }
+
+  .rds-toast[data-state='closed'] {
+    animation: rds-toast-out var(--motion-duration-fast) var(--motion-easing-exit);
+  }
+}
+
+@keyframes rds-toast-in {
+  from {
+    transform: translateY(var(--space-8));
+    opacity: 0;
+  }
+}
+
+@keyframes rds-toast-out {
+  to {
+    opacity: 0;
+  }
+}
+
+.rds-toast[data-swipe='move'] {
+  transform: translateX(var(--radix-toast-swipe-move-x));
+}
+
+.rds-toast[data-swipe='end'] {
+  transform: translateX(var(--radix-toast-swipe-end-x));
+}
+
+@media (forced-colors: active) {
+  .rds-toast {
+    border-color: CanvasText;
+  }
+}

@@ -1,0 +1,7 @@
+/* @tokens toggle-group */
+/* ToggleGroup: Toggles side by side, 4 apart (Figma: slot items, gap space/4). No tokens of its own. */
+.rds-toggle-group {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}

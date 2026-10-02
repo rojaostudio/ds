@@ -1,0 +1,91 @@
+/* @tokens banner */
+/*
+ * Banner (Blocks collection, banner/*): 4 4 4 16 padding, 8 between the content and the close button. Desktop:
+ * the 20 icon, the text (highlight 14/20 medium + message 14/20, 4 apart) and the ghost Button, centred in a row.
+ * Below 640 of container width (Figma: screen=mobile): aligned left, the highlight, the message and the Button
+ * stacked, the Button flush with the text. The background takes the full width; the content is at most 1200.
+ */
+.rds-banner {
+  box-sizing: border-box;
+  width: 100%;
+  container-type: inline-size;
+  background: var(--banner-background);
+  color: var(--banner-text);
+  font-family: var(--type-font-stack);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+}
+
+.rds-banner__inner {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-4) var(--space-4) var(--space-4) var(--space-16);
+}
+
+.rds-banner__content {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-8);
+  min-width: 0;
+}
+
+.rds-banner__icon {
+  display: flex;
+  flex: none;
+  color: var(--banner-highlight);
+}
+
+.rds-banner__icon > svg {
+  width: var(--size-20);
+  height: var(--size-20);
+}
+
+.rds-banner__body {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 var(--space-8);
+  min-width: 0;
+}
+
+.rds-banner__text {
+  margin: 0;
+}
+
+.rds-banner__highlight {
+  color: var(--banner-highlight);
+  font-weight: 500;
+}
+
+@container (max-width: 639px) {
+  .rds-banner__content {
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding-top: var(--space-8);
+  }
+
+  .rds-banner__body {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .rds-banner__highlight {
+    display: block;
+  }
+
+  .rds-banner__action {
+    margin-inline-start: calc(var(--space-24) * -1);
+  }
+}
+
+@media (forced-colors: active) {
+  .rds-banner {
+    border-bottom: var(--border-width) solid CanvasText;
+  }
+}

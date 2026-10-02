@@ -1,0 +1,49 @@
+/* @tokens page-shell */
+/*
+ * PageShell: no tokens of its own. Centred, full width up to narrow 768, default 1280 or wide 1536. Padded: 24 on
+ * top and bottom, 16 on the sides, 24 from 640, 32 from 1024. The header sits 24 above the body; the body's
+ * sections are 24 apart.
+ */
+.rds-page-shell {
+  box-sizing: border-box;
+  width: 100%;
+  margin-inline: auto;
+}
+
+.rds-page-shell--narrow {
+  max-width: 768px;
+}
+
+.rds-page-shell--default {
+  max-width: 1280px;
+}
+
+.rds-page-shell--wide {
+  max-width: 1536px;
+}
+
+.rds-page-shell--padded {
+  padding: var(--space-24) var(--space-16);
+}
+
+@media (min-width: 640px) {
+  .rds-page-shell--padded {
+    padding-inline: var(--space-24);
+  }
+}
+
+@media (min-width: 1024px) {
+  .rds-page-shell--padded {
+    padding-inline: var(--space-32);
+  }
+}
+
+.rds-page-shell__header {
+  margin-bottom: var(--space-24);
+}
+
+.rds-page-shell__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-24);
+}

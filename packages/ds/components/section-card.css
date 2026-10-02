@@ -1,0 +1,126 @@
+/* @tokens section-card */
+/*
+ * SectionCard (Content collection, section-card/*): a header 44 tall (12 16) with the label (14/20 semibold,
+ * uppercase) and the badge 8 apart, a 16 chevron; open, the header takes the brand and the content (16 inside,
+ * 16 between fields) sits under a line. Corners in radius/container.
+ */
+.rds-section-card {
+  --_border: var(--section-card-container-border-default);
+  --_header: transparent;
+  --_label: var(--section-card-label-default);
+  --_badge: var(--section-card-badge-default);
+
+  box-sizing: border-box;
+  overflow: hidden;
+  border: var(--border-width) solid var(--_border);
+  border-radius: var(--radius-container);
+  font-family: var(--type-font-stack);
+}
+
+.rds-section-card--open {
+  --_border: var(--section-card-container-border-open);
+  --_header: var(--section-card-header-background-open);
+  --_label: var(--section-card-label-open);
+  --_badge: var(--section-card-badge-open);
+}
+
+.rds-section-card__heading {
+  margin: 0;
+  font: inherit;
+}
+
+.rds-section-card__header {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-8);
+  width: 100%;
+  min-height: calc(var(--space-12) * 2 + var(--type-small-line));
+  padding: var(--space-12) var(--space-16);
+  border: 0;
+  background: var(--_header);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .rds-section-card:not(.rds-section-card--open) .rds-section-card__header:hover {
+    --_header: var(--section-card-header-background-hover);
+  }
+}
+
+.rds-section-card__header:focus-visible {
+  outline: var(--focus-ring-width) solid var(--section-card-container-border-open);
+  outline-offset: calc(var(--focus-ring-width) * -1);
+}
+
+.rds-section-card--open .rds-section-card__header:focus-visible {
+  outline-color: var(--section-card-label-open);
+}
+
+.rds-section-card__title {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-8);
+  min-width: 0;
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+}
+
+.rds-section-card__label {
+  flex: none;
+  color: var(--_label);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.rds-section-card__badge {
+  overflow: hidden;
+  min-width: 0;
+  color: var(--_badge);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rds-section-card__chevron {
+  display: inline-flex;
+  flex: none;
+  width: var(--size-16);
+  height: var(--size-16);
+  color: var(--section-card-chevron);
+}
+
+.rds-section-card--open .rds-section-card__chevron {
+  color: var(--_label);
+}
+
+.rds-section-card__chevron > svg {
+  width: 100%;
+  height: 100%;
+}
+
+.rds-section-card__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  padding: var(--space-16);
+  border-top: var(--border-width) solid var(--section-card-divider);
+  background: var(--section-card-body-background);
+}
+
+.rds-section-card__content[hidden] {
+  display: none;
+}
+
+@media (forced-colors: active) {
+  .rds-section-card {
+    border-color: CanvasText;
+  }
+
+  .rds-section-card__header:focus-visible {
+    outline-color: Highlight;
+  }
+}

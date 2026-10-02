@@ -1,0 +1,32 @@
+/* @tokens phone-input */
+/*
+ * PhoneInput: no tokens of its own; the Combobox and the Input bring theirs. The country (208 wide) and the number
+ * side by side, 8 apart. The label, the hint and the error are the number's: with a label, the country drops by
+ * the label's height (its line + 4 under it + the field's 4 gap), so both boxes line up. Below 480 the country narrows to 136.
+ */
+.rds-phone-input {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-8);
+  width: 100%;
+  min-width: 0;
+}
+
+.rds-phone-input__country {
+  flex: none;
+  width: calc(var(--space-64) * 3 + var(--space-16));
+}
+
+.rds-phone-input--labelled .rds-phone-input__country {
+  margin-top: calc(var(--input-support-line) + var(--space-8));
+}
+
+.rds-phone-input__number {
+  flex: 1;
+}
+
+@media (max-width: 480px) {
+  .rds-phone-input__country {
+    width: calc(var(--space-64) * 2 + var(--space-8));
+  }
+}

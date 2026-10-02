@@ -1,0 +1,437 @@
+/* @tokens google */
+/*
+ * The Google screens (External collection, google/m3/* and google/oauth/*): MOCKUPS of another company's interface,
+ * in the raw colours the Figma measured (External/google). A size container: below 640 wide it takes the Figma
+ * screen=mobile layout.
+ * m3, desktop: the page (at least 640 tall) holds a card (corners 28, 36 padding) in two panels 36 apart: the G (48),
+ * 24, the title (36/44), 16, the intro; the form with 84 on top. The footer (12/16, 8 0 padding) under it.
+ * m3, mobile: the card is the page, 24 padding, stacked; title 32/40; the form 24 below.
+ * oauth, desktop: a 450 card (1px border, corners 8): the header (10 16, the 16 G and "Fazer Login com o Google"
+ * 14/20) and the body (48 40 40) centred: title 24/32, 8, the intro, 32, the form. oauth, mobile: edge to edge, the
+ * body 32 24 24.
+ * The field: 56 tall, corners 4, 1px outline (2px primary on focus), the label 16/24 inside or 12/16 on the border.
+ * The primary button: 40 tall, pill (m3) or 36 tall, corners 4 (oauth), 0 24 padding, 14/20 medium.
+ */
+.rds-google {
+  box-sizing: border-box;
+  width: 100%;
+  container-type: inline-size;
+  color-scheme: light;
+  font-family: 'Google Sans', Roboto, var(--type-font-stack);
+}
+
+.rds-google--m3 {
+  --_page: var(--google-m3-page);
+  --_card: var(--google-m3-card);
+  --_text: var(--google-m3-text);
+  --_variant: var(--google-m3-text-variant);
+  --_primary: var(--google-m3-primary);
+  --_on-primary: var(--google-m3-on-primary);
+  --_outline: var(--google-m3-outline);
+  --_divider: var(--google-m3-outline-variant);
+  --_button-radius: 20px;
+  --_button-height: var(--size-40);
+}
+
+.rds-google--oauth {
+  --_page: var(--google-oauth-page);
+  --_card: var(--google-oauth-page);
+  --_text: var(--google-oauth-text);
+  --_variant: var(--google-oauth-text-variant);
+  --_primary: var(--google-oauth-primary);
+  --_on-primary: var(--google-oauth-on-primary);
+  --_outline: var(--google-oauth-border);
+  --_divider: var(--google-oauth-border);
+  --_button-radius: var(--radius-xs);
+  --_button-height: 36px;
+}
+
+.rds-google-g {
+  display: block;
+  flex: none;
+  width: var(--size-48);
+  height: var(--size-48);
+}
+
+.rds-google__page {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-8);
+  min-height: 640px;
+  padding: var(--space-24) var(--space-40);
+  background: var(--_page);
+  color: var(--_text);
+}
+
+.rds-google__card {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 944px;
+  border-radius: 28px;
+  background: var(--_card);
+}
+
+.rds-google__body {
+  display: flex;
+  gap: 36px;
+  padding: 36px;
+}
+
+.rds-google__intro,
+.rds-google__form {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.rds-google__intro {
+  align-items: flex-start;
+}
+
+.rds-google__form {
+  padding-top: 84px;
+}
+
+.rds-google__title {
+  margin: var(--space-24) 0 var(--space-16);
+  color: var(--_text);
+  font-size: 36px;
+  font-weight: 400;
+  line-height: 44px;
+}
+
+.rds-google__subtitle {
+  margin: 0;
+  color: var(--_text);
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+}
+
+.rds-google__app {
+  color: var(--_primary);
+  font-weight: 500;
+}
+
+.rds-google__text {
+  margin: 0;
+  color: var(--_variant);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+}
+
+.rds-google__link {
+  color: var(--_primary);
+  font-size: var(--type-small-size);
+  font-weight: 500;
+  line-height: var(--type-small-line);
+}
+
+.rds-google__field {
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  height: var(--size-56);
+  padding: 0 var(--space-16);
+  border: var(--border-width) solid var(--_outline);
+  border-radius: var(--radius-xs);
+  background: var(--_card);
+}
+
+.rds-google__field-label {
+  color: var(--_variant);
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+}
+
+.rds-google__field--focus,
+.rds-google__field--filled {
+  align-items: center;
+}
+
+.rds-google__field--focus {
+  border: 2px solid var(--_primary);
+}
+
+.rds-google__field--focus .rds-google__field-label,
+.rds-google__field--filled .rds-google__field-label {
+  position: absolute;
+  top: -8px;
+  left: 12px;
+  padding: 0 var(--space-4);
+  background: var(--_card);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+}
+
+.rds-google__field--focus .rds-google__field-label {
+  color: var(--_primary);
+}
+
+.rds-google__field-value {
+  color: var(--_text);
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+}
+
+.rds-google__checkbox {
+  display: flex;
+  align-items: center;
+  gap: var(--space-16);
+  color: var(--_text);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+}
+
+.rds-google__checkbox::before {
+  content: '';
+  box-sizing: border-box;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--_variant);
+  border-radius: 2px;
+}
+
+.rds-google__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--space-24);
+}
+
+.rds-google__primary {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  height: var(--_button-height);
+  padding: 0 var(--space-24);
+  border-radius: var(--_button-radius);
+  background: var(--_primary);
+  color: var(--_on-primary);
+  font-size: var(--type-small-size);
+  font-weight: 500;
+  line-height: var(--type-small-line);
+}
+
+.rds-google__chip {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+  padding: var(--space-4) var(--space-8) var(--space-4) var(--space-4);
+  border: var(--border-width) solid var(--_outline);
+  border-radius: var(--radius-large);
+  color: var(--_text);
+  font-size: var(--type-small-size);
+  font-weight: 500;
+  line-height: var(--type-small-line);
+}
+
+.rds-google__avatar {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-full);
+  background: var(--_primary);
+  color: var(--_on-primary);
+  font-size: var(--type-small-size);
+  font-weight: 500;
+  line-height: 1;
+}
+
+.rds-google__avatar--sm {
+  width: var(--size-20);
+  height: var(--size-20);
+  font-size: 11px;
+}
+
+.rds-google__caret {
+  width: 0;
+  height: 0;
+  border-top: 5px solid currentColor;
+  border-right: 5px solid transparent;
+  border-left: 5px solid transparent;
+}
+
+.rds-google__footer {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-24);
+  width: 100%;
+  max-width: 944px;
+  padding: var(--space-8) 0;
+  color: var(--_text);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+}
+
+.rds-google__language {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-12);
+}
+
+.rds-google__language > .rds-google__caret {
+  color: var(--_variant);
+}
+
+.rds-google__footer-links {
+  display: flex;
+  gap: var(--space-32);
+}
+
+/* The account list of the chooser. */
+.rds-google__accounts {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rds-google__account {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  padding: var(--space-12) var(--space-8);
+  border-bottom: var(--border-width) solid var(--_divider);
+}
+
+.rds-google__account:last-child {
+  border-bottom: 0;
+}
+
+.rds-google__account-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.rds-google__account-name {
+  color: var(--_text);
+  font-size: var(--type-small-size);
+  font-weight: 500;
+  line-height: var(--type-small-line);
+}
+
+.rds-google__account-email {
+  color: var(--_variant);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+}
+
+.rds-google__add {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  color: var(--_variant);
+  font-size: 22px;
+  line-height: 1;
+}
+
+/* oauth: the narrow card, centred. */
+.rds-google--oauth .rds-google__card {
+  max-width: 450px;
+  border: var(--border-width) solid var(--_outline);
+  border-radius: var(--radius-small);
+}
+
+.rds-google--oauth .rds-google__footer {
+  max-width: 450px;
+}
+
+.rds-google__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  padding: 10px var(--space-16);
+  border-bottom: var(--border-width) solid var(--_outline);
+  color: var(--_variant);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+}
+
+.rds-google__header > .rds-google-g {
+  width: var(--size-16);
+  height: var(--size-16);
+}
+
+.rds-google--oauth .rds-google__body {
+  flex-direction: column;
+  gap: 0;
+  padding: var(--space-48) var(--space-40) var(--space-40);
+}
+
+.rds-google--oauth .rds-google__intro {
+  align-items: center;
+  text-align: center;
+}
+
+.rds-google--oauth .rds-google__title {
+  margin: 0 0 var(--space-8);
+  font-size: var(--type-heading-size);
+  line-height: 32px;
+}
+
+.rds-google--oauth .rds-google__form {
+  padding-top: var(--space-32);
+}
+
+.rds-google--oauth .rds-google__actions {
+  justify-content: space-between;
+}
+
+@container (max-width: 639px) {
+  .rds-google__page {
+    justify-content: flex-start;
+    min-height: 720px;
+    padding: 0;
+    background: var(--_card);
+  }
+
+  .rds-google__card,
+  .rds-google--oauth .rds-google__card {
+    flex: 1;
+    max-width: none;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .rds-google__body {
+    flex-direction: column;
+    gap: 0;
+    padding: var(--space-24);
+  }
+
+  .rds-google__title {
+    font-size: 32px;
+    line-height: 40px;
+  }
+
+  .rds-google__form {
+    padding-top: var(--space-24);
+  }
+
+  .rds-google--oauth .rds-google__body {
+    padding: var(--space-32) var(--space-24) var(--space-24);
+  }
+
+  .rds-google__footer,
+  .rds-google--oauth .rds-google__footer {
+    flex-wrap: wrap;
+    max-width: none;
+    padding: var(--space-8) var(--space-24);
+  }
+}

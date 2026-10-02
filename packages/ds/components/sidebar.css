@@ -1,0 +1,236 @@
+/* @tokens sidebar */
+/*
+ * Sidebar (Navigation collection, sidebar/*): 240 wide (64 collapsed), 12 × 8 inside, a 1px border on the right.
+ * Header: the brand mark (24) and the module (16/24 medium), 10 apart, 44 tall. Entries of 44, 12 inside, 12 between
+ * icon (20) and label (14/20 medium), 4 apart; the current one on the brand tint with the label in colors/primary.
+ * Section labels 11/14 bold, 16 above and 6 below, with a 14 chevron. Foot: who is signed in (12/16) and Sair.
+ * dark (deprecated in the Figma) reads sidebar/dark/*; the current entry stays the light pill.
+ */
+.rds-sidebar {
+  --_background: var(--sidebar-background);
+  --_label: var(--sidebar-item-label-default);
+  --_label-hover: var(--sidebar-item-label-hover);
+  --_hover: var(--sidebar-item-background-hover);
+  --_module: var(--sidebar-module);
+  --_user: var(--sidebar-user);
+  --_section: var(--sidebar-section-label);
+  --_count: var(--sidebar-item-count);
+  --_ring: var(--sidebar-focus-ring);
+
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  gap: var(--space-8);
+  width: 240px;
+  min-height: 100%;
+  padding: var(--space-12) var(--space-8);
+  border-right: var(--border-width) solid var(--sidebar-border);
+  background: var(--_background);
+  font-family: var(--type-font-stack);
+}
+
+.rds-sidebar--dark {
+  --_background: var(--sidebar-dark-background);
+  --_label: var(--sidebar-dark-item-label-default);
+  --_label-hover: var(--sidebar-dark-item-label-hover);
+  --_hover: var(--sidebar-dark-item-background-hover);
+  --_module: var(--sidebar-dark-module);
+  --_user: var(--sidebar-dark-user);
+  --_section: var(--sidebar-dark-section-label);
+  --_count: var(--sidebar-dark-item-label-default);
+  /* No dark ring token: the strongest text over the brand, which is what the ring needs to show there. */
+  --_ring: var(--sidebar-dark-module);
+
+  border-right-color: transparent;
+}
+
+.rds-sidebar--collapsed {
+  width: var(--space-64);
+}
+
+.rds-sidebar__header {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: calc(var(--space-12) * 2 + var(--type-button-line));
+  padding: var(--space-8) var(--space-12) var(--space-12);
+}
+
+.rds-sidebar--collapsed .rds-sidebar__header {
+  justify-content: center;
+  padding-inline: 0;
+}
+
+.rds-sidebar__mark,
+.rds-sidebar__logo {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+}
+
+.rds-sidebar__module {
+  min-width: 0;
+  color: var(--_module);
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  font-weight: 500;
+}
+
+.rds-sidebar__items {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rds-sidebar__items[hidden] {
+  display: none;
+}
+
+.rds-sidebar__account {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-top: auto;
+}
+
+.rds-sidebar__user {
+  margin: 0;
+  padding: 0 var(--space-12);
+  color: var(--_user);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+}
+
+.rds-sidebar__item {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  width: 100%;
+  min-height: calc(var(--space-12) * 2 + var(--type-button-line));
+  padding: 0 var(--space-12);
+  border: 0;
+  border-radius: var(--radius-control);
+  background: none;
+  color: var(--_label);
+  font: inherit;
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  text-align: start;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.rds-sidebar--collapsed .rds-sidebar__item {
+  justify-content: center;
+  width: calc(var(--space-12) * 2 + var(--type-button-line));
+  padding: 0;
+}
+
+.rds-sidebar__icon {
+  display: inline-flex;
+  flex: none;
+}
+
+.rds-sidebar__icon > svg {
+  width: var(--size-20);
+  height: var(--size-20);
+}
+
+.rds-sidebar__label {
+  flex: 1;
+  min-width: 0;
+  font-weight: 500;
+}
+
+.rds-sidebar__count {
+  flex: none;
+  color: var(--_count);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (hover: hover) {
+  .rds-sidebar__item:not([aria-current='page']):hover {
+    background: var(--_hover);
+    color: var(--_label-hover);
+  }
+}
+
+.rds-sidebar__item[aria-current='page'] {
+  background: var(--sidebar-item-background-active);
+  color: var(--sidebar-item-label-active);
+}
+
+.rds-sidebar__item[aria-current='page'] .rds-sidebar__count {
+  color: var(--sidebar-item-label-active);
+}
+
+.rds-sidebar__item:focus-visible,
+.rds-sidebar__section-toggle:focus-visible {
+  outline: var(--focus-ring-width) solid var(--_ring);
+  outline-offset: calc(var(--focus-ring-width) * -1);
+}
+
+.rds-sidebar__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.rds-sidebar__section-toggle {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  width: 100%;
+  padding: var(--space-16) var(--space-12) 6px;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: none;
+  color: var(--_section);
+  font: inherit;
+  font-size: 11px;
+  line-height: 14px;
+  font-weight: 700;
+  text-align: start;
+  cursor: pointer;
+}
+
+.rds-sidebar__section-label {
+  flex: 1;
+  min-width: 0;
+}
+
+.rds-sidebar__section-count {
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.rds-sidebar__chevron {
+  display: inline-flex;
+  flex: none;
+}
+
+.rds-sidebar__chevron > svg {
+  width: 14px;
+  height: 14px;
+}
+
+.rds-sidebar__section-toggle[aria-expanded='false'] .rds-sidebar__chevron {
+  transform: rotate(-90deg);
+}
+
+.rds-sidebar__separator {
+  padding: var(--space-4) 0;
+}
+
+@media (forced-colors: active) {
+  .rds-sidebar__item[aria-current='page'] {
+    outline: var(--border-width) solid CanvasText;
+  }
+}

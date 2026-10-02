@@ -1,0 +1,129 @@
+/* @tokens slider */
+/*
+ * Slider (Forms collection, slider/*): label 14/20 medium and value 14/20 on one row, 8 above the control;
+ * a 4px track with the chosen part (range) in colors/primary; a 20 thumb with a 2px border. The native range
+ * input is 44 tall, the touch area, pulled into the 20 of the Figma control by negative margins.
+ * Focus: a ring 2 away from the thumb (Figma: the 28 focus-ring ellipse).
+ */
+.rds-slider {
+  --_track: var(--slider-track);
+  --_range: var(--slider-range);
+  --_thumb-border: var(--slider-thumb-border);
+  --_label: var(--slider-label);
+  --_value: var(--slider-value);
+  --_touch: calc(var(--space-12) * 2 + var(--type-button-line));
+
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  font-family: var(--type-font-stack);
+}
+
+.rds-slider__label-row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-8);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+}
+
+.rds-slider__label {
+  min-width: 0;
+  color: var(--_label);
+  font-weight: 500;
+}
+
+.rds-slider__value {
+  flex: none;
+  margin-inline-start: auto;
+  color: var(--_value);
+  font-variant-numeric: tabular-nums;
+}
+
+.rds-slider__input {
+  width: 100%;
+  height: var(--_touch);
+  margin: calc((var(--size-20) - var(--_touch)) / 2 + var(--space-8)) 0 calc((var(--size-20) - var(--_touch)) / 2);
+  padding: 0;
+  background: transparent;
+  appearance: none;
+  cursor: pointer;
+}
+
+/* Without the label row, nothing sits above: no 8 of gap. */
+.rds-slider__input:first-child {
+  margin-top: calc((var(--size-20) - var(--_touch)) / 2);
+}
+
+.rds-slider__input::-webkit-slider-runnable-track {
+  height: var(--space-4);
+  border-radius: var(--radius-full);
+  background: linear-gradient(to right, var(--_range) var(--_percent), var(--_track) var(--_percent));
+}
+
+.rds-slider__input::-moz-range-track {
+  height: var(--space-4);
+  border-radius: var(--radius-full);
+  background: var(--_track);
+}
+
+.rds-slider__input::-moz-range-progress {
+  height: var(--space-4);
+  border-radius: var(--radius-full);
+  background: var(--_range);
+}
+
+.rds-slider__input::-webkit-slider-thumb {
+  box-sizing: border-box;
+  width: var(--size-20);
+  height: var(--size-20);
+  margin-top: calc((var(--space-4) - var(--size-20)) / 2);
+  border: calc(var(--border-width) * 2) solid var(--_thumb-border);
+  border-radius: var(--radius-full);
+  background: var(--slider-thumb-background);
+  appearance: none;
+}
+
+.rds-slider__input::-moz-range-thumb {
+  box-sizing: border-box;
+  width: var(--size-20);
+  height: var(--size-20);
+  border: calc(var(--border-width) * 2) solid var(--_thumb-border);
+  border-radius: var(--radius-full);
+  background: var(--slider-thumb-background);
+}
+
+.rds-slider__input:focus {
+  outline: none;
+}
+
+.rds-slider__input:focus-visible::-webkit-slider-thumb {
+  box-shadow:
+    0 0 0 var(--focus-ring-width) var(--slider-thumb-background),
+    0 0 0 calc(var(--focus-ring-width) * 2) var(--slider-focus-ring);
+}
+
+.rds-slider__input:focus-visible::-moz-range-thumb {
+  box-shadow:
+    0 0 0 var(--focus-ring-width) var(--slider-thumb-background),
+    0 0 0 calc(var(--focus-ring-width) * 2) var(--slider-focus-ring);
+}
+
+/* Disabled: the native one, out of the tab order and out of the form. */
+.rds-slider--disabled {
+  --_track: var(--slider-track-disabled);
+  --_range: var(--slider-range-disabled);
+  --_thumb-border: var(--slider-thumb-border-disabled);
+  --_label: var(--slider-label-disabled);
+  --_value: var(--slider-label-disabled);
+}
+
+.rds-slider--disabled .rds-slider__input {
+  cursor: not-allowed;
+}
+
+@media (forced-colors: active) {
+  .rds-slider__input {
+    appearance: auto;
+  }
+}

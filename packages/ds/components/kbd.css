@@ -1,0 +1,38 @@
+/* @tokens kbd */
+/* Kbd: one key (Content collection, kbd/*). 20 tall, 4 on the sides, caption 12/16 medium, 1px border, radius/xs. */
+.rds-kbd {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--size-20);
+  height: var(--size-20);
+  padding: 0 calc(var(--space-4) - var(--border-width));
+  border: var(--border-width) solid var(--kbd-border);
+  border-radius: var(--radius-xs);
+  background: var(--kbd-background);
+  color: var(--kbd-label);
+  font-family: var(--type-font-stack);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+  font-weight: var(--type-caption-weight);
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.rds-kbd-group {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-4);
+  color: var(--kbd-label);
+  font-family: var(--type-font-stack);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+  vertical-align: middle;
+}
+
+@media (forced-colors: active) {
+  .rds-kbd {
+    border-color: CanvasText;
+  }
+}

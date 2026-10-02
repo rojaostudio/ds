@@ -1,0 +1,82 @@
+/* @tokens benefits */
+/*
+ * Benefits (Blocks collection, benefits/*): the block heading (internal/block.css) and a grid of cards, 3 per row,
+ * 16 apart; one column below 640 of container width. Card (.benefits/item): 16 16 8 16 padding, 12 between the
+ * icon plate (40, icon 24, 8 padding), the text (title 16/24 medium and description 14/20, 4 apart) and the ghost
+ * link, flush left. Corners in radius/container.
+ */
+.rds-benefits {
+  --_background: var(--benefits-background);
+  --_eyebrow: var(--benefits-eyebrow);
+  --_title: var(--benefits-title);
+  --_text: var(--benefits-text);
+}
+
+.rds-benefits__items {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-16);
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rds-benefits__item {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-12);
+  padding: var(--space-16) var(--space-16) var(--space-8);
+  border: var(--border-width) solid var(--benefits-item-border);
+  border-radius: var(--radius-container);
+  background: var(--benefits-item-background);
+}
+
+.rds-benefits__icon {
+  display: flex;
+  padding: var(--space-8);
+  border-radius: var(--radius-container);
+  background: var(--benefits-item-icon-background);
+  color: var(--benefits-item-title);
+}
+
+.rds-benefits__icon > svg {
+  width: var(--size-24);
+  height: var(--size-24);
+}
+
+.rds-benefits__text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.rds-benefits__item-title,
+.rds-benefits__item-description {
+  margin: 0;
+}
+
+.rds-benefits__item-title {
+  color: var(--benefits-item-title);
+  font-size: var(--type-label-size);
+  font-weight: 500;
+  line-height: var(--type-label-line);
+}
+
+.rds-benefits__item-description {
+  color: var(--benefits-item-text);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+}
+
+.rds-benefits__link {
+  margin-inline-start: calc(var(--space-24) * -1);
+}
+
+@container (max-width: 639px) {
+  .rds-benefits__items {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

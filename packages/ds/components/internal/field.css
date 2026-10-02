@@ -1,0 +1,268 @@
+/* @tokens input */
+/*
+ * The text fields' shared parts (Input, PasswordInput, Textarea, Select). Label 14/20 medium, 8 above the box;
+ * box 44 tall (56 floating), 12 inside, 8 between parts (8 on the right when it ends on an action); hint or
+ * error 4 below, 4 in from the sides. Focus is a state of the box: the border turns 2px focus ring (red on
+ * error). Text 16/24, so iOS does not zoom. The defaults below are the Input's (input/*); Textarea and Select
+ * swap the local variables for their own tokens.
+ */
+.rds-field {
+  --_background: var(--input-background-default);
+  --_background-disabled: var(--input-background-disabled);
+  --_border: var(--input-border-default);
+  --_border-hover: var(--input-border-hover);
+  --_border-focus: var(--input-border-focus);
+  --_border-error: var(--input-border-error);
+  --_border-disabled: var(--input-border-disabled);
+  --_value: var(--input-value-default);
+  --_value-disabled: var(--input-value-disabled);
+  --_placeholder: var(--input-placeholder-default);
+  --_placeholder-disabled: var(--input-placeholder-disabled);
+  --_icon: var(--input-icon-default);
+  --_icon-disabled: var(--input-icon-disabled);
+  --_text-size: var(--input-text-size);
+  --_text-line: var(--input-text-line);
+  --_label: var(--input-label-color);
+  --_required: var(--input-required-color);
+  --_hint: var(--input-hint-color);
+  --_error: var(--input-error-message-color);
+  --_support-size: var(--input-support-size);
+  --_support-line: var(--input-support-line);
+  --_float: var(--input-float-default);
+  --_float-error: var(--input-float-error);
+  --_float-disabled: var(--input-float-disabled);
+  --_float-size: var(--input-float-size);
+  --_float-line: var(--input-float-line);
+  /* The touch minimum: padding 12 + line 20 + padding 12. */
+  --_height: calc(var(--space-12) * 2 + var(--type-button-line));
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+  font-family: var(--type-font-stack);
+}
+
+.rds-field__label {
+  padding-bottom: var(--space-4);
+  color: var(--_label);
+  font-size: var(--_support-size);
+  line-height: var(--_support-line);
+  font-weight: 500;
+}
+
+.rds-field__required {
+  color: var(--_required);
+}
+
+.rds-field__box {
+  --_edge: var(--_border);
+
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  min-height: var(--_height);
+  padding: 0 var(--space-12);
+  border: var(--border-width) solid var(--_edge);
+  border-radius: var(--radius-field);
+  background: var(--_background);
+  color: var(--_value);
+  font-size: var(--_text-size);
+  line-height: var(--_text-line);
+}
+
+.rds-field__box--action {
+  padding-inline-end: var(--space-8);
+}
+
+@media (hover: hover) {
+  .rds-field:not(.rds-field--disabled, .rds-field--error) .rds-field__box:hover {
+    --_edge: var(--_border-hover);
+  }
+}
+
+.rds-field--error .rds-field__box {
+  --_edge: var(--_border-error);
+}
+
+/* Focus (on the control, not on an inner button): 2px border without moving the content
+   (1px border + 1px inset shadow). Red on error. */
+.rds-field__box:has(.rds-field__control:focus) {
+  --_edge: var(--_border-focus);
+  box-shadow: inset 0 0 0 var(--border-width) var(--_edge);
+}
+
+.rds-field--error .rds-field__box:has(.rds-field__control:focus) {
+  --_edge: var(--_border-error);
+}
+
+.rds-field__control {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+
+.rds-field__control::placeholder {
+  color: var(--_placeholder);
+  opacity: 1;
+}
+
+.rds-field__icon {
+  display: inline-flex;
+  flex: none;
+  color: var(--_icon);
+}
+
+.rds-field__icon > svg,
+.rds-field__action-icon > svg {
+  width: var(--size-20);
+  height: var(--size-20);
+}
+
+.rds-field__affix {
+  flex: none;
+  color: var(--input-affix-default);
+}
+
+.rds-field__action {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: var(--size-32);
+  height: var(--size-32);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: none;
+  color: var(--_icon);
+  cursor: pointer;
+}
+
+.rds-field__action-icon {
+  display: inline-flex;
+}
+
+@media (hover: hover) {
+  .rds-field__action:enabled:hover {
+    background: var(--input-action-background-hover);
+  }
+}
+
+/* The field has no ring token apart from its focus border: the same colour, so every focus in it looks alike. */
+.rds-field__action:focus-visible {
+  outline: var(--focus-ring-width) solid var(--_border-focus);
+  outline-offset: calc(var(--focus-ring-width) * -1);
+}
+
+.rds-field__support {
+  padding: 0 var(--space-4);
+  font-size: var(--_support-size);
+  line-height: var(--_support-line);
+}
+
+.rds-field__hint {
+  color: var(--_hint);
+}
+
+.rds-field__error-message {
+  color: var(--_error);
+}
+
+/* Floating label: inside the box. Empty and unfocused, it stands where the placeholder would (16/24);
+   with focus or a value, it shrinks to 12/16 on top and the value shows under it. */
+.rds-field--floating {
+  --_height: var(--size-56);
+}
+
+.rds-field__float-label {
+  position: absolute;
+  inset-inline: var(--space-12);
+  top: calc(var(--space-8) - var(--border-width));
+  overflow: hidden;
+  color: var(--_float);
+  font-size: var(--_float-size);
+  line-height: var(--_float-line);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  pointer-events: none;
+}
+
+.rds-field--floating .rds-field__control {
+  align-self: stretch;
+  padding-top: calc(var(--space-8) + var(--_float-line) - var(--border-width));
+  padding-bottom: calc(var(--space-8) - var(--border-width));
+}
+
+.rds-field--floating .rds-field__control::placeholder {
+  color: transparent;
+}
+
+.rds-field__box:has(.rds-field__control:placeholder-shown:not(:focus)) .rds-field__float-label {
+  top: calc((var(--_height) - var(--_text-line)) / 2 - var(--border-width));
+  font-size: var(--_text-size);
+  line-height: var(--_text-line);
+}
+
+.rds-field--error .rds-field__float-label {
+  color: var(--_float-error);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .rds-field__float-label {
+    transition:
+      top var(--motion-duration-fast) var(--motion-easing-standard),
+      font-size var(--motion-duration-fast) var(--motion-easing-standard);
+  }
+}
+
+/* Disabled: the native one, out of the tab order and out of the form. */
+.rds-field--disabled .rds-field__box {
+  --_edge: var(--_border-disabled);
+  background: var(--_background-disabled);
+  color: var(--_value-disabled);
+}
+
+.rds-field--disabled .rds-field__control::placeholder {
+  color: var(--_placeholder-disabled);
+}
+
+.rds-field--disabled .rds-field__icon,
+.rds-field--disabled .rds-field__action {
+  color: var(--_icon-disabled);
+  cursor: not-allowed;
+}
+
+.rds-field--disabled .rds-field__affix {
+  color: var(--input-affix-disabled);
+}
+
+.rds-field--disabled .rds-field__float-label {
+  color: var(--_float-disabled);
+}
+
+/* Windows high contrast: the border is what draws the box; focus gets the system ring. */
+@media (forced-colors: active) {
+  .rds-field__box {
+    border-color: CanvasText;
+  }
+
+  .rds-field--disabled .rds-field__box {
+    border-color: GrayText;
+  }
+
+  .rds-field__box:has(.rds-field__control:focus) {
+    outline: var(--focus-ring-width) solid Highlight;
+  }
+
+  .rds-field__action:focus-visible {
+    outline-color: Highlight;
+  }
+}

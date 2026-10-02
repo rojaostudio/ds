@@ -1,0 +1,97 @@
+/* @tokens questionnaire */
+/*
+ * Questionnaire (Chat collection, questionnaire/*): a card up to 480 wide, 24 padding, 16 between the Progress
+ * (sm, with its label), the question, the options (8 apart), the error and the actions. Question 16/24 medium,
+ * description 14/20, 4 apart; the error 14/20 with a 16 icon, 8 apart. Actions: back on the left, skip and next on
+ * the right, 8 apart. Corners in radius/container.
+ */
+.rds-questionnaire {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  width: 480px;
+  max-width: 100%;
+  padding: var(--space-24);
+  border: var(--border-width) solid var(--questionnaire-border);
+  border-radius: var(--radius-container);
+  background: var(--questionnaire-background);
+  font-family: var(--type-font-stack);
+}
+
+.rds-questionnaire__title {
+  color: var(--questionnaire-title);
+  font-size: var(--type-label-size);
+  font-weight: 500;
+  line-height: var(--type-label-line);
+}
+
+.rds-questionnaire__description {
+  display: block;
+  color: var(--questionnaire-description);
+  font-size: var(--type-small-size);
+  font-weight: 400;
+  line-height: var(--type-small-line);
+}
+
+.rds-questionnaire__heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.rds-questionnaire .rds-fieldset__support.rds-radio-group__hint,
+.rds-questionnaire .rds-fieldset__support.rds-checkbox-group__hint {
+  padding-top: var(--space-4);
+}
+
+.rds-questionnaire .rds-fieldset__options {
+  gap: var(--space-8);
+  margin-top: var(--space-16);
+}
+
+.rds-questionnaire__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+}
+
+.rds-questionnaire__text-heading,
+.rds-questionnaire__alert {
+  margin: 0;
+}
+
+.rds-questionnaire__error {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  margin-top: var(--space-8);
+  color: var(--questionnaire-error);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+}
+
+.rds-questionnaire__body .rds-questionnaire__error {
+  margin-top: 0;
+}
+
+.rds-questionnaire__error-icon {
+  display: flex;
+  flex: none;
+}
+
+.rds-questionnaire__error-icon > svg {
+  width: var(--size-16);
+  height: var(--size-16);
+}
+
+.rds-questionnaire__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+.rds-questionnaire__spacer {
+  flex: 1;
+}

@@ -1,0 +1,49 @@
+/* @tokens scroller */
+/*
+ * MessageScroller (Chat collection, scroller/*): fills the parent; the content is held to the bottom, 16 padding
+ * and 16 between items. The "go to the end" IconButton (neutral outline) floats centred, 16 from the bottom.
+ * There is no scroller focus token in the Figma: the focus ring borrows the Button's (button/focus-ring).
+ */
+.rds-scroller {
+  position: relative;
+  height: 100%;
+  min-height: 0;
+  background: var(--scroller-background);
+}
+
+.rds-scroller__viewport {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.rds-scroller__viewport:focus-visible {
+  outline: var(--focus-ring-width) solid var(--button-focus-ring);
+  outline-offset: calc(var(--focus-ring-width) * -1);
+}
+
+.rds-scroller__content {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  margin-top: auto;
+  padding: var(--space-16);
+}
+
+.rds-scroller__to-end {
+  position: absolute;
+  bottom: var(--space-16);
+  left: 50%;
+  translate: -50% 0;
+  --_background: var(--scroller-background);
+}
+
+@media (forced-colors: active) {
+  .rds-scroller__viewport:focus-visible {
+    outline-color: Highlight;
+  }
+}

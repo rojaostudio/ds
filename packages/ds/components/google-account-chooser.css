@@ -1,0 +1,13 @@
+/* @tokens google */
+/*
+ * GoogleAccountChooser (External collection): on top of internal/google.css, the accounts (rows 12 8, a line
+ * between them, the 28 initial 12 from the name 14/20 medium and the e-mail 12/16) and, 24 below, the notice. In
+ * oauth the list starts 24 under the intro.
+ */
+.rds-google-account-chooser__notice {
+  margin-top: var(--space-24);
+}
+
+.rds-google-account-chooser.rds-google--oauth .rds-google__form {
+  padding-top: var(--space-24);
+}

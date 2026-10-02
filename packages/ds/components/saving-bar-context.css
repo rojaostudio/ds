@@ -1,0 +1,11 @@
+/* @tokens saving-bar-context */
+/*
+ * SavingBarRoot: no tokens of its own; the SavingBar brings its own. The one bar of the page, fixed at the foot
+ * across the width, above the content and the FAB layer's peers (z/sticky).
+ */
+.rds-saving-bar-root {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: var(--z-sticky);
+}

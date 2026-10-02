@@ -1,0 +1,12 @@
+/* @tokens danger-zone */
+/*
+ * DangerZone: no tokens of its own; the Card, the Tile and the Item bring theirs. The items fill the card's
+ * width (the Item pads 12 16 itself), a line in the Item's border colour between them.
+ */
+.rds-danger-zone .rds-danger-zone__items {
+  padding: 0;
+}
+
+.rds-danger-zone .rds-danger-zone__items > * + * {
+  border-top: var(--border-width) solid var(--item-border);
+}

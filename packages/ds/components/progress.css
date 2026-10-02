@@ -1,0 +1,66 @@
+/* @tokens progress */
+/* Progress (Indicators collection, progress/*): the label row, 8 above an 8px bar (4px in sm). Stretches to its container. */
+.rds-progress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  width: 100%;
+  font-family: var(--type-font-stack);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+}
+
+.rds-progress__row {
+  display: flex;
+  gap: var(--space-8);
+}
+
+.rds-progress__label {
+  flex: 1;
+  min-width: 0;
+  color: var(--progress-label);
+  font-weight: 500;
+}
+
+.rds-progress__value {
+  margin-inline-start: auto;
+  color: var(--progress-value);
+  font-variant-numeric: tabular-nums;
+}
+
+.rds-progress__track {
+  --_height: var(--space-8);
+
+  overflow: hidden;
+  height: var(--_height);
+  border-radius: var(--radius-full);
+  background: var(--progress-track);
+}
+
+.rds-progress--sm .rds-progress__track {
+  --_height: var(--space-4);
+}
+
+.rds-progress__fill {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--progress-fill);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .rds-progress__fill {
+    transition: width var(--motion-duration-slow) var(--motion-easing-standard);
+  }
+}
+
+/* Windows high contrast drops backgrounds: outline the track and draw the fill with a system colour. */
+@media (forced-colors: active) {
+  .rds-progress__track {
+    border: var(--border-width) solid CanvasText;
+  }
+
+  .rds-progress__fill {
+    forced-color-adjust: none;
+    background: Highlight;
+  }
+}

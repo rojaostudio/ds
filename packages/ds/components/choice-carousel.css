@@ -1,0 +1,82 @@
+/* @tokens choice-carousel */
+/*
+ * ChoiceCarousel: no tokens of its own; the IconButtons bring theirs. A row that scrolls sideways and snaps to each
+ * option (160 wide, 200 from 768), 12 apart, no scrollbar. From 768 the outline arrows sit on the row's edges, half
+ * outside, and fade away when there is nothing more that way.
+ */
+.rds-choice-carousel {
+  position: relative;
+  width: 100%;
+}
+
+.rds-choice-carousel__track {
+  display: flex;
+  gap: var(--space-12);
+  padding-block: var(--space-4);
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  border-radius: var(--radius-control);
+}
+
+.rds-choice-carousel__track::-webkit-scrollbar {
+  display: none;
+}
+
+.rds-choice-carousel__track:focus-visible {
+  outline: var(--focus-ring-width) solid currentColor;
+  outline-offset: var(--focus-ring-width);
+}
+
+.rds-choice-carousel__option {
+  flex: none;
+  width: calc(var(--space-64) * 2 + var(--space-32));
+  scroll-snap-align: start;
+  cursor: pointer;
+}
+
+.rds-choice-carousel__option[aria-disabled='true'] {
+  cursor: not-allowed;
+}
+
+.rds-choice-carousel__arrow {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .rds-choice-carousel__option {
+    width: calc(var(--space-64) * 3 + var(--space-8));
+  }
+
+  .rds-choice-carousel__arrow {
+    position: absolute;
+    top: 50%;
+    z-index: 1;
+    display: inline-flex;
+    border-radius: var(--radius-full);
+    box-shadow: var(--elevation-raised);
+    transition: opacity var(--motion-duration-base) var(--motion-easing-standard);
+  }
+
+  .rds-choice-carousel__arrow--prev {
+    left: 0;
+    transform: translate(-50%, -50%);
+  }
+
+  .rds-choice-carousel__arrow--next {
+    right: 0;
+    transform: translate(50%, -50%);
+  }
+
+  .rds-choice-carousel__arrow[aria-disabled='true'] {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rds-choice-carousel__track {
+    scroll-behavior: auto;
+  }
+}

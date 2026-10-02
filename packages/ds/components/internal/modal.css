@@ -1,0 +1,105 @@
+/* @tokens internal */
+/*
+ * Shared by Dialog, Sheet and Drawer (internal/modal.tsx): the veil, the box (24 inside, shadow elevation/modal),
+ * the header (the heading beside the 44 close IconButton; 10 above the title so it lines up with the button's
+ * centre; title 16/24 medium, 4, description 14/20) and the footer (8 between buttons, to the right).
+ * Each component's stylesheet gives the box its place, its gaps and its colours.
+ */
+.rds-modal__scrim {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+}
+
+.rds-modal__scrim.rds-modal__scrim--clear {
+  background: transparent;
+}
+
+.rds-modal {
+  position: fixed;
+  z-index: var(--z-modal);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-24);
+  box-shadow: var(--elevation-modal);
+  font-family: var(--type-font-stack);
+}
+
+/* Radix moves the focus into the box; the box draws no ring, its controls do. */
+.rds-modal:focus {
+  outline: none;
+}
+
+.rds-modal__header {
+  display: flex;
+  flex: none;
+  align-items: flex-start;
+  gap: var(--space-8);
+}
+
+.rds-modal__heading {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+  padding-top: calc((var(--space-12) * 2 + var(--size-20) - var(--type-label-line)) / 2);
+}
+
+.rds-modal__title {
+  margin: 0;
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  font-weight: 500;
+}
+
+.rds-modal__description {
+  margin: 0;
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+}
+
+.rds-modal__close {
+  flex: none;
+}
+
+.rds-modal__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  min-height: 0;
+  overflow-y: auto;
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+}
+
+.rds-modal__footer {
+  display: flex;
+  flex: none;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-8);
+}
+
+.rds-modal__footer--stacked {
+  flex-direction: column;
+}
+
+.rds-modal__footer--stacked > * {
+  width: 100%;
+}
+
+@media (forced-colors: active) {
+  .rds-modal {
+    border: var(--border-width) solid CanvasText;
+  }
+}
+
+/*
+ * Layers: lists and balloons (Select, Combobox, Popover…) sit at z/dropdown, under the modal. While a modal is
+ * open, the ones opened from inside it go above it: they are portaled to body and read this variable.
+ */
+body:has(.rds-modal) {
+  --_layer-floating: calc(var(--z-modal) + 1);
+}

@@ -1,0 +1,30 @@
+# [RDS] Components · collection Overlays · file w64JuUL45DO4jGu3WEy9HU · extracted 2026-10-01
+# DO NOT EDIT. Figma is the source: publish in Figma, run the extraction, save the output here.
+# Format: name|type (C colour, F number, S string, B boolean)|@collection:target (alias) OR raw value|WEB codeSyntax ("=" when it is the path with hyphens)
+menu/background|C|@theme:surface/card|=
+menu/border|C|@theme:border/default|=
+menu/item/label|C|@theme:text/body|=
+menu/item/icon|C|@theme:text/muted|=
+menu/item/background/hover|C|@theme:surface/muted|=
+menu/item/danger|C|@theme:text/error|=
+menu/item/disabled|C|@theme:text/disabled|=
+command/background|C|@theme:surface/card|=
+command/border|C|@theme:border/default|=
+command/group-label|C|@theme:text/muted|=
+command/icon|C|@theme:text/muted|=
+command/placeholder|C|@theme:text/subtle|=
+dialog/background|C|@theme:surface/card|=
+dialog/border|C|@theme:border/default|=
+dialog/text|C|@theme:text/body|=
+dialog/title|C|@theme:text/heading|=
+drawer/background|C|@theme:surface/card|=
+drawer/handle|C|@theme:border/strong|=
+drawer/scrim|C|@theme:surface/scrim|=
+drawer/text|C|@theme:text/body|=
+drawer/title|C|@theme:text/heading|=
+sheet/background|C|@theme:surface/card|=
+sheet/border|C|@theme:border/default|=
+sheet/scrim|C|@theme:surface/scrim|=
+sheet/text|C|@theme:text/body|=
+sheet/title|C|@theme:text/heading|=
+dialog/scrim|C|@theme:surface/scrim|=

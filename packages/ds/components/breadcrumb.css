@@ -1,0 +1,97 @@
+/* @tokens breadcrumb */
+/*
+ * Breadcrumb (Navigation collection, breadcrumb/*): steps of 32, 14/20, 4 between a step and its arrow (16).
+ * The current step is medium and not a link. inverse (deprecated in the Figma) reads the breadcrumb/inverse/*
+ * tokens, for a path over colors/primary.
+ */
+.rds-breadcrumb {
+  --_label: var(--breadcrumb-label-default);
+  --_hover: var(--breadcrumb-label-hover);
+  --_current: var(--breadcrumb-label-current);
+  --_separator: var(--breadcrumb-separator);
+  --_ring: var(--breadcrumb-focus-ring);
+
+  font-family: var(--type-font-stack);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+}
+
+.rds-breadcrumb--inverse {
+  --_label: var(--breadcrumb-inverse-label-default);
+  --_hover: var(--breadcrumb-inverse-label-hover);
+  --_current: var(--breadcrumb-inverse-label-current);
+  --_separator: var(--breadcrumb-inverse-separator);
+  /* No inverse ring token: the strongest text over the brand, which is what the ring needs to show there. */
+  --_ring: var(--breadcrumb-inverse-label-current);
+}
+
+.rds-breadcrumb__list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rds-breadcrumb__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.rds-breadcrumb__link {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--size-32);
+  padding: var(--space-4);
+  border: 0;
+  border-radius: var(--radius-control);
+  background: none;
+  color: var(--_label);
+  font: inherit;
+  text-decoration: none;
+}
+
+button.rds-breadcrumb__link {
+  cursor: pointer;
+}
+
+.rds-breadcrumb__link--current {
+  color: var(--_current);
+  font-weight: 500;
+}
+
+@media (hover: hover) {
+  a.rds-breadcrumb__link:hover,
+  button.rds-breadcrumb__link:hover {
+    color: var(--_hover);
+    text-decoration: underline;
+  }
+}
+
+a.rds-breadcrumb__link:focus-visible,
+button.rds-breadcrumb__link:focus-visible {
+  outline: var(--focus-ring-width) solid var(--_ring);
+  outline-offset: calc(var(--focus-ring-width) * -1);
+}
+
+.rds-breadcrumb__separator {
+  display: inline-flex;
+  flex: none;
+  color: var(--_separator);
+}
+
+.rds-breadcrumb__separator > svg {
+  width: var(--size-16);
+  height: var(--size-16);
+}
+
+@media (forced-colors: active) {
+  a.rds-breadcrumb__link:focus-visible,
+  button.rds-breadcrumb__link:focus-visible {
+    outline-color: Highlight;
+  }
+}

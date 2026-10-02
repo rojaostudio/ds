@@ -1,0 +1,10 @@
+/* @tokens toggle-card-compact */
+/*
+ * ToggleCardCompact: no tokens of its own; the Item, the Switch and the IconButton bring theirs. The pencil and the
+ * Switch 8 apart at the end of the row.
+ */
+.rds-toggle-card-compact__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+}

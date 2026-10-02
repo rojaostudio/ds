@@ -1,0 +1,77 @@
+/* @tokens textarea */
+/*
+ * Textarea (Forms collection, textarea/*): the shared field parts (internal/field.css) with textarea colours.
+ * 12 inside on every side, at least two lines (72; floating 80). The native resize handle does the work; the
+ * drawn grip sits over it in textarea/icon (the native one cannot take a colour).
+ * The Figma has no textarea/float/* or textarea/affix: the floating label keeps the Input's input/float/*.
+ */
+.rds-field.rds-textarea {
+  --_background: var(--textarea-background-default);
+  --_background-disabled: var(--textarea-background-disabled);
+  --_border: var(--textarea-border-default);
+  --_border-hover: var(--textarea-border-hover);
+  --_border-focus: var(--textarea-border-focus);
+  --_border-error: var(--textarea-border-error);
+  --_border-disabled: var(--textarea-border-disabled);
+  --_value: var(--textarea-value-default);
+  --_value-disabled: var(--textarea-value-disabled);
+  --_placeholder: var(--textarea-placeholder-default);
+  --_placeholder-disabled: var(--textarea-placeholder-disabled);
+  --_icon: var(--textarea-icon-default);
+  --_icon-disabled: var(--textarea-icon-disabled);
+  --_text-size: var(--textarea-text-size);
+  --_text-line: var(--textarea-text-line);
+  --_label: var(--textarea-label-color);
+  --_required: var(--textarea-required-color);
+  --_hint: var(--textarea-hint-color);
+  --_error: var(--textarea-error-message-color);
+  --_support-size: var(--textarea-support-size);
+  --_support-line: var(--textarea-support-line);
+}
+
+.rds-textarea .rds-field__box {
+  align-items: stretch;
+  padding: 0;
+}
+
+.rds-textarea__control.rds-field__control {
+  box-sizing: border-box;
+  min-height: calc(var(--space-12) * 2 + var(--_text-line) * 2);
+  padding: var(--space-12);
+  resize: vertical;
+}
+
+.rds-field--floating .rds-textarea__control.rds-field__control {
+  min-height: calc(var(--space-8) * 2 + var(--_float-line) + var(--_text-line) * 2);
+  padding: calc(var(--space-8) + var(--_float-line)) var(--space-12) var(--space-8);
+}
+
+.rds-textarea .rds-field__box:has(.rds-field__control:placeholder-shown:not(:focus)) .rds-field__float-label {
+  top: var(--space-12);
+}
+
+.rds-textarea__grip {
+  position: absolute;
+  right: var(--space-4);
+  bottom: var(--space-4);
+  width: var(--size-16);
+  height: var(--size-16);
+  fill: none;
+  stroke: var(--_icon);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  pointer-events: none;
+}
+
+.rds-field--disabled .rds-textarea__grip {
+  stroke: var(--_icon-disabled);
+}
+
+.rds-field--disabled .rds-textarea__control {
+  resize: none;
+}
+
+/* Chromium and Safari: hide the native drawing (resizing still works); the grip above is the one people see. */
+.rds-textarea__control::-webkit-resizer {
+  background: transparent;
+}

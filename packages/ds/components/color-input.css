@@ -1,0 +1,134 @@
+/* @tokens color-input */
+/*
+ * ColorInput (Forms collection, color-input/*): the shared field parts (internal/field.css) with the color-input
+ * colours. In the 44 box, 8 on the left and 12 on the right, 8 apart: the 28 swatch (radius/control, a hairline in
+ * color-input/swatch/border) and the hex, 16/24. The swatch's fill is the chosen colour, set inline by the component:
+ * data, not a token. Open, the Popover box (popover.css) 8 under the swatch: the title 14/20 medium, the palette of
+ * 24 swatches 8 apart (the chosen one with the color-input/swatch/selected ring) and the caption 14/20, 12 apart.
+ */
+.rds-field.rds-color-input {
+  --_background: var(--color-input-background-default);
+  --_background-disabled: var(--color-input-background-disabled);
+  --_border: var(--color-input-border-default);
+  --_border-hover: var(--color-input-border-hover);
+  --_border-focus: var(--color-input-border-focus);
+  --_border-error: var(--color-input-border-error);
+  --_border-disabled: var(--color-input-border-disabled);
+  --_value: var(--color-input-value-default);
+  --_value-disabled: var(--color-input-value-disabled);
+  --_placeholder: var(--color-input-placeholder-default);
+  --_placeholder-disabled: var(--color-input-placeholder-disabled);
+  --_text-size: var(--color-input-text-size);
+  --_text-line: var(--color-input-text-line);
+  --_label: var(--color-input-label-color);
+  --_required: var(--color-input-required-color);
+  --_hint: var(--color-input-hint-color);
+  --_error: var(--color-input-error-message-color);
+  --_support-size: var(--color-input-support-size);
+  --_support-line: var(--color-input-support-line);
+}
+
+.rds-color-input .rds-field__box {
+  padding-inline: var(--space-8) var(--space-12);
+}
+
+.rds-color-input__swatch {
+  position: relative;
+  box-sizing: border-box;
+  flex: none;
+  width: calc(var(--size-24) + var(--space-4));
+  height: calc(var(--size-24) + var(--space-4));
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: var(--border-width) solid var(--color-input-swatch-border);
+  border-radius: var(--radius-control);
+  cursor: pointer;
+}
+
+.rds-color-input__swatch:focus-visible,
+.rds-color-input__swatch:has(.rds-color-input__native:focus-visible) {
+  outline: var(--focus-ring-width) solid var(--_border-focus);
+  outline-offset: var(--border-width);
+}
+
+.rds-color-input__native {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.rds-field--disabled .rds-color-input__swatch,
+.rds-field--disabled .rds-color-input__native {
+  cursor: not-allowed;
+}
+
+.rds-color-input__hex {
+  text-transform: uppercase;
+}
+
+.rds-color-input__hex::placeholder {
+  text-transform: none;
+}
+
+.rds-popover.rds-color-input__popover {
+  gap: var(--space-12);
+  width: auto;
+  max-width: min(320px, calc(100vw - var(--space-32)));
+}
+
+.rds-color-input__palette-title,
+.rds-color-input__palette-caption {
+  margin: 0;
+  font-size: var(--color-input-support-size);
+  line-height: var(--color-input-support-line);
+}
+
+.rds-color-input__palette-title {
+  color: var(--color-input-palette-title);
+  font-weight: 500;
+}
+
+.rds-color-input__palette-caption {
+  color: var(--color-input-palette-caption);
+}
+
+.rds-color-input__palette {
+  display: grid;
+  grid-template-columns: repeat(6, var(--size-24));
+  gap: var(--space-8);
+}
+
+.rds-color-input__choice {
+  box-sizing: border-box;
+  width: var(--size-24);
+  height: var(--size-24);
+  margin: 0;
+  padding: 0;
+  border: var(--border-width) solid var(--color-input-swatch-border);
+  border-radius: var(--radius-control);
+  cursor: pointer;
+}
+
+.rds-color-input__choice[aria-pressed='true'] {
+  outline: calc(var(--border-width) * 2) solid var(--color-input-swatch-selected);
+  outline-offset: var(--border-width);
+}
+
+.rds-color-input__choice:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-input-border-focus);
+  outline-offset: var(--border-width);
+}
+
+@media (forced-colors: active) {
+  .rds-color-input__swatch,
+  .rds-color-input__choice {
+    forced-color-adjust: none;
+  }
+}

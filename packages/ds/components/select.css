@@ -1,0 +1,102 @@
+/* @tokens select */
+/*
+ * Select (Forms collection, select/*): the shared field parts (internal/field.css) with select colours. The
+ * trigger (a button with role combobox) fills the box; the chevron turns up while open. The list is the
+ * Listbox (internal/listbox.css).
+ */
+.rds-field.rds-select {
+  --_background: var(--select-background-default);
+  --_background-disabled: var(--select-background-disabled);
+  --_border: var(--select-border-default);
+  --_border-hover: var(--select-border-hover);
+  --_border-focus: var(--select-border-focus);
+  --_border-error: var(--select-border-error);
+  --_border-disabled: var(--select-border-disabled);
+  --_value: var(--select-value-default);
+  --_value-disabled: var(--select-value-disabled);
+  --_placeholder: var(--select-placeholder-default);
+  --_placeholder-disabled: var(--select-placeholder-disabled);
+  --_icon: var(--select-icon-default);
+  --_icon-disabled: var(--select-icon-disabled);
+  --_text-size: var(--select-text-size);
+  --_text-line: var(--select-text-line);
+  --_float: var(--select-float-default);
+  --_float-error: var(--select-float-error);
+  --_float-disabled: var(--select-float-disabled);
+  --_float-size: var(--select-float-size);
+  --_float-line: var(--select-float-line);
+  --_label: var(--select-label-color);
+  --_required: var(--select-required-color);
+  --_hint: var(--select-hint-color);
+  --_error: var(--select-error-message-color);
+  --_support-size: var(--select-support-size);
+  --_support-line: var(--select-support-line);
+}
+
+.rds-select .rds-field__box {
+  padding: 0;
+}
+
+.rds-select__trigger.rds-field__control {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  align-self: stretch;
+  padding: 0 var(--space-12);
+  text-align: start;
+  cursor: pointer;
+}
+
+.rds-select__value {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.rds-select__trigger[data-placeholder] .rds-select__value {
+  color: var(--_placeholder);
+}
+
+.rds-field--disabled .rds-select__trigger[data-placeholder] .rds-select__value {
+  color: var(--_placeholder-disabled);
+}
+
+.rds-select__trigger[data-state='open'] .rds-select__chevron {
+  transform: rotate(180deg);
+}
+
+.rds-select__trigger:disabled {
+  cursor: not-allowed;
+}
+
+/* Floating: the label shrinks when there is a choice or the list is open. The value sits under it;
+   the chevron stays centred in the box. */
+.rds-select.rds-field--floating .rds-select__value {
+  padding-top: var(--_float-line);
+}
+
+.rds-select.rds-field--floating .rds-select__trigger[data-placeholder] .rds-select__value {
+  color: transparent;
+}
+
+.rds-select .rds-field__box:has(.rds-select__trigger[data-placeholder]:not([data-state='open'])) .rds-field__float-label {
+  top: calc((var(--_height) - var(--_text-line)) / 2 - var(--border-width));
+  font-size: var(--_text-size);
+  line-height: var(--_text-line);
+}
+
+.rds-select .rds-field__float-label {
+  inset-inline-end: calc(var(--space-12) + var(--size-20) + var(--space-8));
+}
+
+/* The list: as wide as the box (Radix gives the trigger's width), above the page, at most 7 options tall. */
+.rds-select__content {
+  z-index: var(--_layer-floating, var(--z-dropdown));
+  width: var(--radix-select-trigger-width);
+  max-height: min(
+    var(--radix-select-content-available-height),
+    calc(7 * (var(--space-12) * 2 + var(--type-button-line)) + var(--space-8))
+  );
+}

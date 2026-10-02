@@ -1,0 +1,138 @@
+/* @tokens whatsapp */
+/*
+ * WhatsAppTemplate (External collection, whatsapp/*): a received bubble 280 wide (bubble-in, the same corners as
+ * WhatsAppMessage). Content: android 8 9 6 padding, ios 10 12 8; 4 between the header (bold, 16/22 or 17/22), the
+ * body (the message type), the footer (meta, 13/17; ios 15/20) and the time (11/15, right). image: a 150 tall
+ * image, corners 6, inside 4 of padding. Buttons (.whatsapp/template-button): 44 tall rows with a top divider,
+ * 8 between the 18 icon and the label (medium, button-label; used in meta or button-used), centred.
+ */
+.rds-whatsapp-template {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  width: 280px;
+  max-width: 100%;
+  overflow: hidden;
+  border-radius: var(--_radius);
+  border-start-start-radius: 0;
+  background: var(--_in);
+  box-shadow: 0 1px 0.5px color-mix(in srgb, var(--_text) 13%, transparent);
+  color: var(--_text);
+}
+
+.rds-whatsapp--ios.rds-whatsapp-template {
+  border-start-start-radius: var(--_radius);
+  border-end-start-radius: var(--radius-xs);
+}
+
+.rds-whatsapp-template__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-8) 9px 6px;
+}
+
+.rds-whatsapp--ios .rds-whatsapp-template__content {
+  padding: 10px var(--space-12) var(--space-8);
+}
+
+.rds-whatsapp-template__content--image {
+  padding: var(--space-4) var(--space-4) 6px;
+}
+
+.rds-whatsapp-template__content--image .rds-whatsapp-template__text {
+  padding: var(--space-4) 5px 0;
+}
+
+.rds-whatsapp-template__image {
+  height: 150px;
+  overflow: hidden;
+  border-radius: 6px;
+  background: var(--_divider);
+}
+
+.rds-whatsapp-template__image > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.rds-whatsapp-template__header,
+.rds-whatsapp-template__body,
+.rds-whatsapp-template__footer,
+.rds-whatsapp-template__time {
+  margin: 0;
+}
+
+.rds-whatsapp-template__header {
+  font-size: var(--_text-size);
+  font-weight: 700;
+  line-height: 22px;
+}
+
+.rds-whatsapp--ios .rds-whatsapp-template__header {
+  font-weight: 600;
+}
+
+.rds-whatsapp-template__text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.rds-whatsapp-template__body {
+  font-size: var(--_text-size);
+  line-height: var(--_text-line);
+  white-space: pre-wrap;
+}
+
+.rds-whatsapp-template__footer {
+  color: var(--_meta);
+  font-size: 13px;
+  line-height: 17px;
+}
+
+.rds-whatsapp--ios .rds-whatsapp-template__footer {
+  font-size: 15px;
+  line-height: var(--type-small-line);
+}
+
+.rds-whatsapp-template__time {
+  color: var(--_meta);
+  font-size: 11px;
+  line-height: 15px;
+  text-align: right;
+}
+
+.rds-whatsapp-template__buttons {
+  display: flex;
+  flex-direction: column;
+}
+
+.rds-whatsapp-template__button {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-8);
+  height: 44px;
+  border-top: var(--border-width) solid var(--_divider);
+  background: var(--_in);
+  color: var(--_button);
+  font-size: var(--_button-size);
+  font-weight: 500;
+  line-height: var(--type-small-line);
+}
+
+.rds-whatsapp-template__button--used {
+  color: var(--_button-used);
+}
+
+.rds-whatsapp-template__button-icon {
+  display: flex;
+}
+
+.rds-whatsapp-template__button-icon > svg {
+  width: 18px;
+  height: 18px;
+}

@@ -1,0 +1,79 @@
+/* @tokens number-input */
+/*
+ * NumberInput (Forms collection, number-input/*): the shared field parts (internal/field.css) with the number-input
+ * colours. One 44 frame, 4 inside on the sides, 4 apart, in three segments split by inner borders that run the
+ * frame's height (number-input/divider): the − (.action, 32), the number centred with the unit right after it
+ * (number-input/unit), the +. At a limit its button turns off (number-input/step/icon/disabled). The named steps
+ * are FilterChips (filter-chip.css) 8 under the frame. The Figma has no number-input/icon or float: the Input's stay.
+ */
+.rds-field.rds-number-input {
+  --_background: var(--number-input-background-default);
+  --_background-disabled: var(--number-input-background-disabled);
+  --_border: var(--number-input-border-default);
+  --_border-hover: var(--number-input-border-hover);
+  --_border-focus: var(--number-input-border-focus);
+  --_border-error: var(--number-input-border-error);
+  --_border-disabled: var(--number-input-border-disabled);
+  --_value: var(--number-input-value-default);
+  --_value-disabled: var(--number-input-value-disabled);
+  --_placeholder: var(--number-input-placeholder-default);
+  --_placeholder-disabled: var(--number-input-placeholder-disabled);
+  --_text-size: var(--number-input-text-size);
+  --_text-line: var(--number-input-text-line);
+  --_label: var(--number-input-label-color);
+  --_required: var(--number-input-required-color);
+  --_hint: var(--number-input-hint-color);
+  --_error: var(--number-input-error-message-color);
+  --_support-size: var(--number-input-support-size);
+  --_support-line: var(--number-input-support-line);
+  --_icon: var(--number-input-step-icon-default);
+  --_icon-disabled: var(--number-input-step-icon-disabled);
+}
+
+.rds-number-input__box {
+  gap: var(--space-4);
+  padding: 0 var(--space-4);
+}
+
+.rds-number-input__divider {
+  align-self: stretch;
+  flex: none;
+  width: var(--border-width);
+  background: var(--number-input-divider);
+}
+
+.rds-number-input__value {
+  display: flex;
+  flex: 1;
+  align-items: baseline;
+  justify-content: center;
+  gap: var(--space-4);
+  min-width: 0;
+  cursor: text;
+}
+
+.rds-number-input__value .rds-field__control {
+  flex: 0 1 auto;
+  field-sizing: content;
+  min-width: 1ch;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.rds-number-input__unit {
+  flex: none;
+  color: var(--number-input-unit-default);
+}
+
+.rds-field--disabled .rds-number-input__unit {
+  color: var(--number-input-unit-disabled);
+}
+
+.rds-number-input .rds-field__action:disabled {
+  color: var(--_icon-disabled);
+  cursor: not-allowed;
+}
+
+.rds-number-input__steps {
+  padding-top: var(--space-4);
+}

@@ -1,0 +1,33 @@
+/* @tokens step-progress */
+/* StepProgress (Indicators collection, step-progress/*): a 6px bar, round ends; the fill covers step / total. */
+.rds-step-progress {
+  overflow: hidden;
+  width: 100%;
+  /* The Figma's 6 is half of space/12. */
+  height: calc(var(--space-12) / 2);
+  border-radius: var(--radius-full);
+  background: var(--step-progress-track);
+}
+
+.rds-step-progress__fill {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--step-progress-fill);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .rds-step-progress__fill {
+    transition: width var(--motion-duration-slow) var(--motion-easing-standard);
+  }
+}
+
+@media (forced-colors: active) {
+  .rds-step-progress {
+    border: var(--border-width) solid CanvasText;
+  }
+
+  .rds-step-progress__fill {
+    forced-color-adjust: none;
+    background: Highlight;
+  }
+}

@@ -1,0 +1,130 @@
+/* @tokens calendar */
+/*
+ * Calendar (Forms collection, calendar/*): 12 inside, 8 between header, weekdays and weeks; the header is two
+ * ghost IconButtons around the month (16/24 medium); weekdays 12/16 medium in rows of 32; days of 44 × 44,
+ * 14/20, radius/control (Figma: .calendar/day). today: a 1px outline in colors/primary, medium; selected: a
+ * plate in colors/primary, medium; outside: days of other months, faded; disabled: 40% and struck through.
+ */
+.rds-calendar {
+  box-sizing: border-box;
+  display: inline-flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  padding: var(--space-12);
+  border: var(--border-width) solid var(--calendar-border);
+  border-radius: var(--radius-container);
+  background: var(--calendar-background);
+  font-family: var(--type-font-stack);
+}
+
+.rds-calendar__header {
+  display: flex;
+  align-items: center;
+}
+
+.rds-calendar__title {
+  flex: 1;
+  margin: 0;
+  color: var(--calendar-title);
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  font-weight: 500;
+  text-align: center;
+}
+
+.rds-calendar__grid {
+  border-collapse: collapse;
+}
+
+/* The weekdays' 32 rows and the grid's 8 below the header come from the table, not from the flex gap. */
+.rds-calendar__weekday {
+  width: calc(var(--space-12) * 2 + var(--type-button-line));
+  height: var(--size-32);
+  padding: 0;
+  color: var(--calendar-weekday);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+  font-weight: var(--type-caption-weight);
+}
+
+.rds-calendar__cell {
+  padding: 0;
+}
+
+.rds-calendar__day {
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  width: calc(var(--space-12) * 2 + var(--type-button-line));
+  height: calc(var(--space-12) * 2 + var(--type-button-line));
+  padding: 0;
+  border: var(--border-width) solid transparent;
+  border-radius: var(--radius-control);
+  background: none;
+  color: var(--calendar-day-label-default);
+  font: inherit;
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .rds-calendar__day:not(.rds-calendar__day--selected, .rds-calendar__day--disabled):hover {
+    background: var(--calendar-day-background-hover);
+  }
+}
+
+/* The Calendar has no ring token: the Button's, so every control rings alike. */
+.rds-calendar__day:focus-visible {
+  outline: var(--focus-ring-width) solid var(--button-focus-ring);
+  outline-offset: calc(var(--focus-ring-width) * -1);
+}
+
+.rds-calendar__day--outside {
+  color: var(--calendar-day-label-outside);
+}
+
+.rds-calendar__day--today {
+  border-color: var(--calendar-day-border-today);
+  font-weight: 500;
+}
+
+.rds-calendar__day--selected {
+  background: var(--calendar-day-background-selected);
+  color: var(--calendar-day-label-selected);
+  font-weight: 500;
+}
+
+/* On the plate, the ring stands outside, so it does not vanish into the same colour. */
+.rds-calendar__day--selected:focus-visible {
+  outline-offset: var(--focus-ring-width);
+}
+
+.rds-calendar__day--disabled {
+  color: color-mix(in srgb, var(--calendar-day-label-disabled) 40%, transparent);
+  text-decoration: line-through;
+  cursor: not-allowed;
+}
+
+@media (forced-colors: active) {
+  .rds-calendar {
+    border-color: CanvasText;
+  }
+
+  .rds-calendar__day--selected {
+    background: Highlight;
+    color: HighlightText;
+  }
+
+  .rds-calendar__day--today {
+    border-color: CanvasText;
+  }
+
+  .rds-calendar__day--disabled {
+    color: GrayText;
+  }
+
+  .rds-calendar__day:focus-visible {
+    outline-color: Highlight;
+  }
+}

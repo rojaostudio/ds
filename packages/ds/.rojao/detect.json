@@ -1,0 +1,8 @@
+{
+  "include": ["components"],
+  "ignoreFiles": ["*.figma.tsx", "*.test.tsx", "*.test.ts", "*.stories.tsx"],
+  "ignoreRules": [],
+  "ignoreValues": [],
+  "brand": null,
+  "failOn": "error"
+}

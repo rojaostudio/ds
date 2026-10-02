@@ -1,0 +1,112 @@
+/* @tokens radio */
+/*
+ * Radio (Forms collection, radio/*): a 20 circle; checked fills with colors/secondary and shows an 8 dot.
+ * The row (44 tall, label, hint) is internal/choice.css. The error comes from the RadioGroup.
+ */
+.rds-radio {
+  --_control-width: var(--size-20);
+  --_text-size: var(--radio-text-size);
+  --_text-line: var(--radio-text-line);
+  --_support-size: var(--radio-support-size);
+  --_support-line: var(--radio-support-line);
+  --_border: var(--radio-control-border-default);
+  --_background: var(--radio-control-background-default);
+  --_checked: var(--radio-control-background-checked);
+  --_dot: var(--radio-control-dot);
+}
+
+.rds-radio__label {
+  color: var(--radio-label-color);
+}
+
+.rds-radio__hint {
+  color: var(--radio-hint-color);
+}
+
+.rds-radio__circle {
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  width: var(--size-20);
+  height: var(--size-20);
+  border: var(--border-width) solid var(--_border);
+  border-radius: var(--radius-full);
+  background: var(--_background);
+  pointer-events: none;
+}
+
+.rds-radio__circle::after {
+  content: '';
+  display: none;
+  width: var(--space-8);
+  height: var(--space-8);
+  border-radius: var(--radius-full);
+  background: var(--_dot);
+}
+
+input:checked + .rds-radio__circle {
+  border-color: transparent;
+  background: var(--_checked);
+}
+
+input:checked + .rds-radio__circle::after {
+  display: block;
+}
+
+input:focus-visible + .rds-radio__circle {
+  outline: var(--focus-ring-width) solid var(--radio-focus-ring);
+  outline-offset: var(--focus-ring-width);
+}
+
+.rds-radio--error {
+  --_border: var(--radio-control-border-error);
+}
+
+/* In error, checked keeps the error border: the error stays next to what is wrong. */
+.rds-radio--error input:checked + .rds-radio__circle {
+  border-color: var(--_border);
+}
+
+@media (hover: hover) {
+  .rds-radio:not(.rds-radio--error) .rds-choice__row:hover input:enabled + .rds-radio__circle {
+    --_border: var(--radio-control-border-hover);
+  }
+
+  .rds-choice__row:hover input:enabled + .rds-radio__circle {
+    --_checked: var(--radio-control-background-checked-hover);
+  }
+}
+
+.rds-radio--disabled {
+  --_border: var(--radio-control-border-disabled);
+  --_background: var(--radio-control-background-disabled);
+  --_checked: var(--radio-control-background-checked-disabled);
+  --_dot: var(--radio-control-dot-disabled);
+}
+
+.rds-radio--disabled .rds-radio__label {
+  color: var(--radio-label-disabled);
+}
+
+@media (forced-colors: active) {
+  .rds-radio__circle {
+    border-color: CanvasText;
+  }
+
+  input:checked + .rds-radio__circle {
+    forced-color-adjust: none;
+    background: Highlight;
+  }
+
+  input:checked + .rds-radio__circle::after {
+    background: HighlightText;
+  }
+
+  .rds-radio--disabled .rds-radio__circle {
+    border-color: GrayText;
+  }
+
+  input:focus-visible + .rds-radio__circle {
+    outline-color: Highlight;
+  }
+}

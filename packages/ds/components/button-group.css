@@ -1,0 +1,49 @@
+/* @tokens button-group */
+/*
+ * ButtonGroup: Buttons joined in one piece. Inner corners are square and the borders overlap by one
+ * border width (Figma: gap -1). No tokens of its own; each Button brings its own.
+ */
+.rds-button-group {
+  display: inline-flex;
+  max-width: 100%;
+}
+
+.rds-button-group--vertical {
+  flex-direction: column;
+}
+
+.rds-button-group > .rds-button {
+  position: relative;
+}
+
+/* The hovered or focused button sits on top, so its border and focus ring are not covered. */
+.rds-button-group > .rds-button:hover,
+.rds-button-group > .rds-button:focus-visible {
+  z-index: 1;
+}
+
+.rds-button-group--horizontal > .rds-button:not(:first-child) {
+  margin-inline-start: calc(var(--border-width) * -1);
+  border-start-start-radius: 0;
+  border-end-start-radius: 0;
+}
+
+.rds-button-group--horizontal > .rds-button:not(:last-child) {
+  border-start-end-radius: 0;
+  border-end-end-radius: 0;
+}
+
+.rds-button-group--vertical > .rds-button {
+  width: 100%;
+}
+
+.rds-button-group--vertical > .rds-button:not(:first-child) {
+  margin-block-start: calc(var(--border-width) * -1);
+  border-start-start-radius: 0;
+  border-start-end-radius: 0;
+}
+
+.rds-button-group--vertical > .rds-button:not(:last-child) {
+  border-end-start-radius: 0;
+  border-end-end-radius: 0;
+}

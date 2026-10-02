@@ -1,0 +1,54 @@
+/* @tokens whatsapp */
+/*
+ * The WhatsApp mockups (External collection, whatsapp/android/* and whatsapp/ios/*): MOCKUPS of another company's
+ * interface, in the raw colours the Figma measured on Meta's screenshots. Each platform class sets the palette and
+ * the type once; WhatsAppChat, WhatsAppMessage, WhatsAppTemplate and its buttons read the locals, so a message
+ * inside a chat follows the chat's platform. android: Roboto; ios: the system font (the Figma uses Inter for SF Pro).
+ */
+.rds-whatsapp--android {
+  --_chat: var(--whatsapp-android-chat-background);
+  --_in: var(--whatsapp-android-bubble-in);
+  --_out: var(--whatsapp-android-bubble-out);
+  --_text: var(--whatsapp-android-text);
+  --_meta: var(--whatsapp-android-meta);
+  --_meta-out: var(--whatsapp-android-meta-out);
+  --_tick: var(--whatsapp-android-tick-read);
+  --_button: var(--whatsapp-android-button-label);
+  --_button-used: var(--whatsapp-android-meta);
+  --_divider: var(--whatsapp-android-divider);
+  --_header: var(--whatsapp-android-header);
+  --_accent: var(--whatsapp-android-accent);
+  --_banner: var(--whatsapp-android-banner);
+  --_input: var(--whatsapp-android-input);
+  --_radius: var(--radius-small);
+  --_text-size: var(--type-body-size);
+  --_text-line: 21px;
+  --_button-size: 15px;
+
+  color-scheme: light;
+  font-family: Roboto, var(--type-font-stack);
+}
+
+.rds-whatsapp--ios {
+  --_chat: var(--whatsapp-ios-chat-background);
+  --_in: var(--whatsapp-ios-bubble-in);
+  --_out: var(--whatsapp-ios-bubble-out);
+  --_text: var(--whatsapp-ios-text);
+  --_meta: var(--whatsapp-ios-meta);
+  --_meta-out: var(--whatsapp-ios-meta-out);
+  --_tick: var(--whatsapp-ios-tick-read);
+  --_button: var(--whatsapp-ios-button-label);
+  --_button-used: var(--whatsapp-ios-button-used);
+  --_divider: var(--whatsapp-ios-divider);
+  --_header: var(--whatsapp-ios-header);
+  --_accent: var(--whatsapp-ios-accent);
+  --_banner: var(--whatsapp-ios-header);
+  --_input: var(--whatsapp-ios-input);
+  --_radius: 18px;
+  --_text-size: 17px;
+  --_text-line: 22px;
+  --_button-size: 17px;
+
+  color-scheme: light;
+  font-family: -apple-system, 'SF Pro Text', var(--type-font-stack);
+}

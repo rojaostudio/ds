@@ -1,0 +1,79 @@
+/* @tokens page-skeleton */
+/*
+ * PageSkeleton and CardsSkeleton: no tokens of their own; the Skeleton and the Card bring theirs. Blocks 24 apart
+ * (24 padding when padded). The table is a small Card: the header row on the card's footer background, a line
+ * between rows. The cards: 2 per row (4 from 1024), the charts 1 (2 from 1024), 16 apart.
+ */
+.rds-page-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-24);
+}
+
+.rds-page-skeleton--padded {
+  padding: var(--space-24);
+}
+
+.rds-page-skeleton__heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-16);
+}
+
+.rds-page-skeleton__table {
+  box-shadow: none;
+}
+
+.rds-page-skeleton__row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-16);
+  padding: var(--space-12) var(--space-16);
+}
+
+.rds-page-skeleton__row + .rds-page-skeleton__row {
+  border-top: var(--border-width) solid var(--card-border);
+}
+
+.rds-page-skeleton__row--head {
+  background: var(--card-footer-background);
+}
+
+.rds-page-skeleton__row .rds-skeleton {
+  max-width: 100%;
+  flex-shrink: 1;
+}
+
+.rds-page-skeleton__end {
+  margin-inline-start: auto;
+}
+
+.rds-page-skeleton__grid {
+  display: grid;
+  gap: var(--space-16);
+}
+
+.rds-page-skeleton__grid--stats {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (min-width: 1024px) {
+  .rds-page-skeleton__grid--stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .rds-page-skeleton__grid--charts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.rds-page-skeleton__card {
+  gap: var(--space-12);
+  padding: var(--space-16);
+  box-shadow: none;
+}
+
+.rds-page-skeleton__card .rds-skeleton {
+  max-width: 100%;
+}

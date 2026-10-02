@@ -1,0 +1,27 @@
+/* @tokens contact */
+/*
+ * Contact (Blocks collection, contact/*): the block heading (internal/block.css, up to 480 wide) and the form (up
+ * to 400), fields 16 apart; the submit Button takes the full width.
+ */
+.rds-contact {
+  --_background: var(--contact-background);
+  --_eyebrow: var(--contact-eyebrow);
+  --_title: var(--contact-title);
+  --_text: var(--contact-text);
+}
+
+.rds-contact .rds-block__heading {
+  max-width: 480px;
+}
+
+.rds-contact__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  width: 100%;
+  max-width: 400px;
+}
+
+.rds-contact__form > .rds-button {
+  width: 100%;
+}

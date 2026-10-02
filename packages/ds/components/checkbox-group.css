@@ -1,0 +1,24 @@
+/* @tokens checkboxgroup */
+/* CheckboxGroup (Forms collection, checkboxgroup/*): the colours and type of the shared fieldset (internal/fieldset.css). */
+.rds-checkbox-group__legend {
+  color: var(--checkboxgroup-legend-color);
+  font-size: var(--checkboxgroup-legend-size);
+  line-height: var(--checkboxgroup-legend-line);
+}
+
+.rds-checkbox-group__required {
+  color: var(--checkboxgroup-required-color);
+}
+
+.rds-checkbox-group__support {
+  font-size: var(--checkboxgroup-support-size);
+  line-height: var(--checkboxgroup-support-line);
+}
+
+.rds-checkbox-group__hint {
+  color: var(--checkboxgroup-hint-color);
+}
+
+.rds-checkbox-group__error-message {
+  color: var(--checkboxgroup-error-message-color);
+}

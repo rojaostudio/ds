@@ -1,0 +1,40 @@
+/* @tokens popover */
+/* Popover (Feedback collection, popover/*): 320 wide, 16 inside, 4 between title and text, elevation/overlay. */
+.rds-popover {
+  z-index: var(--_layer-floating, var(--z-dropdown));
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: min(320px, calc(100vw - var(--space-32)));
+  padding: var(--space-16);
+  border: var(--border-width) solid var(--popover-border);
+  border-radius: var(--radius-container);
+  background: var(--popover-background);
+  box-shadow: var(--elevation-overlay);
+  color: var(--popover-text);
+  font-family: var(--type-font-stack);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+}
+
+/* Radix moves the focus into the box when it opens; the box draws no ring, its controls do. */
+.rds-popover:focus {
+  outline: none;
+}
+
+.rds-popover__title {
+  margin: 0;
+  color: var(--popover-title);
+  font-weight: 500;
+}
+
+.rds-popover__body > p {
+  margin: 0;
+}
+
+@media (forced-colors: active) {
+  .rds-popover {
+    border-color: CanvasText;
+  }
+}

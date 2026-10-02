@@ -1,0 +1,73 @@
+# [RDS] Base Tokens · non-colour tokens (base, scale, breakpoint, motion, layer, effect styles) · file 1Xn5IkLiq5Yhas680rJQf6 · extracted 2026-10-02
+# DO NOT EDIT. Figma is the source: publish in Figma, run the extraction, save the output here.
+# base tokens are resolved in the rojao mode; they do not vary with the brand colour.
+# Format: name|type (F number in px or ms, S string, E effect)|value|WEB codeSyntax
+radius/large|F|12|--radius-large
+radius/small|F|8|--radius-small
+radius/full|F|9999|--radius-full
+radius/card|F|12|--radius-card
+radius/control|F|8|--radius-control
+radius/field|F|8|--radius-field
+radius/container|F|12|--radius-container
+radius/focus|F|12|--radius-focus
+radius/xs|F|4|--radius-xs
+border-width|F|1|--border-width
+border-width-strong|F|2|--border-width-strong
+focus/ring-width|F|2|--focus-ring-width
+type/font/family|S|Inter|--type-font-family
+type/font/stack|S|Inter, Arial, Helvetica, sans-serif|--type-font-stack
+type/heading/size|F|24|--type-heading-size
+type/heading/line|F|30|--type-heading-line
+type/heading/weight|F|700|--type-heading-weight
+type/lead/size|F|18|--type-lead-size
+type/lead/line|F|30|--type-lead-line
+type/body/size|F|16|--type-body-size
+type/body/line|F|24|--type-body-line
+type/label/size|F|16|--type-label-size
+type/label/line|F|24|--type-label-line
+type/button/size|F|14|--type-button-size
+type/button/line|F|20|--type-button-line
+type/small/size|F|14|--type-small-size
+type/small/line|F|20|--type-small-line
+type/caption/size|F|12|--type-caption-size
+type/caption/line|F|16|--type-caption-line
+type/caption/weight|F|500|--type-caption-weight
+type/footer/size|F|12|--type-footer-size
+type/footer/line|F|20|--type-footer-line
+type/value/size|F|20|--type-value-size
+type/value/line|F|30|--type-value-line
+type/band/size|F|36|--type-band-size
+type/band/line|F|48|--type-band-line
+space/4|F|4|--space-4
+space/8|F|8|--space-8
+space/12|F|12|--space-12
+space/16|F|16|--space-16
+space/24|F|24|--space-24
+space/32|F|32|--space-32
+space/40|F|40|--space-40
+space/48|F|48|--space-48
+space/56|F|56|--space-56
+space/64|F|64|--space-64
+size/16|F|16|--size-16
+size/20|F|20|--size-20
+size/24|F|24|--size-24
+size/32|F|32|--size-32
+size/40|F|40|--size-40
+size/48|F|48|--size-48
+size/56|F|56|--size-56
+blur/backdrop|F|16|--blur-backdrop
+motion/duration/fast|F|100|--motion-duration-fast
+motion/duration/base|F|200|--motion-duration-base
+motion/duration/slow|F|300|--motion-duration-slow
+motion/easing/standard|S|cubic-bezier(0.2, 0, 0, 1)|--motion-easing-standard
+motion/easing/enter|S|cubic-bezier(0, 0, 0, 1)|--motion-easing-enter
+motion/easing/exit|S|cubic-bezier(0.3, 0, 1, 1)|--motion-easing-exit
+z/dropdown|F|1000|--z-dropdown
+z/sticky|F|1100|--z-sticky
+z/overlay|F|1200|--z-overlay
+z/modal|F|1300|--z-modal
+z/toast|F|1400|--z-toast
+z/tooltip|F|1500|--z-tooltip
+elevation/raised|E|0 2 4 -2 @theme:shadow/ambient; 0 4 8 -2 @theme:shadow/key|--elevation-raised
+elevation/overlay|E|0 4 8 -4 @theme:shadow/ambient; 0 8 16 -4 @theme:shadow/key|--elevation-overlay
+elevation/modal|E|0 24 48 -12 @theme:shadow/strong|--elevation-modal

@@ -1,0 +1,37 @@
+/* @tokens google */
+/*
+ * GoogleSignIn (External collection): the form's rhythm on top of internal/google.css. E-mail step: the field, 8,
+ * "Esqueceu o e-mail?", 40, the notice, 40, the actions. Password step: the field, 16, "Mostrar senha", 40, the
+ * actions. On mobile the actions sink to the bottom of the screen.
+ */
+.rds-google-sign-in .rds-google__form {
+  gap: 0;
+}
+
+.rds-google-sign-in__forgot {
+  margin-top: var(--space-8);
+}
+
+.rds-google-sign-in__notice {
+  margin-top: var(--space-40);
+}
+
+.rds-google-sign-in__show {
+  margin-top: var(--space-16);
+}
+
+.rds-google-sign-in .rds-google__actions {
+  margin-top: var(--space-40);
+}
+
+@container (max-width: 639px) {
+  .rds-google-sign-in .rds-google__body,
+  .rds-google-sign-in .rds-google__form {
+    flex: 1;
+  }
+
+  .rds-google-sign-in .rds-google__actions {
+    margin-top: auto;
+    padding-top: var(--space-32);
+  }
+}

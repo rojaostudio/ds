@@ -1,0 +1,89 @@
+/* @tokens pagination */
+/*
+ * Pagination (Navigation collection, pagination/*): the summary on the left (14/20 muted), 16 away from the
+ * controls; previous, the numbers and next, each 44 × 44 and 4 apart. The open page: the brand tint with the number
+ * in colors/primary, medium. Previous and next turn pagination/item/label/disabled at the ends.
+ */
+.rds-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-16);
+  font-family: var(--type-font-stack);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+}
+
+.rds-pagination__summary {
+  margin: 0;
+  color: var(--pagination-summary);
+  font-variant-numeric: tabular-nums;
+}
+
+.rds-pagination__pages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin: 0 0 0 auto;
+  padding: 0;
+  list-style: none;
+}
+
+.rds-pagination__item {
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  min-width: calc(var(--space-12) * 2 + var(--type-button-line));
+  height: calc(var(--space-12) * 2 + var(--type-button-line));
+  padding: 0 var(--space-4);
+  border: 0;
+  border-radius: var(--radius-control);
+  background: none;
+  color: var(--pagination-item-label-default);
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.rds-pagination__icon {
+  display: inline-flex;
+}
+
+.rds-pagination__icon > svg {
+  width: var(--size-20);
+  height: var(--size-20);
+}
+
+@media (hover: hover) {
+  .rds-pagination__item:not(.rds-pagination__item--ellipsis, [aria-current='page'], :disabled):hover {
+    background: var(--pagination-item-background-hover);
+  }
+}
+
+.rds-pagination__item[aria-current='page'] {
+  background: var(--pagination-item-background-current);
+  color: var(--pagination-item-label-current);
+  font-weight: 500;
+}
+
+.rds-pagination__item:focus-visible {
+  outline: var(--focus-ring-width) solid var(--pagination-focus-ring);
+  outline-offset: calc(var(--focus-ring-width) * -1);
+}
+
+.rds-pagination__item--ellipsis {
+  cursor: default;
+}
+
+.rds-pagination__item:disabled {
+  color: var(--pagination-item-label-disabled);
+  cursor: default;
+}
+
+@media (forced-colors: active) {
+  .rds-pagination__item[aria-current='page'] {
+    outline: var(--border-width) solid CanvasText;
+  }
+}

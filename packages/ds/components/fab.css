@@ -1,0 +1,111 @@
+/* @tokens fab */
+/*
+ * FAB (Actions collection, fab/cta/*): a 56 pill, 16 inside, 8 between icon (24) and text, in the
+ * brand colour and raised by elevation/overlay. The FAB has no active, disabled or ring token of its
+ * own: active reuses hover, disabled and the ring borrow the Button's (the nearest component).
+ */
+.rds-fab {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-8);
+  min-width: var(--size-56);
+  min-height: var(--size-56);
+  max-width: 100%;
+  padding: var(--space-8) var(--space-16);
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--fab-cta-background-default);
+  box-shadow: var(--elevation-overlay);
+  color: var(--fab-cta-text);
+  font-family: var(--type-font-stack);
+  font-size: var(--type-button-size);
+  font-weight: 500;
+  line-height: var(--type-button-line);
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (hover: hover) {
+  .rds-fab:hover {
+    background: var(--fab-cta-background-hover);
+  }
+}
+
+.rds-fab:active {
+  background: var(--fab-cta-background-hover);
+}
+
+.rds-fab:focus-visible {
+  outline: var(--focus-ring-width) solid var(--button-focus-ring);
+  outline-offset: var(--focus-ring-width);
+}
+
+.rds-fab__icon {
+  display: inline-flex;
+  flex: none;
+  width: var(--size-24);
+  height: var(--size-24);
+}
+
+.rds-fab__icon > svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Disabled = aria-disabled: stays focusable, keeps its place and its elevation; the colour goes. */
+.rds-fab[aria-disabled='true'],
+.rds-fab[aria-disabled='true']:hover,
+.rds-fab[aria-disabled='true']:active {
+  background: var(--button-disabled-fill-background);
+  color: var(--button-disabled-fill-label);
+  cursor: not-allowed;
+}
+
+@media (forced-colors: active) {
+  .rds-fab {
+    border: var(--border-width) solid ButtonText;
+  }
+
+  .rds-fab[aria-disabled='true'] {
+    border-color: GrayText;
+    color: GrayText;
+  }
+
+  .rds-fab:focus-visible {
+    outline-color: Highlight;
+  }
+}
+
+/* FABRoot: the fixed layer at the foot of the page that holds the FAB (24 from the right) or, for the save variant,
+   the SavingBar across the width. It fades and slides 8 down while hidden (a saving bar is up, or fabHidden). */
+.rds-fab-root {
+  position: fixed;
+  z-index: var(--z-sticky);
+  transition:
+    opacity var(--motion-duration-base) var(--motion-easing-standard),
+    transform var(--motion-duration-base) var(--motion-easing-standard);
+}
+
+.rds-fab-root--fab {
+  right: var(--space-24);
+}
+
+.rds-fab-root--bar {
+  inset-inline: 0;
+}
+
+.rds-fab-root--hidden {
+  opacity: 0;
+  transform: translateY(var(--space-8));
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rds-fab-root {
+    transition: none;
+  }
+}

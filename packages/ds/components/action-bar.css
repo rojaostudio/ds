@@ -1,0 +1,54 @@
+/* @tokens actionbar */
+/*
+ * ActionBar (Actions collection, actionbar/*): a bar in colors/primary, container radius, 8 8 8 20
+ * padding, 12 between the count, the divider (1 × 24) and the actions (4 apart). Its Buttons use the
+ * inverse tone, drawn for this band in both modes, so the bar needs no theme switch of its own.
+ */
+.rds-actionbar {
+  box-sizing: border-box;
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-12);
+  max-width: 100%;
+  padding: var(--space-8) var(--space-8) var(--space-8) calc(var(--space-16) + var(--space-4));
+  border-radius: var(--radius-container);
+  background: var(--actionbar-background);
+  color: var(--actionbar-text);
+  font-family: var(--type-font-stack);
+}
+
+.rds-actionbar__count {
+  font-size: var(--type-label-size);
+  font-weight: 500;
+  line-height: var(--type-label-line);
+  white-space: nowrap;
+}
+
+.rds-actionbar__divider {
+  flex: none;
+  width: var(--border-width);
+  height: var(--size-24);
+  background: var(--actionbar-divider);
+}
+
+.rds-actionbar__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.rds-actionbar__actions > .rds-actionbar__clear {
+  margin-inline-start: var(--space-8);
+}
+
+@media (forced-colors: active) {
+  .rds-actionbar {
+    border: var(--border-width) solid CanvasText;
+  }
+
+  .rds-actionbar__divider {
+    background: CanvasText;
+  }
+}

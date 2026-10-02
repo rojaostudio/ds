@@ -1,0 +1,34 @@
+/* @tokens skeleton */
+/*
+ * Skeleton (Content collection, skeleton/background). line 16 tall in radius/xs, circle 40, rect 120 tall in
+ * radius/small (8, as in Figma). No shimmer: a moving placeholder adds noise and nothing else.
+ */
+.rds-skeleton {
+  display: block;
+  flex: none;
+  background: var(--skeleton-background);
+}
+
+.rds-skeleton--line {
+  width: 100%;
+  height: var(--size-16);
+  border-radius: var(--radius-xs);
+}
+
+.rds-skeleton--circle {
+  width: var(--size-40);
+  height: var(--size-40);
+  border-radius: var(--radius-full);
+}
+
+.rds-skeleton--rect {
+  width: 100%;
+  height: calc(var(--space-64) + var(--space-56));
+  border-radius: var(--radius-small);
+}
+
+@media (forced-colors: active) {
+  .rds-skeleton {
+    background: GrayText;
+  }
+}

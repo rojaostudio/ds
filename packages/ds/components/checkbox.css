@@ -1,0 +1,132 @@
+/* @tokens checkbox */
+/*
+ * Checkbox (Forms collection, checkbox/*): a 20 box in radius/xs, a check or a dash of 16 (stroke 2).
+ * Checked fills with colors/secondary and drops the border. Focus: the single outline, 2 away.
+ * The row (44 tall, label, hint, error) is internal/choice.css.
+ */
+.rds-checkbox {
+  --_control-width: var(--size-20);
+  --_text-size: var(--checkbox-text-size);
+  --_text-line: var(--checkbox-text-line);
+  --_support-size: var(--checkbox-support-size);
+  --_support-line: var(--checkbox-support-line);
+  --_border: var(--checkbox-control-border-default);
+  --_background: var(--checkbox-control-background-default);
+  --_checked: var(--checkbox-control-background-checked);
+  --_mark: var(--checkbox-control-mark);
+}
+
+.rds-checkbox__label {
+  color: var(--checkbox-label-color);
+}
+
+.rds-checkbox__required {
+  color: var(--checkbox-required-color);
+}
+
+.rds-checkbox__hint {
+  color: var(--checkbox-hint-color);
+}
+
+.rds-checkbox__error-message {
+  color: var(--checkbox-error-message-color);
+}
+
+.rds-checkbox__box {
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  width: var(--size-20);
+  height: var(--size-20);
+  border: var(--border-width) solid var(--_border);
+  border-radius: var(--radius-xs);
+  background: var(--_background);
+  color: var(--_mark);
+  pointer-events: none;
+}
+
+.rds-checkbox__check,
+.rds-checkbox__minus {
+  display: none;
+  grid-area: 1 / 1;
+  width: var(--size-16);
+  height: var(--size-16);
+}
+
+.rds-checkbox__check > svg,
+.rds-checkbox__minus > svg {
+  width: 100%;
+  height: 100%;
+}
+
+input:checked + .rds-checkbox__box,
+input:indeterminate + .rds-checkbox__box {
+  border-color: transparent;
+  background: var(--_checked);
+}
+
+input:checked:not(:indeterminate) + .rds-checkbox__box .rds-checkbox__check,
+input:indeterminate + .rds-checkbox__box .rds-checkbox__minus {
+  display: block;
+}
+
+input:focus-visible + .rds-checkbox__box {
+  outline: var(--focus-ring-width) solid var(--checkbox-focus-ring);
+  outline-offset: var(--focus-ring-width);
+}
+
+/* Its own error, or the error of the CheckboxGroup around it: every box of the group gets the red border. */
+.rds-checkbox--error,
+.rds-checkbox-group--error .rds-checkbox {
+  --_border: var(--checkbox-control-border-error);
+}
+
+/* In error, checked keeps the error border: the error stays next to what is wrong. */
+.rds-checkbox--error input:checked + .rds-checkbox__box,
+.rds-checkbox--error input:indeterminate + .rds-checkbox__box,
+.rds-checkbox-group--error input:checked + .rds-checkbox__box,
+.rds-checkbox-group--error input:indeterminate + .rds-checkbox__box {
+  border-color: var(--_border);
+}
+
+@media (hover: hover) {
+  .rds-checkbox:not(.rds-checkbox--error, .rds-checkbox-group--error .rds-checkbox) .rds-choice__row:hover input:enabled + .rds-checkbox__box {
+    --_border: var(--checkbox-control-border-hover);
+  }
+
+  .rds-choice__row:hover input:enabled + .rds-checkbox__box {
+    --_checked: var(--checkbox-control-background-checked-hover);
+  }
+}
+
+.rds-checkbox:has(input:disabled) {
+  --_border: var(--checkbox-control-border-disabled);
+  --_background: var(--checkbox-control-background-disabled);
+  --_checked: var(--checkbox-control-background-checked-disabled);
+  --_mark: var(--checkbox-control-mark-disabled);
+}
+
+.rds-checkbox:has(input:disabled) .rds-checkbox__label {
+  color: var(--checkbox-label-disabled);
+}
+
+@media (forced-colors: active) {
+  .rds-checkbox__box {
+    border-color: CanvasText;
+  }
+
+  input:checked + .rds-checkbox__box,
+  input:indeterminate + .rds-checkbox__box {
+    forced-color-adjust: none;
+    background: Highlight;
+    color: HighlightText;
+  }
+
+  .rds-checkbox:has(input:disabled) .rds-checkbox__box {
+    border-color: GrayText;
+  }
+
+  input:focus-visible + .rds-checkbox__box {
+    outline-color: Highlight;
+  }
+}

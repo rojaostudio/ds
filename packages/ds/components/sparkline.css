@@ -1,0 +1,65 @@
+/* @tokens sparkline */
+/*
+ * Sparkline (Content collection, sparkline/*): the current line 2px with a 6 dot on the last value; the previous
+ * period 1.5px dashed 4 4. The box keeps 4 inside so the dot and the round caps are not cut.
+ */
+.rds-sparkline {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  padding: var(--space-4);
+}
+
+.rds-sparkline__area {
+  position: relative;
+  height: 100%;
+}
+
+.rds-sparkline__svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.rds-sparkline__line,
+.rds-sparkline__previous {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.rds-sparkline__line {
+  stroke: var(--sparkline-line);
+  stroke-width: calc(var(--border-width) * 2);
+}
+
+.rds-sparkline__previous {
+  stroke: var(--sparkline-previous);
+  stroke-width: calc(var(--border-width) * 1.5);
+  stroke-dasharray: var(--space-4) var(--space-4);
+}
+
+.rds-sparkline__dot {
+  position: absolute;
+  width: calc(var(--space-4) * 1.5);
+  height: calc(var(--space-4) * 1.5);
+  border-radius: var(--radius-full);
+  background: var(--sparkline-dot);
+  transform: translate(-50%, -50%);
+}
+
+@media (forced-colors: active) {
+  .rds-sparkline__line {
+    stroke: CanvasText;
+  }
+
+  .rds-sparkline__previous {
+    stroke: GrayText;
+  }
+
+  .rds-sparkline__dot {
+    background: CanvasText;
+  }
+}

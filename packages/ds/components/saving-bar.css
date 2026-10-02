@@ -1,0 +1,71 @@
+/* @tokens savingbar */
+/*
+ * SavingBar (Actions collection, savingbar/*): full width (at least 320), 12 24 padding, 16 between the
+ * message (label, medium) and the actions (8 apart). The message grows. The Buttons use the inverse
+ * tone, drawn for this band in both modes, so the bar needs no theme switch of its own.
+ */
+.rds-savingbar {
+  box-sizing: border-box;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-16);
+  width: 100%;
+  min-width: min(320px, 100%);
+  padding: var(--space-12) var(--space-24);
+  background: var(--savingbar-background);
+  color: var(--savingbar-text);
+  font-family: var(--type-font-stack);
+}
+
+.rds-savingbar__message {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--space-12);
+  min-width: 0;
+  margin: 0;
+  font-size: var(--type-label-size);
+  font-weight: 500;
+  line-height: var(--type-label-line);
+}
+
+.rds-savingbar__icon {
+  display: inline-flex;
+  flex: none;
+  width: var(--size-20);
+  height: var(--size-20);
+}
+
+.rds-savingbar__icon > svg {
+  width: 100%;
+  height: 100%;
+}
+
+.rds-savingbar__loader > svg {
+  animation: rds-savingbar-turn 1s linear infinite;
+}
+
+@keyframes rds-savingbar-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rds-savingbar__loader > svg {
+    animation-duration: 3s;
+  }
+}
+
+.rds-savingbar__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+}
+
+@media (forced-colors: active) {
+  .rds-savingbar {
+    border-top: var(--border-width) solid CanvasText;
+  }
+}

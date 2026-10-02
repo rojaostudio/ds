@@ -1,0 +1,62 @@
+/* @tokens combobox */
+/*
+ * Combobox (Forms collection, combobox/*): the Input's field (internal/field.css, input/*) with the Listbox
+ * 4 below the box and as wide (internal/listbox.css). Nothing matches (Figma: menu=empty): the list shows the
+ * empty message in combobox/empty, 14/20, 12 inside.
+ */
+.rds-combobox__list {
+  position: absolute;
+  top: calc(100% + var(--space-4));
+  inset-inline: calc(var(--border-width) * -1);
+  z-index: var(--_layer-floating, var(--z-dropdown));
+  max-height: calc(7 * (var(--space-12) * 2 + var(--type-button-line)) + var(--space-8));
+}
+
+.rds-combobox__empty {
+  padding: var(--space-12);
+  color: var(--combobox-empty);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+}
+
+/*
+ * Figma menu=create: "Cadastrar <termo>" after the matches, past a Separator (separator/line). The line is the
+ * option's top border, inside its 44 (a <li role="separator"> is not allowed in a listbox). Alone
+ * (menu=empty-create), no line.
+ */
+.rds-combobox__create:not(:first-child) {
+  border-top: var(--border-width) solid var(--separator-line);
+}
+
+.rds-combobox__chevron {
+  cursor: pointer;
+}
+
+.rds-combobox__chevron--open {
+  transform: rotate(180deg);
+}
+
+.rds-field--disabled .rds-combobox__chevron {
+  cursor: not-allowed;
+}
+
+/* multiple: the chosen values as Chips before the text; the box grows in rows. */
+.rds-combobox__box--multiple {
+  flex-wrap: wrap;
+  row-gap: var(--space-4);
+  padding-block: var(--space-4);
+}
+
+.rds-combobox__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rds-combobox__box--multiple .rds-field__control {
+  min-width: 8ch;
+  min-height: var(--size-32);
+}

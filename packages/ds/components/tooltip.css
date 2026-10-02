@@ -1,0 +1,28 @@
+/* @tokens tooltip */
+/*
+ * Tooltip (Feedback collection, tooltip/*): the brand's dark colour, caption 12/16, a 16 × 8 arrow, 8 × 12 inside,
+ * corners in radius/container.
+ */
+.rds-tooltip {
+  z-index: var(--z-tooltip);
+  box-sizing: border-box;
+  max-width: 240px;
+  padding: var(--space-8) var(--space-12);
+  border-radius: var(--radius-container);
+  background: var(--tooltip-background);
+  box-shadow: var(--elevation-overlay);
+  color: var(--tooltip-text);
+  font-family: var(--type-font-stack);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+}
+
+.rds-tooltip__arrow {
+  fill: var(--tooltip-background);
+}
+
+@media (forced-colors: active) {
+  .rds-tooltip {
+    border: var(--border-width) solid CanvasText;
+  }
+}

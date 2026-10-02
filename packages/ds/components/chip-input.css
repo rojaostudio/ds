@@ -1,0 +1,57 @@
+/* @tokens chip-input */
+/*
+ * ChipInput (Forms collection, chip-input/*): the shared field parts (internal/field.css) with the chip-input
+ * colours. The box starts at 44 and grows down: the Chips (chip.css) and the text wrap, 4 apart, 4 above and below,
+ * 8 on the left and 12 on the right. Text 16/24, so iOS does not zoom. The suggestions are the Listbox 4 under the
+ * box (internal/listbox.css). The Figma has no chip-input/icon or chip-input/float: the Input's stay.
+ */
+.rds-field.rds-chip-input {
+  --_background: var(--chip-input-background-default);
+  --_background-disabled: var(--chip-input-background-disabled);
+  --_border: var(--chip-input-border-default);
+  --_border-hover: var(--chip-input-border-hover);
+  --_border-focus: var(--chip-input-border-focus);
+  --_border-error: var(--chip-input-border-error);
+  --_border-disabled: var(--chip-input-border-disabled);
+  --_value: var(--chip-input-value-default);
+  --_value-disabled: var(--chip-input-value-disabled);
+  --_placeholder: var(--chip-input-placeholder-default);
+  --_placeholder-disabled: var(--chip-input-placeholder-disabled);
+  --_text-size: var(--chip-input-text-size);
+  --_text-line: var(--chip-input-text-line);
+  --_label: var(--chip-input-label-color);
+  --_required: var(--chip-input-required-color);
+  --_hint: var(--chip-input-hint-color);
+  --_error: var(--chip-input-error-message-color);
+  --_support-size: var(--chip-input-support-size);
+  --_support-line: var(--chip-input-support-line);
+}
+
+.rds-chip-input__box {
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-12) var(--space-4) var(--space-8);
+  cursor: text;
+}
+
+.rds-chip-input__chips {
+  /* The chips and the text share the box's rows: the list itself draws no box (role="list" keeps it a list). */
+  display: contents;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rds-chip-input__box .rds-field__control {
+  min-width: 8ch;
+  min-height: var(--size-32);
+  padding-inline-start: var(--space-4);
+}
+
+.rds-chip-input__list {
+  position: absolute;
+  top: calc(100% + var(--space-4));
+  inset-inline: calc(var(--border-width) * -1);
+  z-index: var(--_layer-floating, var(--z-dropdown));
+  max-height: calc(5 * (var(--space-12) * 2 + var(--type-button-line)) + var(--space-8));
+}

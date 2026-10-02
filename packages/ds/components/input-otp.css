@@ -1,0 +1,142 @@
+/* @tokens otp */
+/*
+ * InputOTP (Forms collection, otp/*): label 14/20 medium, 8 above the boxes; boxes of 48 × 56, 8 apart,
+ * radius/field, digit 20/30 medium; the active box has a 2px border in focus/ring and a 2 × 24 caret; a dash in
+ * the middle of the 6-digit code. Hint or error 4 below, 4 in from the sides. The real input lies transparent
+ * over the boxes and takes the typing, the paste and the focus.
+ */
+.rds-otp {
+  display: inline-flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  font-family: var(--type-font-stack);
+}
+
+.rds-otp__label {
+  padding-bottom: var(--space-4);
+  color: var(--otp-label);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  font-weight: 500;
+}
+
+.rds-otp__slots {
+  position: relative;
+  display: flex;
+  gap: var(--space-8);
+}
+
+.rds-otp__input {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: transparent;
+  caret-color: transparent;
+  font-size: var(--otp-digit-size);
+  cursor: text;
+}
+
+.rds-otp__input::selection {
+  background: transparent;
+}
+
+.rds-otp__input:disabled {
+  cursor: not-allowed;
+}
+
+.rds-otp__group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+.rds-otp__separator {
+  color: var(--otp-separator);
+  font-size: var(--otp-digit-size);
+  line-height: var(--otp-digit-line);
+}
+
+.rds-otp__slot {
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  width: var(--size-48);
+  height: var(--size-56);
+  border: var(--border-width) solid var(--otp-slot-border-default);
+  border-radius: var(--radius-field);
+  background: var(--otp-slot-background-default);
+  color: var(--otp-digit-default);
+  font-size: var(--otp-digit-size);
+  line-height: var(--otp-digit-line);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 2px without moving the digit: 1px border + 1px inset shadow, as the fields' focus. */
+.rds-otp__slot--active {
+  border-color: var(--otp-slot-border-active);
+  box-shadow: inset 0 0 0 var(--border-width) var(--otp-slot-border-active);
+}
+
+.rds-otp__caret {
+  width: calc(var(--border-width) * 2);
+  height: var(--size-24);
+  background: var(--otp-caret);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .rds-otp__caret {
+    animation: rds-otp-blink 1s steps(1) infinite;
+  }
+}
+
+@keyframes rds-otp-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.rds-otp--error .rds-otp__slot {
+  border-color: var(--otp-slot-border-error);
+}
+
+.rds-otp--error .rds-otp__slot--active {
+  box-shadow: inset 0 0 0 var(--border-width) var(--otp-slot-border-error);
+}
+
+.rds-otp__support {
+  padding: 0 var(--space-4);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+}
+
+.rds-otp__hint {
+  color: var(--otp-hint);
+}
+
+.rds-otp__error-message {
+  color: var(--otp-error-message);
+}
+
+.rds-otp--disabled .rds-otp__slot {
+  border-color: var(--otp-slot-border-disabled);
+  background: var(--otp-slot-background-disabled);
+  color: var(--otp-digit-disabled);
+}
+
+@media (forced-colors: active) {
+  .rds-otp__slot {
+    border-color: CanvasText;
+  }
+
+  .rds-otp__slot--active {
+    outline: var(--focus-ring-width) solid Highlight;
+  }
+}

@@ -1,0 +1,118 @@
+/* @tokens browser */
+/*
+ * Browser (External collection): a MOCKUP of another company's interface. Up to 1280 wide, corners 10, a 1px
+ * frame and a large soft shadow. Toolbar 52 tall, 0 16 padding, 16 between the window buttons (three 12 dots,
+ * 8 apart), back and forward (24), the centred address (520 × 32, corners 8, 13 text) and the new-tab +.
+ * The page keeps 1278 × 746.
+ * Colours: External browser/*. The window follows the theme, so the mockup changes in dark mode; the red, yellow
+ * and green window buttons are macOS's, raw in the Figma. The shadow is browser/shadow.
+ */
+.rds-browser {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 1280px;
+  overflow: hidden;
+  border: var(--border-width) solid var(--browser-frame-border);
+  border-radius: 10px;
+  background: var(--browser-frame-background);
+  box-shadow: 0 12px 32px var(--browser-shadow);
+  color: var(--browser-address-text);
+  font-family: var(--type-font-stack);
+}
+
+.rds-browser__toolbar {
+  box-sizing: border-box;
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-16);
+  height: 52px;
+  padding: 0 var(--space-16);
+  border-bottom: var(--border-width) solid var(--browser-toolbar-border);
+  background: var(--browser-toolbar-background);
+}
+
+.rds-browser__controls {
+  display: flex;
+  gap: var(--space-8);
+}
+
+.rds-browser__controls > span {
+  box-sizing: border-box;
+  width: var(--space-12);
+  height: var(--space-12);
+  border: 0.5px solid var(--browser-window-border);
+  border-radius: var(--radius-full);
+  background: var(--browser-window-close);
+}
+
+.rds-browser__controls > span:nth-child(2) {
+  background: var(--browser-window-minimize);
+}
+
+.rds-browser__controls > span:nth-child(3) {
+  background: var(--browser-window-zoom);
+}
+
+.rds-browser__navigation {
+  display: flex;
+  gap: var(--space-12);
+  color: var(--browser-navigation-default);
+  font-size: var(--type-heading-size);
+  font-weight: 500;
+  line-height: 1;
+}
+
+.rds-browser__navigation > span:last-child {
+  color: var(--browser-navigation-disabled);
+}
+
+.rds-browser__center {
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  min-width: 0;
+}
+
+.rds-browser__address {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: min(520px, 100%);
+  height: var(--size-32);
+  padding: 0 var(--space-12);
+  border-radius: var(--radius-small);
+  background: var(--browser-address-background);
+  color: var(--browser-address-text);
+  font-size: 13px;
+}
+
+.rds-browser__address > svg {
+  flex: none;
+  width: 12px;
+  height: 12px;
+  color: var(--browser-address-icon);
+}
+
+.rds-browser__address > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rds-browser__actions {
+  color: var(--browser-action);
+  font-size: 20px;
+  line-height: 1;
+}
+
+.rds-browser__screen {
+  aspect-ratio: 1278 / 746;
+  min-height: 0;
+  overflow: auto;
+  background: var(--browser-screen);
+}

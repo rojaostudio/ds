@@ -1,0 +1,130 @@
+/* @tokens table */
+/*
+ * Table (Content collection, table/*). Header 44 tall (12 16, 14/20 medium), body rows 48 (text 12 16, slot 8 16).
+ * A line under every row but the last: the Table's border closes it. Corners in radius/container; the sort button in
+ * radius/xs. The status rows hold an Empty, 32 24 around it.
+ */
+.rds-table {
+  box-sizing: border-box;
+  max-width: 100%;
+  overflow-x: auto;
+  border: var(--border-width) solid var(--table-border);
+  border-radius: var(--radius-container);
+  background: var(--table-background);
+  font-family: var(--type-font-stack);
+}
+
+.rds-table:focus-visible {
+  outline: var(--focus-ring-width) solid var(--table-header-label);
+  outline-offset: var(--focus-ring-width);
+}
+
+.rds-table__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+}
+
+.rds-table__caption {
+  padding: var(--space-12) var(--space-16);
+  color: var(--table-cell-label);
+  font-weight: 500;
+  text-align: start;
+}
+
+.rds-table__head,
+.rds-table__cell {
+  box-sizing: border-box;
+  padding: var(--space-12) var(--space-16);
+  border-bottom: var(--border-width) solid var(--table-border);
+  text-align: start;
+  vertical-align: middle;
+}
+
+.rds-table__head {
+  height: calc(var(--space-12) * 2 + var(--type-small-line));
+  background: var(--table-header-background);
+  color: var(--table-header-label);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.rds-table__cell {
+  height: var(--space-48);
+  color: var(--table-cell-label);
+}
+
+.rds-table__cell--slot {
+  padding-block: var(--space-8);
+}
+
+.rds-table__cell--end {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+.rds-table__cell--end > .rds-skeleton {
+  margin-inline-start: auto;
+}
+
+tbody > tr:last-child > .rds-table__cell,
+tbody > tr:last-child > .rds-table__status {
+  border-bottom: 0;
+}
+
+.rds-table__sort {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin: calc(var(--space-4) * -1);
+  padding: var(--space-4);
+  border: 0;
+  border-radius: var(--radius-xs);
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.rds-table__cell--end .rds-table__sort {
+  flex-direction: row-reverse;
+}
+
+.rds-table__sort:focus-visible {
+  outline: var(--focus-ring-width) solid var(--table-header-label);
+}
+
+.rds-table__sort-icon {
+  display: inline-flex;
+  flex: none;
+  width: var(--size-16);
+  height: var(--size-16);
+}
+
+.rds-table__sort-icon > svg {
+  width: 100%;
+  height: 100%;
+}
+
+@media (hover: hover) {
+  .rds-table__sort:hover {
+    text-decoration: underline;
+  }
+}
+
+.rds-table__status {
+  padding: var(--space-32) var(--space-24);
+}
+
+.rds-table__status > .rds-empty {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+@media (forced-colors: active) {
+  .rds-table__sort:focus-visible,
+  .rds-table:focus-visible {
+    outline-color: Highlight;
+  }
+}

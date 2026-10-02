@@ -1,0 +1,14 @@
+/* @tokens date-picker */
+/*
+ * DatePicker: no tokens of its own (Figma: the Input's and the Calendar's). The Input's field
+ * (internal/field.css) ends on the calendar button; the Calendar opens 4 under the box, aligned to its end,
+ * above the page with the overlay shadow.
+ */
+.rds-date-picker__popover {
+  z-index: var(--_layer-floating, var(--z-dropdown));
+  outline: none;
+}
+
+.rds-date-picker__popover .rds-calendar {
+  box-shadow: var(--elevation-overlay);
+}

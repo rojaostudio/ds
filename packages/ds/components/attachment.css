@@ -1,0 +1,126 @@
+/* @tokens attachment */
+/*
+ * Attachment (Chat collection, attachment/*). horizontal: 320 wide, 8 4 8 8 padding, 12 between the media (40 box,
+ * icon 20), the content and the IconButton. vertical: 176 wide, 8 padding, 8 between the preview (112 tall, icon 24)
+ * and the row (4 between content and action). Title 14/20 medium, description 12/16, 2 apart; the bar 4 below.
+ * Corners in radius/container. error: the border and the description in the error colour; done: the check in
+ * attachment/done/icon.
+ */
+.rds-attachment {
+  box-sizing: border-box;
+  display: flex;
+  border: var(--border-width) solid var(--attachment-border);
+  border-radius: var(--radius-container);
+  background: var(--attachment-background);
+  font-family: var(--type-font-stack);
+}
+
+.rds-attachment--horizontal {
+  align-items: center;
+  gap: var(--space-12);
+  width: 320px;
+  max-width: 100%;
+  padding: var(--space-8) var(--space-4) var(--space-8) var(--space-8);
+}
+
+.rds-attachment--vertical {
+  flex-direction: column;
+  gap: var(--space-8);
+  width: 176px;
+  max-width: 100%;
+  padding: var(--space-8);
+}
+
+.rds-attachment--error {
+  border-color: var(--attachment-border-error);
+}
+
+.rds-attachment__media {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: var(--radius-container);
+  background: var(--attachment-media);
+  color: var(--attachment-media-icon);
+}
+
+.rds-attachment--horizontal .rds-attachment__media {
+  width: var(--size-40);
+  height: var(--size-40);
+}
+
+.rds-attachment--vertical .rds-attachment__media {
+  width: 100%;
+  height: 112px;
+}
+
+.rds-attachment__media > svg {
+  display: block;
+  width: var(--size-20);
+  height: var(--size-20);
+}
+
+.rds-attachment--vertical .rds-attachment__media > svg {
+  width: var(--size-24);
+  height: var(--size-24);
+}
+
+.rds-attachment__media > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.rds-attachment--error .rds-attachment__media {
+  color: var(--attachment-error);
+}
+
+.rds-attachment--done .rds-attachment__media {
+  color: var(--attachment-done-icon);
+}
+
+.rds-attachment__row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.rds-attachment__content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: calc(var(--space-4) / 2);
+  min-width: 0;
+}
+
+.rds-attachment__title {
+  overflow: hidden;
+  color: var(--attachment-title);
+  font-size: var(--type-small-size);
+  font-weight: 500;
+  line-height: var(--type-small-line);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rds-attachment__description {
+  color: var(--attachment-description);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+}
+
+.rds-attachment--error .rds-attachment__description {
+  color: var(--attachment-error);
+}
+
+.rds-attachment__content > .rds-progress {
+  margin-top: var(--space-4);
+}
+
+@media (forced-colors: active) {
+  .rds-attachment--error {
+    border-width: calc(var(--border-width) * 2);
+  }
+}

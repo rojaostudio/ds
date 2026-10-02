@@ -1,0 +1,64 @@
+/* @tokens message */
+/*
+ * Message (Chat collection, message/*): the avatar (32) 8 from the content, at the top. Content: 4 between the
+ * header, the Bubble and the footer; header: 8 between the name (14/20 medium) and the time (12/16). end mirrors
+ * everything to the right.
+ */
+.rds-message {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-8);
+  width: 100%;
+  font-family: var(--type-font-stack);
+}
+
+.rds-message--end {
+  flex-direction: row-reverse;
+}
+
+.rds-message__avatar {
+  display: flex;
+  flex: none;
+}
+
+.rds-message__content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.rds-message--end .rds-message__content {
+  align-items: flex-end;
+}
+
+.rds-message__content > .rds-bubble {
+  margin-inline-start: 0;
+}
+
+.rds-message__header {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-8);
+  margin: 0;
+}
+
+.rds-message__name {
+  color: var(--message-name);
+  font-size: var(--type-small-size);
+  font-weight: 500;
+  line-height: var(--type-small-line);
+}
+
+.rds-message__time {
+  color: var(--message-time);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+}
+
+.rds-message__footer {
+  display: flex;
+  align-items: center;
+}
