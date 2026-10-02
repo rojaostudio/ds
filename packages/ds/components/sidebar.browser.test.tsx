@@ -76,6 +76,17 @@ describe('Sidebar behaviour', () => {
     expect(nav.querySelector('.rds-sidebar__mark')!.textContent).toBe('P');
   });
 
+  it('the section label is the Figma .sidebar/section type: 11/14 bold, caps, 6% tracking', async () => {
+    const el = await render(<Example />);
+    const label = el.querySelector<HTMLElement>('.rds-sidebar__section-label')!;
+    const s = getComputedStyle(label);
+    expect(s.textTransform).toBe('uppercase');
+    expect(s.fontSize).toBe('11px');
+    expect(s.lineHeight).toBe('14px');
+    expect(s.fontWeight).toBe('700');
+    expect(parseFloat(s.letterSpacing)).toBeCloseTo(0.66, 1);
+  });
+
   it('a section opens and closes; closed, it shows its count', async () => {
     const el = await render(<Example />);
     const toggle = el.querySelector<HTMLButtonElement>('.rds-sidebar__section-toggle')!;

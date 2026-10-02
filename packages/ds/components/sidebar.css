@@ -201,9 +201,12 @@
   cursor: pointer;
 }
 
+/* Figma .sidebar/section: label in caps with 6% tracking; the count keeps its own case and no tracking. */
 .rds-sidebar__section-label {
   flex: 1;
   min-width: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 
 .rds-sidebar__section-count {
