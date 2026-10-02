@@ -17,6 +17,7 @@ colour is extracted on a canvas in your own browser and the image never leaves i
 |---|---|---|
 | [`@rojaostudio/ds-core`](./packages/ds-core) | the engine — tokens, theme derivation, emitters | **none** |
 | [`@rojaostudio/ds`](./packages/ds) | React components, styles, React Native target | react, react-dom (tailwindcss optional, only for the legacy `base.css`) |
+| [`rojao-ds`](./packages/cli) | the CLI — `npx rojao-ds init` writes your brand's theme and the AI rules file | **none** |
 
 If you only want the tokens, you only need `ds-core`. It doesn't import React.
 
@@ -36,6 +37,7 @@ Turborepo + pnpm workspaces.
 ```
 packages/ds-core   the engine
 packages/ds        components and styles
+packages/cli       the CLI (npx rojao-ds init)
 ```
 
 The generator at [ds.rojao.ai](https://ds.rojao.ai) is built from these packages and lives in

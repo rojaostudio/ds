@@ -22,6 +22,8 @@ type Regra = { pacote: string; tetoKB: number };
 const REGRAS: Regra[] = [
   { pacote: "@rojaostudio/ds-core", tetoKB: 80 },
   { pacote: "@rojaostudio/ds", tetoKB: 400 },
+  // A CLI é casca fina sobre o ds-core: um arquivo e o README. Se crescer, é domínio vazando pra cá.
+  { pacote: "rojao-ds", tetoKB: 20 },
 ];
 
 // Padrões estruturais: valem em qualquer cópia deste repositório.

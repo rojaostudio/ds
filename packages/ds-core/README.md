@@ -9,7 +9,7 @@ npm i @rojaostudio/ds-core
 ```
 
 ```ts
-import { generateTheme, emitCss, emitClaudeMd } from '@rojaostudio/ds-core/generate';
+import { generateRdsTheme, emitRdsCss, emitClaudeMd } from '@rojaostudio/ds-core/generate';
 
 const brand = {
   name: 'acme',
@@ -19,9 +19,12 @@ const brand = {
   fonts: { body: 'inter' },
 };
 
-emitCss(brand);       // theme.css — light and dark, derived from one color
-emitClaudeMd(brand);  // the same brand as rules for Claude Code, Cursor or AGENTS.md
+emitRdsCss(generateRdsTheme(brand)); // rds-theme.css — import it AFTER @rojaostudio/ds/styles/rds.css
+emitClaudeMd(brand);                 // the same brand as rules for Claude Code, Cursor or AGENTS.md
 ```
+
+Or, without writing code: `npx rojao-ds init` (the [`rojao-ds`](https://www.npmjs.com/package/rojao-ds) CLI)
+writes both files into your project.
 
 One color goes in. What comes out is an OKLCH scale with an adaptive contrast floor, semantic
 roles for surface, text, border and brand, and the full light/dark pair — verified against
@@ -41,7 +44,7 @@ Components, styles and the React Native target live in
 
 | Entry | What's in it |
 |---|---|
-| `@rojaostudio/ds-core/generate` | `generateTheme`, `emitCss`, `emitClaudeMd`, `buildScale`, `contrastRatio` |
+| `@rojaostudio/ds-core/generate` | `generateRdsTheme`, `rdsThemeFromTable`, `emitRdsCss`, `emitClaudeMd`, `generateTheme`/`emitCss` (1.x), `buildScale`, `contrastRatio` |
 | `@rojaostudio/ds-core/tokens` | `primitives` — the raw palettes and scales |
 | `@rojaostudio/ds-core/recipes` | the reference brand definition |
 | `@rojaostudio/ds-core/themes` | the preset catalogue: a starting palette per niche |

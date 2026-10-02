@@ -1,188 +1,176 @@
 /**
- * emitClaudeMd.ts — recipe (BrandDef) → arquivo de regras (CLAUDE.md / .cursorrules /
- * AGENTS.md) que ensina a IA (Claude Code, Cursor) a construir com a marca.
+ * emitClaudeMd.ts — a brand → the rules file (CLAUDE.md / .cursorrules / AGENTS.md) that teaches
+ * the AI (Claude Code, Cursor, any agent) to build with the brand on Rojão DS 2.0.
  *
- * É O PRODUTO (DS-5). Achado do spike DS-0: cor sozinha não basta — o arquivo carrega
- * cor (semântica, light+dark) + spacing + type scale + radius + do/don't + receita
- * shadcn. Cor resolvida em hex pra IA "ver" a marca; spacing/type vêm dos primitivos.
+ * 2.0 (issue #5): the file describes the [RDS] setup — components with their own CSS
+ * (`@rojaostudio/ds/styles/rds.css`), the generated theme file imported after it, the theme roles
+ * (`--surface-card`, `--text-on-primary`…) and the foundation tokens (`--space-*`, `--radius-*`,
+ * `--type-*`). The 1.x text (Tailwind utilities, base.css, `theme-<name>`, shadcn mapping) is gone:
+ * no component reads it any more.
  *
- * Função pura (sem I/O). Formato derivado de _spike-ds-claudemd/CLAUDE.md (validado).
+ * The input is either a recipe (BrandDef, theme derived by `generateRdsTheme`) or a brand table
+ * exported from Figma (`rdsThemeFromTable`). Colours in the table are the theme's own hex values,
+ * so the AI "sees" the brand. Pure (no I/O).
  */
-import { generateTheme, type TokenMap } from "./generateTheme";
-import { isNeutralBrand } from "./scale";
-import { primitives } from "../tokens/index";
+import { generateRdsTheme, rdsThemeFromTable, roleVar, type RdsBrandTable, type RdsTheme } from "./rdsTheme";
 import type { BrandDef } from "../tokens/recipe.schema";
 
 export type ClaudeMdTarget = "claude" | "cursor" | "agents";
 
 export interface ClaudeMdOptions {
-  /** URL de um CSS de tema hospedado, se houver. Sem default: o padrão é arquivo local. */
+  /** URL of a hosted theme stylesheet, if any. No default: the theme is a local file. */
   cssUrl?: string;
+  /** Name of the local theme file the consumer imports. Default `rds-theme.css`. */
+  cssFile?: string;
+  /** The theme, if it was already generated. Default: derived from the input. */
+  theme?: RdsTheme;
+  /** File the text is written to (only the footer changes). Default `claude`. */
+  target?: ClaudeMdTarget;
 }
 
-// var(--color-neutral-900) → #171717 ; color-mix(...) → descrição legível
-function resolveColor(v: string): string {
-  if (!v) return v;
-  // color-mix primeiro — senão o regex de var() casa o token interno e perde a opacidade
-  if (v.startsWith("color-mix")) {
-    const mix = v.match(/var\(--color-([a-zA-Z]+)(?:-(\d+))?\)\s+(\d+)%/);
-    return mix ? `${mix[1]}${mix[2] ? "-" + mix[2] : ""} a ${mix[3]}%` : v;
-  }
-  const scale = v.match(/var\(--color-([a-zA-Z]+)-(\d+)\)/);
-  if (scale) {
-    const pal = (primitives.color as unknown as Record<string, Record<string, string>>)[scale[1]];
-    return pal?.[scale[2]] ?? v;
-  }
-  const flat = v.match(/var\(--color-(white|black)\)/);
-  if (flat) return (primitives.color as unknown as Record<string, string>)[flat[1]] ?? v;
-  return v;
-}
-
-// tokens semânticos principais, com a intenção de uso (o "use for" do spike)
-const TOKEN_DOCS: { key: string; use: string }[] = [
-  { key: "--brand-primary", use: "botão primário, fills de marca" },
-  { key: "--brand-on-primary", use: "texto/ícone sobre o primário" },
-  { key: "--brand-hover", use: "hover do primário" },
-  { key: "--brand-secondary", use: "2ª cor de marca — SÓ como fill (com --brand-on-secondary); nunca borda/texto sobre superfície" },
-  { key: "--brand-on-secondary", use: "texto sobre o fill secundário" },
-  { key: "--brand-accent", use: "destaque, links, sucesso (use com parcimônia)" },
-  { key: "--brand-accent-light", use: "fundo tingido do accent" },
-  { key: "--brand-on-accent", use: "texto sobre o accent" },
-  { key: "--surface-page", use: "fundo da página" },
-  { key: "--surface-default", use: "cards, painéis" },
-  { key: "--surface-raised", use: "superfície elevada/hover" },
-  { key: "--border-subtle", use: "divisórias fracas" },
-  { key: "--border-default", use: "bordas de inputs e cards" },
-  { key: "--border-strong", use: "bordas enfatizadas" },
-  { key: "--border-focus", use: "anel de foco" },
-  { key: "--text-primary", use: "títulos, corpo" },
-  { key: "--text-secondary", use: "texto de apoio" },
-  { key: "--text-muted", use: "legendas, metadados" },
-  { key: "--text-inverse", use: "texto sobre superfícies invertidas" },
-  { key: "--icon-default", use: "cor padrão de ícone" },
+/** Main theme roles, with what each one is for. */
+const ROLE_DOCS: { role: string; use: string }[] = [
+  { role: "colors/primary/default", use: "primary action, brand fills" },
+  { role: "text/on/primary", use: "text/icon on the primary fill" },
+  { role: "colors/primary/active", use: "pressed primary" },
+  { role: "colors/secondary/default", use: "secondary brand fill (with `--text-on-secondary`)" },
+  { role: "colors/accent/default", use: "highlight — sparingly (with `--text-on-accent`)" },
+  { role: "surface/page", use: "page background" },
+  { role: "surface/card", use: "cards" },
+  { role: "surface/panel", use: "panels, side areas" },
+  { role: "surface/muted", use: "muted areas, wells" },
+  { role: "surface/tint/default", use: "selected / tinted fill (with `--text-on-tint`)" },
+  { role: "border/default", use: "dividers, card borders" },
+  { role: "border/strong", use: "control borders, emphasis" },
+  { role: "focus/ring", use: "focus ring" },
+  { role: "text/heading", use: "headings" },
+  { role: "text/body", use: "body text" },
+  { role: "text/muted", use: "supporting text" },
+  { role: "text/subtle", use: "captions, metadata" },
+  { role: "text/link", use: "links" },
+  { role: "colors/state/error", use: "error fill (with `--text-on-error`)" },
+  { role: "text/error", use: "error message text" },
+  { role: "colors/state/success", use: "success fill (with `--text-on-success`)" },
+  { role: "colors/state/warning", use: "warning fill (with `--text-on-warning`)" },
 ];
 
-function tokenTable(light: TokenMap, dark: TokenMap): string {
-  const rows = TOKEN_DOCS.filter((t) => t.key in light).map((t) => {
-    const l = resolveColor(light[t.key]);
-    const d = t.key in dark ? resolveColor(dark[t.key]) : "—";
-    return `| \`${t.key}\` | ${t.use} | \`${l}\` | \`${d}\` |`;
-  });
-  return [
-    "| Token | Use para | Light | Dark |",
-    "|---|---|---|---|",
-    ...rows,
-  ].join("\n");
-}
+/**
+ * Components named in the file, by module (`@rojaostudio/ds/components/<module>`). A short list on
+ * purpose: the AI learns the import shape, not the catalogue. The ds-core tests check that each
+ * module exists in @rojaostudio/ds.
+ */
+export const CLAUDE_MD_COMPONENTS = [
+  "button", "icon-button", "tooltip", "input", "textarea", "select", "checkbox", "radio-group", "switch",
+  "card", "dialog", "sheet", "tabs", "table", "toast", "badge", "alert", "avatar", "dropdown-menu",
+  "page-header", "sidebar", "empty", "skeleton", "pagination",
+] as const;
 
-function scaleLine(obj: Record<string, number>, unit = "px"): string {
-  return Object.entries(obj)
-    .map(([k, v]) => `\`${k}\`=${v}${v === 9999 ? "" : unit}`)
-    .join(" · ");
+/** Foundation tokens named in the file. The ds-core tests check them against figma/foundation.txt. */
+export const CLAUDE_MD_FOUNDATION = {
+  space: ["--space-4", "--space-8", "--space-12", "--space-16", "--space-24", "--space-32", "--space-40", "--space-48", "--space-56", "--space-64"],
+  radius: ["--radius-xs", "--radius-control", "--radius-field", "--radius-card", "--radius-container", "--radius-full"],
+  type: ["heading", "lead", "body", "label", "button", "small", "caption"],
+  font: "--type-font-stack",
+} as const;
+
+function isTable(x: BrandDef | RdsBrandTable): x is RdsBrandTable {
+  return typeof x === "object" && x !== null && "modes" in x && "primitives" in x;
 }
 
 function fileLabel(target: ClaudeMdTarget): string {
   return target === "cursor" ? ".cursorrules" : target === "agents" ? "AGENTS.md" : "CLAUDE.md";
 }
 
-export function emitClaudeMd(def: BrandDef, opts: ClaudeMdOptions = {}): string {
-  const { supported, light, dark, note } = generateTheme(def);
-  if (!supported) throw new Error(`emitClaudeMd: ${def.name} não suportado — ${note}`);
+function roleTable(theme: RdsTheme): string {
+  const rows = ROLE_DOCS.filter((r) => roleVar(r.role) in theme.light).map((r) => {
+    const v = roleVar(r.role);
+    return `| \`${v}\` | ${r.use} | \`${theme.light[v]}\` | \`${theme.dark[v] ?? theme.light[v]}\` |`;
+  });
+  return ["| Token | Use for | Light | Dark |", "|---|---|---|---|", ...rows].join("\n");
+}
 
-  const Name = def.name[0].toUpperCase() + def.name.slice(1);
-  // Sem `cssUrl`, o tema é um ARQUIVO do consumidor — o `theme.css` que ele baixou junto deste
-  // arquivo. O default apontava pra um serving ao vivo por conta, que não existe mais;
-  // ele foi pro studio (#70) e a rota responde 404, então todo CLAUDE.md gerado saía mandando o
-  // leitor linkar uma URL morta. Quem TEM serving próprio continua passando `cssUrl` e recebe o
-  // bloco de link ao vivo.
-  const cssUrl = opts.cssUrl ?? null;
-  const bodyFont = typeof def.fonts?.body === "string" ? def.fonts.body : "inter";
-  const displayFont =
-    typeof def.fonts?.display === "string" ? def.fonts.display : bodyFont;
-  const fontTitle = (s: string) => s.split("-").map((w) => w[0]?.toUpperCase() + w.slice(1)).join(" ");
+export function emitClaudeMd(source: BrandDef | RdsBrandTable, opts: ClaudeMdOptions = {}): string {
+  const theme = opts.theme ?? (isTable(source) ? rdsThemeFromTable(source) : generateRdsTheme(source));
+  const name = source.name;
+  const Name = name ? name[0].toUpperCase() + name.slice(1) : "Brand";
+  const description = !isTable(source) && source.description ? ` — ${source.description}` : "";
+  const cssFile = opts.cssFile ?? "rds-theme.css";
+  const target = opts.target ?? "claude";
+  const f = CLAUDE_MD_FOUNDATION;
+  const own = theme.vars ? Object.keys(theme.vars) : [];
 
-  const neutral = primitives.color.neutral;
+  const themeImport = opts.cssUrl
+    ? `@import "@rojaostudio/ds/styles/rds.css";
+@import url("${opts.cssUrl}"); /* the brand theme, AFTER rds.css */`
+    : `@import "@rojaostudio/ds/styles/rds.css";
+@import "./${cssFile}"; /* the brand theme, AFTER rds.css */`;
 
-  return `# Design System — ${Name} (brand: \`${def.name}\`)
+  return `# Design System — ${Name}
 
-> This project uses the **${Name}** design system. When you build any UI —
-> components, pages, screens — follow the rules below so every screen looks like the
-> same product. Do not invent colors, fonts, spacing, or radii.
+> This project uses **Rojão DS 2.0** with the **${Name}** brand${description}. When you build any
+> UI — components, pages, screens — follow the rules below so every screen looks like the same
+> product. Do not invent colors, fonts, spacing or radii.
 
-## Brand identity
-- **Name:** ${Name}
-- **Look:** ${isNeutralBrand(def) ? "neutral — black & white lead, the accent does the talking" : "chromatic — the brand color leads"}${def.description ? ` — ${def.description}` : ""}
-- **Body font:** ${fontTitle(bodyFont)} · **Display font:** ${fontTitle(displayFont)} (load from Google Fonts; never substitute)
-- **Default radius:** \`${primitives.radius.md}px\` (\`rounded-lg\`). Pills/avatars fully round.
-- **Light AND dark are first-class** — every screen must work in both.
+## Setup (once per app)
+\`\`\`bash
+pnpm add @rojaostudio/ds
+\`\`\`
+\`\`\`css
+/* root stylesheet */
+${themeImport}
+\`\`\`
+- \`rds.css\` carries the tokens and every component's styles, in cascade layers
+  (\`rds.theme\`, \`rds.tokens\`, \`rds.components\`). No Tailwind, no other stylesheet.
+- ${opts.cssUrl ? `The theme is served from \`${opts.cssUrl}\`.` : `\`${cssFile}\` is the brand theme, generated — a file **you own**; commit it. Regenerate it
+  with \`npx rojao-ds init\` instead of editing it by hand.`}
+- Dark mode: \`class="dark"\` on \`<html>\` (or any element). Light AND dark are first-class.
+- Brand plate: \`class="ds-plate"\` on a section paints it with the primary color; the roles inside
+  flip so text and components stay legible.
 
-## How to apply
-1. ${cssUrl
-    ? `Import the brand stylesheet once at the app root:
-   \`\`\`html
-   <link rel="stylesheet" href="${cssUrl}" />
-   \`\`\``
-    : `Put \`${def.name}.css\` (downloaded with this file) in your project and import it
-   once at the app root:
-   \`\`\`css
-   @import "./${def.name}.css";
-   \`\`\`
-   The theme is a file **you own** — commit it. Nothing here depends on an external host.`}
-2. Put the theme class on \`<html>\`:
-   \`\`\`html
-   <html class="theme-${def.name}">       <!-- light -->
-   <html class="theme-${def.name} dark">  <!-- dark -->
-   \`\`\`
-   > One sheet can hold **several themes** — each as its own \`theme-<name>\` class.
-   > Switch with the class (one product per app, or many on one page).${cssUrl
-    ? `
-   > Edit the theme at the source and this same URL updates **all your apps at once**.`
-    : ''}
-3. Style everything with the semantic tokens below, as CSS variables — they already
-   flip between light and dark. You never write a hex value in a component.
-   \`\`\`css
-   .card { background: var(--surface-default); color: var(--text-primary);
-           border: 1px solid var(--border-default); border-radius: ${primitives.radius.md}px; }
-   \`\`\`
+## Components first
+Use the design system components before writing your own markup. Import each from its own path:
+\`\`\`tsx
+import { Button } from "@rojaostudio/ds/components/button";
+import { IconButton } from "@rojaostudio/ds/components/icon-button";
+import { Tooltip } from "@rojaostudio/ds/components/tooltip";
+\`\`\`
+Available, among others: ${CLAUDE_MD_COMPONENTS.map((c) => `\`${c}\``).join(" · ")}.
+- Components bring their own CSS (inside \`rds.css\`). Don't restyle their internals, don't wrap
+  them in Tailwind classes, don't rebuild them with shadcn/ui.
+- Every \`IconButton\` goes inside a \`Tooltip\` with the same text as its \`label\`.
 
-## Semantic color tokens — ALWAYS use these, NEVER hardcode a color
-${tokenTable(light, dark)}
+## Theme roles — ALWAYS use these in your own CSS, NEVER hardcode a color
+They already flip between light, dark and the brand plate.
+${roleTable(theme)}
 
-## Spacing scale (px) — use ONLY these steps for padding, margin, gap
-${scaleLine(primitives.space)}
+Every role pairs a fill with its \`--text-on-*\` text. Example:
+\`\`\`css
+.panel { background: var(--surface-card); color: var(--text-body);
+         border: var(--border-width) solid var(--border-default);
+         border-radius: var(--radius-card); padding: var(--space-16); }
+\`\`\`${own.length ? `
 
-## Type scale (font-size, px)
-${scaleLine(primitives.fontSize)}
+Brand's own variables (same value in every mode): ${own.map((v) => `\`${v}\``).join(" · ")}.` : ""}
 
-**Font weights:** ${scaleLine(primitives.fontWeight, "")}
-**Line heights:** ${Object.entries(primitives.lineHeight).map(([k, v]) => `\`${k}\`=${v}`).join(" · ")}
-
-## Radius (px)
-${scaleLine(primitives.radius)}
+## Foundation tokens
+- **Spacing** (padding, margin, gap) — ONLY: ${f.space.map((v) => `\`${v}\``).join(" · ")}
+- **Radius:** ${f.radius.map((v) => `\`${v}\``).join(" · ")}
+- **Type** — \`--type-<style>-size\` / \`--type-<style>-line\`, styles: ${f.type.map((v) => `\`${v}\``).join(" · ")}
+- **Font:** \`font-family: var(${f.font})\` — never substitute.
 
 ## Rules (do / don't)
-- ✅ Primary button = \`--brand-primary\` bg + \`--brand-on-primary\` text; hover → \`--brand-hover\`.
-- ✅ Low-emphasis / secondary action = NEUTRAL outline: \`--border-default\` border + \`--text-secondary\` text (legible by rule, light AND dark). A brand color belongs to the PRIMARY (filled) action, not a secondary outline.
-- ✅ Page wrapper uses \`--surface-page\`; cards use \`--surface-default\`.
-- ✅ Body text is \`--text-primary\`; never pure black/white text directly.
-- ✅ \`--brand-accent\` is the ONLY saturated color — use it sparingly (links, success, highlights).
-- ✅ Spacing, font-size and radius come ONLY from the scales above.
-- ❌ Never write a raw hex (\`#000\`, \`bg-black\`) or a Tailwind palette color (\`bg-emerald-500\`, \`text-zinc-700\`) in a component — map it to a token above.
-- ❌ Never use a brand color (incl. \`--brand-secondary\`) as a border/ring or as text directly on a surface. The engine guarantees contrast ONLY for a fill + its \`--brand-on-*\` text. As a stroke (WCAG 1.4.11, 3:1) or label (1.4.3, 4.5:1) on the surface it can fail — and in one mode but not the other. Brand colors = fills.
-- ❌ Never introduce a second accent color. Don't hardcode dark-mode colors — tokens already flip.
+- ✅ Primary action = \`Button\` (it already paints \`--colors-primary-default\` + \`--text-on-primary\`).
+- ✅ Page uses \`--surface-page\`; cards \`--surface-card\`; body text \`--text-body\`.
+- ✅ \`--colors-accent-default\` is the highlight — use it sparingly.
+- ✅ Spacing, radius and type come ONLY from the foundation tokens above.
+- ✅ Your own CSS is unlayered, so it already wins over the design system — no \`!important\`.
+- ❌ Never write a raw hex (\`#000\`) or a Tailwind palette class (\`bg-emerald-500\`) in a component.
+- ❌ Never use a brand fill as a border or as text on a surface: contrast is guaranteed only for a
+  fill + its \`--text-on-*\`.
+- ❌ Never hardcode dark-mode colors — the roles already flip. Don't add a second accent color.
+- ❌ Don't use the 1.x stylesheet (\`styles/base.css\`), its utilities (\`bg-surface-*\`, \`text-fg-*\`) or
+  \`theme-<name>\` classes.
 
-## Use with shadcn/ui
-You are NOT replacing shadcn. Use shadcn/ui components and apply THIS brand as the theme:
-map the tokens above onto shadcn's CSS variables (\`--background\` → \`--surface-page\`,
-\`--foreground\` → \`--text-primary\`, \`--primary\` → \`--brand-primary\`, \`--border\` →
-\`--border-default\`, \`--ring\` → \`--border-focus\`, \`--radius\` → \`${primitives.radius.md}px\`).
-Build with shadcn's component shapes; paint them with these tokens. Don't restyle components from scratch.
-
-## Primitive palette (reference — prefer the semantic tokens above)
-\`\`\`
-neutral 50 ${neutral[50]} · 500 ${neutral[500]} · 900 ${neutral[900]}
-\`\`\`
-
-<!-- Generated by Rojão DS — file: ${fileLabel("claude")} / ${fileLabel("cursor")} / ${fileLabel("agents")}. Drop it in your project root; Claude Code & Cursor read it automatically. -->
+<!-- Generated by Rojão DS (npx rojao-ds init) — file: ${fileLabel(target)}. Claude Code, Cursor and other agents read it from the project root. -->
 `;
 }

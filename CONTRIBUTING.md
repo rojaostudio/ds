@@ -16,6 +16,7 @@ Node 20+, pnpm 10. The workspace is Turborepo:
 ```
 packages/ds-core   the engine — tokens, theme derivation, emitters. No React.
 packages/ds        components, styles, React Native target
+packages/cli       the `rojao-ds` CLI (npx rojao-ds init), a thin shell over ds-core
 ```
 
 ## Branches
