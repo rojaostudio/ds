@@ -1,5 +1,11 @@
 # @rojaostudio/ds
 
+## 2.0.0-next.3
+
+### Patch Changes
+
+- Os campos (Input, PasswordInput e os que usam a mesma base) não mostram mais um retângulo azul ou amarelo no meio quando o navegador preenche sozinho (autofill). O fundo do autofill passa a ser coberto pela cor da caixa, e o texto mantém a cor do valor.
+
 ## 2.0.0-next.2
 
 ### Patch Changes
