@@ -1,5 +1,11 @@
 # @rojaostudio/ds
 
+## 2.0.0-next.4
+
+### Patch Changes
+
+- Sidebar: o rótulo da seção (`SidebarSection`) passa a seguir o Figma (`.sidebar/section`): caixa alta e tracking de 6%, em 11/14 bold. A contagem continua em caixa normal.
+
 ## 2.0.0-next.3
 
 ### Patch Changes
