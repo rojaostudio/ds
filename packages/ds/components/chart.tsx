@@ -319,29 +319,33 @@ export function Chart({
           </TableBody>
         </Table>
       ) : (
-        <table className="rds-visually-hidden">
-          <caption>{label}</caption>
-          <thead>
-            <tr>
-              <th scope="col">{firstColumn}</th>
-              {shown.map((s) => (
-                <th key={s.name} scope="col">
-                  {legendName(s)}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {labels.map((name, i) => (
-              <tr key={name}>
-                <th scope="row">{name}</th>
+        // The clip goes on a wrapper: a <table> ignores the 1px box and overflow of .rds-visually-hidden, so it
+        // kept its full size, anchored to the page and stretched the page scroll.
+        <div className="rds-visually-hidden">
+          <table>
+            <caption>{label}</caption>
+            <thead>
+              <tr>
+                <th scope="col">{firstColumn}</th>
                 {shown.map((s) => (
-                  <td key={s.name}>{formatFor(s)(s.data[i] ?? 0)}</td>
+                  <th key={s.name} scope="col">
+                    {legendName(s)}
+                  </th>
                 ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {labels.map((name, i) => (
+                <tr key={name}>
+                  <th scope="row">{name}</th>
+                  {shown.map((s) => (
+                    <td key={s.name}>{formatFor(s)(s.data[i] ?? 0)}</td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </figure>
   );

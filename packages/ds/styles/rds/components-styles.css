@@ -1992,6 +1992,8 @@ button.rds-breadcrumb__link:focus-visible {
  * in --_series: chart.tsx picks one of the --_series-N locals below, each one a chart/series-color/N token.
  */
 .rds-chart {
+  /* Anchors the hidden alternative table (and any absolute part) to the chart, not to the page. */
+  position: relative;
   --_series-1: var(--chart-series-color-1);
   --_series-2: var(--chart-series-color-2);
   --_series-3: var(--chart-series-color-3);

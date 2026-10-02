@@ -9,6 +9,7 @@
   "changesets": [
     "barril-sem-peers",
     "button-size",
+    "chart-tabela-oculta",
     "ds-2-0",
     "field-autofill",
     "rds-paletas-custom",
