@@ -26,6 +26,33 @@ const samples: Array<[string, BrandDef]> = [
   ),
 ];
 
+describe("[RDS] theme from a recipe with its own palettes", () => {
+  // A brand whose colours live in BrandDef.palettes (as the 1.x generator accepted): one palette as a hex,
+  // one as a full scale. The refs `<name>-<step>` must resolve there, not only in the core catalogue.
+  const scale = { 50: "#fdf2f8", 100: "#fce7f3", 200: "#fbcfe8", 300: "#f9a8d4", 400: "#f472b6", 500: "#ec4899",
+    600: "#db2777", 700: "#be185d", 800: "#9d174d", 900: "#831843" };
+  const own: BrandDef = {
+    name: "own",
+    brand: { primary: "brandcyan-500", secondary: "white", accent: "brandpink-500" },
+    palettes: { brandcyan: "#00aeef", brandpink: scale as unknown as Record<string, string> },
+    surface: "zinc",
+    text: "zinc",
+    fonts: { body: "inter" },
+  } as unknown as BrandDef;
+
+  it("resolves the recipe's palettes (hex and full scale)", () => {
+    const t = generateRdsTheme(own);
+    expect(t.light["--colors-accent-default"]).toBe("#ec4899");
+    expect(t.light["--colors-accent-highlight"]).toBe("#fbcfe8");
+    expect(t.light["--colors-primary-default"]).toMatch(/^#[0-9a-f]{6}$/i);
+    expect(rdsContrast(t, "light", "text/on/primary", "colors/primary/default")!).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it("still fails on a palette that exists nowhere", () => {
+    expect(() => generateRdsTheme({ ...own, brand: { primary: "nope-500" } } as BrandDef)).toThrow(/unknown palette "nope"/);
+  });
+});
+
 describe("[RDS] theme roles", () => {
   it("ROLES matches figma/theme.txt (names, order and mode sources)", () => {
     const src = (cell: string, mode: "dark" | "brand") =>
