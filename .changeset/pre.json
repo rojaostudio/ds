@@ -9,6 +9,7 @@
   "changesets": [
     "barril-sem-peers",
     "button-size",
-    "ds-2-0"
+    "ds-2-0",
+    "rds-paletas-custom"
   ]
 }

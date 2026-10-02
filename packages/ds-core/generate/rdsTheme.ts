@@ -28,17 +28,32 @@ const BLACK = "#000000";
 const black = (pct: number) => BLACK + Math.round((pct / 100) * 255).toString(16).padStart(2, "0");
 const white = (pct: number) => WHITE + Math.round((pct / 100) * 255).toString(16).padStart(2, "0");
 
-function palette(name: string): Scale {
+/** The recipe's own palettes (BrandDef.palettes): a hex (a ramp is derived) or a full 50–900 scale. */
+type CustomPalettes = BrandDef["palettes"];
+
+function palette(name: string, custom?: CustomPalettes): Scale {
+  const own = custom?.[name];
+  if (typeof own === "string") {
+    if (!isHex(own)) throw new Error(`rdsTheme: palette "${name}" is not a hex colour`);
+    return buildScale(own);
+  }
+  if (own) return own as unknown as Scale;
   const p = palettes[name];
   if (!p || typeof p === "string") throw new Error(`rdsTheme: unknown palette "${name}"`);
   return p as Scale;
 }
 
-/** A brand colour as a ramp plus its own value. Palette ref → that palette; hex → derived ramp. */
-function ramp(c: ColorRef): { base: string; scale: Scale } {
+/**
+ * A brand colour as a ramp plus its own value. Palette ref (core or the recipe's own palettes) → that palette;
+ * hex → derived ramp.
+ */
+function ramp(c: ColorRef, custom?: CustomPalettes): { base: string; scale: Scale } {
   if (isHex(c)) return { base: c, scale: buildScale(c) };
-  const m = c.match(/^([a-zA-Z]+)-(\d{2,3})$/);
-  if (m) return { base: refToHex(c) ?? palette(m[1])[Number(m[2]) as ScaleStep], scale: palette(m[1]) };
+  const m = c.match(/^([a-zA-Z][a-zA-Z0-9]*)-(\d{2,3})$/);
+  if (m) {
+    const scale = palette(m[1], custom);
+    return { base: scale[Number(m[2]) as ScaleStep] ?? refToHex(c), scale };
+  }
   const hex = refToHex(c);
   if (!hex) throw new Error(`rdsTheme: cannot resolve colour "${c}"`);
   return { base: hex, scale: buildScale(hex) };
@@ -100,15 +115,18 @@ export const roleVar = (role: string) => `--${role.replaceAll("/", "-")}`;
 
 export function generateRdsTheme(def: BrandDef): RdsTheme {
   const b = def.brand;
-  const P = ramp(b.primary);
-  const S = b.secondary ? ramp(b.secondary) : P;
-  const A = b.accent ? ramp(b.accent) : P;
-  const N = palette(def.text && palettes[def.text] && typeof palettes[def.text] !== "string" ? def.text : "zinc");
+  const own = def.palettes;
+  const P = ramp(b.primary, own);
+  const S = b.secondary ? ramp(b.secondary, own) : P;
+  const A = b.accent ? ramp(b.accent, own) : P;
+  const N = def.text && (own?.[def.text] || (palettes[def.text] && typeof palettes[def.text] !== "string"))
+    ? palette(def.text, own)
+    : palette("zinc");
   const L = palette("blue");
   const red = palette("red"), green = palette("green"), orange = palette("orange");
   const teal = palette("teal"), purple = palette("purple");
-  const heading = b.heading ? ramp(b.heading).base : P.base;
-  const invert = b.invert ? ramp(b.invert).base : WHITE;
+  const heading = b.heading ? ramp(b.heading, own).base : P.base;
+  const invert = b.invert ? ramp(b.invert, own).base : WHITE;
 
   // base — plain (light) tokens.
   const l: Record<string, string> = {
