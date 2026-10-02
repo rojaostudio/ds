@@ -86,7 +86,7 @@ describe('Chart behaviour', () => {
     const figure = el.querySelector('figure')!;
     expect(figure.getAttribute('aria-label')).toBe('Volume e entrega nos últimos 30 dias');
     const table = figure.querySelector('table')!;
-    expect(table.className).toBe('rds-visually-hidden');
+    expect(table.parentElement!.className).toBe('rds-visually-hidden');
     expect(table.querySelector('caption')!.textContent).toBe('Volume e entrega nos últimos 30 dias');
     const headers = [...table.querySelectorAll('thead th')].map((th) => th.textContent);
     expect(headers).toEqual(['Data', 'Volume (esquerda)', 'Entrega (direita)']);
@@ -152,5 +152,20 @@ describe('Chart behaviour', () => {
     const colours = new Set(bars.map((b) => getComputedStyle(b).backgroundColor));
     expect(colours.size).toBe(5);
     expect(text(el.querySelector('.rds-chart__bar-value')!.textContent)).toBe('12,5 mil');
+  });
+});
+
+describe('Chart inside a scrolling container', () => {
+  // The hidden alternative table must stay inside the chart: before, a <table> ignored the visually-hidden clip,
+  // anchored to the page and stretched the page's scroll (seen with 30 dates in a dashboard).
+  it('does not make the page scroll', async () => {
+    const many = Array.from({ length: 60 }, (_, i) => `${i + 1} set`);
+    await render(
+      <div style={{ height: 200, overflow: 'auto' }}>
+        <Chart label="Pedidos por dia" type="line" labels={many} series={[{ name: 'Pedidos', data: many.map((_, i) => i) }]} />
+      </div>,
+    );
+    const page = document.scrollingElement!;
+    expect(page.scrollHeight).toBeLessThanOrEqual(page.clientHeight + 1);
   });
 });
