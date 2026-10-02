@@ -297,3 +297,41 @@ export function rdsContrast(theme: RdsTheme, mode: RdsMode, fg: string, bg: stri
   if (!/^#[0-9a-f]{6}$/i.test(a) || !/^#[0-9a-f]{6}$/i.test(c)) return null;
   return contrastRatio(a, c);
 }
+
+/**
+ * A brand as drawn in the [RDS] Base Tokens file: for each theme mode, every role points to a primitive of the
+ * [RDS] Primitives library by name ("accyan/400"), and `primitives` holds the colour Figma resolves for each.
+ * Exported by `figma/export-brand.js`. The theme comes out one to one with the Figma brand mode.
+ */
+export type RdsBrandTable = {
+  $schema?: "rds-brand-table/1";
+  name: string;
+  primitives: Record<string, string>;
+  modes: Record<RdsMode, Record<string, string>>;
+};
+
+const isColourRef = (v: string) => /^[a-z][a-z0-9-]*\/[a-z]?\d+$/i.test(v);
+
+/** The theme of a brand table. Fails on a missing role or an unknown primitive, listing them all. */
+export function rdsThemeFromTable(table: RdsBrandTable): RdsTheme {
+  const out: RdsTheme = { light: {}, dark: {}, brand: {} };
+  const problems: string[] = [];
+  for (const mode of ["light", "dark", "brand"] as RdsMode[]) {
+    const roles = table.modes?.[mode];
+    if (!roles) {
+      problems.push(`mode "${mode}" is missing`);
+      continue;
+    }
+    for (const [role] of ROLES) {
+      const ref = roles[role];
+      if (ref === undefined) problems.push(`${mode}: role "${role}" is missing`);
+      else if (isColourRef(ref)) {
+        const value = table.primitives[ref];
+        if (value === undefined) problems.push(`${mode}: "${role}" points to unknown primitive "${ref}"`);
+        else out[mode][roleVar(role)] = value.toLowerCase();
+      } else out[mode][roleVar(role)] = ref;
+    }
+  }
+  if (problems.length) throw new Error(`rdsThemeFromTable(${table.name}):\n  ${problems.join("\n  ")}`);
+  return out;
+}

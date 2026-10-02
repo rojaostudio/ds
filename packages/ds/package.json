@@ -1,6 +1,6 @@
 {
   "name": "@rojaostudio/ds",
-  "version": "2.0.0-next.5",
+  "version": "2.0.0-next.6",
   "type": "module",
   "description": "Rojão Design System — componentes React, estilos e alvo React Native. O motor vive em @rojaostudio/ds-core.",
   "license": "MIT",

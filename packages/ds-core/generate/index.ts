@@ -4,8 +4,8 @@
  */
 export { generateTheme, resolveTheme } from "./generateTheme";
 // 2.0 (#13): the theme roles of the Figma [RDS], from the same BrandDef.
-export { generateRdsTheme, emitRdsCss, rdsContrast, roleVar, ROLES as RDS_ROLES } from "./rdsTheme";
-export type { RdsTheme, RdsMode, RdsCssOptions } from "./rdsTheme";
+export { generateRdsTheme, rdsThemeFromTable, emitRdsCss, rdsContrast, roleVar, ROLES as RDS_ROLES } from "./rdsTheme";
+export type { RdsTheme, RdsMode, RdsCssOptions, RdsBrandTable } from "./rdsTheme";
 export type { TokenMap, GenResult, ResolvedTheme } from "./generateTheme";
 export { emitCss } from "./emitCss";
 export { emitClaudeMd } from "./emitClaudeMd";
