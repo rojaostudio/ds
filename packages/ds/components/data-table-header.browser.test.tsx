@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { Badge } from './badge';
-import { Button } from './button';
 import { Checkbox } from './checkbox';
 import { DataTableHeader, type DataTableFilterDef } from './data-table-header';
 import { FilterChip, FilterChipGroup } from './filter-chip';
@@ -26,15 +25,33 @@ const CHANNEL = [
   { value: 'whatsapp', label: 'WhatsApp' },
 ];
 
+function GearIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+}
+
+/** The list's action, as the Figma asks: an outline neutral IconButton with its Tooltip (creating is the FAB). */
+const ACTION = (
+  <Tooltip text="Organizar pedidos">
+    <IconButton icon={<GearIcon />} label="Organizar pedidos" variant="outline" tone="neutral" />
+  </Tooltip>
+);
+
 function Example({
   two = false,
   mobileCollapse = false,
   withView = false,
+  moreQuick = false,
   onSearch,
 }: {
   two?: boolean;
   mobileCollapse?: boolean;
   withView?: boolean;
+  /** Three quick filters instead of one, so the tools wrap on a tablet too. */
+  moreQuick?: boolean;
   onSearch?: (v: string) => void;
 }) {
   const [q, setQ] = useState('');
@@ -58,6 +75,16 @@ function Example({
           <FilterChip pressed={late} count={2} onClick={() => setLate((v) => !v)}>
             Atrasados
           </FilterChip>
+          {moreQuick && (
+            <>
+              <FilterChip count={9} onClick={() => {}}>
+                Em separação
+              </FilterChip>
+              <FilterChip count={31} onClick={() => {}}>
+                Entregues hoje
+              </FilterChip>
+            </>
+          )}
         </FilterChipGroup>
       }
       view={withView ? <Checkbox>Agrupar por produto</Checkbox> : undefined}
@@ -67,7 +94,7 @@ function Example({
         setChannel('');
         setLate(false);
       }}
-      actions={<Button>Novo pedido</Button>}
+      actions={ACTION}
       mobileCollapse={mobileCollapse}
     />
   );
@@ -161,7 +188,7 @@ describe('DataTableHeader behaviour', () => {
     await settle();
     const drawer = document.querySelector<HTMLElement>('[role="dialog"]')!;
     expect(drawer.querySelector('[role="group"][aria-label="Canal"]')).not.toBeNull();
-    expect([...drawer.querySelectorAll('button')].some((b) => b.textContent === 'Novo pedido')).toBe(true);
+    expect(drawer.querySelector('[aria-label="Organizar pedidos"]')).not.toBeNull();
   });
 
   it('expanded (a bar of 1100), the Figma case (two quick filters, two filters on): "Filtros · 2" counts what it opens; the search keeps 320', async () => {
@@ -186,7 +213,7 @@ describe('DataTableHeader behaviour', () => {
             { key: 'method', label: 'Forma', value: 'pix', options: [{ value: '', label: 'Todas' }, { value: 'pix', label: 'Pix' }], onChange: noop },
           ]}
           onClear={noop}
-          actions={<Button>Novo pedido</Button>}
+          actions={ACTION}
         />
       </div>,
     );
@@ -196,7 +223,7 @@ describe('DataTableHeader behaviour', () => {
     // flex-basis and min-width 320 with wrap: what does not fit beside it goes to the next line.
     expect(getComputedStyle(search).minWidth).toBe('min(320px, 100%)');
     expect(search.getBoundingClientRect().width).toBeGreaterThanOrEqual(320);
-    expect(getComputedStyle(el.querySelector('.rds-data-table-header')!).justifyContent).toBe('flex-end');
+    expect(getComputedStyle(el.querySelector('.rds-data-table-header__tools')!).justifyContent).toBe('flex-end');
   });
 
   it('the search never gets wider than a bar narrower than 320 (min-width: min(320, 100%))', async () => {
@@ -212,19 +239,43 @@ describe('DataTableHeader behaviour', () => {
     expect(bar.scrollWidth).toBeLessThanOrEqual(bar.clientWidth);
   });
 
-  it('the view control comes after the filters and before the actions, on a wide and on a narrow screen', async () => {
+  it('the view control comes after the filters, last in the tools; the action follows the tools, on a wide and on a narrow screen', async () => {
     for (const width of [1280, 390]) {
       await page.viewport(width, 800);
       const el = await render(<Example two withView />);
       const bar = el.querySelector<HTMLElement>('.rds-data-table-header')!;
-      const order = [...bar.children].map((c) => c.className);
+      expect([...bar.children].map((c) => c.className)).toEqual(['rds-data-table-header__tools', 'rds-data-table-header__actions']);
+      const order = [...bar.querySelector('.rds-data-table-header__tools')!.children].map((c) => c.className);
       const view = order.findIndex((c) => c.includes('__view'));
       const lastFilters = Math.max(...order.map((c, i) => (c.includes('__wide') || c.includes('__narrow') ? i : -1)));
       expect(view).toBeGreaterThan(lastFilters);
-      expect(view).toBeLessThan(order.findIndex((c) => c.includes('__actions')));
+      expect(view).toBe(order.length - 1);
       const viewEl = bar.querySelector<HTMLElement>('.rds-data-table-header__view')!;
       expect(getComputedStyle(viewEl).display).not.toBe('none');
       expect(viewEl.textContent).toContain('Agrupar por produto');
+      cleanup();
+    }
+  });
+
+  it('the action stays at the end of the first line, on the right, while the tools wrap onto a second line (768, 390)', async () => {
+    for (const width of [768, 390]) {
+      await page.viewport(width, 800);
+      const el = await render(<Example two withView moreQuick />);
+      const bar = el.querySelector<HTMLElement>('.rds-data-table-header')!;
+      const tools = bar.querySelector<HTMLElement>('.rds-data-table-header__tools')!;
+      const action = bar.querySelector<HTMLElement>('[aria-label="Organizar pedidos"]')!;
+      const visibleTools = [...tools.children].filter((c) => getComputedStyle(c).display !== 'none');
+      const tops = visibleTools.map((c) => Math.round(c.getBoundingClientRect().top));
+      // The tools take two lines here; the bar itself never wraps.
+      expect(new Set(tops).size).toBeGreaterThan(1);
+      expect(getComputedStyle(bar).flexWrap).toBe('nowrap');
+      const a = action.getBoundingClientRect();
+      const b = bar.getBoundingClientRect();
+      expect(Math.round(a.top)).toBe(Math.round(b.top));
+      expect(Math.round(a.right)).toBe(Math.round(b.right));
+      // The second line of the tools starts below the action: it does not go down with them.
+      expect(a.bottom).toBeLessThanOrEqual(Math.max(...tops));
+      expect(bar.scrollWidth).toBeLessThanOrEqual(bar.clientWidth);
       cleanup();
     }
   });
@@ -235,14 +286,6 @@ const CATEGORIES = [
   { value: 'paid', label: 'Pago' },
   { value: 'pending', label: 'Pendente' },
 ];
-
-function GearIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <circle cx="12" cy="12" r="3" />
-    </svg>
-  );
-}
 
 /** Figma "exemplo · Produtos · 390": the search, the Categoria filter and an outline IconButton as the action. */
 function Produtos({ category = '', multiple = false, active = 0 }: { category?: string; multiple?: boolean; active?: number }) {
