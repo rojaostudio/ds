@@ -51,7 +51,7 @@ jobs:
       # so o `ds` — o build dele importa `@rojaostudio/ds-core/tokens`, que aponta pro dist que
       # ainda nao existe. O turbo respeita o `dependsOn: ["^build"]` e resolve a ordem.
       - name: Build design system
-        run: pnpm exec turbo run build --filter=@rojaostudio/ds --filter=@rojaostudio/ds-core
+        run: pnpm exec turbo run build --filter=@rojaostudio/ds --filter=@rojaostudio/ds-core --filter=rojao-ds
 
       # Abre/atualiza o PR "Version Packages" quando ha changesets pendentes. Quando esse PR
       # e mergeado (sem changesets pendentes), publica no npmjs via `pnpm release`, por OIDC.

@@ -1,0 +1,61 @@
+{
+  "name": "rojao-ds",
+  "version": "0.1.0-next.0",
+  "description": "CLI do Rojão DS — `npx rojao-ds init` gera o tema da sua marca e o arquivo de regras para a IA (CLAUDE.md, .cursorrules, AGENTS.md).",
+  "license": "MIT",
+  "author": "Rojão Studio (https://rojao.studio)",
+  "homepage": "https://ds.rojao.ai",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rojaostudio/ds.git",
+    "directory": "packages/cli"
+  },
+  "bugs": {
+    "url": "https://github.com/rojaostudio/ds/issues"
+  },
+  "keywords": [
+    "design-system",
+    "theme-generator",
+    "cli",
+    "claude",
+    "cursor",
+    "agents",
+    "css-variables"
+  ],
+  "type": "module",
+  "bin": {
+    "rojao-ds": "./dist/cli.js"
+  },
+  "files": [
+    "LICENSE",
+    "README.md",
+    "dist"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsup",
+    "prepack": "tsup",
+    "prepublishOnly": "node ../../scripts/guard-publisher.mjs",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "@rojaostudio/ds-core": "workspace:*"
+  },
+  "devDependencies": {
+    "@rojao/config": "workspace:*",
+    "@types/node": "^20.19.43",
+    "eslint": "^9.18.0",
+    "tsup": "^8.5.1",
+    "typescript": "^5",
+    "vitest": "^4.1.7"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org",
+    "access": "public",
+    "provenance": true
+  }
+}

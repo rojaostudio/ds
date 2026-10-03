@@ -4,13 +4,16 @@
   "initialVersions": {
     "@rojao/config": "0.0.0",
     "@rojaostudio/ds": "1.0.2",
-    "@rojaostudio/ds-core": "1.0.0"
+    "@rojaostudio/ds-core": "1.0.0",
+    "rojao-ds": "0.0.0"
   },
   "changesets": [
     "barril-sem-peers",
     "button-size",
     "chart-dates-links",
     "chart-tabela-oculta",
+    "claude-md-2-0",
+    "cli-init",
     "ds-2-0",
     "field-autofill",
     "rds-brand-table",
