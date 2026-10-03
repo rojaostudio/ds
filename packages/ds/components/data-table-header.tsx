@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, type ComponentPropsWithRef, type ReactElement, type ReactNode } from 'react';
+import { Badge } from './badge';
 import { Button } from './button';
 import { Chip } from './chip';
 import { Drawer } from './drawer';
@@ -47,12 +48,12 @@ export type DataTableHeaderProps = {
   onClear?: () => void;
   /**
    * A view control after the filters and before the actions (Figma: `showView` + the `view` slot), such as a
-   * Checkbox "Agrupar por produto". In view on a narrow screen too.
+   * Checkbox "Agrupar por produto". In view in the compact arrangement too.
    */
   view?: ReactNode;
   actions?: ReactNode;
   className?: string;
-  /** On a narrow screen, moves the filters and the actions into a Drawer. The quick filters stay in view. */
+  /** In the compact arrangement (bar below 1024), moves the filters and the actions into a Drawer. The quick filters stay in view. */
   mobileCollapse?: boolean;
 };
 
@@ -70,7 +71,7 @@ function FilterTrigger({ filter, ...rest }: { filter: DataTableFilterDef } & Omi
   );
 }
 
-/** One filter as a DropdownMenu of radio items (one filter on a wide screen). */
+/** One filter as a DropdownMenu of radio items (one filter, expanded). */
 export function FilterDropdown({ f, placement = 'bottom-start' }: { f: DataTableFilterDef; placement?: 'bottom-start' | 'bottom-end' }) {
   return (
     <DropdownMenu align={placement === 'bottom-end' ? 'end' : 'start'} aria-label={f.label} trigger={<FilterTrigger filter={f} />}>
@@ -178,12 +179,64 @@ function FiltersPopover({
   );
 }
 
-/** One filter on a narrow screen: its trigger opens a Drawer with the options (never a popover on a phone). */
+/**
+ * The filter in the compact arrangement (Figma: `filter trigger`): an outline IconButton of 44 with the sliders, with
+ * its Tooltip (the label). While a filter is on, a dot (one filter) or a neutral Badge with how many (several) sits on
+ * its corner, aria-hidden: the state goes in the accessible name ("Categoria, Pago", "Filtros, 3 ativos"). Any other
+ * prop and the ref go to the IconButton, so it can be the trigger of the Popover.
+ */
+function CompactFilterTrigger({
+  label,
+  state,
+  indicator,
+  ...rest
+}: {
+  /** The filter's name, also the Tooltip ("Categoria", "Filtros"). */
+  label: string;
+  /** What is on, appended to the name; nothing when no filter is on. */
+  state?: string;
+  /** `'dot'` (one filter on), a number (several filters, how many are on) or nothing. */
+  indicator?: 'dot' | number;
+} & Omit<ComponentPropsWithRef<'button'>, 'children'>) {
+  return (
+    <span className="rds-data-table-header__trigger">
+      <Tooltip text={label}>
+        <IconButton
+          {...rest}
+          icon={<SlidersIcon />}
+          label={state ? `${label}, ${state}` : label}
+          variant="outline"
+          tone="neutral"
+          size="md"
+          data-filter-toggle=""
+        />
+      </Tooltip>
+      {indicator === 'dot' && <span className="rds-data-table-header__dot" aria-hidden="true" />}
+      {typeof indicator === 'number' && (
+        <Badge className="rds-data-table-header__count" tone="neutral" value={indicator} aria-hidden="true" />
+      )}
+    </span>
+  );
+}
+
+/** "3 ativos", "1 ativo": the state of "Filtros" in its accessible name. */
+function activeState(count: number) {
+  if (count === 0) return undefined;
+  return count === 1 ? '1 ativo' : `${count} ativos`;
+}
+
+/** One filter in the compact arrangement: its IconButton opens a Drawer with the options (never a popover on a phone). */
 function MobileSingleFilter({ f }: { f: DataTableFilterDef }) {
   const [open, setOpen] = useState(false);
+  const on = f.value !== '';
   return (
     <>
-      <FilterTrigger filter={f} onClick={() => setOpen(true)} />
+      <CompactFilterTrigger
+        label={f.label}
+        state={on ? optionLabel(f) : undefined}
+        indicator={on ? 'dot' : undefined}
+        onClick={() => setOpen(true)}
+      />
       <Drawer open={open} onOpenChange={setOpen} title={f.label}>
         <FilterGroups
           filters={[f]}
@@ -203,8 +256,13 @@ function MobileSingleFilter({ f }: { f: DataTableFilterDef }) {
  * the Drawer: the bar above a table. The search is always on the left and takes the free width (at least 320); the
  * filters are always on the right; what does not fit wraps. Quick filters go in the `quickFilters` slot; one filter
  * is a dropdown, two or more collapse into "Filtros" (the active ones stay in view as removable Chips); the `view`
- * control comes after the filters, before the actions. From 768 the wide layout shows; below it, the filters open
- * in a Drawer or a Popover. "Filtros · N" counts the active `filters`, the ones that button opens.
+ * control comes after the filters, before the actions. "Filtros · N" counts the active `filters`, the ones that
+ * button opens.
+ *
+ * Two arrangements, by the bar's own width (a size container, as the Figma's viewport mode; the SavingBar's cut):
+ * expanded from 1024, the Separator and the Buttons with their labels; compact below it, the search accepts 200 and
+ * the filter is an outline IconButton (sliders, 44) with a dot (one filter on) or a counter (several), opening the
+ * same Drawer or Popover. There is no screen prop.
  * Styles: data-table-header.css.
  */
 export function DataTableHeader({
@@ -221,10 +279,10 @@ export function DataTableHeader({
 
   // The count says how many of the filters behind "Filtros" are on; the quick filters show their own state in view.
   const activeFilterCount = filters.filter((f) => f.value !== '').length;
-  // Two or more filters collapse into "Filtros" on a wide screen; the active ones stay in view as Chips.
+  // Two or more filters collapse into "Filtros" when expanded; the active ones stay in view as Chips.
   const collapseDesktop = filters.length >= 2;
   const activeFilters = filters.filter((f) => f.value !== '');
-  // One filter is a direct dropdown on a narrow screen too.
+  // One filter has its own trigger in the compact arrangement too (a Drawer with its options).
   const singleFilter = filters.length === 1 ? filters[0] : null;
   const lead = Boolean(search || quickFilters);
 
@@ -287,14 +345,25 @@ export function DataTableHeader({
             filters={filters}
             onClear={onClear}
             showClear={activeFilterCount > 0}
-            trigger={<FiltersButton count={activeFilterCount} />}
+            trigger={
+              <CompactFilterTrigger
+                label="Filtros"
+                state={activeState(activeFilterCount)}
+                indicator={activeFilterCount > 0 ? activeFilterCount : undefined}
+              />
+            }
           />
         </div>
       )}
 
       {mobileCollapse && (filters.length >= 2 || actions) && (
         <div className="rds-data-table-header__narrow">
-          <FiltersButton count={activeFilterCount} onClick={() => setSheetOpen(true)} />
+          <CompactFilterTrigger
+            label="Filtros"
+            state={activeState(activeFilterCount)}
+            indicator={activeFilterCount === 0 ? undefined : filters.length === 1 ? 'dot' : activeFilterCount}
+            onClick={() => setSheetOpen(true)}
+          />
           <Drawer open={sheetOpen} onOpenChange={setSheetOpen} title="Filtros">
             <div className="rds-data-table-header__groups">
               <FilterGroups
@@ -321,7 +390,7 @@ export function DataTableHeader({
 
       {view && <div className="rds-data-table-header__view">{view}</div>}
 
-      {/* The actions: always on a wide screen; on a narrow one only without mobileCollapse (else in the Drawer). */}
+      {/* The actions: always when expanded; when compact only without mobileCollapse (else in the Drawer). */}
       {actions && <div className={mobileCollapse ? 'rds-data-table-header__wide' : 'rds-data-table-header__actions'}>{actions}</div>}
     </div>
   );

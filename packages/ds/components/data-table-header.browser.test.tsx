@@ -1,10 +1,13 @@
 import { useState } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
+import { Badge } from './badge';
 import { Button } from './button';
 import { Checkbox } from './checkbox';
 import { DataTableHeader, type DataTableFilterDef } from './data-table-header';
 import { FilterChip, FilterChipGroup } from './filter-chip';
+import { IconButton } from './icon-button';
+import { Tooltip } from './tooltip';
 import { MODES, axeViolations, cleanup, render, settle } from './__tests__/render';
 
 afterEach(cleanup);
@@ -150,7 +153,7 @@ describe('DataTableHeader behaviour', () => {
     expect(el.querySelector('.rds-data-table-header__wide [data-filter-toggle]')!.textContent).toBe('Filtros · 2');
   });
 
-  it('on a narrow screen the wide parts hide; mobileCollapse puts the filters and the actions in a Drawer', async () => {
+  it('compact, the wide parts hide; mobileCollapse puts the filters and the actions in a Drawer', async () => {
     await page.viewport(390, 800);
     const el = await render(<Example two mobileCollapse />);
     expect(getComputedStyle(el.querySelector('.rds-data-table-header__wide')!).display).toBe('none');
@@ -161,11 +164,11 @@ describe('DataTableHeader behaviour', () => {
     expect([...drawer.querySelectorAll('button')].some((b) => b.textContent === 'Novo pedido')).toBe(true);
   });
 
-  it('at 796 wide, the Figma case (two quick filters, two filters on): "Filtros · 2" counts what it opens; the search keeps 320', async () => {
+  it('expanded (a bar of 1100), the Figma case (two quick filters, two filters on): "Filtros · 2" counts what it opens; the search keeps 320', async () => {
     await page.viewport(1280, 800);
     const noop = () => {};
     const el = await render(
-      <div style={{ width: 796 }}>
+      <div style={{ width: 1100 }}>
         <DataTableHeader
           search={{ value: 'Maria', onChange: noop, placeholder: 'Buscar pedidos…' }}
           quickFilters={
@@ -224,5 +227,192 @@ describe('DataTableHeader behaviour', () => {
       expect(viewEl.textContent).toContain('Agrupar por produto');
       cleanup();
     }
+  });
+});
+
+const CATEGORIES = [
+  { value: '', label: 'Todas' },
+  { value: 'paid', label: 'Pago' },
+  { value: 'pending', label: 'Pendente' },
+];
+
+function GearIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+}
+
+/** Figma "exemplo · Produtos · 390": the search, the Categoria filter and an outline IconButton as the action. */
+function Produtos({ category = '', multiple = false, active = 0 }: { category?: string; multiple?: boolean; active?: number }) {
+  const [value, setValue] = useState(category);
+  const noop = () => {};
+  const filters: DataTableFilterDef[] = multiple
+    ? [
+        { key: 'status', label: 'Status', value: active > 0 ? 'paid' : '', options: CATEGORIES, onChange: noop },
+        { key: 'method', label: 'Forma', value: active > 1 ? 'pix' : '', options: [{ value: '', label: 'Todas' }, { value: 'pix', label: 'Pix' }], onChange: noop },
+        { key: 'channel', label: 'Canal', value: active > 2 ? 'site' : '', options: CHANNEL, onChange: noop },
+      ]
+    : [{ key: 'category', label: 'Categoria', value, options: CATEGORIES, onChange: setValue }];
+  return (
+    <DataTableHeader
+      search={{ value: '', onChange: noop, placeholder: 'Buscar produtos…' }}
+      filters={filters}
+      onClear={noop}
+      actions={
+        <Tooltip text="Organizar categorias">
+          <IconButton icon={<GearIcon />} label="Organizar categorias" variant="outline" tone="neutral" />
+        </Tooltip>
+      }
+    />
+  );
+}
+
+const visible = (node: Element) => getComputedStyle(node).display !== 'none';
+const compactToggle = (el: HTMLElement) => el.querySelector<HTMLButtonElement>('.rds-data-table-header__narrow [data-filter-toggle]')!;
+
+describe.each(MODES)('DataTableHeader compact (%s)', (mode) => {
+  it('at 390, with the dot (one filter on) and the counter (several), passes axe', async () => {
+    await page.viewport(390, 800);
+    const el = await render(
+      <div>
+        <Produtos category="paid" />
+        <Produtos multiple active={3} />
+      </div>,
+      mode,
+    );
+    expect(await axeViolations(el)).toEqual([]);
+  });
+
+  it('the compact Filtros popover passes axe', async () => {
+    await page.viewport(390, 800);
+    const el = await render(<Produtos multiple active={2} />, mode);
+    await userEvent.click(compactToggle(el));
+    await settle();
+    expect(outsideRegion(await axeViolations(document.body))).toEqual([]);
+  });
+});
+
+describe('DataTableHeader compact (bar below 1024)', () => {
+  it('at 390: the search, the filter IconButton and the action IconButton on one line, 44 tall; the search accepts 200', async () => {
+    await page.viewport(390, 800);
+    const el = await render(<Produtos />);
+    const bar = el.querySelector<HTMLElement>('.rds-data-table-header')!;
+    const search = bar.querySelector<HTMLElement>('.rds-data-table-header__search')!;
+    const toggle = compactToggle(el);
+    const action = bar.querySelector<HTMLElement>('[aria-label="Organizar categorias"]')!;
+    expect(getComputedStyle(search).minWidth).toBe('min(200px, 100%)');
+    expect(search.getBoundingClientRect().width).toBeGreaterThanOrEqual(200);
+    const tops = [search, toggle, action].map((n) => n.getBoundingClientRect().top);
+    expect(new Set(tops).size).toBe(1);
+    expect(bar.getBoundingClientRect().height).toBe(44);
+    // The IconButton is outline, neutral, 44 × 44 (the target); the labelled Button and the Separator are hidden.
+    expect(toggle.className).toContain('rds-button--outline');
+    const box = toggle.getBoundingClientRect();
+    expect([box.width, box.height]).toEqual([44, 44]);
+    expect(visible(bar.querySelector('.rds-data-table-header__wide')!)).toBe(false);
+    expect(bar.scrollWidth).toBeLessThanOrEqual(bar.clientWidth);
+  });
+
+  it('the arrangement follows the bar, not the screen: a bar of 600 on a 1280 screen is compact', async () => {
+    await page.viewport(1280, 800);
+    const el = await render(
+      <div style={{ width: 600 }}>
+        <Produtos />
+      </div>,
+    );
+    expect(visible(el.querySelector('.rds-data-table-header__wide')!)).toBe(false);
+    expect(visible(el.querySelector('.rds-data-table-header__narrow')!)).toBe(true);
+  });
+
+  it('one filter: no dot while "Todas"; on, a dot (aria-hidden, the Badge neutral colour) and the name with the state', async () => {
+    await page.viewport(390, 800);
+    const el = await render(
+      <div>
+        <Produtos />
+        <Badge tone="neutral" value={1} data-ref="" />
+      </div>,
+    );
+    const toggle = compactToggle(el);
+    expect(toggle.getAttribute('aria-label')).toBe('Categoria');
+    expect(el.querySelector('.rds-data-table-header__dot')).toBeNull();
+    await userEvent.click(toggle);
+    await settle();
+    // The same options as before: a Drawer (never a popover on a phone) with the Categoria group.
+    const drawer = document.querySelector<HTMLElement>('[role="dialog"]')!;
+    await userEvent.click(
+      [...drawer.querySelectorAll<HTMLElement>('[role="group"][aria-label="Categoria"] .rds-filter-chip')].find((c) => c.textContent?.startsWith('Pago'))!,
+    );
+    await vi.waitFor(() => expect(compactToggle(el).getAttribute('aria-label')).toBe('Categoria, Pago'));
+    const dot = el.querySelector<HTMLElement>('.rds-data-table-header__dot')!;
+    expect(dot.getAttribute('aria-hidden')).toBe('true');
+    expect(getComputedStyle(dot).backgroundColor).toBe(getComputedStyle(el.querySelector('[data-ref]')!).backgroundColor);
+    const d = dot.getBoundingClientRect();
+    const t = compactToggle(el).getBoundingClientRect();
+    expect([d.width, d.height, t.right - d.right, d.top - t.top]).toEqual([8, 8, 6, 6]);
+    expect(el.querySelector('.rds-data-table-header__narrow .rds-badge')).toBeNull();
+  });
+
+  it('several filters: the counter is a neutral number Badge, aria-hidden; the name says how many ("Filtros, 3 ativos")', async () => {
+    await page.viewport(390, 800);
+    for (const [active, name] of [
+      [0, 'Filtros'],
+      [1, 'Filtros, 1 ativo'],
+      [3, 'Filtros, 3 ativos'],
+    ] as const) {
+      const el = await render(<Produtos multiple active={active} />);
+      const toggle = compactToggle(el);
+      expect(toggle.getAttribute('aria-label')).toBe(name);
+      const badge = el.querySelector<HTMLElement>('.rds-data-table-header__narrow .rds-badge');
+      if (active === 0) {
+        expect(badge).toBeNull();
+      } else {
+        expect(badge!.textContent).toBe(String(active));
+        expect(badge!.className).toContain('rds-badge--neutral-fill');
+        expect(badge!.getAttribute('aria-hidden')).toBe('true');
+      }
+      expect(el.querySelector('.rds-data-table-header__dot')).toBeNull();
+      cleanup();
+    }
+  });
+
+  it('the IconButton has its Tooltip with the label', async () => {
+    await page.viewport(390, 800);
+    const el = await render(<Produtos multiple active={2} />);
+    compactToggle(el).focus();
+    await vi.waitFor(() => expect(document.querySelector('[role="tooltip"]')?.textContent).toBe('Filtros'));
+  });
+
+  it('several filters: the IconButton opens the same Filtros popover as the labelled Button, and picking closes it', async () => {
+    await page.viewport(390, 800);
+    const el = await render(<Example two />);
+    const toggle = compactToggle(el);
+    expect(toggle.getAttribute('aria-label')).toBe('Filtros, 1 ativo');
+    await userEvent.click(toggle);
+    await settle();
+    expect(toggle.getAttribute('aria-expanded')).toBe('true');
+    const group = document.querySelector<HTMLElement>('[role="group"][aria-label="Status"]')!;
+    expect(document.querySelector('[role="group"][aria-label="Canal"]')).not.toBeNull();
+    await userEvent.click([...group.querySelectorAll<HTMLElement>('.rds-filter-chip')].find((c) => c.textContent?.startsWith('Concluídos'))!);
+    await vi.waitFor(() => expect(document.querySelector('[role="group"][aria-label="Status"]')).toBeNull());
+    expect(compactToggle(el).getAttribute('aria-label')).toBe('Filtros, 2 ativos');
+  });
+
+  it('at 1280 (expanded) the filter is the Button with its label, after the Separator; no IconButton in view', async () => {
+    await page.viewport(1280, 800);
+    const el = await render(
+      <div>
+        <Produtos category="paid" />
+        <Produtos multiple active={3} />
+      </div>,
+    );
+    const [one, several] = [...el.querySelectorAll<HTMLElement>('.rds-data-table-header')];
+    for (const bar of [one, several]) {
+      expect(visible(bar.querySelector('.rds-data-table-header__narrow')!)).toBe(false);
+      expect(bar.querySelector('.rds-data-table-header__wide [role="separator"], .rds-data-table-header__wide .rds-separator')).not.toBeNull();
+    }
+    expect(one.querySelector('.rds-data-table-header__wide .rds-button')!.textContent).toBe('Pago');
+    expect(several.querySelector('.rds-data-table-header__wide [data-filter-toggle]')!.textContent).toBe('Filtros · 3');
   });
 });
