@@ -10,10 +10,6 @@ afterEach(cleanup);
 
 const sheet = () => document.querySelector<HTMLElement>('[role="dialog"]');
 
-// The [RDS] maps sheet/title to text/heading, and Cancel and the Input's label read text/heading too: flare-700 on
-// the rojao light theme (2.9:1 on white). Kept out of the light matrix and pinned below until the Figma decides.
-const KNOWN_LIGHT = (mode: string) =>
-  mode === 'light' ? ['.rds-sheet__title', '.rds-sheet .rds-button--neutral', '.rds-field__label'] : [];
 
 function Example({ side }: { side?: SheetSide }) {
   return (
@@ -41,12 +37,12 @@ describe.each(MODES)('Sheet (%s)', (mode) => {
   it.each(['right', 'left'] as const)('open, side %s, passes axe', async (side) => {
     const el = await render(<Example side={side} />, mode);
     await open(el);
-    expect(await axeViolations(document.body, KNOWN_LIGHT(mode))).toEqual([]);
+    expect(await axeViolations(document.body)).toEqual([]);
   });
 });
 
 describe('Sheet behaviour', () => {
-  it.fails('the title, Cancel and the label on the rojao light theme pass axe (text/heading is flare-700)', async () => {
+  it('the title, Cancel and the label (→ text/heading) on the rojao light theme pass axe', async () => {
     const el = await render(<Example />, 'light');
     await open(el);
     expect(await axeViolations(document.body)).toEqual([]);

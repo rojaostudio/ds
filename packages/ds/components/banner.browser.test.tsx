@@ -8,10 +8,6 @@ import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
 afterEach(cleanup);
 
-// [RDS] maps banner/highlight to text/heading, flare on the rojao light theme (2.6:1 on surface/muted): a violation of
-// the Figma itself, pinned with it.fails below.
-const KNOWN_LIGHT = (mode: string) => (mode === 'light' ? ['.rds-banner__highlight'] : []);
-
 const block = (onClose?: () => void) => (
   <Banner highlight="Novidade:" message="Veja os produtos que chegaram esta semana." action={<Button variant="ghost">Ver produtos</Button>} onClose={onClose ?? (() => {})} />
 );
@@ -19,12 +15,12 @@ const block = (onClose?: () => void) => (
 describe.each(MODES)('Banner (%s)', (mode) => {
   it.each(WIDTHS)('in a %i container passes axe', async (width) => {
     const el = await render(<InContainer width={width}>{block()}</InContainer>, mode);
-    expect(await axeViolations(el, KNOWN_LIGHT(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 });
 
 describe('Banner behaviour', () => {
-  it.fails('the highlight (banner/highlight → text/heading) passes axe on the rojao light theme', async () => {
+  it('the highlight (banner/highlight → text/heading, navy) passes axe on the rojao light theme', async () => {
     const el = await render(<InContainer width={1024}>{block()}</InContainer>, 'light');
     expect(await axeViolations(el)).toEqual([]);
   });

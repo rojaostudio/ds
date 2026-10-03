@@ -5,9 +5,6 @@ import { MODES, axeViolations, cleanup, render, settle } from './__tests__/rende
 
 afterEach(cleanup);
 
-// The [RDS] maps hovercard/title to text/heading: flare-700 on the rojao light theme (2.9:1 on white). Kept out
-// of the light matrix and pinned below until the Figma decides.
-const KNOWN_LIGHT_TITLE = (mode: string) => (mode === 'light' ? ['.rds-hover-card__title'] : []);
 // The trigger takes Radix's ref and handlers through asChild, so it spreads its props (React 19: ref is a prop).
 const Link = (props: React.ComponentPropsWithRef<'a'>) => (
   <a {...props} href="#rojao" style={{ color: 'inherit' }}>
@@ -39,12 +36,12 @@ describe.each(MODES)('HoverCard (%s)', (mode) => {
     );
     await vi.waitFor(() => expect(card()).not.toBeNull());
     await settle();
-    expect(outsideRegion(await axeViolations(document.body, KNOWN_LIGHT_TITLE(mode)))).toEqual([]);
+    expect(outsideRegion(await axeViolations(document.body))).toEqual([]);
   });
 });
 
 describe('HoverCard behaviour', () => {
-  it.fails('the title on the rojao light theme passes axe (text/heading is flare-700)', async () => {
+  it('the title on the rojao light theme passes axe', async () => {
     await render(
       <HoverCard defaultOpen title="Rojão Studio">
         <Link />

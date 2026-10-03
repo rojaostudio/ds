@@ -7,9 +7,6 @@ import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
 afterEach(cleanup);
 
-// The [RDS] maps radiogroup/legend/color to text/heading, and the rojao light heading is flare-700 (#ff6a00,
-// 2.9:1 on white) for a 16px legend. Kept out of the light axe matrix and pinned below until the Figma decides.
-const KNOWN_LIGHT_LEGEND = (mode: string) => (mode === 'light' ? ['.rds-radio-group__legend'] : []);
 
 const plans = () => [
   <Radio key="m" value="mensal">Mensal</Radio>,
@@ -34,12 +31,12 @@ describe.each(MODES)('RadioGroup (%s)', (mode) => {
       </div>,
       mode,
     );
-    expect(await axeViolations(el, KNOWN_LIGHT_LEGEND(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 });
 
 describe('RadioGroup behaviour', () => {
-  it.fails('the legend on the rojao light theme passes axe (text/heading is flare-700)', async () => {
+  it('the legend (radiogroup/legend/color → text/heading) passes axe on the rojao light theme', async () => {
     const el = await render(<RadioGroup legend="Plano">{plans()}</RadioGroup>, 'light');
     expect(await axeViolations(el)).toEqual([]);
   });

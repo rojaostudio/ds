@@ -5,9 +5,6 @@ import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
 afterEach(cleanup);
 
-// [RDS] maps breadcrumb/label/current to text/heading, flare on the rojao light theme (2.9:1 on white): a violation of
-// the Figma itself, as in item.browser.test.tsx. Kept out of the light matrix below and pinned with it.fails.
-
 const PATH: BreadcrumbItem[] = [
   { label: 'Início', href: '#/' },
   { label: 'Produtos', href: '#/produtos' },
@@ -34,13 +31,12 @@ describe.each(MODES)('Breadcrumb (%s)', (mode) => {
       </div>,
       mode,
     );
-    const exclude = mode === 'light' ? ['.rds-breadcrumb:not(.rds-breadcrumb--inverse) .rds-breadcrumb__link--current'] : [];
-    expect(await axeViolations(el, exclude)).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 });
 
 describe('Breadcrumb behaviour', () => {
-  it.fails('the current step (breadcrumb/label/current → text/heading) passes axe on the rojao light theme', async () => {
+  it('the current step (breadcrumb/label/current → text/heading, navy) passes axe on the rojao light theme', async () => {
     const el = await render(<Breadcrumb items={PATH} />, 'light');
     expect(await axeViolations(el)).toEqual([]);
   });

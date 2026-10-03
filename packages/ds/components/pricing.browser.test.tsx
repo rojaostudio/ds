@@ -8,10 +8,6 @@ import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
 afterEach(cleanup);
 
-// [RDS] maps pricing/title to text/heading, flare on the rojao light theme (2.9:1 on white): a violation of the
-// Figma itself (the same as every Block), pinned with it.fails below.
-const KNOWN_LIGHT = (mode: string) => (mode === 'light' ? ['.rds-block__title'] : []);
-
 const FEATURES = ['Produtos ilimitados', 'Controle de estoque', 'Pedidos pelo WhatsApp', 'Relatórios de venda', 'Suporte por e-mail'];
 
 const block = (
@@ -35,12 +31,12 @@ const tops = (el: HTMLElement) => [...el.querySelectorAll('.rds-pricing-plan')].
 describe.each(MODES)('Pricing (%s)', (mode) => {
   it.each(WIDTHS)('in a %i container passes axe', async (width) => {
     const el = await render(<InContainer width={width}>{block}</InContainer>, mode);
-    expect(await axeViolations(el, KNOWN_LIGHT(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 });
 
 describe('Pricing behaviour', () => {
-  it.fails('the title (pricing/title → text/heading) passes axe on the rojao light theme', async () => {
+  it('the title (pricing/title → text/heading) passes axe on the rojao light theme', async () => {
     const el = await render(<InContainer width={1024}>{block}</InContainer>, 'light');
     expect(await axeViolations(el)).toEqual([]);
   });

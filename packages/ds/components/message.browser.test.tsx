@@ -8,10 +8,6 @@ import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
 afterEach(cleanup);
 
-// [RDS] maps message/name to text/heading, flare on the rojao light theme (2.9:1 on white): a violation of the Figma
-// itself, pinned with it.fails below.
-const KNOWN_LIGHT_NAME = (mode: string) => (mode === 'light' ? ['.rds-message__name'] : []);
-
 const conversation = (
   <div style={{ width: 560, display: 'flex', flexDirection: 'column', gap: 16 }}>
     <Message
@@ -42,12 +38,12 @@ const conversation = (
 describe.each(MODES)('Message (%s)', (mode) => {
   it('start and end, with and without header, avatar and footer, pass axe', async () => {
     const el = await render(conversation, mode);
-    expect(await axeViolations(el, KNOWN_LIGHT_NAME(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 });
 
 describe('Message behaviour', () => {
-  it.fails('the name (message/name → text/heading) passes axe on the rojao light theme', async () => {
+  it('the name (message/name → text/heading) passes axe on the rojao light theme', async () => {
     const el = await render(conversation, 'light');
     expect(await axeViolations(el)).toEqual([]);
   });

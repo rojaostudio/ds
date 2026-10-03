@@ -8,9 +8,6 @@ import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
 afterEach(cleanup);
 
-// [RDS] maps the neutral outline and ghost Button labels to text/heading, flare on the rojao light theme (2.9:1 on
-// white): a violation of the Figma itself (button.browser.test.tsx), pinned with it.fails below.
-const KNOWN_LIGHT = (mode: string) => (mode === 'light' ? ['.rds-topnav .rds-button--neutral'] : []);
 
 // The logo comes by slot: the design system carries no client logo. A plain text mark stands in for it here.
 const bar = (props: { defaultOpen?: boolean } = {}) => (
@@ -51,12 +48,12 @@ describe.each(MODES)('TopNavigation (%s)', (mode) => {
     [360, true],
   ] as const)('in a %i container (open: %s), at the top level, passes axe', async (width, open) => {
     const el = await render(<InContainer width={width}>{bar({ defaultOpen: open })}</InContainer>, mode, { host: 'div' });
-    expect(await axeViolations(el, KNOWN_LIGHT(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 });
 
 describe('TopNavigation behaviour', () => {
-  it.fails('the neutral links and Entrar (→ text/heading) pass axe on the rojao light theme', async () => {
+  it('the neutral links and Entrar (→ text/heading) pass axe on the rojao light theme', async () => {
     const el = await render(<InContainer width={1024}>{bar()}</InContainer>, 'light', { host: 'div' });
     expect(await axeViolations(el)).toEqual([]);
   });

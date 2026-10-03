@@ -7,9 +7,6 @@ import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
 afterEach(cleanup);
 
-// [RDS] maps tabs/label/selected to text/heading, which on the rojao light theme is flare (#ff6a00, 2.9:1 on white): a
-// violation of the Figma itself, as in item.browser.test.tsx. Kept out of the light matrix and pinned with it.fails.
-const KNOWN_LIGHT_SELECTED = (mode: string) => (mode === 'light' ? ['.rds-tabs__tab[data-state="active"]'] : []);
 
 function Example({ onValueChange }: { onValueChange?: (value: string) => void }) {
   return (
@@ -39,12 +36,12 @@ function Example({ onValueChange }: { onValueChange?: (value: string) => void })
 describe.each(MODES)('Tabs (%s)', (mode) => {
   it('count, dot, "em breve", disabled and the trailing slot pass axe', async () => {
     const el = await render(<Example />, mode);
-    expect(await axeViolations(el, KNOWN_LIGHT_SELECTED(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 });
 
 describe('Tabs behaviour', () => {
-  it.fails('the selected label (tabs/label/selected → text/heading) passes axe on the rojao light theme', async () => {
+  it('the selected label (tabs/label/selected → text/heading) passes axe on the rojao light theme', async () => {
     const el = await render(<Example />, 'light');
     expect(await axeViolations(el)).toEqual([]);
   });

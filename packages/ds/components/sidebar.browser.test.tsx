@@ -7,12 +7,10 @@ import { MODES, axeViolations, cleanup, render, settle } from './__tests__/rende
 
 afterEach(cleanup);
 
-// [RDS] maps sidebar/module to text/heading, flare on the rojao light theme (2.9:1 on white): a violation of the Figma
-// itself, as in item.browser.test.tsx. Kept out of the light matrix and pinned with it.fails.
 // In dark, sidebar/item/label/active (colors/primary/default) over sidebar/item/background/active (surface/tint/default)
-// measures 3.36:1 on the rojao theme: also the Figma's. Pinned the same way.
-const KNOWN = (mode: string) =>
-  mode === 'light' ? ['.rds-sidebar:not(.rds-sidebar--dark) .rds-sidebar__module'] : ['.rds-sidebar__item[aria-current="page"]'];
+// measures 3.36:1 on the rojao theme: a violation of the Figma itself. Kept out of the dark matrix and pinned with
+// it.fails below.
+const KNOWN = (mode: string) => (mode === 'light' ? [] : ['.rds-sidebar__item[aria-current="page"]']);
 
 function Example(props: Partial<SidebarProps>) {
   return (
@@ -52,7 +50,7 @@ describe.each(MODES)('Sidebar (%s)', (mode) => {
 });
 
 describe('Sidebar behaviour', () => {
-  it.fails('the module (sidebar/module → text/heading) passes axe on the rojao light theme', async () => {
+  it('the module (sidebar/module → text/heading) passes axe on the rojao light theme', async () => {
     const el = await render(<Example />, 'light');
     expect(await axeViolations(el)).toEqual([]);
   });

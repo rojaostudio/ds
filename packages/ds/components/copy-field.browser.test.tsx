@@ -7,10 +7,6 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-// The neutral outline Button's label is text/heading, flare-700 on the rojao light theme (2.9:1): a violation of the
-// Figma itself, pinned with it.fails in button.browser.test.tsx.
-const KNOWN_LIGHT = (mode: string) => (mode === 'light' ? ['.rds-button--neutral'] : []);
-
 function stubClipboard() {
   const writeText = vi.fn().mockResolvedValue(undefined);
   vi.spyOn(navigator, 'clipboard', 'get').mockReturnValue({ writeText } as unknown as Clipboard);
@@ -26,7 +22,7 @@ describe.each(MODES)('CopyField (%s)', (mode) => {
       </div>,
       mode,
     );
-    expect(await axeViolations(el, KNOWN_LIGHT(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 });
 

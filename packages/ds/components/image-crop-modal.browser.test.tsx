@@ -5,11 +5,9 @@ import { MODES, axeViolations, cleanup, render, settle } from './__tests__/rende
 
 afterEach(cleanup);
 
-// The Dialog's title and the neutral ghost Cancelar are text/heading, flare-700 on the rojao light theme: pinned with
-// it.fails in dialog.browser.test.tsx. The dialog is portalled out of <main>: the landmark rule does not apply to it.
-// The pressed Toggle on the rojao dark theme is the same kind of finding, pinned in toggle.browser.test.tsx.
-const KNOWN = (mode: string) =>
-  mode === 'light' ? ['.rds-dialog__title', '.rds-dialog .rds-button--neutral'] : ['.rds-image-crop__presets [data-state="on"]'];
+// The dialog is portalled out of <main>: the landmark rule does not apply to it. The pressed Toggle on the rojao dark
+// theme is a violation of the Figma, pinned in toggle.browser.test.tsx.
+const KNOWN = (mode: string) => (mode === 'light' ? [] : ['.rds-image-crop__presets [data-state="on"]']);
 const outsideRegion = (lines: string[]) => lines.filter((line) => !line.startsWith('region:'));
 
 async function photo(width = 320, height = 200): Promise<File> {

@@ -5,10 +5,6 @@ import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
 afterEach(cleanup);
 
-// The [RDS] maps input/label/color (the PasswordInput is an Input) to text/heading, and the rojao light heading is flare-700 (#ff6a00, 2.9:1
-// on white) for a 14px label. Kept out of the light axe matrix and pinned below until the Figma decides.
-const KNOWN_LIGHT_LABEL = (mode: string) => (mode === 'light' ? ['.rds-field__label'] : []);
-
 const announcer = () => document.querySelector('[data-rds-announcer]')?.textContent;
 
 describe.each(MODES)('PasswordInput (%s)', (mode) => {
@@ -27,12 +23,12 @@ describe.each(MODES)('PasswordInput (%s)', (mode) => {
       </div>,
       mode,
     );
-    expect(await axeViolations(el, KNOWN_LIGHT_LABEL(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 });
 
 describe('PasswordInput behaviour', () => {
-  it.fails('the top label on the rojao light theme passes axe (text/heading is flare-700)', async () => {
+  it('the top label on the rojao light theme passes axe', async () => {
     const el = await render(<PasswordInput label="Senha" />, 'light');
     expect(await axeViolations(el)).toEqual([]);
   });

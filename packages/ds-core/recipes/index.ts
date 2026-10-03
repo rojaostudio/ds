@@ -14,13 +14,17 @@
  */
 import type { BrandDef } from "../tokens/recipe.schema";
 
-/** rojao — navy + flare accent on zinc, Inter. The `rojao` brand of the Figma [RDS] (2.0). */
+/**
+ * rojao — navy + flare accent on zinc, Inter. The `rojao` brand of the Figma [RDS] (2.0).
+ * text/heading is the primary (navy) on light, as in the [RDS] base collection: the logo pairs are navy and
+ * orange, white and orange. The orange title is the Heading's tone=accent, not the default.
+ */
 export const rojao: BrandDef = {
   name: "rojao",
   description: "Brand Rojão. Navy + flare accent on zinc, Inter (Figma [RDS], brand rojao).",
   brand: {
     primary: "navy-900", secondary: "navy-900",
-    accent: "flare-700", heading: "flare-700",
+    accent: "flare-700",
   },
   surface: "zinc", text: "zinc",
   fonts: { body: "inter", display: "inter" },

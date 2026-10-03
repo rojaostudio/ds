@@ -11,10 +11,6 @@ import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
 afterEach(cleanup);
 
-// [RDS] maps contact/title (and the fields' labels) to text/heading, flare on the rojao light theme (2.9:1 on white):
-// a violation of the Figma itself, pinned with it.fails below, as in input.browser.test.tsx.
-const KNOWN_LIGHT = (mode: string) => (mode === 'light' ? ['.rds-block__title', '.rds-field__label'] : []);
-
 const block = (onSubmit: (data: FormData) => void = () => {}) => (
   <Contact eyebrow="Contato" title="Fale com a gente" description="Conte o que você precisa. Respondemos por e-mail." onSubmit={onSubmit}>
     <Input label="Nome" name="name" />
@@ -28,12 +24,12 @@ const block = (onSubmit: (data: FormData) => void = () => {}) => (
 describe.each(MODES)('Contact (%s)', (mode) => {
   it.each(WIDTHS)('in a %i container passes axe', async (width) => {
     const el = await render(<InContainer width={width}>{block()}</InContainer>, mode);
-    expect(await axeViolations(el, KNOWN_LIGHT(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 });
 
 describe('Contact behaviour', () => {
-  it.fails('the title (contact/title → text/heading) passes axe on the rojao light theme', async () => {
+  it('the title (contact/title → text/heading) passes axe on the rojao light theme', async () => {
     const el = await render(<InContainer width={1024}>{block()}</InContainer>, 'light');
     expect(await axeViolations(el)).toEqual([]);
   });

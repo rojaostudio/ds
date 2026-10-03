@@ -7,10 +7,6 @@ import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
 afterEach(cleanup);
 
-// [RDS] maps newsletter/title to text/heading, flare on the rojao light theme (2.9:1 on white): a violation of the
-// Figma itself, pinned with it.fails below.
-const KNOWN_LIGHT = (mode: string) => (mode === 'light' ? ['.rds-block__title'] : []);
-
 const block = (onSubscribe: (email: string) => void = () => {}) => (
   <Newsletter
     title="Novidades no seu e-mail"
@@ -23,15 +19,15 @@ const block = (onSubscribe: (email: string) => void = () => {}) => (
 describe.each(MODES)('Newsletter (%s)', (mode) => {
   it.each(WIDTHS)('in a %i container passes axe, also with the error', async (width) => {
     const el = await render(<InContainer width={width}>{block()}</InContainer>, mode);
-    expect(await axeViolations(el, KNOWN_LIGHT(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
     await act(async () => el.querySelector<HTMLButtonElement>('button[type="submit"]')!.click());
     expect(el.querySelector('[aria-invalid="true"]')).not.toBeNull();
-    expect(await axeViolations(el, KNOWN_LIGHT(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 });
 
 describe('Newsletter behaviour', () => {
-  it.fails('the title (newsletter/title → text/heading) passes axe on the rojao light theme', async () => {
+  it('the title (newsletter/title → text/heading) passes axe on the rojao light theme', async () => {
     const el = await render(<InContainer width={1024}>{block()}</InContainer>, 'light');
     expect(await axeViolations(el)).toEqual([]);
   });

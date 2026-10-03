@@ -13,7 +13,7 @@ const themeTxt = readFileSync(join(__dirname, "../../figma/theme.txt"), "utf8")
 // The Rojão brand as drawn in the [RDS] base collection (mode `rojao`).
 const rojao: BrandDef = {
   name: "rojao",
-  brand: { primary: "navy-900", secondary: "navy-900", accent: "flare-700", heading: "flare-700" },
+  brand: { primary: "navy-900", secondary: "navy-900", accent: "flare-700" },
   text: "zinc",
   fonts: { body: "inter" },
 } as BrandDef;
@@ -82,6 +82,11 @@ describe("[RDS] theme roles", () => {
     expect(t.dark["--colors-primary-default"]).toBe("#c9cdd8");
     expect(t.brand["--surface-page"]).toBe("#1b2a4a");
     expect(t.light["--text-on-primary"]).toBe("#ffffff");
+    // text/heading: navy on light (the primary, as text/heading → rojao/primary in Figma), white on dark and on
+    // the plate. The orange is the accent, kept for the Heading's tone=accent.
+    expect(t.light["--text-heading"]).toBe("#1b2a4a");
+    expect(t.dark["--text-heading"]).toBe("#fafafa");
+    expect(t.brand["--text-heading"]).toBe("#ffffff");
   });
 
   // surface/tint/subtle (issue #26): one step lighter than the default tint in light (flare/200 →

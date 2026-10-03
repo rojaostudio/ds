@@ -34,18 +34,13 @@ const Plate = ({ children }: { children: React.ReactNode }) => (
   </div>
 );
 
-// The [RDS] maps the neutral outline/ghost label to text/heading, and the rojao heading is flare-700
-// (2.9:1 on white). Kept out of the axe matrix and pinned below until the Figma decides.
-const KNOWN_LIGHT = (tone: ButtonTone, variant: ButtonVariant, mode: string) =>
-  mode === 'light' && tone === 'neutral' && variant !== 'fill';
-
 describe.each(MODES)('Button (%s)', (mode) => {
   it('every tone × variant × size, icon on both sides, enabled and disabled, Button and IconButton, passes axe', async () => {
     const el = await render(
       <div style={{ display: 'grid', gap: 8 }}>
         {SIZES.flatMap((size) =>
           TONES.flatMap((tone) =>
-            VARIANTS.filter((variant) => !KNOWN_LIGHT(tone, variant, mode)).map((variant) => (
+            VARIANTS.map((variant) => (
               <div key={`${size}-${tone}-${variant}`} style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                 <Button size={size} tone={tone} variant={variant}>Ver o pedido</Button>
                 <Button size={size} tone={tone} variant={variant} icon={<Arrow />}>Ver o pedido</Button>
@@ -247,7 +242,7 @@ describe('Button touch target (sm)', () => {
 });
 
 describe('Button behaviour', () => {
-  it.fails('neutral outline and ghost on the rojao light theme pass axe (heading is flare-700)', async () => {
+  it('neutral outline and ghost on the rojao light theme pass axe (text/heading is navy)', async () => {
     const el = await render(
       <div style={{ display: 'flex', gap: 8 }}>
         <Button tone="neutral" variant="outline">Ver o pedido</Button>

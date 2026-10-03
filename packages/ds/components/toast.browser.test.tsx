@@ -12,11 +12,6 @@ const TONES: ToastTone[] = ['neutral', 'info', 'success', 'warning', 'danger'];
 const VARIANTS: ToastVariant[] = ['outline', 'soft', 'fill'];
 const toasts = () => document.querySelectorAll<HTMLElement>('.rds-toast[data-state="open"]');
 
-// On outline, the [RDS] maps toast/title to text/heading, and the action is the neutral ghost Button, whose label
-// is text/heading too: flare-700 on the rojao light theme (2.9:1 on white). Kept out of the light matrix and pinned
-// below until the Figma decides, as in button.browser.test.tsx.
-const KNOWN_LIGHT_OUTLINE = (mode: string) =>
-  mode === 'light' ? ['[class*="-outline"] .rds-toast__title', '[class*="-outline"] .rds-toast__action'] : [];
 
 describe.each(MODES)('Toast (%s)', (mode) => {
   it('every tone × variant, with description, action and close, passes axe', async () => {
@@ -37,7 +32,7 @@ describe.each(MODES)('Toast (%s)', (mode) => {
       </div>,
       mode,
     );
-    expect(await axeViolations(el, KNOWN_LIGHT_OUTLINE(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 
   it('a live toast passes axe', async () => {
@@ -52,7 +47,7 @@ describe.each(MODES)('Toast (%s)', (mode) => {
 });
 
 describe('Toast behaviour', () => {
-  it.fails('the outline title and action on the rojao light theme pass axe (text/heading is flare-700)', async () => {
+  it('the outline title and action (→ text/heading) on the rojao light theme pass axe', async () => {
     const el = await render(<ToastView title="Disparo agendado" action={{ label: 'Desfazer', onClick: () => {} }} />, 'light');
     expect(await axeViolations(el)).toEqual([]);
   });

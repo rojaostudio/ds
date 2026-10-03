@@ -11,10 +11,6 @@ const percent = (v: number) => `${v}%`;
 // Intl writes "2,8 mil" with a no-break space; \s matches it, so read every space as a plain one.
 const text = (s: string | null) => (s ?? '').replace(/\s/g, ' ');
 
-// The tooltip's title and values are chart/tooltip/title → text/heading: flare on the rojao light theme (2.9:1), a
-// violation of the Figma itself. Kept out of the light run and pinned with it.fails below.
-const KNOWN_LIGHT_TOOLTIP = (mode: string) => (mode === 'light' ? ['.rds-chart__tooltip-title', '.rds-chart__tooltip-value'] : []);
-
 const line = (
   <Chart
     label="Volume e entrega nos últimos 30 dias"
@@ -81,12 +77,12 @@ describe.each(MODES)('Chart (%s)', (mode) => {
     await userEvent.keyboard('{ArrowRight}');
     await settle();
     expect(el.querySelector('[role="tooltip"]')).not.toBeNull();
-    expect(await axeViolations(el, KNOWN_LIGHT_TOOLTIP(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 });
 
 describe('Chart behaviour', () => {
-  it.fails('the tooltip (chart/tooltip/title → text/heading) passes axe on the rojao light theme', async () => {
+  it('the tooltip (chart/tooltip/title → text/heading, navy) passes axe on the rojao light theme', async () => {
     const el = await render(
       <div style={{ width: 640 }}>
         <Chart label="Volume" labels={dates} series={[{ name: 'Volume', data: [1, 2, 3, 4, 5] }]} />

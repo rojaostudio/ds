@@ -10,12 +10,6 @@ import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
 afterEach(cleanup);
 
-// [RDS] maps questionnaire/title to text/heading, flare on the rojao light theme (2.9:1 on white): a violation of
-// the Figma itself, pinned with it.fails below. The neutral ghost Buttons (Voltar, Pular) and the Input's label read
-// text/heading too, as in button.browser.test.tsx and input.browser.test.tsx.
-const KNOWN_LIGHT = (mode: string) =>
-  mode === 'light' ? ['.rds-questionnaire__title', '.rds-questionnaire__actions .rds-button--neutral', '.rds-field__label'] : [];
-
 const where = (props: Partial<Parameters<typeof Questionnaire>[0]> = {}) => (
   <Questionnaire
     step={2}
@@ -42,7 +36,7 @@ describe.each(MODES)('Questionnaire (%s)', (mode) => {
       </div>,
       mode,
     );
-    expect(await axeViolations(el, KNOWN_LIGHT(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 
   it('multiple, card and text pass axe', async () => {
@@ -62,12 +56,12 @@ describe.each(MODES)('Questionnaire (%s)', (mode) => {
       </div>,
       mode,
     );
-    expect(await axeViolations(el, KNOWN_LIGHT(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 });
 
 describe('Questionnaire behaviour', () => {
-  it.fails('the question (questionnaire/title → text/heading) passes axe on the rojao light theme', async () => {
+  it('the question (questionnaire/title → text/heading) passes axe on the rojao light theme', async () => {
     const el = await render(where(), 'light');
     expect(await axeViolations(el)).toEqual([]);
   });

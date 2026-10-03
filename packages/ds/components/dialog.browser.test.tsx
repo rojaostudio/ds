@@ -10,13 +10,6 @@ afterEach(cleanup);
 
 const dialog = () => document.querySelector<HTMLElement>('[role="dialog"]');
 
-// The [RDS] maps dialog/title to text/heading, and Cancel is the neutral outline Button, whose label is
-// text/heading too: flare-700 on the rojao light theme (2.9:1 on white). Kept out of the light matrix and pinned
-// below until the Figma decides, as in alert-dialog.browser.test.tsx. The Input's label in the content is the same
-// finding, pinned in input.browser.test.tsx.
-const KNOWN_LIGHT = (mode: string) =>
-  mode === 'light' ? ['.rds-dialog__title', '.rds-dialog .rds-button--neutral', '.rds-field__label'] : [];
-
 function Example({ size, onConfirm = () => {}, showScrim }: { size?: DialogSize; onConfirm?: () => void; showScrim?: boolean }) {
   return (
     <Dialog
@@ -45,12 +38,12 @@ describe.each(MODES)('Dialog (%s)', (mode) => {
     const el = await render(<Example size={size} />, mode);
     const d = await open(el);
     expect(d.classList).toContain(`rds-dialog--${size}`);
-    expect(await axeViolations(document.body, KNOWN_LIGHT(mode))).toEqual([]);
+    expect(await axeViolations(document.body)).toEqual([]);
   });
 });
 
 describe('Dialog behaviour', () => {
-  it.fails('the title and Cancel on the rojao light theme pass axe (text/heading is flare-700)', async () => {
+  it('the title and Cancel on the rojao light theme pass axe', async () => {
     const el = await render(<Example />, 'light');
     await open(el);
     expect(await axeViolations(document.body)).toEqual([]);

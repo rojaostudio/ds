@@ -7,10 +7,6 @@ afterEach(cleanup);
 
 const TONES: AlertTone[] = ['neutral', 'info', 'success', 'warning', 'danger'];
 
-// The action is the neutral ghost Button, whose label the [RDS] maps to text/heading: on the rojao light theme
-// that is flare-700 (2.9:1). Kept out of the light matrix and pinned below, as in button.browser.test.tsx.
-const KNOWN_LIGHT_ACTION = (mode: string) => (mode === 'light' ? ['.rds-alert__action .rds-button'] : []);
-
 describe.each(MODES)('Alert (%s)', (mode) => {
   it('every tone, with description, action and close, passes axe', async () => {
     const el = await render(
@@ -31,12 +27,12 @@ describe.each(MODES)('Alert (%s)', (mode) => {
       </div>,
       mode,
     );
-    expect(await axeViolations(el, KNOWN_LIGHT_ACTION(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 });
 
 describe('Alert behaviour', () => {
-  it.fails('the neutral ghost action on the rojao light theme passes axe (text/heading is flare-700)', async () => {
+  it('the neutral ghost action on the rojao light theme passes axe (text/heading is navy)', async () => {
     const el = await render(
       <Alert title="Seu perfil está oculto" action={<Button tone="neutral" variant="ghost">Tornar visível</Button>} />,
       'light',

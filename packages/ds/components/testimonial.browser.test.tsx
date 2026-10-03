@@ -7,9 +7,6 @@ import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
 afterEach(cleanup);
 
-// [RDS] maps testimonial/title and testimonial/item/name to text/heading, flare on the rojao light theme (2.9:1 on
-// white): a violation of the Figma itself, pinned with it.fails below.
-const KNOWN_LIGHT = (mode: string) => (mode === 'light' ? ['.rds-block__title', '.rds-testimonial__name'] : []);
 
 const block = (
   <Testimonial eyebrow="Depoimentos" title="Quem usa, conta" description="Uma frase que apresenta os depoimentos abaixo.">
@@ -24,12 +21,12 @@ const columns = (el: HTMLElement) => getComputedStyle(el.querySelector('.rds-tes
 describe.each(MODES)('Testimonial (%s)', (mode) => {
   it.each(WIDTHS)('in a %i container passes axe', async (width) => {
     const el = await render(<InContainer width={width}>{block}</InContainer>, mode);
-    expect(await axeViolations(el, KNOWN_LIGHT(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 });
 
 describe('Testimonial behaviour', () => {
-  it.fails('the title and the names (→ text/heading) pass axe on the rojao light theme', async () => {
+  it('the title and the names (→ text/heading) pass axe on the rojao light theme', async () => {
     const el = await render(<InContainer width={1024}>{block}</InContainer>, 'light');
     expect(await axeViolations(el)).toEqual([]);
   });

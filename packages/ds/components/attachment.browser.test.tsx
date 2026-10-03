@@ -8,10 +8,6 @@ afterEach(cleanup);
 const STATUSES: AttachmentStatus[] = ['idle', 'uploading', 'processing', 'error', 'done'];
 const ORIENTATIONS: AttachmentOrientation[] = ['horizontal', 'vertical'];
 
-// [RDS] maps attachment/title to text/heading, which on the rojao light theme is flare (2.9:1 on white): a violation
-// of the Figma itself. Kept out of the light matrix and pinned with it.fails below, as in accordion.browser.test.tsx.
-const KNOWN_LIGHT_TITLE = (mode: string) => (mode === 'light' ? ['.rds-attachment__title'] : []);
-
 describe.each(MODES)('Attachment (%s)', (mode) => {
   it('every status × orientation, with the action, passes axe', async () => {
     const el = await render(
@@ -33,12 +29,12 @@ describe.each(MODES)('Attachment (%s)', (mode) => {
       </div>,
       mode,
     );
-    expect(await axeViolations(el, KNOWN_LIGHT_TITLE(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 });
 
 describe('Attachment behaviour', () => {
-  it.fails('the title (attachment/title → text/heading) passes axe on the rojao light theme', async () => {
+  it('the title (attachment/title → text/heading, navy) passes axe on the rojao light theme', async () => {
     const el = await render(<Attachment title="comprovante.pdf" description="PDF · 240 KB" />, 'light');
     expect(await axeViolations(el)).toEqual([]);
   });

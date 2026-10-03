@@ -5,10 +5,6 @@ import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
 afterEach(cleanup);
 
-// The [RDS] maps calendar/title to text/heading, and the rojao light heading is flare-700 (#ff6a00, 2.9:1 on
-// white) for the 16px month. Kept out of the light axe matrix and pinned below until the Figma decides.
-const KNOWN_LIGHT_TITLE = (mode: string) => (mode === 'light' ? ['.rds-calendar__title'] : []);
-
 const TODAY = '2026-09-30';
 const weekend = (date: Date) => date.getDay() === 0 || date.getDay() === 6;
 const focusedDay = () => document.activeElement?.getAttribute('aria-label');
@@ -16,7 +12,7 @@ const focusedDay = () => document.activeElement?.getAttribute('aria-label');
 describe.each(MODES)('Calendar (%s)', (mode) => {
   it('a month with today, a chosen day, outside days and disabled days passes axe', async () => {
     const el = await render(<Calendar today={TODAY} defaultValue="2026-09-15" isDateDisabled={weekend} />, mode);
-    expect(await axeViolations(el, KNOWN_LIGHT_TITLE(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 
   it('days are 44 × 44 and the month always has six weeks', async () => {
@@ -29,7 +25,7 @@ describe.each(MODES)('Calendar (%s)', (mode) => {
 });
 
 describe('Calendar behaviour', () => {
-  it.fails('the month title on the rojao light theme passes axe (text/heading is flare-700)', async () => {
+  it('the month title on the rojao light theme passes axe (text/heading is navy)', async () => {
     const el = await render(<Calendar today={TODAY} />, 'light');
     expect(await axeViolations(el)).toEqual([]);
   });
