@@ -55,7 +55,7 @@ describe("rojao-ds migrate", () => {
   it("the CLI does not depend on the codemod (ts-morph stays out of it)", () => {
     const pkg = JSON.parse(readFileSync(join(__dirname, "..", "..", "package.json"), "utf8"));
     const deps = Object.keys({ ...pkg.dependencies, ...pkg.peerDependencies });
-    expect(deps).not.toContain(CODEMOD_PACKAGE);
+    expect(deps).not.toContain("@rojaostudio/ds-codemod");
     expect(deps).not.toContain("ts-morph");
   });
 });

@@ -4,7 +4,7 @@ A CLI do [Rojão DS](https://ds.rojao.ai): a sua marca vira o tema do design sys
 regras que a IA (Claude Code, Cursor, outros agentes) lê para construir as telas.
 
 ```bash
-npx rojao-ds init
+npx rojao-ds@next init
 ```
 
 Pergunta a cor da marca e escreve, na pasta atual:
@@ -15,7 +15,7 @@ Pergunta a cor da marca e escreve, na pasta atual:
 Depois:
 
 ```bash
-pnpm add @rojaostudio/ds
+pnpm add @rojaostudio/ds@next
 ```
 
 ```css
@@ -54,11 +54,11 @@ O tema (`rds-theme.css`) é sobrescrito, então pede confirmação. Sem terminal
 ## Migrar um projeto 0.x/1.x para a 2.0
 
 ```bash
-npx rojao-ds migrate ./meu-app            # dry-run
-npx rojao-ds migrate ./meu-app --apply    # escreve
+npx rojao-ds@next migrate ./meu-app       # dry-run
+npx rojao-ds@next migrate ./meu-app --apply  # escreve
 ```
 
-É um atalho para `npx @rojaostudio/ds-codemod`, com os mesmos argumentos: o codemod é baixado na
+É um atalho para `npx @rojaostudio/ds-codemod@next` (sem o `@next` depois da 2.0.0), com os mesmos argumentos: o codemod é baixado na
 hora pelo npx, e por isso o `ts-morph` (que traz o compilador do TypeScript) não entra na CLI.
 
 ## Sem dependência

@@ -9,6 +9,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { parseArgs } from "node:util";
 import { runMigrate, type Spawn } from "./migrate";
+import { onTag } from "./prerelease";
 import {
   emitClaudeMd,
   emitRdsCss,
@@ -253,11 +254,12 @@ function importPath(cwd: string, abs: string): string {
 }
 
 function installCommand(cwd: string): string {
-  if (existsSync(join(cwd, "pnpm-lock.yaml"))) return "pnpm add @rojaostudio/ds";
-  if (existsSync(join(cwd, "yarn.lock"))) return "yarn add @rojaostudio/ds";
-  if (existsSync(join(cwd, "bun.lockb")) || existsSync(join(cwd, "bun.lock"))) return "bun add @rojaostudio/ds";
-  if (existsSync(join(cwd, "package-lock.json"))) return "npm install @rojaostudio/ds";
-  return "pnpm add @rojaostudio/ds";
+  const ds = onTag("@rojaostudio/ds");
+  if (existsSync(join(cwd, "pnpm-lock.yaml"))) return `pnpm add ${ds}`;
+  if (existsSync(join(cwd, "yarn.lock"))) return `yarn add ${ds}`;
+  if (existsSync(join(cwd, "bun.lockb")) || existsSync(join(cwd, "bun.lock"))) return `bun add ${ds}`;
+  if (existsSync(join(cwd, "package-lock.json"))) return `npm install ${ds}`;
+  return `pnpm add ${ds}`;
 }
 
 const OPTIONS = {
