@@ -3,10 +3,17 @@
  * DataTableHeader: no tokens of its own; the Input, FilterChip, Chip, Button, Separator, Checkbox, DropdownMenu,
  * Popover and Drawer bring theirs. One row, 8 apart, 12 above the table, packed to the right: the search on the left
  * takes the free width, at least 320 (never wider than the bar); the quick filters, the filters, the view control
- * and the actions follow it on the right, and what does not fit wraps. The wide parts show from 768, the narrow ones
- * below it. In the Popover and the Drawer the filters stack 16 apart, each one a caption-sized label over its chips.
+ * and the actions follow it on the right, and what does not fit wraps.
+ * Two arrangements, by the bar's own width (a size container, as the Figma's viewport mode; the SavingBar's cut):
+ * expanded from 1024 (the __wide parts: Separator, Buttons with labels); compact below it (the __narrow parts: the
+ * filter as an IconButton of 44), where the search accepts 200. On the IconButton, while a filter is on, a dot of 8
+ * (badge neutral fill, 6 in from the top right corner) or a neutral number Badge over the corner (-6 top, -12 right).
+ * In the Popover and the Drawer the filters stack 16 apart, each one a caption-sized label over its chips.
  */
 .rds-data-table-header {
+  box-sizing: border-box;
+  container-type: inline-size;
+  width: 100%;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -32,17 +39,55 @@
   gap: var(--space-8);
 }
 
-.rds-data-table-header__wide {
+.rds-data-table-header__narrow {
   display: none;
 }
 
-@media (min-width: 768px) {
+@container (max-width: 1023px) {
   .rds-data-table-header__wide {
-    display: flex;
+    display: none;
   }
 
   .rds-data-table-header__narrow {
-    display: none;
+    display: flex;
+  }
+
+  /* Compact: the search accepts 200 (40 × 5), so it sits on one line with the filter and an IconButton at 390. */
+  .rds-data-table-header .rds-data-table-header__search {
+    flex-basis: calc(var(--space-40) * 5);
+    min-width: min(calc(var(--space-40) * 5), 100%);
+  }
+}
+
+/* The compact filter: the IconButton with its indicator on the corner. */
+.rds-data-table-header__trigger {
+  position: relative;
+  display: inline-flex;
+}
+
+.rds-data-table-header__dot,
+.rds-data-table-header__count {
+  position: absolute;
+  pointer-events: none;
+}
+
+.rds-data-table-header__dot {
+  top: calc(var(--space-4) * 1.5);
+  right: calc(var(--space-4) * 1.5);
+  width: var(--space-8);
+  height: var(--space-8);
+  border-radius: var(--radius-full);
+  background: var(--badge-neutral-fill-background);
+}
+
+.rds-data-table-header__count {
+  top: calc(var(--space-4) * -1.5);
+  right: calc(var(--space-12) * -1);
+}
+
+@media (forced-colors: active) {
+  .rds-data-table-header__dot {
+    background: CanvasText;
   }
 }
 
