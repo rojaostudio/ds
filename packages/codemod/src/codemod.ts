@@ -1455,6 +1455,23 @@ const TRANSFORMS: Record<string, Transform> = {
     }
   },
 
+  quickFilters(c) {
+    const v = c.value('pillFilters');
+    if (!v) return;
+    if (v.kind !== 'expr') {
+      return c.addManual('DataTableHeader.pillFilters', 'DataTableHeader: pillFilters virou o slot quickFilters — passe <FilterChipGroup aria-label="Filtros rápidos"> com um <FilterChip> por filtro.');
+    }
+    // Any expression maps the same way: each { key, label, active, count, onClick } becomes one FilterChip.
+    const list = Node.isIdentifier(v.node) || Node.isPropertyAccessExpression(v.node) || Node.isCallExpression(v.node) ? v.text : `(${v.text})`;
+    c.replace(
+      'pillFilters',
+      `quickFilters={<FilterChipGroup aria-label="Filtros rápidos">{${list}.map((quick) => (<FilterChip key={quick.key} active={quick.active} count={quick.count} onClick={quick.onClick}>{quick.label}</FilterChip>))}</FilterChipGroup>}`,
+    );
+    c.needs.add('FilterChipGroup');
+    c.needs.add('FilterChip');
+    c.note('pillFilters → quickFilters (FilterChipGroup + FilterChip); "Filtros · N" deixa de contar os filtros rápidos');
+  },
+
   noChildren(c) {
     if (c.children().length) c.addManual(`${c.component}.children`, `${c.component}: children não têm lugar no componente 2.0 — leve o conteúdo para fora ou para as props.`);
   },

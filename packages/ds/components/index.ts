@@ -45,7 +45,6 @@ export type {
   DataTableHeaderSearch,
   DataTableFilterDef,
   DataTableFilterOption,
-  DataTablePillDef,
 } from './data-table-header';
 
 export { Button } from './button';

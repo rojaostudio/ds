@@ -1,22 +1,28 @@
 /* @tokens data-table-header */
 /*
- * DataTableHeader: no tokens of its own; the Input, FilterChip, Chip, Button, Separator, DropdownMenu,
- * Popover and Drawer bring theirs. One row, 8 apart, 12 above the table; the search takes the free width. The wide
- * parts show from 768, the narrow ones below it. In the Popover and the Drawer the filters stack 16 apart, each
- * one a caption-sized label over its chips.
+ * DataTableHeader: no tokens of its own; the Input, FilterChip, Chip, Button, Separator, Checkbox, DropdownMenu,
+ * Popover and Drawer bring theirs. One row, 8 apart, 12 above the table, packed to the right: the search on the left
+ * takes the free width, at least 320 (never wider than the bar); the quick filters, the filters, the view control
+ * and the actions follow it on the right, and what does not fit wraps. The wide parts show from 768, the narrow ones
+ * below it. In the Popover and the Drawer the filters stack 16 apart, each one a caption-sized label over its chips.
  */
 .rds-data-table-header {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: flex-end;
   gap: var(--space-8);
   margin-bottom: var(--space-12);
 }
 
-.rds-data-table-header__search {
-  flex: 1 1 calc(var(--space-64) * 4);
+/* Scoped to the bar: the field's own `min-width: 0` (internal/field.css) comes later in the bundle. */
+.rds-data-table-header .rds-data-table-header__search {
+  flex: 1 1 calc(var(--space-64) * 5);
+  min-width: min(calc(var(--space-64) * 5), 100%);
 }
 
+.rds-data-table-header__quick,
+.rds-data-table-header__view,
 .rds-data-table-header__wide,
 .rds-data-table-header__actions,
 .rds-data-table-header__narrow {

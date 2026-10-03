@@ -55,6 +55,15 @@ describe("rds-tokens checks", () => {
     expect(check(t, roles, foundation, [{ file: "a.css", css }]).themeRoleInComponent).toEqual(["a.css: --surface-card"]);
   });
 
+  it("does not ask a stylesheet to read a token Figma marks obsolete; it is still emitted", () => {
+    const t = parseCollection("content", "card/title|C|@theme:text/body|=\ncard/footer/background|C|@theme:surface/card|=|obsolete");
+    expect(t[1].obsolete).toBe(true);
+    expect(t[0].obsolete).toBeUndefined();
+    const css = "/* @tokens card */ .x { color: var(--card-title); }";
+    expect(check(t, roles, foundation, [{ file: "card.css", css }]).unusedTokens).toEqual([]);
+    expect(emitComponentsCss(t)).toContain("--card-footer-background: var(--surface-card);");
+  });
+
   it("does not ask for components that have no stylesheet yet", () => {
     const t = parseCollection("forms", "input/value|C|@theme:text/body|=");
     expect(check(t, roles, foundation, []).unusedTokens).toEqual([]);
@@ -160,8 +169,16 @@ describe("cascade layers", () => {
 describe("the real [RDS] extraction", () => {
   const all = loadAll(join(__dirname, "..", ".."));
 
-  it("has the 990 component tokens of the 10 collections", () => {
-    expect(all.tokens).toHaveLength(990);
+  it("has the 992 component tokens of the 10 collections", () => {
+    expect(all.tokens).toHaveLength(992);
+  });
+
+  it("marks obsolete only what Figma calls Obsoleto: the card footer bands (03/10/2026)", () => {
+    expect(all.tokens.filter((t) => t.obsolete).map((t) => t.name)).toEqual(["card/footer/background", "card/tint/footer/background"]);
+  });
+
+  it("every token a stylesheet group owns is used, the obsolete aside", () => {
+    expect(check(all.tokens, all.roles, all.foundation, all.stylesheets).unusedTokens).toEqual([]);
   });
 
   it("has no alias to a missing role or base token", () => {

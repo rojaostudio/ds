@@ -1,6 +1,7 @@
-# [RDS] Components · collection Navigation · file w64JuUL45DO4jGu3WEy9HU · extracted 2026-10-01
+# [RDS] Components · collection Navigation · file w64JuUL45DO4jGu3WEy9HU · extracted 2026-10-03
 # DO NOT EDIT. Figma is the source: publish in Figma, run the extraction, save the output here.
-# Format: name|type (C colour, F number, S string, B boolean)|@collection:target (alias) OR raw value|WEB codeSyntax ("=" when it is the path with hyphens)
+# Format: name|type (C colour, F number, S string, B boolean)|@collection:target (alias) OR raw value|WEB codeSyntax ("=" when it is the path with hyphens)[|obsolete]
+# obsolete: the Figma description starts with "Obsoleto"; the token stays for old code and no stylesheet has to read it.
 tabs/border|C|@theme:border/default|=
 tabs/focus/ring|C|@theme:focus/ring|=
 tabs/indicator|C|@theme:colors/primary/default|=
@@ -22,7 +23,7 @@ sidebar/item/background/hover|C|@theme:surface/muted|=
 sidebar/item/background/active|C|@theme:surface/tint/default|=
 sidebar/item/label/default|C|@theme:text/muted|=
 sidebar/item/label/hover|C|@theme:text/body|=
-sidebar/item/label/active|C|@theme:colors/primary/default|=
+sidebar/item/label/active|C|@theme:text/on/tint|=
 sidebar/module|C|@theme:text/heading|=
 sidebar/user|C|@theme:text/muted|=
 pagination/focus/ring|C|@theme:focus/ring|=
@@ -60,3 +61,4 @@ tabs/dot/background|C|@theme:colors/state/success|=
 tabs/dot/indicator|C|@theme:colors/state/success|=
 sidebar/section/label|C|@theme:text/subtle|=
 sidebar/dark/section/label|C|@theme:text/on/primary|=
+sidebar/item/indicator|C|@theme:colors/primary/default|=

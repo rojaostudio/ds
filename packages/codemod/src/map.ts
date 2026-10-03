@@ -160,7 +160,8 @@ export type TransformName =
   | 'skeleton' // variant → shape + width/height
   | 'textareaRows' // minRows → rows
   | 'chatBubble' // variant bot/user → align (+ variant fill for the user)
-  | 'noChildren'; // children have no place in the 2.0 component → manual
+  | 'noChildren' // children have no place in the 2.0 component → manual
+  | 'quickFilters'; // DataTableHeader: pillFilters[] → quickFilters={<FilterChipGroup>…<FilterChip>…}
 
 export interface ComponentRule {
   /** Which wave changed it, for the reader. */
@@ -533,13 +534,22 @@ export const COMPONENTS: Record<string, ComponentRule> = {
     wave: 'onda 3 (#16)',
     newApiProps: ['surface', 'as'],
     props: {
+      // 2.0.0-next (03/10/2026): surface=outline is the old `outlined` (border, no shadow); `elevated` was the old
+      // default and is the 2.0 default. filled/flat/invert have no faithful surface.
       variant: {
-        manual: 'Card perdeu as variantes (outlined/elevated/filled/flat/invert): use surface="default" ou "tint" e size.',
+        to: 'surface',
+        values: { outlined: 'outline', elevated: null },
+        manual: 'Card perdeu as variantes filled/flat/invert: use surface="default", "outline" ou "tint" e size.',
       },
       interactive: {
         manual: 'Card perdeu `interactive`: para card clicável, ponha um link/botão de verdade dentro (o título, por exemplo).',
       },
     },
+  },
+  DataTableHeader: {
+    wave: '2.0.0-next (03/10/2026)',
+    newApiProps: ['quickFilters', 'view'],
+    transforms: ['quickFilters'],
   },
   CardBody: {
     wave: 'onda 3 (#16)',
@@ -774,6 +784,9 @@ export const TYPES: Record<string, { to?: string; manual?: string; follows?: str
   ToastVisualProps: { manual: 'ToastVisualProps virou ToastViewProps, com outra forma.' },
   EmptyStateIcon: { manual: 'EmptyStateIcon saiu: o Empty recebe o ícone como elemento (icon={<Package />}).' },
   EmptyStateCta: { manual: 'EmptyStateCta saiu: o Empty recebe a ação como elemento (action={<Button>…</Button>}).' },
+  DataTablePillDef: {
+    manual: 'DataTablePillDef saiu: os filtros rápidos do DataTableHeader são um slot (quickFilters), com <FilterChipGroup> e <FilterChip> dentro.',
+  },
   PageTab: { manual: 'PageTab saiu com o PageTabs: cada aba vira um <TabsTrigger>.' },
   PageTabsProps: { manual: 'PageTabsProps saiu com o PageTabs: use TabsProps.' },
   ChatBubbleVariant: { manual: 'ChatBubbleVariant saiu: o lado é BubbleAlign (start/end) e a superfície é BubbleVariant.' },

@@ -1749,34 +1749,45 @@ button.rds-breadcrumb__link:focus-visible {
 /* components/card.css */
 /* @tokens card */
 /*
- * Card (Content collection, card/*): header, content and footer. default pads 16, sm pads 12. tint is the brand's
- * light background, with no border. Corners in radius/container, shadow elevation/raised.
+ * Card (Content collection, card/*): header, content and footer. default pads 24, sm pads 16; 24 between the
+ * header, the content and the actions (sm: 16). Corners in radius/container.
+ *   default: card/background, a card/border hairline and elevation/raised.
+ *   outline: only the hairline, no fill, no shadow; it takes the surface underneath (cards side by side in a grid,
+ *            inside a panel or a list, where stacked shadows turn into noise).
+ *   tint:    the brand's light plate (card/tint/background), no border, no shadow, title in card/tint/title.
+ * The footer has no band and no rule: the actions sit side by side, the main one last (on the right). The
+ * card/footer/background tokens are obsolete in Figma (03/10/2026) and not read here.
  */
 .rds-card {
-  --_pad: var(--space-16);
-  --_background: var(--card-background);
-  --_footer: var(--card-footer-background);
-  --_border: var(--card-border);
+  --_pad: var(--space-24);
+  --_title: var(--card-title);
 
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border: var(--border-width) solid var(--_border);
+  border: var(--border-width) solid var(--card-border);
   border-radius: var(--radius-container);
-  background: var(--_background);
+  background: var(--card-background);
   box-shadow: var(--elevation-raised);
   font-family: var(--type-font-stack);
 }
 
 .rds-card--sm {
-  --_pad: var(--space-12);
+  --_pad: var(--space-16);
+}
+
+.rds-card--outline {
+  background: transparent;
+  box-shadow: none;
 }
 
 .rds-card--tint {
-  --_background: var(--card-tint-background);
-  --_footer: var(--card-tint-footer-background);
-  --_border: transparent;
+  --_title: var(--card-tint-title);
+
+  border-color: transparent;
+  background: var(--card-tint-background);
+  box-shadow: none;
 }
 
 .rds-card__header {
@@ -1807,7 +1818,7 @@ button.rds-breadcrumb__link:focus-visible {
 
 .rds-card__title {
   margin: 0;
-  color: var(--card-title);
+  color: var(--_title);
   font-size: var(--type-label-size);
   line-height: var(--type-label-line);
   font-weight: 500;
@@ -1846,32 +1857,27 @@ button.rds-breadcrumb__link:focus-visible {
   display: flex;
   flex-direction: column;
   gap: var(--space-16);
-  padding: var(--_pad);
-  border-top: var(--border-width) solid var(--card-border);
-  background: var(--_footer);
-}
-
-.rds-card--tint .rds-card__footer {
-  border-top-color: transparent;
+  padding: 0 var(--_pad) var(--_pad);
 }
 
 .rds-card__actions {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-16);
+  gap: var(--space-12);
 }
 
 .rds-card__footer--end .rds-card__actions {
   justify-content: flex-end;
 }
 
+/* full: the two actions side by side, half each, for a narrow card on a phone. */
 .rds-card__footer--full .rds-card__actions {
-  flex-direction: column;
-  gap: var(--space-8);
+  flex-wrap: nowrap;
 }
 
 .rds-card__footer--full .rds-card__actions > * {
-  width: 100%;
+  flex: 1 1 0;
+  min-width: 0;
 }
 
 .rds-card__note {
@@ -1882,8 +1888,7 @@ button.rds-breadcrumb__link:focus-visible {
 }
 
 @media (forced-colors: active) {
-  .rds-card,
-  .rds-card--tint .rds-card__footer {
+  .rds-card {
     border-color: CanvasText;
   }
 }
@@ -3229,7 +3234,7 @@ input:focus-visible + .rds-checkbox__box {
 .rds-color-input__swatch:focus-visible,
 .rds-color-input__swatch:has(.rds-color-input__native:focus-visible) {
   outline: var(--focus-ring-width) solid var(--_border-focus);
-  outline-offset: var(--border-width);
+  outline-offset: var(--focus-ring-width);
 }
 
 .rds-color-input__native {
@@ -3296,14 +3301,15 @@ input:focus-visible + .rds-checkbox__box {
   cursor: pointer;
 }
 
+/* Selected and focus: the ring of Button and Checkbox, focus-ring-width wide and as far off the swatch (a gap). */
 .rds-color-input__choice[aria-pressed='true'] {
-  outline: calc(var(--border-width) * 2) solid var(--color-input-swatch-selected);
-  outline-offset: var(--border-width);
+  outline: var(--focus-ring-width) solid var(--color-input-swatch-selected);
+  outline-offset: var(--focus-ring-width);
 }
 
 .rds-color-input__choice:focus-visible {
   outline: var(--focus-ring-width) solid var(--color-input-border-focus);
-  outline-offset: var(--border-width);
+  outline-offset: var(--focus-ring-width);
 }
 
 @media (forced-colors: active) {
@@ -3578,23 +3584,29 @@ input:focus-visible + .rds-checkbox__box {
 /* components/data-table-header.css */
 /* @tokens data-table-header */
 /*
- * DataTableHeader: no tokens of its own; the Input, FilterChip, Chip, Button, Separator, DropdownMenu,
- * Popover and Drawer bring theirs. One row, 8 apart, 12 above the table; the search takes the free width. The wide
- * parts show from 768, the narrow ones below it. In the Popover and the Drawer the filters stack 16 apart, each
- * one a caption-sized label over its chips.
+ * DataTableHeader: no tokens of its own; the Input, FilterChip, Chip, Button, Separator, Checkbox, DropdownMenu,
+ * Popover and Drawer bring theirs. One row, 8 apart, 12 above the table, packed to the right: the search on the left
+ * takes the free width, at least 320 (never wider than the bar); the quick filters, the filters, the view control
+ * and the actions follow it on the right, and what does not fit wraps. The wide parts show from 768, the narrow ones
+ * below it. In the Popover and the Drawer the filters stack 16 apart, each one a caption-sized label over its chips.
  */
 .rds-data-table-header {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: flex-end;
   gap: var(--space-8);
   margin-bottom: var(--space-12);
 }
 
-.rds-data-table-header__search {
-  flex: 1 1 calc(var(--space-64) * 4);
+/* Scoped to the bar: the field's own `min-width: 0` (internal/field.css) comes later in the bundle. */
+.rds-data-table-header .rds-data-table-header__search {
+  flex: 1 1 calc(var(--space-64) * 5);
+  min-width: min(calc(var(--space-64) * 5), 100%);
 }
 
+.rds-data-table-header__quick,
+.rds-data-table-header__view,
 .rds-data-table-header__wide,
 .rds-data-table-header__actions,
 .rds-data-table-header__narrow {
@@ -7347,7 +7359,7 @@ body:has(.rds-modal) {
 /*
  * PageSkeleton and CardsSkeleton: no tokens of their own; the Skeleton and the Card bring theirs. Blocks 24 apart
  * (24 padding when padded). The Cards keep their elevation/raised, as in the Figma. The table is a small Card: the
- * header row on the card's footer background, a line between rows. The cards: 2 per row (4 from 1024), the charts
+ * header row on the table header background (table/header/background), a line between rows. The cards: 2 per row (4 from 1024), the charts
  * 1 (2 from 1024), 16 apart.
  */
 .rds-page-skeleton {
@@ -7379,7 +7391,7 @@ body:has(.rds-modal) {
 }
 
 .rds-page-skeleton__row--head {
-  background: var(--card-footer-background);
+  background: var(--table-header-background);
 }
 
 .rds-page-skeleton__row .rds-skeleton {
@@ -8376,15 +8388,15 @@ input:focus-visible + .rds-radio__circle {
 /* @tokens savingbar */
 /*
  * SavingBar (Actions collection, savingbar/*): full width (at least 320), 12 24 padding, 16 between the
- * message (label, medium) and the actions (8 apart). The message grows. The Buttons use the inverse
+ * message (label, medium, at most 2 lines with an ellipsis) and the actions (8 apart). The Buttons use the inverse
  * tone, drawn for this band in both modes, so the bar needs no theme switch of its own.
+ * Two arrangements, by the bar's own width (a size container, as the Figma's viewport mode): expanded from 1024,
+ * the message grows (at least 160) beside the actions; compact below it, the message on top and Descartar and
+ * Salvar under it, sharing the width.
  */
 .rds-savingbar {
   box-sizing: border-box;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-16);
+  container-type: inline-size;
   width: 100%;
   min-width: min(320px, 100%);
   padding: var(--space-12) var(--space-24);
@@ -8393,16 +8405,32 @@ input:focus-visible + .rds-radio__circle {
   font-family: var(--type-font-stack);
 }
 
+.rds-savingbar__row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-16);
+}
+
 .rds-savingbar__message {
   display: flex;
-  flex: 1;
+  flex: 1 1 160px;
   align-items: center;
   gap: var(--space-12);
-  min-width: 0;
+  min-width: 160px;
   margin: 0;
   font-size: var(--type-label-size);
   font-weight: 500;
   line-height: var(--type-label-line);
+}
+
+.rds-savingbar__text {
+  display: -webkit-box;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
 }
 
 .rds-savingbar__icon {
@@ -8435,8 +8463,25 @@ input:focus-visible + .rds-radio__circle {
 
 .rds-savingbar__actions {
   display: flex;
-  flex-wrap: wrap;
+  flex: none;
   gap: var(--space-8);
+}
+
+@container (max-width: 1023px) {
+  .rds-savingbar__row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .rds-savingbar__message {
+    flex: none;
+    min-width: 0;
+  }
+
+  .rds-savingbar__actions > * {
+    flex: 1 1 0;
+    min-width: 0;
+  }
 }
 
 @media (forced-colors: active) {
@@ -8806,7 +8851,9 @@ input:focus-visible + .rds-radio__circle {
 /*
  * Sidebar (Navigation collection, sidebar/*): 240 wide (64 collapsed), 12 × 8 inside, a 1px border on the right.
  * Header: the brand mark (24) and the module (16/24 medium), 10 apart, 44 tall. Entries of 44, 12 inside, 12 between
- * icon (20) and label (14/20 medium), 4 apart; the current one on the brand tint with the label in colors/primary.
+ * icon (20) and label (14/20 medium), 4 apart; the current one on the brand tint, its label semibold in
+ * sidebar/item/label/active and a 3 × 20 marker on the left in sidebar/item/indicator, so the current entry does not
+ * rest on colour alone.
  * Section labels 11/14 bold, 16 above and 6 below, with a 14 chevron. Foot: who is signed in (12/16) and Sair.
  * dark (deprecated in the Figma) reads sidebar/dark/*; the current entry stays the light pill.
  */
@@ -8911,6 +8958,7 @@ input:focus-visible + .rds-radio__circle {
 }
 
 .rds-sidebar__item {
+  position: relative;
   box-sizing: border-box;
   display: flex;
   align-items: center;
@@ -8970,8 +9018,21 @@ input:focus-visible + .rds-radio__circle {
   color: var(--sidebar-item-label-active);
 }
 
-.rds-sidebar__item[aria-current='page'] .rds-sidebar__count {
-  color: var(--sidebar-item-label-active);
+.rds-sidebar__item[aria-current='page'] .rds-sidebar__label {
+  font-weight: 600;
+}
+
+/* Figma .sidebar/item state=active: the marker, 3 × 20, on the left edge, vertically centred, radius 2. */
+.rds-sidebar__item[aria-current='page']::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: 0;
+  top: 50%;
+  width: 3px;
+  height: var(--size-20);
+  border-radius: 2px;
+  background: var(--sidebar-item-indicator);
+  transform: translateY(-50%);
 }
 
 .rds-sidebar__item:focus-visible,
@@ -9039,6 +9100,10 @@ input:focus-visible + .rds-radio__circle {
 @media (forced-colors: active) {
   .rds-sidebar__item[aria-current='page'] {
     outline: var(--border-width) solid CanvasText;
+  }
+
+  .rds-sidebar__item[aria-current='page']::before {
+    background: Highlight;
   }
 }
 

@@ -2,14 +2,18 @@
 
 import { createContext, useContext, useId, type HTMLAttributes, type ReactNode } from 'react';
 
-export type CardSurface = 'default' | 'tint';
+export type CardSurface = 'default' | 'outline' | 'tint';
 export type CardSize = 'default' | 'sm';
 type Heading = 'h2' | 'h3' | 'h4';
 
 export interface CardProps extends HTMLAttributes<HTMLElement> {
-  /** tint is the brand's light background, with no border, for a card that stands out. */
+  /**
+   * default: white, with a border and elevation/raised; the default, for a topic on its own on the page.
+   * outline: only the border, no fill nor shadow, it takes the surface underneath; for cards side by side in a grid,
+   * inside a panel or a list. tint: the brand's light plate, no border nor shadow; a rare highlight, one per screen.
+   */
   surface?: CardSurface;
-  /** sm aligns everything on 12 and makes the header text smaller, for dense lists and indicators. */
+  /** sm pads 16 (default 24) and makes the header text smaller, for dense lists and indicators. */
   size?: CardSize;
   /** article (default) for a topic that reads on its own; section or div when it is part of something larger. */
   as?: 'article' | 'section' | 'div';
@@ -51,7 +55,7 @@ export interface CardHeaderProps extends Omit<HTMLAttributes<HTMLElement>, 'titl
   description?: ReactNode;
   /** A Tile before the text (Figma: `showIcon`): variant soft, size default (sm on a small card). */
   icon?: ReactNode;
-  /** One action on the right (Figma: `showAction` + `action`): a ghost Button or an IconButton. */
+  /** Opt-in: one action on the right (Figma: `showAction` + `action`), a ghost Button or an IconButton. None by default. */
   action?: ReactNode;
   /** start: side by side; center: stacked and centred. */
   align?: 'start' | 'center';
@@ -82,15 +86,18 @@ export function CardContent({ className, ...rest }: CardContentProps) {
 }
 
 export interface CardFooterProps extends HTMLAttributes<HTMLElement> {
-  /** One or two Buttons (Figma: `actions` one · two). A third action goes into the content, as a link. */
+  /**
+   * One or two Buttons (Figma: `actions` one · two), side by side: the main one (action fill) last, the secondary one
+   * a neutral ghost Button before it. A third action goes into the content, as a link.
+   */
   children: ReactNode;
-  /** start, end, or full (buttons stacked across the whole width). */
+  /** start, end (default), or full (the two side by side, half each, for a narrow card on a phone). */
   align?: 'start' | 'end' | 'full';
   /** A line under the buttons (Figma: `showTertiaryContent` + `tertiaryContent`), such as a sign-up link. */
   note?: ReactNode;
 }
 
-/** The card's footer, with its actions (Figma: .card/footer). */
+/** The card's footer, with its actions (Figma: .card/footer). No band and no rule: spacing sets it apart. */
 export function CardFooter({ align = 'end', note, className, children, ...rest }: CardFooterProps) {
   return (
     <footer {...rest} className={['rds-card__footer', `rds-card__footer--${align}`, className].filter(Boolean).join(' ')}>

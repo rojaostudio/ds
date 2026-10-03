@@ -125,4 +125,28 @@ describe('ColorInput behaviour', () => {
     expect(off.disabled).toBe(true);
     expect(el.querySelectorAll<HTMLButtonElement>('.rds-color-input__swatch')[2].disabled).toBe(true);
   });
+
+  it('the chosen swatch, the focused one and the field swatch on focus: a focus-ring-width ring as far off (a gap)', async () => {
+    const el = await render(<ColorInput label="Cor principal" defaultValue="#2563EB" palette={BRAND} />);
+    const swatch = el.querySelector<HTMLButtonElement>('.rds-color-input__swatch')!;
+    swatch.focus();
+    await userEvent.keyboard('{Shift>}{Tab}{/Shift}');
+    await userEvent.keyboard('{Tab}');
+    const ring = (x: Element) => {
+      const cs = getComputedStyle(x);
+      return [cs.outlineStyle, cs.outlineWidth, cs.outlineOffset];
+    };
+    expect(document.activeElement).toBe(swatch);
+    expect(ring(swatch)).toEqual(['solid', '2px', '2px']);
+    await userEvent.keyboard('{Enter}');
+    await vi.waitFor(() => expect(dialog()).not.toBeNull());
+    await settle();
+    const chosen = dialog()!.querySelector('[aria-pressed="true"]')!;
+    expect(ring(chosen)).toEqual(['solid', '2px', '2px']);
+    const other = dialog()!.querySelector<HTMLButtonElement>('[aria-pressed="false"]')!;
+    other.focus();
+    await userEvent.keyboard('{Shift>}{Tab}{/Shift}');
+    await userEvent.keyboard('{Tab}');
+    expect(ring(document.activeElement!)).toEqual(['solid', '2px', '2px']);
+  });
 });

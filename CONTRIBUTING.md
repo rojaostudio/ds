@@ -53,7 +53,18 @@ becomes `children`, and `showIcon` + `iconName` become `icon`.
 - **Tokens.** `packages/ds/tokens/figma/*.txt` and `packages/ds-core/figma/*.txt` are extracted
   from Figma and never edited by hand. `pnpm --filter @rojaostudio/ds build:rds` turns them into
   `styles/rds/*.css` and fails on an alias to a missing token, a `var()` nothing defines, or a
-  component token its stylesheet never uses.
+  component token its stylesheet never uses (a token Figma marks "Obsoleto" is still emitted, but no
+  stylesheet has to read it).
+- **Extracting the tokens.** `packages/ds/scripts/figma/extract-tokens.figma.js` is the extraction. It
+  runs read-only in Figma through the Plugin API: paste it in a plugin console, or have an agent run
+  it with `use_figma`. In the Components file (`w64JuUL45DO4jGu3WEy9HU`) it returns one
+  `packages/ds/tokens/figma/<collection>.txt` per local collection; in the Base Tokens file
+  (`1Xn5IkLiq5Yhas680rJQf6`) it returns `packages/ds-core/figma/theme.txt` and `foundation.txt`. The
+  return value is `{ "<path from the repo root>": "<content>" }`: save each entry as is (set `ONLY` to
+  a list of collection names to extract part of the Components file). Then run `build:rds` and read
+  the diff: a token Figma removed that a stylesheet still reads fails the build, and the fix is the
+  stylesheet, following Figma. A brand table (`packages/ds-core/figma/brands/<brand>.rds.json`) comes
+  from `packages/ds-core/figma/export-brand.js` instead; client brands never enter this repository.
 - **Styles.** Each component has its own `components/<name>.css` with `rds-` classes and a
   `/* @tokens <group> */` header. It reads its own component tokens (`--button-*`) and the
   foundation (`--border-width`, `--radius-*`, `--type-*`), never a theme role or a raw colour. The build bundles every component stylesheet into

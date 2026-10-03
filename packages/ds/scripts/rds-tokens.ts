@@ -12,7 +12,7 @@
  * Checks (each one fails the build):
  *   1. alias to a role or base token that does not exist
  *   2. `var(--x)` in a component stylesheet that no layer defines (Radix's runtime --radix-* aside)
- *   3. a token of a component that has a stylesheet but never uses it
+ *   3. a token of a component that has a stylesheet but never uses it (unless Figma marks it obsolete)
  *   4. a component stylesheet that reads a theme role directly instead of its component token
  *   5. a Figma codeSyntax that is not the path with hyphens (the fix belongs in Figma)
  */
@@ -28,6 +28,8 @@ export type Token = {
   cssVar: string;
   /** codeSyntax from Figma when it differs from the path rule. */
   figmaCodeSyntax?: string;
+  /** Marked "Obsoleto" in Figma: still emitted for old code, but no stylesheet has to read it. */
+  obsolete?: true;
 };
 
 export type Foundation = { name: string; type: string; value: string; cssVar: string };
@@ -38,11 +40,12 @@ const dataLines = (txt: string) => txt.split(/\r?\n/).filter((l) => l.trim() && 
 
 export function parseCollection(collection: string, txt: string): Token[] {
   return dataLines(txt).map((line) => {
-    const [name, type, value, cs] = line.split("|");
+    const [name, type, value, cs, flag] = line.split("|");
     const cssVar = pathVar(name);
     return {
       collection, name, type: type as Token["type"], value, cssVar,
       ...(cs && cs !== "=" && cs !== cssVar ? { figmaCodeSyntax: cs } : {}),
+      ...(flag === "obsolete" ? { obsolete: true as const } : {}),
     };
   });
 }
@@ -135,7 +138,7 @@ export function check(
   // A component "has a stylesheet" when a CSS file declares `@tokens <group>` (e.g. button).
   const groups = new Set(stylesheets.flatMap(({ css }) => [...css.matchAll(/@tokens\s+([\w-]+)/g)].map((m) => m[1])));
   const unusedTokens = tokens
-    .filter((t) => groups.has(t.name.split("/")[0]) && !used.has(t.cssVar))
+    .filter((t) => groups.has(t.name.split("/")[0]) && !used.has(t.cssVar) && !t.obsolete)
     .map((t) => `${t.collection}: ${t.name}`);
 
   const codeSyntaxDivergent = tokens
