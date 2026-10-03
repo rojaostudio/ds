@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { page } from 'vitest/browser';
 import { SavingBar, type SavingBarStatus } from './saving-bar';
 import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
@@ -62,6 +63,7 @@ describe('SavingBar behaviour', () => {
   });
 
   it('at 390 (compact): the message on top, at most 2 lines, no word broken; Descartar and Salvar share the width', async () => {
+    await page.viewport(390, 800);
     const message = 'Você alterou o preço, o estoque e a descrição de três produtos e ainda não salvou nenhuma dessas alterações';
     const el = await render(
       <div style={{ width: 390 }}>
@@ -70,7 +72,6 @@ describe('SavingBar behaviour', () => {
     );
     const bar = el.querySelector<HTMLElement>('.rds-savingbar')!;
     const row = bar.querySelector<HTMLElement>('.rds-savingbar__row')!;
-    expect(getComputedStyle(bar).containerType).toBe('inline-size');
     expect(getComputedStyle(row).flexDirection).toBe('column');
     const text = bar.querySelector<HTMLElement>('.rds-savingbar__text')!;
     const style = getComputedStyle(text);
@@ -90,6 +91,7 @@ describe('SavingBar behaviour', () => {
   });
 
   it('from 1024 (expanded): one row, the message grows (at least 160) beside the actions', async () => {
+    await page.viewport(1280, 800);
     const el = await render(
       <div style={{ width: 1100 }}>
         <SavingBar onSave={() => {}} onDiscard={() => {}} />
@@ -105,6 +107,7 @@ describe('SavingBar behaviour', () => {
   });
 
   it('compact passes axe in both modes', async () => {
+    await page.viewport(390, 800);
     for (const mode of MODES) {
       const el = await render(
         <div style={{ width: 390 }}>

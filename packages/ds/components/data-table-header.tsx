@@ -259,7 +259,7 @@ function MobileSingleFilter({ f }: { f: DataTableFilterDef }) {
  * control comes after the filters, before the actions. "Filtros · N" counts the active `filters`, the ones that
  * button opens.
  *
- * Two arrangements, by the bar's own width (a size container, as the Figma's viewport mode; the SavingBar's cut):
+ * Two arrangements, by the screen width, as the Figma viewport mode (layout/compact below lg 1024; the SavingBar's cut):
  * expanded from 1024, the Separator and the Buttons with their labels; compact below it, the search accepts 200 and
  * the filter is an outline IconButton (sliders, 44) with a dot (one filter on) or a counter (several), opening the
  * same Drawer or Popover. There is no screen prop.

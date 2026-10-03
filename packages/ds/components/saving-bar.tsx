@@ -56,7 +56,7 @@ export function SavingBar({
       {...rest}
       className={['rds-savingbar', className].filter(Boolean).join(' ')}
     >
-      {/* The bar is the size container; this row is what changes arrangement (expanded or compact). */}
+      {/* This row is what changes arrangement (expanded or compact), by the screen width as the Figma viewport mode. */}
       <div className="rds-savingbar__row">
         {/* A live region: the change of status is said without moving focus. */}
         <p className="rds-savingbar__message" role="status">
