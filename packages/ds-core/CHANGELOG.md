@@ -1,5 +1,11 @@
 # @rojaostudio/ds-core
 
+## 1.1.0-next.5
+
+### Patch Changes
+
+- O pacote `ds` passa a trazer o `THIRD_PARTY_NOTICES.md`, com as licenças do Lucide e do Feather (ícones), o aviso da marca Pix e a lista das dependências e fontes de terceiros. No `ds-core`, o exemplo de variável de marca nos comentários e no script de exportação passa a ser genérico (`marca/ciano`).
+
 ## 1.1.0-next.4
 
 ### Minor Changes
@@ -10,7 +16,7 @@
 
 ### Minor Changes
 
-- A tabela da marca traz também as variáveis próprias da marca na coleção `brand` do Figma (ex.: `acassius/cyan`). O `rdsThemeFromTable` as resolve, e o `emitRdsCss` as emite como `--<marca>-<nome>` no escopo claro.
+- A tabela da marca traz também as variáveis próprias da marca na coleção `brand` do Figma (ex.: `marca/ciano`). O `rdsThemeFromTable` as resolve, e o `emitRdsCss` as emite como `--<marca>-<nome>` no escopo claro.
 
 ## 1.1.0-next.2
 

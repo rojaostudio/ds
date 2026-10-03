@@ -311,7 +311,7 @@ export type RdsBrandTable = {
   name: string;
   primitives: Record<string, string>;
   modes: Record<RdsMode, Record<string, string>>;
-  /** The brand's own variables of the `brand` collection, by Figma path ("acassius/cyan") → primitive or value. */
+  /** The brand's own variables of the `brand` collection, by Figma path ("marca/ciano") → primitive or value. */
   vars?: Record<string, string>;
 };
 

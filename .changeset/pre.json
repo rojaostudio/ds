@@ -8,6 +8,7 @@
     "rojao-ds": "0.0.0"
   },
   "changesets": [
+    "avisos-terceiros",
     "barril-sem-peers",
     "button-size",
     "chart-dates-links",

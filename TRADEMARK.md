@@ -2,7 +2,7 @@
 
 O código deste repositório está sob a [licença MIT](./LICENSE). **A marca não.**
 
-Não estão licenciados, e permanecem de titularidade do Rojão Studio:
+Não estão licenciados. São sinais usados pelo Rojão Studio para identificar este projeto:
 
 - o nome **Rojão** e **Rojão Studio**, isolados ou em composição (`Rojão DS`, `@rojaostudio`)
 - os logos e arquivos de marca em `packages/ds/brand/`
