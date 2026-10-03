@@ -3,7 +3,7 @@
 import type { HTMLAttributes, ReactNode } from 'react';
 import { Button } from './button';
 import { Loader } from './internal/button';
-import { AlertIcon } from './internal/icons';
+import { AlertIcon, ChevronUpIcon } from './internal/icons';
 
 export type SavingBarStatus = 'unsaved' | 'saving' | 'error';
 
@@ -26,13 +26,25 @@ export interface SavingBarProps extends HTMLAttributes<HTMLDivElement> {
   saveLabel?: string;
   retryLabel?: string;
   discardLabel?: string;
+  /**
+   * Turns the unsaved message into a button that opens what is missing (a Drawer with the checklist), in the
+   * compact arrangement only; expanded, the message stays text (Figma: `showDetails`).
+   */
+  onDetails?: () => void;
+  /** Said after the message in the details button's accessible name, hidden on screen. */
+  detailsLabel?: string;
+  /** Whether the panel the details button opens is open (aria-expanded). */
+  detailsExpanded?: boolean;
+  /** The id of that panel (aria-controls). */
+  detailsControls?: string;
 }
 
 /**
  * SavingBar — Figma [RDS] Actions/SavingBar. Shows at the foot of the screen while a change is not
- * saved, and leaves once saved. Painted with colors/primary on purpose: a state that waits for a
- * decision, not a notice. It does not place itself: put it sticky or fixed at the bottom.
- * Its Buttons use the inverse tone, drawn for the colors/primary band in both modes. Styles: saving-bar.css.
+ * saved, and leaves once saved. It is the brand plate on purpose (.ds-plate on the bar, in every brand and in
+ * light or dark alike): a state that waits for a decision, not a notice. It does not place itself: put it
+ * sticky or fixed at the bottom. Its Buttons are Salvar in tone action and Descartar in tone neutral ghost, read
+ * inside the plate. Styles: saving-bar.css.
  */
 export function SavingBar({
   status = 'unsaved',
@@ -44,22 +56,29 @@ export function SavingBar({
   saveLabel = 'Salvar',
   retryLabel = 'Tentar de novo',
   discardLabel = 'Descartar',
+  onDetails,
+  detailsLabel = 'Ver o que falta',
+  detailsExpanded,
+  detailsControls,
   className,
   ...rest
 }: SavingBarProps) {
   const saving = status === 'saving';
   const error = status === 'error';
+  const text = saving ? savingMessage : error ? errorMessage : message;
+  // Details only in unsaved: the button promises the list of what is missing.
+  const details = status === 'unsaved' && onDetails !== undefined;
   return (
     <div
       role="region"
       aria-label="Salvar alterações"
       {...rest}
-      className={['rds-savingbar', className].filter(Boolean).join(' ')}
+      className={['rds-savingbar', 'ds-plate', className].filter(Boolean).join(' ')}
     >
       {/* This row is what changes arrangement (expanded or compact), by the screen width as the Figma viewport mode. */}
       <div className="rds-savingbar__row">
         {/* A live region: the change of status is said without moving focus. */}
-        <p className="rds-savingbar__message" role="status">
+        <p className={['rds-savingbar__message', details && 'rds-savingbar__message--details'].filter(Boolean).join(' ')} role="status">
           {/* The text beside them already says it; the loader and the alert are only the picture. */}
           {saving && (
             <span className="rds-savingbar__icon rds-savingbar__loader" aria-hidden="true">
@@ -71,15 +90,32 @@ export function SavingBar({
               <AlertIcon />
             </span>
           )}
-          <span className="rds-savingbar__text">{saving ? savingMessage : error ? errorMessage : message}</span>
+          {/* With details, two renderings of the message, one shown at a time (display: none takes the other out of
+              the accessibility tree too, so the status is said once): text when expanded, a button when compact. */}
+          <span className="rds-savingbar__text">{text}</span>
+          {details && (
+            <button
+              type="button"
+              className="rds-savingbar__details"
+              aria-expanded={detailsExpanded ?? false}
+              aria-controls={detailsControls}
+              onClick={onDetails}
+            >
+              <span className="rds-savingbar__text">{text}</span>
+              <span className="rds-visually-hidden">, {detailsLabel}</span>
+              <span className="rds-savingbar__icon" aria-hidden="true">
+                <ChevronUpIcon />
+              </span>
+            </button>
+          )}
         </p>
         <div className="rds-savingbar__actions">
           {onDiscard && (
-            <Button tone="inverse" variant="ghost" disabled={saving} onClick={onDiscard}>
+            <Button tone="neutral" variant="ghost" disabled={saving} onClick={onDiscard}>
               {discardLabel}
             </Button>
           )}
-          <Button tone="inverse" variant="fill" disabled={saving} onClick={onSave}>
+          <Button tone="action" variant="fill" disabled={saving} onClick={onSave}>
             {error ? retryLabel : saveLabel}
           </Button>
         </div>

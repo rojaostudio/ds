@@ -73,7 +73,7 @@
   --button-inverse-focus-ring: var(--text-on-primary-strong);
   --button-inverse-disabled-fill-background: var(--colors-primary-light);
   --button-inverse-disabled-label: var(--text-disabled-invert);
-  --savingbar-background: var(--colors-primary-default);
+  --savingbar-background: var(--surface-page);
   --toggle-label: var(--text-body);
   --toggle-border: var(--border-strong);
   --toggle-background-hover: var(--surface-muted);
@@ -83,7 +83,7 @@
   --toggle-label-disabled: var(--text-disabled);
   --toggle-border-pressed: var(--colors-primary-default);
   --toggle-border-disabled: var(--border-default);
-  --savingbar-text: var(--text-on-primary);
+  --savingbar-text: var(--text-body);
   --fab-cta-background-default: var(--colors-primary-default);
   --fab-cta-background-hover: var(--colors-primary-active);
   --fab-cta-text: var(--text-on-primary);
@@ -120,6 +120,7 @@
   --button-size-lg-icon-only: var(--size-24);
   --button-size-lg-text-size: var(--type-body-size);
   --button-size-lg-text-line: var(--type-body-line);
+  --savingbar-focus-ring: var(--focus-ring);
 
   /* blocks */
   --topnav-background: var(--surface-card);

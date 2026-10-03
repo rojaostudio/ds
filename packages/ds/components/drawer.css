@@ -3,6 +3,8 @@
  * Drawer (Overlays collection, drawer/*): stuck to the bottom, the top corners in radius/container; 12 above (the
  * handle, 40 × 4), 24 on the sides, 32 below, 20 between parts; no border and no ×. On a wide screen it stops at
  * 560 and centres (the Figma draws it on a 390 phone only).
+ * Height by the content, up to 85% of the screen (717 on an 844): past it, only the content scrolls inside; the
+ * handle, the title and the footer stay put.
  */
 .rds-drawer__scrim {
   background: var(--drawer-scrim);
@@ -14,7 +16,7 @@
   left: 0;
   gap: calc(var(--space-16) + var(--space-4));
   max-width: 560px;
-  max-height: calc(100dvh - var(--space-48));
+  max-height: 85dvh;
   margin-inline: auto;
   padding: var(--space-12) var(--space-24) var(--space-32);
   border-radius: var(--radius-container) var(--radius-container) 0 0;
@@ -36,6 +38,18 @@
   height: var(--space-4);
   border-radius: var(--radius-full);
   background: var(--drawer-handle);
+}
+
+.rds-drawer .rds-modal__header,
+.rds-drawer .rds-modal__footer {
+  flex: none;
+}
+
+.rds-drawer .rds-modal__body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .rds-drawer .rds-modal__heading {

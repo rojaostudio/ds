@@ -1,11 +1,17 @@
 /* @tokens savingbar */
 /*
  * SavingBar (Actions collection, savingbar/*): full width (at least 320), 12 24 padding, 16 between the
- * message (label, medium, at most 2 lines with an ellipsis) and the actions (8 apart). The Buttons use the inverse
- * tone, drawn for this band in both modes, so the bar needs no theme switch of its own.
+ * message (label, medium, at most 2 lines with an ellipsis) and the actions (8 apart). The bar is the brand plate
+ * (.ds-plate on the element, set by the component): savingbar/background is surface/page and savingbar/text is text/body,
+ * read in the brand mode, so it comes out the same over a light or a dark page. The Buttons are tone action (Salvar)
+ * and tone neutral ghost (Descartar), read on the plate too.
  * Two arrangements, by the screen width, as the Figma viewport mode (layout/compact below lg 1024): expanded from 1024,
  * the message grows (at least 160) beside the actions; compact below it, the message on top and Descartar and
  * Salvar under it, sharing the width.
+ * Details (showDetails, onDetails in code): in compact, the unsaved message becomes a text button with chevron-up 20 at
+ * the right (12 apart) that opens the Drawer with what is missing; hover underlines, focus draws the ring
+ * savingbar/focus/ring (focus/ring-width, radius/focus) 4 around the message box, inside stroke, as the Figma
+ * focus-ring frame. The touch area is 44 tall without changing the drawing. Expanded, the message stays text.
  */
 .rds-savingbar {
   box-sizing: border-box;
@@ -79,6 +85,45 @@
   gap: var(--space-8);
 }
 
+.rds-savingbar__details {
+  position: relative;
+  display: none;
+  flex: 1;
+  align-items: center;
+  gap: var(--space-12);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-focus);
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+/* The touch area: 44 tall around the message, invisible. */
+.rds-savingbar__details::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 0;
+  left: 0;
+  min-height: 44px;
+  height: 100%;
+  transform: translateY(-50%);
+}
+
+.rds-savingbar__details:hover .rds-savingbar__text {
+  text-decoration: underline;
+}
+
+.rds-savingbar__details:focus-visible {
+  outline: var(--focus-ring-width) solid var(--savingbar-focus-ring);
+  outline-offset: var(--focus-ring-width);
+}
+
 @media (max-width: 1023px) {
   .rds-savingbar__row {
     flex-direction: column;
@@ -93,6 +138,14 @@
   .rds-savingbar__actions > * {
     flex: 1 1 0;
     min-width: 0;
+  }
+
+  .rds-savingbar__message--details > .rds-savingbar__text {
+    display: none;
+  }
+
+  .rds-savingbar__details {
+    display: flex;
   }
 }
 
