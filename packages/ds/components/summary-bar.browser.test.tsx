@@ -7,7 +7,7 @@ afterEach(cleanup);
 
 const stats = [
   <Stat key="a" label="Valor em estoque" value="R$ 48.320" />,
-  <Stat key="b" label="Receita do mês" value="R$ 12.450" tone="positive" />,
+  <Stat key="b" label="Receita do mês" value="R$ 12.450" tone="success" />,
   <Stat key="c" label="Estoque baixo" value="7" tone="warning" />,
 ];
 
@@ -18,7 +18,7 @@ describe.each(MODES)('SummaryBar (%s)', (mode) => {
         <div style={{ width: 720 }}>
           <SummaryBar>
             {stats}
-            <Stat label="Sem estoque" value="2" tone="negative" />
+            <Stat label="Sem estoque" value="2" tone="danger" />
           </SummaryBar>
         </div>
         <div style={{ width: 360 }}>

@@ -35,7 +35,7 @@ export interface DatePickerProps extends FieldTextProps {
 
 /**
  * DatePicker — Figma [RDS] Forms/DatePicker. A date field that takes typing (dd/mm/aaaa, the slashes come by
- * themselves) and, from the calendar button, opens the Calendar in a popover (Figma: `menu`). Choosing a day
+ * themselves) and, from the calendar button, opens the Calendar in a popover (Figma: `open`). Choosing a day
  * closes it and gives the focus back to the field; Escape closes without choosing. For a date near today, where
  * seeing the month helps: a birth date is an Input. Styles: date-picker.css, internal/field.css, calendar.css.
  */

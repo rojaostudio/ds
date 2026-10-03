@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * cli.ts — the `rojao-ds-codemod` bin: migrates a consumer of `@rojaostudio/ds` from `0.x` or `1.x` straight to `2.0`.
- * Run: npx @rojaostudio/ds-codemod <consumer-path> [--apply] [--verbose] [--report <file.json>]
+ * Run: npx @rojaostudio/ds-codemod <consumer-path> [--apply] [--verbose] [--report <file.json>] [--from-next]
  * (inside this repo: pnpm migrate:consumer <consumer-path> …; `npx rojao-ds migrate` forwards here too)
  *
  * Without `--apply` it is a dry run: it prints the plan and writes nothing.
@@ -24,6 +24,11 @@
  *    warnings, what compiles on 2.0 but should move on: the deprecated wrappers still in the package (Dropzone,
  *    SettingRow…) and the IconButtons that should go with a Tooltip (#29). Those are never written.
  *
+ * 3. 2.0.0-next → the single prop vocabulary (03/10/2026). A project already on `2.x` (or run with `--from-next`)
+ *    only gets the code step, with the vocabulary rules of ./map.ts (`size="default"` → `md`, `tone="default"` →
+ *    `neutral`, Card `surface` → `variant`, Bubble, Stat `muted`, FilterChip `pressed`…). No package.json, theme or
+ *    CSS step: the version is the project's call, and every old name the package still accepts keeps working.
+ *
  * ## What it does NOT do
  *
  * It does not run `install` and does not build. It writes the files, prints the commands and exits — whoever
@@ -41,12 +46,13 @@ import { RDS_CSS } from './map';
 const TARGET_VERSION = '^2.0.0';
 
 const USAGE = [
-  'uso: npx @rojaostudio/ds-codemod <pasta-do-projeto> [--apply] [--verbose] [--report <arquivo.json>]',
+  'uso: npx @rojaostudio/ds-codemod <pasta-do-projeto> [--apply] [--verbose] [--report <arquivo.json>] [--from-next]',
   '',
   '  sem --apply      dry-run: mostra o plano e os casos manuais (arquivo:linha), não escreve nada',
   '  --apply          escreve as mudanças e um TODO(ds-2.0) acima de cada caso manual',
   '  --verbose        lista também cada transformação automática',
   '  --report <json>  grava o relatório completo em JSON',
+  '  --from-next      o projeto já está na 2.0.0-next: só o vocabulário de props (automático quando o package.json diz 2.x)',
 ].join('\n');
 
 const args = process.argv.slice(2);
@@ -56,6 +62,8 @@ if (args.includes('--help') || args.includes('-h')) {
 }
 const apply = args.includes('--apply');
 const verbose = args.includes('--verbose');
+/** Already on 2.0.0-next: only the prop vocabulary. Turned on by the flag or by a 2.x version in package.json. */
+let fromNext = args.includes('--from-next');
 const reportIdx = args.indexOf('--report');
 const reportPath = reportIdx >= 0 ? args[reportIdx + 1] : undefined;
 const targetArg = args.find((a, i) => !a.startsWith('--') && args[i - 1] !== '--report');
@@ -127,11 +135,8 @@ if (existsSync(pkgPath)) {
   } else {
     const [, name, version] = dep;
     currentVersion = version;
-    if (/^[\^~]?2\./.test(version)) {
-      console.log(`${basename(root)} já está em ${version} — nada a migrar.`);
-      process.exit(0);
-    }
-    steps.push({
+    if (/^[\^~]?2\./.test(version)) fromNext = true;
+    if (!fromNext) steps.push({
       title: 'package.json',
       detail: `"${name}": "${version}" → "@rojaostudio/ds": "${TARGET_VERSION}"`,
       write: () =>
@@ -146,16 +151,22 @@ if (existsSync(pkgPath)) {
   warnings.push('sem package.json aqui — só o código será migrado');
 }
 
+if (fromNext) {
+  warnings.push(
+    `modo vocabulário (2.0.0-next → vocabulário único de props): só o código é migrado. Atualize @rojaostudio/ds para a versão com o vocabulário${currentVersion ? ` (hoje ${currentVersion})` : ''} — os nomes antigos que o pacote ainda aceita são deprecated.`,
+  );
+}
+
 // ── the CSS that imports the DS ───────────────────────────────────────────────────────────────────────
 // `app/globals.css` in most, `src/app/globals.css` in some. Searching is more honest than guessing: if there is
 // more than one, the theme is left for a person to decide.
-const cssCandidates = walk(['.css'], (text) => /@rojao(?:studio)?\/ds\/styles/.test(text));
+const cssCandidates = fromNext ? [] : walk(['.css'], (text) => /@rojao(?:studio)?\/ds\/styles/.test(text));
 const cssRel = cssCandidates.length === 1 ? cssCandidates[0] : undefined;
 let theme: string | undefined;
 
 if (cssCandidates.length > 1) {
   warnings.push(`mais de um .css importa o DS (${cssCandidates.join(', ')}) — confira o tema e o @source à mão, o script não escolhe por você`);
-} else if (!cssRel) {
+} else if (!cssRel && !fromNext) {
   warnings.push('nenhum .css importa @rojaostudio/ds/styles — a parte de tema não se aplica aqui');
 }
 
@@ -229,7 +240,7 @@ if (cssRel) {
 
 // ── the 2.0 stylesheet: reported, never written ───────────────────────────────────────────────────────
 // Every 2.0 component reads its `rds-*` classes from styles/rds.css. Without it the components render unstyled.
-const importsRds = walk(['.css'], (text) => text.includes(RDS_CSS)).length > 0;
+const importsRds = fromNext || walk(['.css'], (text) => text.includes(RDS_CSS)).length > 0;
 if (!importsRds) {
   warnings.push(
     `nenhum CSS importa ${RDS_CSS} — os componentes 2.0 ficam sem estilo. Acrescente em ${cssRel ?? 'o CSS global do app'}:\n` +
@@ -241,7 +252,7 @@ if (!importsRds) {
 // The scope is public on npmjs since 1.0.0 (#102): no alternative registry, no token. In a monorepo consumer the
 // .npmrc lives at the root, hence the warning instead of a step.
 const npmrcPath = join(root, '.npmrc');
-if (existsSync(npmrcPath)) {
+if (!fromNext && existsSync(npmrcPath)) {
   const npmrc = readFileSync(npmrcPath, 'utf8');
   if (npmrc.includes('npm.pkg.github.com')) {
     const clean = npmrc
@@ -261,7 +272,7 @@ if (existsSync(npmrcPath)) {
 // ── transpilePackages ─────────────────────────────────────────────────────────────────────────────────
 // It existed because `exports` pointed at `.ts`/`.tsx`. With the pre-build of #100 it is not needed: keeping it
 // does not break, but every cold build pays again for what publishing already paid.
-for (const name of ['next.config.ts', 'next.config.js', 'next.config.mjs']) {
+for (const name of fromNext ? [] : ['next.config.ts', 'next.config.js', 'next.config.mjs']) {
   const p = join(root, name);
   if (!existsSync(p)) continue;
   const text = readFileSync(p, 'utf8');
@@ -283,7 +294,7 @@ const sourceFiles = walk(['.ts', '.tsx'], (text) => mentionsDs(text));
 for (const rel of sourceFiles) {
   const code = readFileSync(join(root, rel), 'utf8');
   try {
-    const r = transformSource(code, rel, { annotate: apply });
+    const r = transformSource(code, rel, { annotate: apply, from: fromNext ? 'next' : '1.x' });
     if (r.auto.length || r.manual.length || r.notices.length) {
       results.push({ file: rel, auto: r.auto, manual: r.manual, notices: r.notices, output: r.changed ? r.output : undefined });
     }
@@ -326,7 +337,8 @@ for (const [, e] of notices) {
   warnings.push(`${e.at.length}× em ${files} arquivo(s): ${e.message}\n        ${shown.join('\n        ')}${more}`);
 }
 
-console.log(`\n${basename(root)} — ${currentVersion ?? 'versão não declarada'} → ${TARGET_VERSION}${theme ? `  ·  tema \`${theme}\`` : ''}\n`);
+const target = fromNext ? 'vocabulário único de props (2.0.0-next)' : TARGET_VERSION;
+console.log(`\n${basename(root)} — ${currentVersion ?? 'versão não declarada'} → ${target}${theme ? `  ·  tema \`${theme}\`` : ''}\n`);
 
 for (const s of steps) console.log(`  ${apply ? '✓' : '·'} ${s.title}\n      ${s.detail}`);
 
@@ -365,7 +377,7 @@ if (reportPath) {
   const report = {
     project: basename(root),
     from: currentVersion ?? null,
-    to: TARGET_VERSION,
+    to: target,
     steps: steps.map(({ title, detail }) => ({ title, detail })),
     warnings,
     blockers,

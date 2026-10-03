@@ -14,7 +14,7 @@ afterEach(cleanup);
 function Example(props: Partial<SidebarProps>) {
   return (
     <Sidebar module="Pedidos" user="Ana Lima" footer={<SidebarItem icon={<UserIcon />}>Sair</SidebarItem>} {...props}>
-      <SidebarItem icon={<InfoIcon />} href="#/painel" active>
+      <SidebarItem icon={<InfoIcon />} href="#/painel" current>
         Painel
       </SidebarItem>
       <SidebarItem icon={<CalendarIcon />} href="#/agenda" count={6}>
@@ -34,11 +34,13 @@ function Example(props: Partial<SidebarProps>) {
 }
 
 describe.each(MODES)('Sidebar (%s)', (mode) => {
-  it('light and dark, open and collapsed, with sections, count, user and foot, pass axe', async () => {
+  it('open and collapsed, on the page and on the brand plate, with sections, count, user and foot, pass axe', async () => {
     const el = await render(
       <div style={{ display: 'flex', gap: 16, height: 640 }}>
         <Example aria-label="Navegação clara" />
-        <Example aria-label="Navegação escura" tone="dark" />
+        <div className="ds-plate" style={{ background: 'var(--surface-page)' }}>
+          <Example aria-label="Navegação na placa da marca" />
+        </div>
         <Example aria-label="Navegação recolhida" collapsed />
         <Example aria-label="Navegação com logo" header="logo" logo={<span>Produto</span>} />
       </div>,
@@ -117,7 +119,7 @@ describe('Sidebar behaviour', () => {
   it.each(MODES)('the current entry with a count (sidebar/item/count on the tint) passes axe (%s)', async (mode) => {
     const el = await render(
       <Sidebar module="Pedidos">
-        <SidebarItem icon={<InfoIcon />} href="#/painel" active count={2}>
+        <SidebarItem icon={<InfoIcon />} href="#/painel" current count={2}>
           Painel
         </SidebarItem>
       </Sidebar>,
@@ -146,5 +148,18 @@ describe('Sidebar behaviour', () => {
       expect(getComputedStyle(other, '::before').content).toBe('none');
       cleanup();
     }
+  });
+});
+
+describe('Sidebar vocabulary', () => {
+  it('the deprecated active is current', async () => {
+    const el = await render(
+      <Sidebar>
+        <SidebarItem icon={<InfoIcon />} href="#/a" active>
+          Painel
+        </SidebarItem>
+      </Sidebar>,
+    );
+    expect(el.querySelector('a')!.getAttribute('aria-current')).toBe('page');
   });
 });

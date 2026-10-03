@@ -1,20 +1,28 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { Bubble, type BubbleAlign, type BubbleVariant } from './bubble';
+import { Bubble, type BubbleAlign, type BubbleProps } from './bubble';
 import { TypingIndicator } from './typing-indicator';
 import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
 afterEach(cleanup);
 
-const VARIANTS: BubbleVariant[] = ['fill', 'muted', 'tinted', 'outline', 'ghost', 'error'];
+// The seven surfaces the Figma draws (variant × tone, typing apart).
+const SURFACES: Pick<BubbleProps, 'variant' | 'tone'>[] = [
+  { variant: 'fill' },
+  { variant: 'soft' },
+  { variant: 'soft', tone: 'action' },
+  { variant: 'outline' },
+  { variant: 'ghost' },
+  { variant: 'soft', tone: 'danger' },
+] as Pick<BubbleProps, 'variant' | 'tone'>[];
 const ALIGNS: BubbleAlign[] = ['start', 'end'];
 
 describe.each(MODES)('Bubble (%s)', (mode) => {
-  it('every variant × align, with reactions, passes axe', async () => {
+  it('every variant × tone × align, with reactions, passes axe', async () => {
     const el = await render(
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: 600 }}>
-        {VARIANTS.flatMap((variant) =>
+        {SURFACES.flatMap((surface) =>
           ALIGNS.map((align) => (
-            <Bubble key={`${variant}-${align}`} variant={variant} align={align} reactions={2}>
+            <Bubble key={`${surface.variant}-${surface.tone}-${align}`} {...(surface as BubbleProps)} align={align} reactions={2}>
               Achei 3 mesas de jantar em madeira maciça. Quer que eu filtre por preço?
             </Bubble>
           )),
@@ -28,8 +36,8 @@ describe.each(MODES)('Bubble (%s)', (mode) => {
   it('typing, start and end, passes axe', async () => {
     const el = await render(
       <div style={{ width: 600 }}>
-        <Bubble variant="typing" />
-        <Bubble variant="typing" align="end" />
+        <Bubble typing />
+        <Bubble typing align="end" />
       </div>,
       mode,
     );
@@ -84,8 +92,8 @@ describe('Bubble typing', () => {
   it('is a status announced as "digitando…", the three dots hidden; children replace the announcement', async () => {
     const el = await render(
       <div>
-        <Bubble variant="typing" />
-        <Bubble variant="typing">Ana está digitando…</Bubble>
+        <Bubble typing />
+        <Bubble typing>Ana está digitando…</Bubble>
       </div>,
     );
     const [plain, named] = el.querySelectorAll<HTMLElement>('.rds-bubble--typing');
@@ -97,7 +105,7 @@ describe('Bubble typing', () => {
   });
 
   it('58 × 48: three 6 dots 4 apart in 12 16; they pulse every 1400 ms, 200 ms after each other', async () => {
-    const el = await render(<Bubble variant="typing" />);
+    const el = await render(<Bubble typing />);
     const bubble = el.querySelector<HTMLElement>('.rds-bubble')!;
     const box = bubble.getBoundingClientRect();
     expect([box.width, box.height]).toEqual([58, 48]);
@@ -132,5 +140,20 @@ describe('Bubble typing', () => {
     const bubble = el.querySelector('.rds-bubble--typing')!;
     expect(bubble.getAttribute('role')).toBe('status');
     expect(bubble.textContent).toBe('Digitando');
+  });
+});
+
+describe('Bubble vocabulary', () => {
+  it('soft + action and soft + danger are the old tinted and error surfaces', async () => {
+    const el = await render(
+      <>
+        <Bubble>Oi</Bubble>
+        <Bubble tone="action">Oi</Bubble>
+        <Bubble variant="soft" tone="danger">Não enviada</Bubble>
+      </>,
+    );
+    const [plain, tinted, error] = [...el.querySelectorAll<HTMLElement>('.rds-bubble')].map((b) => getComputedStyle(b).backgroundColor);
+    expect(new Set([plain, tinted, error]).size).toBe(3);
+    expect(el.querySelectorAll('.rds-bubble--soft')).toHaveLength(3);
   });
 });

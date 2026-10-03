@@ -6,12 +6,13 @@ import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
 afterEach(cleanup);
 
-const TONES: StatTone[] = ['default', 'positive', 'negative', 'warning', 'muted'];
+const TONES: (StatTone | 'muted')[] = ['neutral', 'success', 'danger', 'warning', 'muted'];
 
-const stat = (tone: StatTone, framed?: boolean) => (
+const stat = (tone: StatTone | 'muted', framed?: boolean) => (
   <Stat
     key={`${tone}-${framed}`}
-    tone={tone}
+    tone={tone === 'muted' ? 'neutral' : tone}
+    muted={tone === 'muted'}
     framed={framed}
     label="Pedidos no mês"
     value="1.284"
@@ -49,7 +50,7 @@ describe.each(MODES)('Stat (%s)', (mode) => {
 
 describe('Stat behaviour', () => {
   it('reads label, value, the change and the caption in order; the sparkline is hidden', async () => {
-    const el = await render(stat('default'));
+    const el = await render(stat('neutral'));
     const root = el.querySelector('.rds-stat')!;
     expect(root.querySelector('.rds-stat__pair')!.textContent).toBe('Pedidos no mês1.284Subiu 24%vs. 1.142 em agosto');
     expect(root.querySelector('.rds-sparkline')!.getAttribute('aria-hidden')).toBe('true');
@@ -74,8 +75,8 @@ describe('Stat behaviour', () => {
   it('the tone paints the value with its token; no caption, no line', async () => {
     const el = await render(
       <div>
-        <Stat label="Entrou" value="R$ 10" tone="positive" />
-        <Stat label="Faltou" value="2" tone="negative" />
+        <Stat label="Entrou" value="R$ 10" tone="success" />
+        <Stat label="Faltou" value="2" tone="danger" />
       </div>,
     );
     const [pos, neg] = [...el.querySelectorAll('.rds-stat__value')].map((n) => getComputedStyle(n).color);
@@ -83,5 +84,23 @@ describe('Stat behaviour', () => {
     expect(neg).toBe(resolved('--stat-value-negative'));
     expect(pos).not.toBe(neg);
     expect(el.querySelector('.rds-stat__caption')).toBeNull();
+  });
+});
+
+describe('Stat vocabulary', () => {
+  it('muted greys the number; the deprecated positive, negative and default map to success, danger and neutral', async () => {
+    const el = await render(
+      <div>
+        <Stat label="Zero" value="0" muted />
+        <Stat label="Entrou" value="R$ 10" tone="positive" />
+        <Stat label="Faltou" value="2" tone="negative" />
+        <Stat label="Pedidos" value="3" tone="default" />
+      </div>,
+    );
+    const [zero, pos, neg, plain] = [...el.querySelectorAll('.rds-stat__value')].map((n) => getComputedStyle(n).color);
+    expect(zero).toBe(resolved('--stat-value-muted'));
+    expect(pos).toBe(resolved('--stat-value-positive'));
+    expect(neg).toBe(resolved('--stat-value-negative'));
+    expect(plain).toBe(resolved('--stat-value-default'));
   });
 });

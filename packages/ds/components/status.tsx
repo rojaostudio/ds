@@ -2,11 +2,11 @@ import type { HTMLAttributes, ReactNode } from 'react';
 
 export type StatusTone = 'neutral' | 'info' | 'success' | 'warning' | 'danger';
 /**
- * Figma calls this property `style`: outline (white pill with a hairline, for coloured bands), soft (light plate
+ * The emphasis (Figma: `variant`): outline (white pill with a hairline, for coloured bands), soft (light plate
  * with the tone's dark text, for dark backgrounds), fill (the tone's plate, for neutral backgrounds).
  */
 export type StatusVariant = 'outline' | 'soft' | 'fill';
-export type StatusSize = 'default' | 'sm';
+export type StatusSize = 'md' | 'sm';
 
 export interface StatusProps extends Omit<HTMLAttributes<HTMLSpanElement>, 'children'> {
   /** The state, in one or two words (Figma: `label`). The text says the state; the dot only adds colour. */
@@ -14,8 +14,8 @@ export interface StatusProps extends Omit<HTMLAttributes<HTMLSpanElement>, 'chil
   /** neutral (a record: draft, closed), info (in progress), success (done), warning (pending), danger (failed). */
   tone?: StatusTone;
   variant?: StatusVariant;
-  /** default 32 tall; sm 24 (dot 6), for narrow cards and table rows. */
-  size?: StatusSize;
+  /** md 32 tall (default); sm 24 (dot 6), for narrow cards and table rows. `'default'` is deprecated (2.0.0-next): it is `'md'`. */
+  size?: StatusSize | 'default';
 }
 
 /**
@@ -26,7 +26,7 @@ export interface StatusProps extends Omit<HTMLAttributes<HTMLSpanElement>, 'chil
 export function Status({
   tone = 'neutral',
   variant = 'outline',
-  size = 'default',
+  size = 'md',
   children,
   className,
   ...rest
@@ -34,7 +34,7 @@ export function Status({
   return (
     <span
       {...rest}
-      className={['rds-status', `rds-status--${tone}-${variant}`, `rds-status--${size}`, className]
+      className={['rds-status', `rds-status--${tone}-${variant}`, `rds-status--${size === 'default' ? 'md' : size}`, className]
         .filter(Boolean)
         .join(' ')}
     >

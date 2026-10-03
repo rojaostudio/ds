@@ -7,7 +7,7 @@ afterEach(cleanup);
 
 const TONES: TileTone[] = ['action', 'neutral', 'info', 'success', 'warning', 'danger'];
 const VARIANTS: TileVariant[] = ['fill', 'soft'];
-const SIZES: TileSize[] = ['sm', 'default', 'lg'];
+const SIZES: TileSize[] = ['sm', 'md', 'lg'];
 
 describe.each(MODES)('Tile (%s)', (mode) => {
   it('every tone, variant and size passes axe and is decorative', async () => {

@@ -10,6 +10,9 @@ import { MoreVerticalIcon } from './internal/icons';
 export interface RowActionItem {
   label:     string;
   icon?:     ReactNode;
+  /** neutral (default) or danger: danger items go last, after a separator. */
+  tone?:     'neutral' | 'danger';
+  /** @deprecated Use `tone` (2.0.0-next): default → neutral, danger stays. */
   variant?:  'default' | 'danger';
   disabled?: boolean;
   onClick:   () => void;
@@ -39,11 +42,12 @@ export function RowActions({
   items = [],
   dangerSeparator,
 }: RowActionsProps) {
-  const hasDanger = items.some((i) => i.variant === 'danger');
+  const isDanger = (i: RowActionItem) => (i.tone ?? i.variant) === 'danger';
+  const hasDanger = items.some(isDanger);
   const showSep   = dangerSeparator ?? hasDanger;
 
-  const normalItems = showSep ? items.filter((i) => i.variant !== 'danger') : items;
-  const dangerItems = showSep ? items.filter((i) => i.variant === 'danger')  : [];
+  const normalItems = showSep ? items.filter((i) => !isDanger(i)) : items;
+  const dangerItems = showSep ? items.filter(isDanger) : [];
 
   return (
     <div className="rds-row-actions">
@@ -85,7 +89,7 @@ export function RowActions({
               <DropdownMenuItem
                 key={i}
                 icon={item.icon}
-                tone={item.variant}
+                tone={isDanger(item) ? 'danger' : 'neutral'}
                 disabled={item.disabled}
                 onSelect={item.onClick}
               >

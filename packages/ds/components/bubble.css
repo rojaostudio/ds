@@ -74,25 +74,28 @@
   --_text: var(--bubble-fill-text);
 }
 
-.rds-bubble--muted {
+/* soft + neutral (the old `muted`): the one answering. */
+.rds-bubble--soft {
   --_background: var(--bubble-muted-background);
   --_text: var(--bubble-muted-text);
 }
 
-.rds-bubble--tinted {
+/* soft + action (the old `tinted`): the one answering, on the brand tint. */
+.rds-bubble--soft.rds-bubble--action {
   --_background: var(--bubble-tinted-background);
   --_text: var(--bubble-tinted-text);
+}
+
+/* soft + danger (the old `error`): it was not sent. */
+.rds-bubble--soft.rds-bubble--danger {
+  --_background: var(--bubble-error-background);
+  --_text: var(--bubble-error-text);
 }
 
 .rds-bubble--outline {
   --_background: var(--bubble-outline-background);
   --_text: var(--bubble-outline-text);
   border-color: var(--bubble-outline-border);
-}
-
-.rds-bubble--error {
-  --_background: var(--bubble-error-background);
-  --_text: var(--bubble-error-text);
 }
 
 .rds-bubble--ghost {

@@ -67,8 +67,11 @@ export function ContextMenu({ children, items, disabled, onOpenChange, className
 export interface ContextMenuItemProps extends MenuItemContentProps {
   /** Runs when the item is chosen; the menu then closes. */
   onSelect?: () => void;
-  /** danger for what destroys: last, after a separator. */
-  tone?: ContextMenuItemTone;
+  /**
+   * neutral (default), or danger for what destroys: last, after a separator (Figma: `tone`). `'default'` is
+   * deprecated (2.0.0-next): it is `'neutral'`.
+   */
+  tone?: ContextMenuItemTone | 'default';
   disabled?: boolean;
   textValue?: string;
 }

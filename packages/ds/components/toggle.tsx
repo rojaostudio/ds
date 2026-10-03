@@ -12,7 +12,7 @@ export interface ToggleProps extends Omit<ComponentPropsWithRef<typeof TogglePri
   children?: ReactNode;
   /** Icon before the text (Figma: `showIcon` + `iconName`). Decorative, rendered with aria-hidden. */
   icon?: ReactNode;
-  /** The emphasis (Figma: `style`): ghost in a toolbar, outline when it stands alone. */
+  /** The emphasis (Figma: `variant`): ghost in a toolbar, outline when it stands alone. */
   variant?: ToggleVariant;
   /** Rendered as aria-disabled="true": stays in the tab order and takes focus, but does not toggle. */
   disabled?: boolean;

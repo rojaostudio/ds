@@ -9,7 +9,7 @@ export interface BreadcrumbItem {
   href?: string;
 }
 
-export type BreadcrumbTone = 'default' | 'inverse';
+export type BreadcrumbTone = 'neutral' | 'inverse';
 
 export type BreadcrumbLinkComponent = ComponentType<{ href: string; className?: string; children: ReactNode }>;
 
@@ -17,10 +17,10 @@ export interface BreadcrumbProps extends Omit<HTMLAttributes<HTMLElement>, 'chil
   /** The path, from the most general to the current page, the last one (Figma: the `items` slot). */
   items: BreadcrumbItem[];
   /**
-   * default on a light surface; inverse over colors/primary. Deprecated in the Figma since 27/09/2026: for the brand
-   * colour, put the Breadcrumb in a brand-mode scope and keep the default tone.
+   * neutral (default) on a light surface; inverse over colors/primary (Figma: `tone`). For the brand colour prefer a
+   * brand-mode scope (`.ds-plate`) with the neutral tone. `'default'` is deprecated (2.0.0-next): it is `'neutral'`.
    */
-  tone?: BreadcrumbTone;
+  tone?: BreadcrumbTone | 'default';
   /** More steps than this: the middle ones hide behind "…", a button that shows the whole path. */
   maxItems?: number;
   /** The link element (default `<a>`). Pass a framework Link (Next's `Link`) to navigate on the client. */
@@ -40,7 +40,7 @@ function Anchor({ href, className, children }: { href: string; className?: strin
  * <ol>; the current step has aria-current="page" and no link; the arrows are hidden from screen readers.
  * Styles: breadcrumb.css.
  */
-export function Breadcrumb({ items, tone = 'default', maxItems = 4, linkAs: Link = Anchor, className, ...rest }: BreadcrumbProps) {
+export function Breadcrumb({ items, tone = 'neutral', maxItems = 4, linkAs: Link = Anchor, className, ...rest }: BreadcrumbProps) {
   const [expanded, setExpanded] = useState(false);
   const list = useRef<HTMLOListElement>(null);
   const collapse = !expanded && items.length > maxItems;

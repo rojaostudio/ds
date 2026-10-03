@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import { FileInput } from './file-input';
 
 /**
- * @deprecated Use `<FileInput variant="dropzone">` (Figma [RDS] Forms/FileInput), which has the label, the hint, the
+ * @deprecated Use `<FileInput layout="dropzone">` (Figma [RDS] Forms/FileInput), which has the label, the hint, the
  * error and the chosen file's row. Kept as a thin wrapper so 1.x code keeps compiling.
  */
 export interface DropzoneProps {
@@ -20,7 +20,7 @@ export interface DropzoneProps {
 }
 
 /**
- * @deprecated Use `<FileInput variant="dropzone">`. A drop target only: it hands the files over and stays empty,
+ * @deprecated Use `<FileInput layout="dropzone">`. A drop target only: it hands the files over and stays empty,
  * ready for the next ones, as the 1.x Dropzone did.
  */
 export function Dropzone({
@@ -34,7 +34,7 @@ export function Dropzone({
 }: DropzoneProps) {
   return (
     <FileInput
-      variant="dropzone"
+      layout="dropzone"
       aria-label={ariaLabel}
       dropTitle={children}
       fileName=""

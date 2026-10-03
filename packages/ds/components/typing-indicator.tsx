@@ -1,18 +1,18 @@
 import { Bubble } from './bubble';
 
-/** @deprecated Use Bubble with variant="typing". */
+/** @deprecated Use Bubble with `typing`. */
 export interface TypingIndicatorProps {
   /** What a screen reader hears. Default "Digitando". */
   ariaLabel?: string;
 }
 
 /**
- * @deprecated Use `<Bubble variant="typing" />` (Figma [RDS] Chat/Bubble, style=typing). A thin wrapper over it: the
+ * @deprecated Use `<Bubble typing />` (Figma [RDS] Chat/Bubble, typing=true). A thin wrapper over it: the
  * label becomes the bubble's announcement.
  */
 export function TypingIndicator({ ariaLabel = 'Digitando' }: TypingIndicatorProps) {
   return (
-    <Bubble variant="typing" align="start">
+    <Bubble typing align="start">
       {ariaLabel}
     </Bubble>
   );

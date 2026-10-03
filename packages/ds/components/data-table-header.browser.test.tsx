@@ -52,7 +52,7 @@ function Example({
       }}
       quickFilters={
         <FilterChipGroup aria-label="Filtros rápidos">
-          <FilterChip active={late} count={2} onClick={() => setLate((v) => !v)}>
+          <FilterChip pressed={late} count={2} onClick={() => setLate((v) => !v)}>
             Atrasados
           </FilterChip>
         </FilterChipGroup>
@@ -170,7 +170,7 @@ describe('DataTableHeader behaviour', () => {
           search={{ value: 'Maria', onChange: noop, placeholder: 'Buscar pedidos…' }}
           quickFilters={
             <FilterChipGroup aria-label="Filtros rápidos">
-              <FilterChip active count={12} onClick={noop}>
+              <FilterChip pressed count={12} onClick={noop}>
                 Abertos
               </FilterChip>
               <FilterChip count={3} onClick={noop}>

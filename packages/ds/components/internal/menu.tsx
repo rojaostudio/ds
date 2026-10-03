@@ -2,7 +2,8 @@
 // (icon, label, shortcut). Each component wraps it in its own Radix item. Not exported from the package.
 import type { ReactNode } from 'react';
 
-export type MenuItemTone = 'default' | 'danger';
+/** neutral (default) or danger (Figma: `tone`). */
+export type MenuItemTone = 'neutral' | 'danger';
 
 export interface MenuItemContentProps {
   /** The action, a verb ("Duplicar") (Figma: `label`). */
@@ -13,7 +14,7 @@ export interface MenuItemContentProps {
   shortcut?: ReactNode;
 }
 
-export const menuItemClassName = (tone: MenuItemTone = 'default', extra?: string) =>
+export const menuItemClassName = (tone: MenuItemTone | 'default' = 'neutral', extra?: string) =>
   ['rds-menu__item', tone === 'danger' && 'rds-menu__item--danger', extra].filter(Boolean).join(' ');
 
 export function MenuItemContent({ children, icon, shortcut }: MenuItemContentProps) {

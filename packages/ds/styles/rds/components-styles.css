@@ -554,7 +554,7 @@
   line-height: var(--type-body-line);
 }
 
-.rds-avatar--brand.rds-avatar--default {
+.rds-avatar--brand.rds-avatar--md {
   font-size: var(--type-body-size);
   line-height: var(--type-body-line);
 }
@@ -665,8 +665,8 @@
   --_background: var(--badge-accent-fill-background);
   --_label: var(--badge-accent-fill-label);
 }
-/* The brand's highlighter: the one badge that reads as a marker. */
-.rds-badge--accent-highlight {
+/* accent soft: the brand's highlighter, the one badge that reads as a marker (the old `highlight`). */
+.rds-badge--accent-soft {
   --_background: var(--badge-accent-highlight-background);
   --_label: var(--badge-accent-highlight-label);
 }
@@ -1156,25 +1156,28 @@ button.rds-breadcrumb__link:focus-visible {
   --_text: var(--bubble-fill-text);
 }
 
-.rds-bubble--muted {
+/* soft + neutral (the old `muted`): the one answering. */
+.rds-bubble--soft {
   --_background: var(--bubble-muted-background);
   --_text: var(--bubble-muted-text);
 }
 
-.rds-bubble--tinted {
+/* soft + action (the old `tinted`): the one answering, on the brand tint. */
+.rds-bubble--soft.rds-bubble--action {
   --_background: var(--bubble-tinted-background);
   --_text: var(--bubble-tinted-text);
+}
+
+/* soft + danger (the old `error`): it was not sent. */
+.rds-bubble--soft.rds-bubble--danger {
+  --_background: var(--bubble-error-background);
+  --_text: var(--bubble-error-text);
 }
 
 .rds-bubble--outline {
   --_background: var(--bubble-outline-background);
   --_text: var(--bubble-outline-text);
   border-color: var(--bubble-outline-border);
-}
-
-.rds-bubble--error {
-  --_background: var(--bubble-error-background);
-  --_text: var(--bubble-error-text);
 }
 
 .rds-bubble--ghost {
@@ -1749,12 +1752,12 @@ button.rds-breadcrumb__link:focus-visible {
 /* components/card.css */
 /* @tokens card */
 /*
- * Card (Content collection, card/*): header, content and footer. default pads 24, sm pads 16; 24 between the
- * header, the content and the actions (sm: 16). Corners in radius/container.
- *   default: card/background, a card/border hairline and elevation/raised.
+ * Card (Content collection, card/*): header, content and footer. md pads 24, sm pads 16; 24 between the
+ * header, the content and the actions (sm: 16). Corners in radius/container. The Figma `variant`:
+ *   surface: card/background, a card/border hairline and elevation/raised (the default).
  *   outline: only the hairline, no fill, no shadow; it takes the surface underneath (cards side by side in a grid,
  *            inside a panel or a list, where stacked shadows turn into noise).
- *   tint:    the brand's light plate (card/tint/background), no border, no shadow, title in card/tint/title.
+ *   soft:    the brand's light plate (card/tint/background), no border, no shadow, title in card/tint/title.
  * The footer has no band and no rule: the actions sit side by side, the main one last (on the right). The
  * card/footer/background tokens are obsolete in Figma (03/10/2026) and not read here.
  */
@@ -1782,7 +1785,7 @@ button.rds-breadcrumb__link:focus-visible {
   box-shadow: none;
 }
 
-.rds-card--tint {
+.rds-card--soft {
   --_title: var(--card-tint-title);
 
   border-color: transparent;
@@ -4340,14 +4343,14 @@ input:focus-visible + .rds-checkbox__box {
 }
 
 @media (hover: hover) {
-  .rds-filter-chip:not(.rds-filter-chip--active, [aria-disabled='true']):hover {
+  .rds-filter-chip:not(.rds-filter-chip--pressed, [aria-disabled='true']):hover {
     --_surface: var(--filter-chip-surface-hover);
     --_stroke: var(--filter-chip-stroke-hover);
     --_text: var(--filter-chip-text-hover);
   }
 }
 
-.rds-filter-chip--active {
+.rds-filter-chip--pressed {
   --_surface: color-mix(in srgb, var(--filter-chip-surface-active) 12%, transparent);
   --_stroke: var(--filter-chip-stroke-active);
   --_text: var(--filter-chip-text-active);
@@ -4395,7 +4398,7 @@ input:focus-visible + .rds-checkbox__box {
     border-color: CanvasText;
   }
 
-  .rds-filter-chip--active {
+  .rds-filter-chip--pressed {
     border-color: Highlight;
     outline: var(--border-width) solid Highlight;
   }
@@ -6562,7 +6565,7 @@ body:has(.rds-modal) {
 /* components/item.css */
 /* @tokens item */
 /*
- * Item (Content collection, item/*): one list row, at least 44 tall. default pads 12 16, gap 16; sm pads 8 12,
+ * Item (Content collection, item/*): one list row, at least 44 tall. md pads 12 16, gap 16; sm pads 8 12,
  * gap 12. Corners in radius/container. Title in label (16/24 medium), description in small (14/20); sm one step down.
  */
 .rds-item-group {
@@ -6574,11 +6577,11 @@ body:has(.rds-modal) {
   list-style: none;
 }
 
-.rds-item-group:has(> .rds-item--default) {
+.rds-item-group:has(> .rds-item--ghost) {
   gap: 0;
 }
 
-.rds-item-group > .rds-item--default + .rds-item--default {
+.rds-item-group > .rds-item--ghost + .rds-item--ghost {
   border-top: var(--border-width) solid var(--item-border);
 }
 
@@ -6604,7 +6607,7 @@ body:has(.rds-modal) {
   --_gap: var(--space-12);
 }
 
-.rds-item--default {
+.rds-item--ghost {
   padding: var(--_pad-y) var(--_pad-x);
   border-width: 0;
   border-radius: 0;
@@ -6614,7 +6617,7 @@ body:has(.rds-modal) {
   border-color: var(--item-border);
 }
 
-.rds-item--muted {
+.rds-item--soft {
   background: var(--item-muted-background);
 }
 
@@ -6660,7 +6663,7 @@ body:has(.rds-modal) {
 
 @media (forced-colors: active) {
   .rds-item--outline,
-  .rds-item--muted {
+  .rds-item--soft {
     border-color: CanvasText;
   }
 }
@@ -8849,7 +8852,8 @@ input:focus-visible + .rds-radio__circle {
  * sidebar/item/label/active and a 3 × 20 marker on the left in sidebar/item/indicator, so the current entry does not
  * rest on colour alone.
  * Section labels 11/14 bold, 16 above and 6 below, with a 14 chevron. Foot: who is signed in (12/16) and Sair.
- * dark (deprecated in the Figma) reads sidebar/dark/*; the current entry stays the light pill.
+ * No tone: the Sidebar follows its container's mode. The brand-coloured bar is a `.ds-plate` around it (the brand
+ * mode), the dark one a `.dark`.
  */
 .rds-sidebar {
   --_background: var(--sidebar-background);
@@ -8873,21 +8877,6 @@ input:focus-visible + .rds-radio__circle {
   border-right: var(--border-width) solid var(--sidebar-border);
   background: var(--_background);
   font-family: var(--type-font-stack);
-}
-
-.rds-sidebar--dark {
-  --_background: var(--sidebar-dark-background);
-  --_label: var(--sidebar-dark-item-label-default);
-  --_label-hover: var(--sidebar-dark-item-label-hover);
-  --_hover: var(--sidebar-dark-item-background-hover);
-  --_module: var(--sidebar-dark-module);
-  --_user: var(--sidebar-dark-user);
-  --_section: var(--sidebar-dark-section-label);
-  --_count: var(--sidebar-dark-item-label-default);
-  /* No dark ring token: the strongest text over the brand, which is what the ring needs to show there. */
-  --_ring: var(--sidebar-dark-module);
-
-  border-right-color: transparent;
 }
 
 .rds-sidebar--collapsed {
@@ -9492,6 +9481,7 @@ input:focus-visible + .rds-radio__circle {
 /*
  * Stat (Content collection, stat/*): 8 between the text and the sparkline. Text: the label 14/20, the row (the
  * value in type/value bold and the Delta, 8 apart, wrapping 4 below) and the caption 12/16, 4 apart.
+ * tone neutral (default), success, danger, warning; muted greys a zero out.
  * framed=true: 16 inside, a 1px border, corners radius/container. framed=false (the SummaryBar cell): 12 16, no border.
  */
 .rds-stat {
@@ -9513,11 +9503,11 @@ input:focus-visible + .rds-radio__circle {
   border-radius: var(--radius-container);
 }
 
-.rds-stat--positive {
+.rds-stat--success {
   --_value: var(--stat-value-positive);
 }
 
-.rds-stat--negative {
+.rds-stat--danger {
   --_value: var(--stat-value-negative);
 }
 
@@ -9525,6 +9515,7 @@ input:focus-visible + .rds-radio__circle {
   --_value: var(--stat-value-warning);
 }
 
+/* muted (zero, nothing to see) wins over the tone: the Figma draws it only on neutral. */
 .rds-stat--muted {
   --_value: var(--stat-value-muted);
 }

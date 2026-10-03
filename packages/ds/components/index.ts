@@ -62,9 +62,9 @@ export type { ProgressProps, ProgressKind, ProgressSize } from './progress';
 export { StarRating } from './star-rating';
 export type { StarRatingProps, StarRatingSize } from './star-rating';
 
-// 2.0 (#16): Content follows the Figma [RDS]. Card: surface default · tint, size default · sm; the old variants left.
+// 2.0 (#16): Content follows the Figma [RDS]. Card: variant surface · soft · outline, size md · sm; the old variants left.
 export { Card, CardHeader, CardContent, CardFooter } from './card';
-export type { CardProps, CardHeaderProps, CardContentProps, CardFooterProps, CardSurface, CardSize } from './card';
+export type { CardProps, CardHeaderProps, CardContentProps, CardFooterProps, CardVariant, CardSurface, CardSize } from './card';
 export { Tile } from './tile';
 export type { TileProps, TileTone, TileVariant, TileSize } from './tile';
 export { Kbd, KbdGroup } from './kbd';
@@ -173,21 +173,21 @@ export type { SettingRowProps } from './setting-row';
 export { SettingsList } from './settings-list';
 export type { SettingsListProps } from './settings-list';
 
-/** @deprecated FileInput variant="dropzone". */
+/** @deprecated FileInput layout="dropzone". */
 export { Dropzone } from './dropzone';
 export type { DropzoneProps } from './dropzone';
 
 export { MediaTile } from './media-tile';
 export type { MediaTileProps, MediaTileAspect } from './media-tile';
 
-// 2.0 (#17): Chat follows the Figma [RDS]. ChatBubble became Bubble (variant fill · muted · tinted · outline · ghost ·
-// error · typing, align start · end).
+// 2.0 (#17): Chat follows the Figma [RDS]. ChatBubble became Bubble (variant fill · soft · outline · ghost, tone
+// neutral · action · danger, typing, align start · end).
 export { Attachment } from './attachment';
 export type { AttachmentProps, AttachmentStatus, AttachmentOrientation } from './attachment';
 export { Bubble } from './bubble';
-export type { BubbleProps, BubbleVariant, BubbleAlign } from './bubble';
+export type { BubbleProps, BubbleVariant, BubbleTone, BubbleAlign } from './bubble';
 export { Marker } from './marker';
-export type { MarkerProps, MarkerVariant } from './marker';
+export type { MarkerProps, MarkerKind, MarkerVariant } from './marker';
 export { Message } from './message';
 export type { MessageProps, MessageAlign } from './message';
 export { MessageScroller } from './message-scroller';
@@ -195,7 +195,7 @@ export type { MessageScrollerProps } from './message-scroller';
 export { Questionnaire } from './questionnaire';
 export type { QuestionnaireProps, QuestionnaireAnswer } from './questionnaire';
 
-// Deprecated (#18): a thin wrapper over the Bubble variant="typing".
+// Deprecated (#18): a thin wrapper over the Bubble with `typing`.
 export { TypingIndicator } from './typing-indicator';
 export type { TypingIndicatorProps } from './typing-indicator';
 
@@ -210,7 +210,7 @@ export { PageHeader } from './page-header';
 export type { PageHeaderProps, PageHeaderHeading } from './page-header';
 
 export { Sidebar, SidebarItem, SidebarSection, SidebarSeparator } from './sidebar';
-export type { SidebarProps, SidebarItemProps, SidebarSectionProps, SidebarTone, SidebarHeader } from './sidebar';
+export type { SidebarProps, SidebarItemProps, SidebarSectionProps, SidebarHeader } from './sidebar';
 
 export { NavigationMenu } from './navigation-menu';
 export type { NavigationMenuProps, NavigationMenuEntry, NavigationMenuLink, NavigationMenuLinkComponent } from './navigation-menu';
@@ -261,7 +261,7 @@ export { Heading, HeadingMark } from './heading';
 export type { HeadingProps, HeadingMarkProps, HeadingLevel, HeadingTone, HeadingElement } from './heading';
 
 export { Avatar, AvatarGroup, initials } from './avatar';
-export type { AvatarProps, AvatarGroupProps, AvatarSize, AvatarGroupSize, AvatarType, AvatarVariant } from './avatar';
+export type { AvatarProps, AvatarGroupProps, AvatarSize, AvatarGroupSize, AvatarType, AvatarContent, AvatarVariant } from './avatar';
 
 export { IconButton } from './icon-button';
 export type { IconButtonProps } from './icon-button';
@@ -298,7 +298,7 @@ export type { ListboxProps, ListboxOptionProps } from './listbox';
 export { Calendar } from './calendar';
 export type { CalendarProps, IsoDate } from './calendar';
 export { FileInput, formatFileSize } from './file-input';
-export type { FileInputProps, FileInputVariant } from './file-input';
+export type { FileInputProps, FileInputLayout, FileInputVariant } from './file-input';
 export { NumberInput } from './number-input';
 export type { NumberInputProps, NumberInputStep } from './number-input';
 export { InputOTP } from './input-otp';

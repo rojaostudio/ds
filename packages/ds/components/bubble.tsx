@@ -1,20 +1,22 @@
 import type { HTMLAttributes, ReactNode } from 'react';
 import { ThumbsUpIcon } from './internal/icons';
 
-export type BubbleVariant = 'fill' | 'muted' | 'tinted' | 'outline' | 'ghost' | 'error' | 'typing';
+/** The emphasis (Figma: `variant`). */
+export type BubbleVariant = 'fill' | 'soft' | 'outline' | 'ghost';
+/** The colour (Figma: `tone`). action and danger exist only on soft. */
+export type BubbleTone = 'neutral' | 'action' | 'danger';
 export type BubbleAlign = 'start' | 'end';
 
-export interface BubbleProps extends HTMLAttributes<HTMLDivElement> {
-  /**
-   * The surface (Figma: `style`). fill: the person writing, in the brand colour. muted or tinted: the one answering.
-   * outline: on a coloured background. ghost: a long answer from the assistant, no box. error: it was not sent.
-   * typing: the three dots of the one answering while they write; no text, no reactions.
-   */
-  variant?: BubbleVariant;
+interface BubbleBase extends HTMLAttributes<HTMLDivElement> {
   /** start: the one answering, the small corner bottom left; end: the person writing, bottom right. */
   align?: BubbleAlign;
   /**
-   * The message (Figma: `text`). Line breaks are kept. In `typing` it is what a screen reader hears instead of the
+   * The three dots of the one answering while they write (Figma: `typing=true`); no text, no reactions. The
+   * surface is the soft neutral one, whatever `variant` and `tone` say.
+   */
+  typing?: boolean;
+  /**
+   * The message (Figma: `text`). Line breaks are kept. With `typing` it is what a screen reader hears instead of the
    * dots, "digitando…" by default ("Ana está digitando…").
    */
   children?: ReactNode;
@@ -23,11 +25,20 @@ export interface BubbleProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 /**
+ * The surface (Figma: `variant` × `tone`, only the combinations the Figma draws):
+ * - soft (default): the one answering. tone neutral (default), action (the brand tint) or danger (it was not sent).
+ * - fill: the person writing, in the brand colour. outline: on a coloured background. ghost: a long answer from the
+ *   assistant, no box. These three are neutral only.
+ */
+export type BubbleProps = BubbleBase &
+  ({ variant?: 'soft'; tone?: BubbleTone } | { variant: 'fill' | 'outline' | 'ghost'; tone?: 'neutral' });
+
+/**
  * Bubble — Figma [RDS] Chat/Bubble. The surface of a message: it grows up to 480 and wraps. Inside a Message,
  * which adds the avatar, the name and the actions. Styles: bubble.css.
  */
-export function Bubble({ variant = 'muted', align = 'start', children, reactions, className, ...rest }: BubbleProps) {
-  if (variant === 'typing') {
+export function Bubble({ variant = 'soft', tone = 'neutral', typing = false, align = 'start', children, reactions, className, ...rest }: BubbleProps) {
+  if (typing) {
     // A live region: it is announced when it appears. The dots pulse every 1400 ms and stand still under reduced motion.
     return (
       <div role="status" {...rest} className={['rds-bubble', 'rds-bubble--typing', `rds-bubble--${align}`, className].filter(Boolean).join(' ')}>
@@ -41,7 +52,7 @@ export function Bubble({ variant = 'muted', align = 'start', children, reactions
     );
   }
   return (
-    <div {...rest} className={['rds-bubble', `rds-bubble--${variant}`, `rds-bubble--${align}`, className].filter(Boolean).join(' ')}>
+    <div {...rest} className={['rds-bubble', `rds-bubble--${variant}`, `rds-bubble--${tone}`, `rds-bubble--${align}`, className].filter(Boolean).join(' ')}>
       <div className="rds-bubble__text">{children}</div>
       {reactions !== undefined && reactions > 0 && (
         <div className="rds-bubble__reactions-row">

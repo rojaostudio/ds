@@ -11,8 +11,8 @@ import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
 afterEach(cleanup);
 
-const VARIANTS: ItemVariant[] = ['default', 'outline', 'muted'];
-const SIZES: ItemSize[] = ['default', 'sm'];
+const VARIANTS: ItemVariant[] = ['ghost', 'outline', 'soft'];
+const SIZES: ItemSize[] = ['md', 'sm'];
 
 describe.each(MODES)('Item (%s)', (mode) => {
   it('every variant × size, with media, description and action, passes axe', async () => {
@@ -46,7 +46,7 @@ describe('Item behaviour', () => {
     expect(await axeViolations(el)).toEqual([]);
   });
 
-  it('is a <li> inside an ItemGroup and a <div> alone; default rows get a line between them', async () => {
+  it('is a <li> inside an ItemGroup and a <div> alone; ghost rows get a line between them', async () => {
     const el = await render(
       <div>
         <ItemGroup>
@@ -73,5 +73,20 @@ describe('Item behaviour', () => {
     expect(el.querySelector('.rds-item')).not.toBeNull();
     expect(el.querySelector('label[for="email"]')!.textContent).toBe('E-mail');
     expect(await axeViolations(el)).toEqual([]);
+  });
+});
+
+describe('Item vocabulary', () => {
+  it('the deprecated variant default/muted and size="default" map to ghost, soft and md', async () => {
+    const el = await render(
+      <>
+        <Item variant="default" size="default" title="a" />
+        <Item variant="muted" title="b" />
+      </>,
+    );
+    const [a, b] = [...el.querySelectorAll<HTMLElement>('.rds-item')].map((x) => x.className);
+    expect(a).toContain('rds-item--ghost');
+    expect(a).not.toContain('rds-item--sm');
+    expect(b).toContain('rds-item--soft');
   });
 });

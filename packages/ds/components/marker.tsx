@@ -2,10 +2,18 @@ import type { HTMLAttributes, ReactNode } from 'react';
 import { SparklesIcon } from './internal/icons';
 import { Spinner } from './spinner';
 
+/** The marker's shape (Figma: `kind`): it is the form, not the emphasis, so it is not a `variant`. */
+export type MarkerKind = 'inline' | 'border' | 'separator';
+/** @deprecated Use MarkerKind (2.0.0-next: `variant` is `kind`, and default is inline). */
 export type MarkerVariant = 'default' | 'border' | 'separator';
 
 export interface MarkerProps extends HTMLAttributes<HTMLDivElement> {
-  /** default: icon and text; border: with a line under it, to split rows; separator: the text between two lines. */
+  /**
+   * inline (default): icon and text; border: with a line under it, to split rows; separator: the text between two
+   * lines (Figma: `kind`).
+   */
+  kind?: MarkerKind;
+  /** @deprecated Use `kind` (2.0.0-next): default → inline, border and separator stay. */
   variant?: MarkerVariant;
   /** The assistant's status, a system note or a date (Figma: `text`). */
   children: ReactNode;
@@ -22,10 +30,11 @@ export interface MarkerProps extends HTMLAttributes<HTMLDivElement> {
  * Marker — Figma [RDS] Chat/Marker. A line inside the conversation that is not a message: the assistant's status
  * ("Buscando…"), a system note or a date between two lines. Styles: marker.css.
  */
-export function Marker({ variant = 'default', children, icon = <SparklesIcon />, loading, className, ...rest }: MarkerProps) {
-  const classes = ['rds-marker', `rds-marker--${variant}`, className].filter(Boolean).join(' ');
+export function Marker({ kind: kindProp, variant, children, icon = <SparklesIcon />, loading, className, ...rest }: MarkerProps) {
+  const kind: MarkerKind = kindProp ?? (variant === 'default' || variant === undefined ? 'inline' : variant);
+  const classes = ['rds-marker', `rds-marker--${kind}`, className].filter(Boolean).join(' ');
   const role = loading ? 'status' : undefined;
-  if (variant === 'separator') {
+  if (kind === 'separator') {
     return (
       <div role={role} {...rest} className={classes}>
         <span className="rds-marker__line" aria-hidden="true" />

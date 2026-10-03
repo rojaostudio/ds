@@ -11,7 +11,7 @@ afterEach(cleanup);
 const messages = (count: number) =>
   Array.from({ length: count }, (_, i) => (
     <Message key={i} align={i % 2 ? 'end' : 'start'}>
-      <Bubble variant={i % 2 ? 'fill' : 'muted'} align={i % 2 ? 'end' : 'start'}>
+      <Bubble variant={i % 2 ? 'fill' : 'soft'} align={i % 2 ? 'end' : 'start'}>
         Mensagem {i + 1}
       </Bubble>
     </Message>
@@ -24,7 +24,7 @@ function Chat({ initial = 12 }: { initial?: number }) {
   return (
     <div style={{ height: 240, width: 480 }}>
       <MessageScroller>
-        <Marker variant="separator">Hoje</Marker>
+        <Marker kind="separator">Hoje</Marker>
         {messages(count)}
       </MessageScroller>
     </div>

@@ -5,7 +5,7 @@ import { FileInput } from './file-input';
 import { ImageCropDialog, type CropPreset } from './image-crop-dialog';
 
 /**
- * @deprecated Use `<FileInput variant="tile">` (Figma [RDS] Forms/FileInput): the image's square with the preview
+ * @deprecated Use `<FileInput layout="tile">` (Figma [RDS] Forms/FileInput): the image's square with the preview
  * and the swap and remove buttons. ImageUpload is now a thin wrapper over it that keeps most of the 1.x API compiling and
  * keeps the upload (`onUpload`) and the crop (`crop`). It is always the tile (`variant`, `aspect` and the preview
  * class names left in 2.0): an image asks for a preview.
@@ -67,7 +67,7 @@ export interface ImageUploadProps {
   labels?: Partial<ImageUploadLabels>;
 }
 
-/** @deprecated Use `<FileInput variant="tile">`, with the upload in its `onFiles` and the URL in `preview`. */
+/** @deprecated Use `<FileInput layout="tile">`, with the upload in its `onFiles` and the URL in `preview`. */
 export function ImageUpload({
   name,
   value,
@@ -119,7 +119,7 @@ export function ImageUpload({
     <>
       <FileInput
         ref={input}
-        variant="tile"
+        layout="tile"
         label={label}
         aria-label={label ? undefined : L.aria}
         hint={hint}

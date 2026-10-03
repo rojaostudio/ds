@@ -20,7 +20,7 @@ const LONG: BreadcrumbItem[] = [
 ];
 
 describe.each(MODES)('Breadcrumb (%s)', (mode) => {
-  it('default, and inverse over colors/primary, pass axe', async () => {
+  it('neutral (default), and inverse over colors/primary, pass axe', async () => {
     const el = await render(
       <div style={{ display: 'grid', gap: 16 }}>
         <Breadcrumb items={PATH} />

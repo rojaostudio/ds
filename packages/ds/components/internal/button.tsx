@@ -3,7 +3,7 @@ import { useEffect, type MouseEvent, type MouseEventHandler } from 'react';
 import { announce } from './announce';
 
 export type ButtonTone = 'action' | 'neutral' | 'danger' | 'inverse';
-/** Figma calls this property `style`; here it is `variant` because `style` belongs to React. */
+/** The emphasis (Figma: `variant`): fill, outline or ghost. */
 export type ButtonVariant = 'fill' | 'outline' | 'ghost';
 /**
  * The height: sm 36, md 44 (the default), lg 52. The touch target is 44 in every size: on sm, an invisible layer

@@ -47,14 +47,14 @@
 }
 
 @media (hover: hover) {
-  .rds-filter-chip:not(.rds-filter-chip--active, [aria-disabled='true']):hover {
+  .rds-filter-chip:not(.rds-filter-chip--pressed, [aria-disabled='true']):hover {
     --_surface: var(--filter-chip-surface-hover);
     --_stroke: var(--filter-chip-stroke-hover);
     --_text: var(--filter-chip-text-hover);
   }
 }
 
-.rds-filter-chip--active {
+.rds-filter-chip--pressed {
   --_surface: color-mix(in srgb, var(--filter-chip-surface-active) 12%, transparent);
   --_stroke: var(--filter-chip-stroke-active);
   --_text: var(--filter-chip-text-active);
@@ -102,7 +102,7 @@
     border-color: CanvasText;
   }
 
-  .rds-filter-chip--active {
+  .rds-filter-chip--pressed {
     border-color: Highlight;
     outline: var(--border-width) solid Highlight;
   }

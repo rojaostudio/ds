@@ -2,6 +2,7 @@
 /*
  * Stat (Content collection, stat/*): 8 between the text and the sparkline. Text: the label 14/20, the row (the
  * value in type/value bold and the Delta, 8 apart, wrapping 4 below) and the caption 12/16, 4 apart.
+ * tone neutral (default), success, danger, warning; muted greys a zero out.
  * framed=true: 16 inside, a 1px border, corners radius/container. framed=false (the SummaryBar cell): 12 16, no border.
  */
 .rds-stat {
@@ -23,11 +24,11 @@
   border-radius: var(--radius-container);
 }
 
-.rds-stat--positive {
+.rds-stat--success {
   --_value: var(--stat-value-positive);
 }
 
-.rds-stat--negative {
+.rds-stat--danger {
   --_value: var(--stat-value-negative);
 }
 
@@ -35,6 +36,7 @@
   --_value: var(--stat-value-warning);
 }
 
+/* muted (zero, nothing to see) wins over the tone: the Figma draws it only on neutral. */
 .rds-stat--muted {
   --_value: var(--stat-value-muted);
 }

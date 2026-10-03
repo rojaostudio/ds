@@ -2,7 +2,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { transformSource } from '../codemod';
-import { COMPONENTS, MOVED_EXPORTS, TYPES } from '../map';
+import { COMPONENTS, MOVED_EXPORTS, TYPES, VOCABULARY, VOCABULARY_TYPES } from '../map';
 
 const FIXTURES = join(__dirname, '..', '__fixtures__');
 const read = (name: string) => readFileSync(join(FIXTURES, name), 'utf8');
@@ -10,7 +10,7 @@ const read = (name: string) => readFileSync(join(FIXTURES, name), 'utf8');
 // ── auto: every rename and prop rule has an input → output fixture ─────────────────────────────────
 
 const autoFixtures = readdirSync(FIXTURES)
-  .filter((f) => f.endsWith('.input.tsx') && !/^(manual|already|annotate|deprecated)/.test(f))
+  .filter((f) => f.endsWith('.input.tsx') && !/^(manual|already|annotate|deprecated|next)/.test(f))
   .map((f) => f.replace('.input.tsx', ''));
 
 describe('codemod: mechanical rules (fixtures)', () => {
@@ -189,7 +189,7 @@ describe('codemod: notices (reported, never written)', () => {
       '10 deprecated:Dropzone',
       '11 IconButton.tooltip',
     ]);
-    expect(r.notices.find((n) => n.rule === 'deprecated:Dropzone')!.message).toContain('FileInput variant="dropzone"');
+    expect(r.notices.find((n) => n.rule === 'deprecated:Dropzone')!.message).toContain('FileInput layout="dropzone"');
   });
 });
 
@@ -240,5 +240,78 @@ describe('codemod: robustness', () => {
     const src = "import { Modal as M } from '@rojaostudio/ds/components';\n\nexport const A = () => <M title=\"x\" onClose={() => {}} />;\n";
     const r = transformSource(src, 'a.tsx');
     expect(r.output).toBe("import { Dialog as M } from '@rojaostudio/ds/components';\n\nexport const A = () => <M title=\"x\" onOpenChange={() => {}} />;\n");
+  });
+});
+
+// ── the 2.0.0-next vocabulary (03/10/2026) ─────────────────────────────────────────────────────────
+
+const nextFixtures = readdirSync(FIXTURES)
+  .filter((f) => f.startsWith('next-') && f.endsWith('.input.tsx'))
+  .map((f) => f.replace('.input.tsx', ''));
+
+describe('codemod: the vocabulary on a 2.0.0-next project (from: next)', () => {
+  it('has the fixtures', () => {
+    expect(nextFixtures).toEqual(expect.arrayContaining(['next-shapes', 'next-sizes-tones']));
+  });
+
+  it.each(nextFixtures)('%s', (name) => {
+    const r = transformSource(read(`${name}.input.tsx`), `${name}.tsx`, { from: 'next' });
+    expect(r.output).toBe(read(`${name}.output.tsx`));
+    expect(r.manual).toEqual([]);
+    expect(r.auto.length).toBeGreaterThan(0);
+  });
+
+  it.each(nextFixtures)('%s: a second run changes nothing', (name) => {
+    const out = read(`${name}.output.tsx`);
+    const r = transformSource(out, `${name}.tsx`, { from: 'next' });
+    expect(r.output).toBe(out);
+    expect(r.auto).toEqual([]);
+  });
+
+  it('every component of the vocabulary has a fixture', () => {
+    const text = nextFixtures.map((n) => read(`${n}.input.tsx`)).join('\n');
+    for (const name of Object.keys(VOCABULARY)) expect(text, name).toMatch(new RegExp(`<${name}\\b`));
+    for (const [name, t] of Object.entries(VOCABULARY_TYPES)) {
+      if (t.to) expect(text, name).toContain(name);
+    }
+  });
+
+  it('leaves the 1.x rules out: a 2.0 Avatar size="sm" is not the 1.x sm (32), and imports do not move', () => {
+    const src =
+      "import { Avatar, Drawer } from '@rojaostudio/ds/components/avatar';\n\n" +
+      'export const A = () => <><Avatar name="Ana" size="sm" /><Drawer title="x" /></>;\n';
+    const r = transformSource(src, 'a.tsx', { from: 'next' });
+    expect(r.output).toBe(src);
+    expect(r.manual).toEqual([]);
+  });
+
+  it('what is not mechanical stays as it is and is reported', () => {
+    const src = read('manual-next.input.tsx');
+    const r = transformSource(src, 'manual-next.tsx', { from: 'next' });
+    expect(r.output).toBe(src);
+    expect([...new Set(r.manual.map((m) => m.rule))].sort()).toEqual(
+      [
+        'Sidebar.tone',
+        'Bubble.variant',
+        'Card.surface',
+        'Stat.tone',
+        'Item.variant',
+        'Marker.variant',
+        'FilterChip.active',
+        'RowActions.items',
+        'type:CardSurface',
+        'type:MarkerVariant',
+        'type:SidebarTone',
+      ].sort(),
+    );
+    expect(r.manual.find((m) => m.rule === 'Sidebar.tone')!.message).toContain('ds-plate');
+  });
+
+  it('a 1.x run gives the 2.0 usages the vocabulary too, and lands the 1.x ones on the final names', () => {
+    // vocabulary.input.tsx is in the auto fixtures above (default mode); here, the details.
+    const r = transformSource(read('vocabulary.input.tsx'), 'vocabulary.tsx');
+    expect(r.output).toContain('<Badge tone="accent" variant="soft">');
+    expect(r.output).toContain('<FilterChip pressed={on}>Todos</FilterChip>');
+    expect(r.output).not.toContain('surface=');
   });
 });
