@@ -374,6 +374,18 @@
   --choice-card-preview-background: var(--surface-muted);
   --choice-card-preview-border: var(--border-default);
   --choice-card-preview-icon: var(--text-subtle);
+  --choice-list-item-background-hover: var(--surface-muted);
+  --choice-list-item-background-selected: var(--surface-tint-default);
+  --choice-list-item-indicator: var(--colors-primary-default);
+  --choice-list-item-border: var(--border-default);
+  --choice-list-item-title-default: var(--text-body);
+  --choice-list-item-title-disabled: var(--text-disabled);
+  --choice-list-item-description-default: var(--text-muted);
+  --choice-list-item-description-disabled: var(--text-disabled);
+  --choice-list-item-trailing-default: var(--text-body);
+  --choice-list-item-trailing-disabled: var(--text-disabled);
+  --choice-list-focus-ring: var(--focus-ring);
+  --choice-list-item-description-selected: var(--text-on-tint);
 
   /* external */
   --google-button-light-background: #ffffff;

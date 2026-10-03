@@ -3057,6 +3057,132 @@ input:focus-visible + .rds-checkbox__box {
   }
 }
 
+/* components/choice-list.css */
+/* @tokens choice-list */
+/*
+ * ChoiceList (Content collection, choice-list/*): the dense list to choose one from. Each row pads 12 16 with 12
+ * between media, text and trailing; a line of border-width only at the bottom (padding-bottom gives it back, so the
+ * row is 60 with a description, 44 without). Title small medium, description caption, trailing small.
+ * Hover: choice-list/item/background/hover. Chosen: the tint and a bar of border-width-strong on the left, no hover.
+ * Focus: the list holds it (aria-activedescendant); the active row draws the ring inside its box, as the rows touch.
+ * Disabled: text in the disabled tokens, media at half; it stays chosen if it was.
+ */
+.rds-choice-list {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  font-family: var(--type-font-stack);
+  list-style: none;
+  outline: none;
+}
+
+.rds-choice-list__item {
+  --_background: transparent;
+  --_title: var(--choice-list-item-title-default);
+  --_description: var(--choice-list-item-description-default);
+  --_trailing: var(--choice-list-item-trailing-default);
+
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  min-height: calc(var(--space-12) * 2 + var(--type-button-line));
+  padding: var(--space-12) var(--space-16) calc(var(--space-12) - var(--border-width));
+  border-bottom: var(--border-width) solid var(--choice-list-item-border);
+  background: var(--_background);
+  cursor: pointer;
+  user-select: none;
+}
+
+@media (hover: hover) {
+  .rds-choice-list__item:not([aria-selected='true'], [aria-disabled='true']):hover {
+    --_background: var(--choice-list-item-background-hover);
+  }
+}
+
+.rds-choice-list__item[aria-selected='true'] {
+  --_background: var(--choice-list-item-background-selected);
+  /* On the tint the muted line does not hold contrast in dark: it takes text/on/tint. */
+  --_description: var(--choice-list-item-description-selected);
+
+  box-shadow: inset var(--border-width-strong) 0 0 var(--choice-list-item-indicator);
+}
+
+.rds-choice-list:focus-visible .rds-choice-list__item[data-active] {
+  outline: var(--focus-ring-width) solid var(--choice-list-focus-ring);
+  outline-offset: calc(-1 * var(--focus-ring-width));
+}
+
+.rds-choice-list__item[aria-disabled='true'] {
+  --_title: var(--choice-list-item-title-disabled);
+  --_description: var(--choice-list-item-description-disabled);
+  --_trailing: var(--choice-list-item-trailing-disabled);
+
+  cursor: not-allowed;
+}
+
+.rds-choice-list__media {
+  display: inline-flex;
+  flex: none;
+}
+
+.rds-choice-list__item[aria-disabled='true'] .rds-choice-list__media {
+  opacity: 0.5;
+}
+
+.rds-choice-list__content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.rds-choice-list__title,
+.rds-choice-list__description {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rds-choice-list__title {
+  color: var(--_title);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  font-weight: 500;
+}
+
+.rds-choice-list__description {
+  color: var(--_description);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+}
+
+.rds-choice-list__trailing {
+  flex: none;
+  color: var(--_trailing);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+@media (forced-colors: active) {
+  .rds-choice-list__item[aria-selected='true'] {
+    forced-color-adjust: none;
+    background: Highlight;
+    color: HighlightText;
+  }
+
+  .rds-choice-list__item[aria-selected='true'] :is(.rds-choice-list__title, .rds-choice-list__description, .rds-choice-list__trailing) {
+    color: HighlightText;
+  }
+
+  .rds-choice-list:focus-visible .rds-choice-list__item[data-active] {
+    outline-color: CanvasText;
+  }
+}
+
 /* components/color-input.css */
 /* @tokens color-input */
 /*
