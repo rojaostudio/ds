@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react';
 import { FileInput } from './file-input';
-import { ImageCropModal, type CropPreset } from './image-crop-modal';
+import { ImageCropDialog, type CropPreset } from './image-crop-dialog';
 
 /**
  * @deprecated Use `<FileInput variant="tile">` (Figma [RDS] Forms/FileInput): the image's square with the preview
@@ -41,7 +41,7 @@ const DEFAULT_LABELS: ImageUploadLabels = {
   error: 'Erro ao fazer upload',
 };
 
-/** When given, the chosen image goes through the ImageCropModal before the upload. */
+/** When given, the chosen image goes through the ImageCropDialog before the upload. */
 export interface ImageUploadCrop {
   presets?: CropPreset[];
   minAspect?: number;
@@ -136,7 +136,7 @@ export function ImageUpload({
       />
       <input type="hidden" name={name} value={value} />
       {crop && (
-        <ImageCropModal
+        <ImageCropDialog
           open={!!pendingFile}
           file={pendingFile}
           onCancel={() => {

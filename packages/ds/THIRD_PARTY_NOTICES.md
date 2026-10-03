@@ -55,7 +55,7 @@ O símbolo do Pix (`packages/ds/icons/pix.tsx`) é marca do Banco Central do Bra
 |---|---|---|
 | `@radix-ui/react-*` | MIT | comportamento acessível de overlays, menus, abas e afins |
 | `lucide-react` (peer opcional) | ISC | re-exportação de ícones em `@rojaostudio/ds/icons` |
-| `react-image-crop` (peer opcional) | ISC | recorte do `ImageCropModal` |
+| `react-image-crop` (peer opcional) | ISC | recorte do `ImageCropDialog` |
 | `react-international-phone` (peer opcional) | MIT | campo e bandeiras do `PhoneInput` |
 
 ## Fontes (referenciadas pelo nome, não distribuídas)

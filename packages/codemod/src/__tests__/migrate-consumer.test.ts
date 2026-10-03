@@ -9,7 +9,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 // the TODOs, and the missing 2.0 stylesheet is only reported.
 const require = createRequire(import.meta.url);
 const TSX = require.resolve('tsx/cli');
-const CLI = join(__dirname, '..', '..', 'migrate-consumer.ts');
+const CLI = join(__dirname, '..', 'cli.ts');
 
 const PAGE = `import { Modal, Select, Dropzone } from '@rojaostudio/ds/components';
 

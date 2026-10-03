@@ -121,7 +121,11 @@ export type { InsightCardProps, InsightCardType } from './insight-card';
 
 export { SectionCard } from './section-card';
 export { SectionHeader } from './section-header';
+export { Stepper } from './stepper';
+export type { StepperProps, StepperStep } from './stepper';
+/** @deprecated Renamed to `Stepper` in 2.0 (same props). */
 export { FloatingStepper } from './floating-stepper';
+/** @deprecated Renamed to `StepperProps` and `StepperStep` in 2.0. */
 export type { FloatingStepperProps, FloatingStepperStep } from './floating-stepper';
 export type { SectionHeaderProps } from './section-header';
 export type { SectionCardProps } from './section-card';
@@ -321,10 +325,10 @@ export type { CurrencyInputProps } from './currency-input';
 export { ColorInput, normalizeHex } from './color-input';
 export type { ColorInputProps } from './color-input';
 
-// PhoneInput, ImageCropModal and ImageUpload are NOT in the barrel: they import optional peers
+// PhoneInput, ImageCropDialog and ImageUpload are NOT in the barrel: they import optional peers
 // (react-international-phone, react-image-crop), and a barrel export would make every consumer install
 // them (#2). Import them from their own entry: @rojaostudio/ds/components/phone-input,
-// .../image-crop-modal, .../image-upload.
+// .../image-crop-dialog, .../image-upload. (`.../image-crop-modal`, the old name, still works: deprecated.)
 
 export { RowActions } from './row-actions';
 export type { RowActionsProps, RowActionItem } from './row-actions';

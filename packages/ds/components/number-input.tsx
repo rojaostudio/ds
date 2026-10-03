@@ -66,7 +66,7 @@ const parse = (text: string) => {
  * booking, instalments). The number in the middle is typed; the field is a spinbutton, so the arrows move it (Page
  * Up/Down by ten steps, Home/End to the limits) and − and + stay out of the Tab order. At a limit its button turns
  * off. A price, a CPF or a CEP is the Input; a continuous range, the Slider; the steps of a flow, the
- * FloatingStepper. Styles: number-input.css and internal/field.css.
+ * Stepper. Styles: number-input.css and internal/field.css.
  */
 export function NumberInput({
   label,

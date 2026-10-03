@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act } from 'react';
-import { Toaster, ToastView, toast, useToast, type ToastTone, type ToastVariant } from './toast';
+import { Toaster, ToastView, toast, toastDuration, useToast, type ToastTone, type ToastVariant } from './toast';
 import { MODES, axeViolations, cleanup, render, settle } from './__tests__/render';
 
 afterEach(() => {
@@ -107,5 +107,49 @@ describe('Toast behaviour', () => {
     toasts()[0].querySelector<HTMLButtonElement>('.rds-toast__action')!.click();
     expect(onClick).toHaveBeenCalledOnce();
     await vi.waitFor(() => expect(toasts()).toHaveLength(0));
+  });
+});
+
+describe('Toast timing (WCAG 2.2.1)', () => {
+  it('5 s by default; with an action, until closed; a duration given wins', () => {
+    expect(toastDuration(undefined, false)).toBe(5000);
+    expect(toastDuration(undefined, true)).toBe(Infinity);
+    expect(toastDuration(8000, true)).toBe(8000);
+    expect(toastDuration(2000, false)).toBe(2000);
+  });
+
+  it('a toast with an action starts no close timer; one without starts 5 s', async () => {
+    await render(<Toaster />);
+    const spy = vi.spyOn(window, 'setTimeout');
+    try {
+      act(() => {
+        toast({ title: 'Arquivado', action: { label: 'Desfazer', onClick: () => {} } });
+      });
+      await vi.waitFor(() => expect(toasts()).toHaveLength(1));
+      await settle();
+      const delays = () => spy.mock.calls.map(([, ms]) => ms);
+      expect(delays()).not.toContain(5000);
+      expect(delays()).not.toContain(6000);
+      expect(delays()).not.toContain(Infinity);
+
+      act(() => {
+        toast({ title: 'Salvo' });
+      });
+      await vi.waitFor(() => expect(toasts()).toHaveLength(2));
+      await vi.waitFor(() => expect(delays()).toContain(5000));
+    } finally {
+      spy.mockRestore();
+    }
+  });
+
+  it('closeLabel names the × (and its Tooltip) on every toast', async () => {
+    await render(<Toaster closeLabel="Dispensar" />);
+    act(() => {
+      toast({ title: 'Salvo', duration: 60000 });
+    });
+    await vi.waitFor(() => expect(toasts()).toHaveLength(1));
+    const close = toasts()[0].querySelector<HTMLButtonElement>('.rds-toast__close')!;
+    expect(close.getAttribute('aria-label')).toBe('Dispensar');
+    expect(toasts()[0].querySelector('[aria-label="Fechar"]')).toBeNull();
   });
 });

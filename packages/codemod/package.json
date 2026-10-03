@@ -1,31 +1,29 @@
 {
-  "name": "rojao-ds",
+  "name": "@rojaostudio/ds-codemod",
   "private": true,
-  "version": "0.1.0-next.3",
-  "description": "CLI do Rojão DS — `npx rojao-ds init` gera o tema da sua marca e o arquivo de regras para a IA (CLAUDE.md, .cursorrules, AGENTS.md).",
+  "version": "0.1.0-next.0",
+  "description": "Codemod do Rojão DS — `npx @rojaostudio/ds-codemod <pasta>` migra um projeto do @rojaostudio/ds 0.x/1.x para a 2.0 (dry-run por padrão, --apply escreve).",
   "license": "MIT",
   "author": "Rojão Studio (https://rojao.studio)",
   "homepage": "https://ds.rojao.ai",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/rojaostudio/ds.git",
-    "directory": "packages/cli"
+    "directory": "packages/codemod"
   },
   "bugs": {
     "url": "https://github.com/rojaostudio/ds/issues"
   },
   "keywords": [
     "design-system",
-    "theme-generator",
-    "cli",
-    "claude",
-    "cursor",
-    "agents",
-    "css-variables"
+    "codemod",
+    "migration",
+    "ts-morph",
+    "react"
   ],
   "type": "module",
   "bin": {
-    "rojao-ds": "./dist/cli.js"
+    "rojao-ds-codemod": "./dist/cli.js"
   },
   "files": [
     "LICENSE",
@@ -39,20 +37,22 @@
     "build": "tsup",
     "prepack": "tsup",
     "prepublishOnly": "node ../../scripts/guard-publisher.mjs",
+    "migrate": "tsx src/cli.ts",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "lint": "eslint ."
   },
   "dependencies": {
-    "@rojaostudio/ds-core": "workspace:*"
+    "ts-morph": "^28.0.0"
   },
   "devDependencies": {
     "@rojao/config": "workspace:*",
     "@types/node": "^20.19.43",
     "eslint": "^9.18.0",
     "tsup": "^8.5.1",
+    "tsx": "^4.21.0",
     "typescript": "^5",
-    "vitest": "^4.1.7"
+    "vitest": "^4.1.11"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org",

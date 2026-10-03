@@ -17,13 +17,24 @@ import { mkdtempSync, rmSync, readdirSync, statSync, existsSync, readFileSync } 
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-type Regra = { pacote: string; tetoKB: number };
+type Regra = {
+  pacote: string;
+  /** Pasta em packages/. */
+  dir: string;
+  tetoKB: number;
+  /** Dependências de runtime aceitas. Sem isso, vale a regra geral (só @rojaostudio/* e @radix-ui/react-*). */
+  dependencias?: RegExp[];
+};
 
 const REGRAS: Regra[] = [
-  { pacote: "@rojaostudio/ds-core", tetoKB: 80 },
-  { pacote: "@rojaostudio/ds", tetoKB: 400 },
+  { pacote: "@rojaostudio/ds-core", dir: "ds-core", tetoKB: 80 },
+  { pacote: "@rojaostudio/ds", dir: "ds", tetoKB: 400 },
   // A CLI é casca fina sobre o ds-core: um arquivo e o README. Se crescer, é domínio vazando pra cá.
-  { pacote: "rojao-ds", tetoKB: 20 },
+  // O `rojao-ds migrate` chama o codemod por npx justamente para o ts-morph não entrar aqui.
+  { pacote: "rojao-ds", dir: "cli", tetoKB: 20 },
+  // O codemod: o motor e o mapa num arquivo só (~110 KB cru). A única dependência é o ts-morph, que traz o
+  // compilador do TypeScript: é por isso que ele é um pacote à parte e não vai na CLI.
+  { pacote: "@rojaostudio/ds-codemod", dir: "codemod", tetoKB: 60, dependencias: [/^ts-morph$/] },
 ];
 
 // Padrões estruturais: valem em qualquer cópia deste repositório.
@@ -49,14 +60,10 @@ if (existsSync(listaPrivada)) {
 let falhas = 0;
 const tmp = mkdtempSync(join(tmpdir(), "rojao-pack-"));
 
-for (const { pacote, tetoKB } of REGRAS) {
-  // Um pacote marcado `private` não vai para o npm (ex.: a CLI antes da primeira publicação manual).
-  const dir = pacote === "rojao-ds" ? "cli" : pacote.replace("@rojaostudio/", "");
-  if (JSON.parse(readFileSync(join(process.cwd(), "packages", dir, "package.json"), "utf8")).private) {
-    console.log(`
-${pacote}: private, fora da publicação`);
-    continue;
-  }
+for (const { pacote, dir, tetoKB, dependencias } of REGRAS) {
+  // Um pacote marcado `private` não vai para o npm (ex.: um pacote novo antes da primeira publicação manual),
+  // mas o tarball é conferido do mesmo jeito: quando o `private` sair, ele já passou pelo gate.
+  const privado = Boolean(JSON.parse(readFileSync(join(process.cwd(), "packages", dir, "package.json"), "utf8")).private);
   // Invocar pnpm de dentro de um script e chato em dois sistemas por motivos opostos: no
   // Linux (o CI) `execFileSync("pnpm")` resolve direto; no Windows o binario e um shim que so
   // o shell acha, e o Node 20+ recusa .cmd sem shell. Tenta o caminho limpo, cai pro shell se
@@ -93,10 +100,10 @@ ${pacote}: private, fora da publicação`);
   // 2.0 (#13): Radix primitives are the one runtime dependency allowed. Rewriting Dialog,
   // Select, DropdownMenu and Toast by hand is where accessibility breaks; the primitives are
   // small, unstyled and have no postinstall. Anything else still fails. See CONTRIBUTING.md.
-  const PERMITIDOS = [/^@rojaostudio\//, /^@radix-ui\/react-/];
+  const PERMITIDOS = dependencias ?? [/^@rojaostudio\//, /^@radix-ui\/react-/];
   const terceiros = deps.filter((d) => !PERMITIDOS.some((re) => re.test(d)));
 
-  console.log(`\n${pacote} — ${lista.length} arquivos · ${kb} KB (teto ${tetoKB})`);
+  console.log(`\n${pacote} — ${lista.length} arquivos · ${kb} KB (teto ${tetoKB})${privado ? " · private, fora da publicação" : ""}`);
 
   if (proibidos.length) {
     console.error(`  ✗ conteúdo proibido:`);

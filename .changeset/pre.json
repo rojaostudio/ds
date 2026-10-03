@@ -5,7 +5,8 @@
     "@rojao/config": "0.0.0",
     "@rojaostudio/ds": "1.0.2",
     "@rojaostudio/ds-core": "1.0.0",
-    "rojao-ds": "0.0.0"
+    "rojao-ds": "0.0.0",
+    "@rojaostudio/ds-codemod": "0.0.0"
   },
   "changesets": [
     "avisos-terceiros",
@@ -16,14 +17,18 @@
     "choice-list",
     "claude-md-2-0",
     "cli-init",
+    "codemod-pacote",
     "ds-2-0",
     "field-autofill",
     "heading-dupla",
+    "native-experimental",
     "rds-19-alinhamento",
     "rds-brand-table",
     "rds-brand-vars",
     "rds-paletas-custom",
+    "renomes-stepper-image-crop-dialog",
     "rojao-titulo-azul",
-    "sidebar-section-label"
+    "sidebar-section-label",
+    "toast-acao-sem-prazo"
   ]
 }

@@ -1,4 +1,4 @@
-# [RDS] Components · collection Overlays · file w64JuUL45DO4jGu3WEy9HU · extracted 2026-10-02
+# [RDS] Components · collection Overlays · file w64JuUL45DO4jGu3WEy9HU · extracted 2026-10-03
 # DO NOT EDIT. Figma is the source: publish in Figma, run the extraction, save the output here.
 # Format: name|type (C colour, F number, S string, B boolean)|@collection:target (alias) OR raw value|WEB codeSyntax ("=" when it is the path with hyphens)
 menu/background|C|@theme:surface/card|=
@@ -28,7 +28,7 @@ sheet/scrim|C|@theme:surface/scrim|=
 sheet/text|C|@theme:text/body|=
 sheet/title|C|@theme:text/heading|=
 dialog/scrim|C|@theme:surface/scrim|=
-image-crop-modal/shade|C|@theme:surface/scrim|=
-image-crop-modal/selection|C|@theme:text/on/cover|=
-image-crop-modal/handle|C|@theme:text/on/cover|=
-image-crop-modal/stage/background|C|@theme:surface/muted|=
+image-crop-dialog/shade|C|@theme:surface/scrim|=
+image-crop-dialog/selection|C|@theme:text/on/cover|=
+image-crop-dialog/handle|C|@theme:text/on/cover|=
+image-crop-dialog/stage/background|C|@theme:surface/muted|=

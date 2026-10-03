@@ -1,5 +1,26 @@
 # @rojaostudio/ds
 
+## 2.0.0-next.13
+
+### Minor Changes
+
+- O alvo nativo (`@rojaostudio/ds/native`, `/native/components`, `/native/theme`, `/native/icons`, `/native/preset`) fica **experimental, fora do semver na 2.0**: o alvo nativo segue a API 1.x na 2.0 e será alinhado na 2.1. Ele continua com `Button variant="primary"`, `Modal`, `Menu` e o tema do `generateTheme` 1.x, e pode mudar em qualquer versão até lá (fixe a versão exata se depende dele). Os pontos de entrada levam `@experimental` no JSDoc e o README diz o mesmo. Um teste garante que nenhum componente web importa do alvo nativo.
+- Renomes da 2.0, como no Figma [RDS]: **`FloatingStepper` → `Stepper`** e **`ImageCropModal` → `ImageCropDialog`**. As props não mudam.
+
+  - `Stepper`, `StepperProps` e `StepperStep` vêm do barril e de `@rojaostudio/ds/components/stepper`. `ImageCropDialog` e `ImageCropDialogProps` vêm de `@rojaostudio/ds/components/image-crop-dialog` (fora do barril, como antes: dependem do peer opcional `react-image-crop`); `CropPreset` também.
+  - Os nomes antigos continuam funcionando como alias `@deprecated`: `FloatingStepper` (barril e `.../components/floating-stepper`) e `ImageCropModal` (`.../components/image-crop-modal`). O codemod troca os imports, os componentes e os tipos.
+
+  **Breaking (para quem estiliza por classe ou token):**
+
+  - A classe `rds-floating-stepper` (e `rds-floating-stepper__divider`) virou `rds-stepper` (e `rds-stepper__divider`). O alias deprecated renderiza a classe nova.
+  - Os tokens `--image-crop-modal-*` (coleção Overlays) viraram `--image-crop-dialog-*`: `shade`, `selection`, `handle` e `stage-background`. As classes do recorte (`rds-image-crop__*`) não mudam.
+
+- Toast com ação não some mais sozinho (WCAG 2.2.1, Timing Adjustable). Antes ficava 6 s; agora, com `action` e sem `duration`, fica na tela até a pessoa usar a ação ou o ×. Sem ação, continua 5 s. Uma `duration` explícita ainda vale, também com ação; dê uma só quando a ação puder ser feita por outro caminho.
+
+  O `Toaster` ganha `closeLabel`, o nome acessível (e o Tooltip) do × de todos os toasts. Padrão "Fechar", que antes era fixo.
+
+  **Breaking:** quem contava com o toast de ação fechando sozinho em 6 s passa a ver o toast até fechá-lo; para o comportamento antigo, passe `duration: 6000`.
+
 ## 2.0.0-next.12
 
 ### Minor Changes

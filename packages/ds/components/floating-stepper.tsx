@@ -1,64 +1,15 @@
 'use client';
 
-import type { ReactNode } from 'react';
-import { Button } from './button';
-import { Card } from './card';
-import { Separator } from './separator';
-
 /**
- * FloatingStepper — a composition of the Card (as a pill) and Buttons (Figma [RDS] Actions/Button, neutral): the
- * floating steps of a flow (point of sale, checkout). The current step is the filled Button (aria-current="step");
- * earlier steps go back, later ones are disabled; `canNavigate` changes the rule. `action` is a last Button after
- * a vertical Separator (Reset). Where it floats is the caller's (className or a wrapper). Styles: floating-stepper.css.
+ * floating-stepper — the 1.x and 2.0-next name of the Stepper, kept so `@rojaostudio/ds/components/floating-stepper`
+ * and `FloatingStepper` still work in 2.0. The codemod (`npx @rojaostudio/ds-codemod`) renames both.
  */
+import { Stepper } from './stepper';
+import type { StepperProps, StepperStep } from './stepper';
 
-export type FloatingStepperStep = { key: string; label: string };
-
-export interface FloatingStepperProps {
-  steps: FloatingStepperStep[];
-  /** key da etapa atual */
-  current: string;
-  onNavigate?: (key: string) => void;
-  /** Regra de navegação por etapa. Default: só etapas anteriores à atual. */
-  canNavigate?: (key: string, index: number, currentIndex: number) => boolean;
-  /** Ação à direita, separada por divisor (ex.: Reset). */
-  action?: { label: string; icon?: ReactNode; onClick: () => void };
-  className?: string;
-  /** The navigation's name. Default "Etapas". */
-  'aria-label'?: string;
-}
-
-export function FloatingStepper({ steps, current, onNavigate, canNavigate, action, className, 'aria-label': ariaLabel = 'Etapas' }: FloatingStepperProps) {
-  const currentIdx = steps.findIndex((s) => s.key === current);
-
-  return (
-    <Card as="div" size="sm" role="navigation" aria-label={ariaLabel} className={['rds-floating-stepper', className].filter(Boolean).join(' ')}>
-      {steps.map((s, idx) => {
-        const isCurrent = idx === currentIdx;
-        const canGo = canNavigate ? canNavigate(s.key, idx, currentIdx) : idx < currentIdx;
-        return (
-          <Button
-            key={s.key}
-            tone="neutral"
-            variant={isCurrent ? 'fill' : 'ghost'}
-            disabled={!canGo && !isCurrent}
-            aria-current={isCurrent ? 'step' : undefined}
-            onClick={() => {
-              if (canGo && !isCurrent) onNavigate?.(s.key);
-            }}
-          >
-            {s.label}
-          </Button>
-        );
-      })}
-      {action && (
-        <>
-          <Separator orientation="vertical" className="rds-floating-stepper__divider" />
-          <Button tone="neutral" variant="ghost" icon={action.icon} onClick={action.onClick}>
-            {action.label}
-          </Button>
-        </>
-      )}
-    </Card>
-  );
-}
+/** @deprecated Renamed to `Stepper` (`@rojaostudio/ds/components/stepper`) in 2.0. Same props. */
+export const FloatingStepper = Stepper;
+/** @deprecated Renamed to `StepperProps` in 2.0. */
+export type FloatingStepperProps = StepperProps;
+/** @deprecated Renamed to `StepperStep` in 2.0. */
+export type FloatingStepperStep = StepperStep;

@@ -51,6 +51,16 @@ o bloco é trocado e o resto do arquivo fica como está. Rodar de novo não dupl
 O tema (`rds-theme.css`) é sobrescrito, então pede confirmação. Sem terminal (CI, script) e sem
 `--yes`, a CLI recusa e não escreve nada.
 
+## Migrar um projeto 0.x/1.x para a 2.0
+
+```bash
+npx rojao-ds migrate ./meu-app            # dry-run
+npx rojao-ds migrate ./meu-app --apply    # escreve
+```
+
+É um atalho para `npx @rojaostudio/ds-codemod`, com os mesmos argumentos: o codemod é baixado na
+hora pelo npx, e por isso o `ts-morph` (que traz o compilador do TypeScript) não entra na CLI.
+
 ## Sem dependência
 
 Node 20+. A única dependência é o motor, [`@rojaostudio/ds-core`](https://www.npmjs.com/package/@rojaostudio/ds-core):
