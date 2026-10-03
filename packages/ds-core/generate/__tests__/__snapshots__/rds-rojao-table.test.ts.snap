@@ -9,7 +9,6 @@ exports[`rojao: the Figma table > generateRdsTheme(recipes.rojao) against the ta
   "light surface/tint/strong: generator #ffb066, Figma #bddeff (blue/200)",
   "light surface/cover: generator #ff6a00, Figma #00518d (blue/700)",
   "light text/on/cover: generator #000000, Figma #ffffff (white/a100)",
-  "light text/on/info: generator #000000, Figma #ffffff (white/a100)",
   "light colors/accent/mark: generator #ff9640, Figma #006bb5 (blue/600)",
   "light text/on/accent-mark: generator #000000, Figma #ffffff (white/a100)",
   "light surface/tint/subtle: generator #ffe2c6, Figma #f4f6f9 (navy/50)",
@@ -23,13 +22,11 @@ exports[`rojao: the Figma table > generateRdsTheme(recipes.rojao) against the ta
   "dark colors/secondary/hover: generator #aeb6c4, Figma #bddeff (blue/200)",
   "dark surface/cover: generator #ff6a00, Figma #00518d (blue/700)",
   "dark text/on/cover: generator #000000, Figma #ffffff (white/a100)",
-  "dark text/on/info: generator #000000, Figma #ffffff (white/a100)",
   "dark colors/accent/mark: generator #ffb066, Figma #8cc6ff (blue/300)",
   "dark surface/tint/subtle: generator #b34b00, Figma #002445 (blue/900)",
   "brand colors/accent/highlight: generator #d95a00, Figma #3a465f (navy/700)",
   "brand surface/cover: generator #ff6a00, Figma #00518d (blue/700)",
   "brand text/on/cover: generator #000000, Figma #ffffff (white/a100)",
-  "brand text/on/info: generator #000000, Figma #ffffff (white/a100)",
   "brand colors/accent/mark: generator #ffb066, Figma #8cc6ff (blue/300)",
 ]
 `;

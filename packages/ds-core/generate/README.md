@@ -61,6 +61,8 @@ writeFileSync("app/theme.css", emitRdsCss(rdsThemeFromTable(table)));
 
 Importe o CSS gerado depois de `@rojaostudio/ds/styles/rds.css`. Mudou a marca no Figma: exporte de novo e rode o script.
 
+Papel novo no tema do Figma (ex.: `border/error`) pede exportar a tabela de novo. Até lá, uma tabela exportada antes dele ainda carrega: `rdsThemeFromTable` toma o papel do token para o qual o Figma o aponta em cada modo (`border/error` → `colors/state/error` no claro, `colors/state/error-strong` no escuro, `text/error` na chapa) e avisa pedindo a reexportação. Qualquer outro papel ausente falha.
+
 `generateRdsTheme(def)` continua para quem só tem uma cor (sem Figma): ele deriva os papéis pela regra da marca Rojão.
 
 O tema da Rojão publicado em `@rojaostudio/ds/styles/rds/theme.css` sai assim, da tabela `figma/brands/rojao.rds.json`. O que o gerador ainda desenha diferente dela está fixado em `__tests__/rds-rojao-table.test.ts` (snapshot).
@@ -68,6 +70,8 @@ O tema da Rojão publicado em `@rojaostudio/ds/styles/rds/theme.css` sai assim, 
 ### Contraste
 
 `rdsContrastReport(theme)` mede os pares de texto principais (`RDS_CONTRAST_PAIRS`: heading e body sobre page e card, muted e link sobre card, cada `text/on/*` sobre o seu fundo, `text/error` sobre `surface/error`) nos três modos e devolve os que ficam abaixo de 4,5:1. Cor com alfa não é medida. `rdsThemeFromTable` roda o relatório e só avisa (`opts.warn`, padrão `console.warn`): a tabela é o Figma um para um.
+
+Marcas que não são texto pedem 3:1 (WCAG 1.4.11). No gerador, `border/error` (a borda do campo com erro) parte do vermelho de estado no claro, de `error-strong` no escuro e do vermelho claro na chapa, e anda na rampa vermelha até passar 3:1 sobre `surface/card`, que é o fundo do campo. `chart/series/1` parte do 600 da primária (400 no escuro) e anda na rampa da primária até passar 3:1 sobre o card. Na chapa, `surface/card` é o 800 da primária quando ele carrega a tinta da chapa em 4,5:1; senão, o degrau mais perto da chapa que carrega.
 
 No gerador, `text/heading` é a cor da marca quando ela passa sobre `surface/card` e `surface/page`; quando não passa (um amarelo), é o degrau da própria rampa mais perto dela, escurecendo, que passa. No escuro, o mesmo clareando. Um `BrandDef.brand.heading` explícito que reprova fica como foi dado, com aviso. Os `text/on/*` são escolhidos por contraste.
 

@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { generateRdsTheme, rdsContrastReport, RDS_CONTRAST_PAIRS, rdsThemeFromTable, type RdsBrandTable } from "../rdsTheme";
 import type { BrandDef } from "../../tokens/recipe.schema";
 import { recipes } from "../../recipes";
+import { contrastRatio } from "../scale";
 
 const table = JSON.parse(readFileSync(join(__dirname, "../../figma/brands/rojao.rds.json"), "utf8")) as RdsBrandTable;
 
@@ -28,6 +29,17 @@ describe("[RDS] contrast of the generated theme, for any brand colour", () => {
 
   it.each(COLOURS)("%s as secondary and accent: text/heading and text/on/* pass", (hex) => {
     expect(headingAndOn(rdsContrastReport(generateRdsTheme(brand("#1b2a4a", { secondary: hex, accent: hex }))))).toEqual([]);
+  });
+
+  // Marks, not text (WCAG 1.4.11, 3:1): the border of a field in error on surface/card (the field background), in
+  // every mode, and the brand's own chart series on the card of light and dark.
+  it.each(COLOURS)("%s: border/error and chart/series/1 reach 3:1 on surface/card", (hex) => {
+    for (const t of [generateRdsTheme(brand(hex)), generateRdsTheme(brand("#1b2a4a", { secondary: hex, accent: hex }))]) {
+      for (const mode of ["light", "dark", "brand"] as const)
+        expect(contrastRatio(t[mode]["--border-error"], t[mode]["--surface-card"]), `${mode} border/error`).toBeGreaterThanOrEqual(3);
+      for (const mode of ["light", "dark"] as const)
+        expect(contrastRatio(t[mode]["--chart-series-1"], t[mode]["--surface-card"]), `${mode} chart/series/1`).toBeGreaterThanOrEqual(3);
+    }
   });
 
   it("text/heading keeps the brand colour when it already passes, and darkens the yellow", () => {

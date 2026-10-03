@@ -3,7 +3,7 @@
  * FilterChip (Forms collection, filter-chip/*): 32 tall, pill, 12 inside, 4 between icon, label and count;
  * label 14/20 medium. inactive: card fill and a hairline; hover: muted fill, strong hairline; active: the brand
  * at 12% over what is behind, brand border and label; disabled: the whole chip at 50%, the label at 40%.
- * The count reads at 60% of the label. Icon 14, in the label's colour.
+ * The count reads in the label's colour, at full opacity. Icon 14, in the label's colour.
  */
 .rds-filter-chip-group {
   display: flex;
@@ -94,7 +94,6 @@
 }
 
 .rds-filter-chip__count {
-  color: color-mix(in srgb, currentColor 60%, transparent);
   font-variant-numeric: tabular-nums;
 }
 

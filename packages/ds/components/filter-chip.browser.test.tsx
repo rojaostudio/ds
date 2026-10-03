@@ -12,10 +12,6 @@ const Layers = () => (
   </svg>
 );
 
-// The [RDS] draws the count at 60% of the label: on the inactive chip that is text/muted at 60% (3.3:1 on white
-// in rojao light). Kept out of the light axe matrix and pinned below until the Figma decides.
-const KNOWN_LIGHT_COUNT = (mode: string) => (mode === 'light' ? ['.rds-filter-chip__count'] : []);
-
 describe.each(MODES)('FilterChip (%s)', (mode) => {
   it('inactive, active, with count and icon, link and disabled pass axe', async () => {
     const el = await render(
@@ -37,7 +33,7 @@ describe.each(MODES)('FilterChip (%s)', (mode) => {
       </FilterChipGroup>,
       mode,
     );
-    expect(await axeViolations(el, KNOWN_LIGHT_COUNT(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 
   it('is 32 tall, 44 to touch', async () => {
@@ -49,7 +45,8 @@ describe.each(MODES)('FilterChip (%s)', (mode) => {
 });
 
 describe('FilterChip behaviour', () => {
-  it.fails('the count of an inactive chip on the rojao light theme passes axe (text/muted at 60%)', async () => {
+  // The [RDS] draws the count in the label's colour at full opacity (it was 60%, 3.3:1 on white in rojao light).
+  it('the count of an inactive chip on the rojao light theme passes axe', async () => {
     const el = await render(<FilterChip count={12}>Entradas</FilterChip>, 'light');
     expect(await axeViolations(el)).toEqual([]);
   });

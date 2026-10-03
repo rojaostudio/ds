@@ -1,6 +1,6 @@
 {
   "name": "@rojaostudio/ds-core",
-  "version": "1.1.0-next.7",
+  "version": "1.1.0-next.8",
   "description": "O motor do Rojão DS — tokens, derivação de tema e emissores. Sem React, sem Tailwind, sem CSS.",
   "license": "MIT",
   "author": "Rojão Studio (https://rojao.studio)",

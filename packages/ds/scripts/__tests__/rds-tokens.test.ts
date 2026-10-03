@@ -120,7 +120,7 @@ describe("styles/rds/theme.css is the Figma brand table of the Rojão, role by r
       if (got !== expected) wrong.push(`${role}: css ${got}, Figma ${expected} (${ref})`);
     }
     expect(wrong).toEqual([]);
-    expect(Object.keys(table.modes[mode])).toHaveLength(103);
+    expect(Object.keys(table.modes[mode])).toHaveLength(104);
   });
 
   it("the brand's own variables (--rojao-*) are in the light scope", () => {

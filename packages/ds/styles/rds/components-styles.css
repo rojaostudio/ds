@@ -2677,10 +2677,10 @@ input:focus-visible + .rds-checkbox__box {
  * an 8 dot. Selected fills the card with the brand. Disabled is the same card at half opacity (as in Figma).
  * tile: a grid cell, 16 inside, centred: the icon, then the label 14/20 semibold and the description 12/16 (8 below
  * the icon). Selected fills it with the brand, the icon square at 10% of choice-card/icon/background/selected, the
- * description at 70%, and a 16 check (11 glyph) 8 from the top right corner.
+ * description at full opacity, and a 16 check (11 glyph) 8 from the top right corner.
  * preview: 8 inside, the picture on top (16:9, a 1px border, corners radius/container, a 24 placeholder icon), then
  * the label 16/24 semibold and the description 14/20, 4 in from the sides. Selected keeps the surface: a 2px border
- * in the brand, the description at 70% and a 20 check (12 glyph) in the picture's bottom right corner.
+ * in the brand, the description at full opacity and a 20 check (12 glyph) in the picture's bottom right corner.
  * The group stacks rows 8 apart; tiles and previews go in a grid (cells of at least 160 and 240), 8 apart.
  */
 .rds-choice-card-group {
@@ -2870,11 +2870,6 @@ input:focus-visible + .rds-checkbox__box {
 .rds-choice-card--tile.rds-choice-card--selected .rds-choice-card__icon {
   background: color-mix(in srgb, var(--choice-card-icon-background-selected) 10%, transparent);
   color: var(--choice-card-icon-color-selected);
-}
-
-.rds-choice-card--tile.rds-choice-card--selected .rds-choice-card__description,
-.rds-choice-card--preview.rds-choice-card--selected .rds-choice-card__description {
-  color: color-mix(in srgb, var(--_description) 70%, transparent);
 }
 
 .rds-choice-card--tile .rds-choice-card__check {
@@ -4301,7 +4296,7 @@ input:focus-visible + .rds-checkbox__box {
  * FilterChip (Forms collection, filter-chip/*): 32 tall, pill, 12 inside, 4 between icon, label and count;
  * label 14/20 medium. inactive: card fill and a hairline; hover: muted fill, strong hairline; active: the brand
  * at 12% over what is behind, brand border and label; disabled: the whole chip at 50%, the label at 40%.
- * The count reads at 60% of the label. Icon 14, in the label's colour.
+ * The count reads in the label's colour, at full opacity. Icon 14, in the label's colour.
  */
 .rds-filter-chip-group {
   display: flex;
@@ -4392,7 +4387,6 @@ input:focus-visible + .rds-checkbox__box {
 }
 
 .rds-filter-chip__count {
-  color: color-mix(in srgb, currentColor 60%, transparent);
   font-variant-numeric: tabular-nums;
 }
 

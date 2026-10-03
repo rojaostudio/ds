@@ -46,6 +46,7 @@
     "orange/300": "#ffbb7a",
     "orange/400": "#ff9800",
     "orange/500": "#dc7f00",
+    "orange/600": "#bd6a00",
     "orange/700": "#a15700",
     "orange/900": "#6c3500",
     "purple/400": "#db6def",
@@ -145,7 +146,7 @@
       "border/strong": "zinc/500",
       "border/strong-hover": "zinc/600",
       "colors/state/info": "blue/500",
-      "text/on/info": "white/a100",
+      "text/on/info": "black/a100",
       "colors/state/warning": "orange/400",
       "colors/state/warning-strong": "orange/500",
       "text/on/warning": "black/a100",
@@ -160,7 +161,7 @@
       "surface/neutral": "zinc/100",
       "text/neutral": "zinc/800",
       "chart/series/1": "navy/600",
-      "chart/series/2": "orange/500",
+      "chart/series/2": "orange/600",
       "chart/series/3": "teal/500",
       "chart/series/4": "purple/500",
       "chart/series/5": "green/500",
@@ -183,7 +184,8 @@
       "colors/state/info-strong": "blue/500",
       "colors/state/neutral-strong": "zinc/600",
       "text/on/primary-subtle": "white/a30",
-      "surface/tint/subtle": "navy/50"
+      "surface/tint/subtle": "navy/50",
+      "border/error": "red/600"
     },
     "dark": {
       "colors/primary/light": "navy/400",
@@ -250,7 +252,7 @@
       "border/strong": "zinc/500",
       "border/strong-hover": "zinc/400",
       "colors/state/info": "blue/500",
-      "text/on/info": "white/a100",
+      "text/on/info": "black/a100",
       "colors/state/warning": "orange/400",
       "colors/state/warning-strong": "orange/400",
       "text/on/warning": "black/a100",
@@ -288,7 +290,8 @@
       "colors/state/info-strong": "blue/300",
       "colors/state/neutral-strong": "zinc/400",
       "text/on/primary-subtle": "black/a30",
-      "surface/tint/subtle": "blue/900"
+      "surface/tint/subtle": "blue/900",
+      "border/error": "red/400"
     },
     "brand": {
       "colors/primary/light": "navy/300",
@@ -355,7 +358,7 @@
       "border/strong": "white/a60",
       "border/strong-hover": "white/a80",
       "colors/state/info": "blue/500",
-      "text/on/info": "white/a100",
+      "text/on/info": "black/a100",
       "colors/state/warning": "orange/400",
       "colors/state/warning-strong": "orange/400",
       "text/on/warning": "black/a100",
@@ -393,7 +396,8 @@
       "colors/state/info-strong": "blue/300",
       "colors/state/neutral-strong": "zinc/400",
       "text/on/primary-subtle": "white/a30",
-      "surface/tint/subtle": "white/a5"
+      "surface/tint/subtle": "white/a5",
+      "border/error": "red/300"
     }
   },
   "vars": {
