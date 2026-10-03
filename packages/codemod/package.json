@@ -1,7 +1,7 @@
 {
   "name": "@rojaostudio/ds-codemod",
   "private": true,
-  "version": "0.1.0-next.2",
+  "version": "0.1.0-next.3",
   "description": "Codemod do Rojão DS — `npx @rojaostudio/ds-codemod <pasta>` migra um projeto do @rojaostudio/ds 0.x/1.x para a 2.0 (dry-run por padrão, --apply escreve).",
   "license": "MIT",
   "author": "Rojão Studio (https://rojao.studio)",

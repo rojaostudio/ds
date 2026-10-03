@@ -6,7 +6,10 @@
  * on it: it asks npx to fetch the codemod on demand, with the arguments as they came, and exits with its code.
  */
 
-export const CODEMOD_PACKAGE = "@rojaostudio/ds-codemod";
+import { onTag } from "./prerelease";
+
+/** The codemod, on the `next` tag while this CLI is a prerelease. */
+export const CODEMOD_PACKAGE = onTag("@rojaostudio/ds-codemod");
 
 export const MIGRATE_HELP = `rojao-ds migrate — leva um projeto do @rojaostudio/ds 0.x/1.x para a 2.0
 

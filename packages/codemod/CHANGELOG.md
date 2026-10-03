@@ -1,5 +1,11 @@
 # @rojaostudio/ds-codemod
 
+## 0.1.0-next.3
+
+### Patch Changes
+
+- Enquanto a CLI é pré-versão, o `init` sugere `@rojaostudio/ds@next` (antes sugeria o pacote sem tag, que instala a 1.x) e o `migrate` chama `@rojaostudio/ds-codemod@next`. READMEs com `@next`.
+
 ## 0.1.0-next.2
 
 ### Minor Changes

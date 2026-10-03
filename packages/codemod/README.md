@@ -4,14 +4,14 @@ O codemod do [Rojão DS](https://ds.rojao.ai): leva um projeto do `@rojaostudio/
 direto para a 2.0.
 
 ```bash
-npx @rojaostudio/ds-codemod ./meu-app            # dry-run: mostra o plano, não escreve nada
-npx @rojaostudio/ds-codemod ./meu-app --apply    # escreve
+npx @rojaostudio/ds-codemod@next ./meu-app       # dry-run: mostra o plano, não escreve nada
+npx @rojaostudio/ds-codemod@next ./meu-app --apply  # escreve
 ```
 
 Com a CLI do DS, é o mesmo comando:
 
 ```bash
-npx rojao-ds migrate ./meu-app [--apply]
+npx rojao-ds@next migrate ./meu-app [--apply]
 ```
 
 ## O que ele faz

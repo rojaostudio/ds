@@ -99,7 +99,7 @@ describe("rojao-ds init — modos de entrada", () => {
     expect(md).toContain('@import "./rds-theme.css";');
     expect(t.text()).toContain('@import "@rojaostudio/ds/styles/rds.css";');
     expect(t.text()).toContain('@import "./rds-theme.css";');
-    expect(t.text()).toContain("pnpm add @rojaostudio/ds");
+    expect(t.text()).toContain("pnpm add @rojaostudio/ds@next");
   });
 
   it("sem cor e com terminal: pergunta até receber um hex válido", async () => {
@@ -340,6 +340,6 @@ describe("rojao-ds init — saída", () => {
     write("package-lock.json", "{}");
     const t = io();
     await run(["init", "-c", "#7C3AED"], t.io);
-    expect(t.text()).toContain("npm install @rojaostudio/ds");
+    expect(t.text()).toContain("npm install @rojaostudio/ds@next");
   });
 });
