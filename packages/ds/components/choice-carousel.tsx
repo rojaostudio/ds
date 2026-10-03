@@ -23,7 +23,7 @@ export interface ChoiceCarouselProps<T> {
 /**
  * ChoiceCarousel — a horizontal, scroll-snapped row of options to pick one (radiogroup) or several (group of
  * checkboxes); the options are drawn by `renderCard`. On a wide screen two outline IconButtons (with their Tooltips)
- * scroll it by one option; the arrow keys do the same on the row. Styles: choice-carousel.css.
+ * scroll it by one option, each one there only while there is more that way; the arrow keys do the same on the row. Styles: choice-carousel.css.
  */
 
 export function ChoiceCarousel<T>({
@@ -106,19 +106,21 @@ export function ChoiceCarousel<T>({
 
   return (
     <div className="rds-choice-carousel">
-      <Tooltip text="Anterior">
-        <IconButton
-          className="rds-choice-carousel__arrow rds-choice-carousel__arrow--prev"
-          icon={<ChevronLeftIcon />}
-          label="Anterior"
-          variant="outline"
-          tone="neutral"
-          onClick={() => scrollByAmount(-1)}
-          disabled={!canScrollLeft}
-          // Pointer only: on the keyboard the arrow keys scroll the row.
-          tabIndex={-1}
-        />
-      </Tooltip>
+      {/* An arrow is there only while there is more that way (Figma: hidden, not faded). */}
+      {canScrollLeft && (
+        <Tooltip text="Anterior">
+          <IconButton
+            className="rds-choice-carousel__arrow rds-choice-carousel__arrow--prev"
+            icon={<ChevronLeftIcon />}
+            label="Anterior"
+            variant="outline"
+            tone="neutral"
+            onClick={() => scrollByAmount(-1)}
+            // Pointer only: on the keyboard the arrow keys scroll the row.
+            tabIndex={-1}
+          />
+        </Tooltip>
+      )}
 
       <div
         ref={trackRef}
@@ -153,18 +155,19 @@ export function ChoiceCarousel<T>({
         })}
       </div>
 
-      <Tooltip text="Próximo">
-        <IconButton
-          className="rds-choice-carousel__arrow rds-choice-carousel__arrow--next"
-          icon={<ChevronRightIcon />}
-          label="Próximo"
-          variant="outline"
-          tone="neutral"
-          onClick={() => scrollByAmount(1)}
-          disabled={!canScrollRight}
-          tabIndex={-1}
-        />
-      </Tooltip>
+      {canScrollRight && (
+        <Tooltip text="Próximo">
+          <IconButton
+            className="rds-choice-carousel__arrow rds-choice-carousel__arrow--next"
+            icon={<ChevronRightIcon />}
+            label="Próximo"
+            variant="outline"
+            tone="neutral"
+            onClick={() => scrollByAmount(1)}
+            tabIndex={-1}
+          />
+        </Tooltip>
+      )}
     </div>
   );
 }

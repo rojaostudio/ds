@@ -2,7 +2,7 @@
 /*
  * ChoiceCarousel: no tokens of its own; the IconButtons bring theirs. A row that scrolls sideways and snaps to each
  * option (160 wide, 200 from 768), 12 apart, no scrollbar. From 768 the outline arrows sit on the row's edges, half
- * outside, and fade away when there is nothing more that way.
+ * outside, and are not there when there is nothing more that way.
  */
 .rds-choice-carousel {
   position: relative;
@@ -56,7 +56,6 @@
     display: inline-flex;
     border-radius: var(--radius-full);
     box-shadow: var(--elevation-raised);
-    transition: opacity var(--motion-duration-base) var(--motion-easing-standard);
   }
 
   .rds-choice-carousel__arrow--prev {
@@ -67,11 +66,6 @@
   .rds-choice-carousel__arrow--next {
     right: 0;
     transform: translate(50%, -50%);
-  }
-
-  .rds-choice-carousel__arrow[aria-disabled='true'] {
-    opacity: 0;
-    pointer-events: none;
   }
 }
 

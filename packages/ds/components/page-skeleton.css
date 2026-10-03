@@ -1,8 +1,9 @@
 /* @tokens page-skeleton */
 /*
  * PageSkeleton and CardsSkeleton: no tokens of their own; the Skeleton and the Card bring theirs. Blocks 24 apart
- * (24 padding when padded). The table is a small Card: the header row on the card's footer background, a line
- * between rows. The cards: 2 per row (4 from 1024), the charts 1 (2 from 1024), 16 apart.
+ * (24 padding when padded). The Cards keep their elevation/raised, as in the Figma. The table is a small Card: the
+ * header row on the card's footer background, a line between rows. The cards: 2 per row (4 from 1024), the charts
+ * 1 (2 from 1024), 16 apart.
  */
 .rds-page-skeleton {
   display: flex;
@@ -19,10 +20,6 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-16);
-}
-
-.rds-page-skeleton__table {
-  box-shadow: none;
 }
 
 .rds-page-skeleton__row {
@@ -71,7 +68,6 @@
 .rds-page-skeleton__card {
   gap: var(--space-12);
   padding: var(--space-16);
-  box-shadow: none;
 }
 
 .rds-page-skeleton__card .rds-skeleton {

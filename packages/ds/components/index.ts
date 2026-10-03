@@ -133,8 +133,9 @@ export { SummaryBar } from './summary-bar';
 export type { SummaryBarProps, SummaryBarLayout, SummaryBarItem, SummaryBarTone } from './summary-bar';
 
 export { ToggleCard } from './toggle-card';
-export type { ToggleCardProps } from './toggle-card';
+export type { ToggleCardProps, ToggleCardLayout } from './toggle-card';
 
+// Deprecated: ToggleCard layout="compact" (Figma [RDS] Forms/ToggleCard). The codemod rewrites it.
 export { ToggleCardCompact } from './toggle-card-compact';
 export type { ToggleCardCompactProps } from './toggle-card-compact';
 

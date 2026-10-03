@@ -1,7 +1,9 @@
 /* @tokens toggle-card */
 /*
- * ToggleCard: no tokens of its own; the Card and the Switch bring theirs. The Switch row pads 16 on the sides (4 top and
- * bottom); the options under it pad 16, 16 apart, after a line in the card's border colour.
+ * ToggleCard: no tokens of its own; the Card, the Item, the Switch and the IconButton bring theirs.
+ * layout=default: the Switch row pads 16 on the sides (4 top and bottom); the options under it pad 16, 16 apart,
+ * after a line in the card's border colour.
+ * layout=compact: the outline Item; the pencil and the Switch 8 apart at the end of the row.
  */
 .rds-toggle-card__header {
   padding: var(--space-4) var(--space-16);
@@ -13,4 +15,10 @@
   gap: var(--space-16);
   padding: var(--space-16);
   border-top: var(--border-width) solid var(--card-border);
+}
+
+.rds-toggle-card__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
 }

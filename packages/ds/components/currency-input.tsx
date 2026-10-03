@@ -54,8 +54,6 @@ export interface CurrencyInputProps {
   maxDigits?: number;
   /** Shows 0,00 instead of the placeholder when the value is zero. */
   showZero?: boolean;
-  /** @deprecated The [RDS] Input has one height (44). Ignored. */
-  size?: 'sm' | 'md' | 'lg';
   id?: string;
   className?: string;
 }

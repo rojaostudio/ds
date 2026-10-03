@@ -96,6 +96,14 @@ const MANUAL: Record<string, string[]> = {
     'EmptyState.children',
   ],
   'manual-collision': ['Toggle.collision'],
+  'manual-figma-alignment': [
+    'SelectableCard.as',
+    'SelectableCard.href',
+    'SelectableCard.ribbon',
+    'ChoicePreviewCard.locked',
+    'ChoicePreviewCard.badge',
+    'type:ImageUploadAspect',
+  ],
   'manual-wave6': [
     'Label',
     'Themed',

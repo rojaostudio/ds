@@ -1006,5 +1006,9 @@
   --sheet-text: var(--text-body);
   --sheet-title: var(--text-heading);
   --dialog-scrim: var(--surface-scrim);
+  --image-crop-modal-shade: var(--surface-scrim);
+  --image-crop-modal-selection: var(--text-on-cover);
+  --image-crop-modal-handle: var(--text-on-cover);
+  --image-crop-modal-stage-background: var(--surface-muted);
 }
 }

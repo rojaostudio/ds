@@ -107,6 +107,8 @@ export const FILE_OF_EXPORT: Record<string, string> = {
   BubbleProps: 'bubble',
   Phone: 'phone',
   PhoneProps: 'phone',
+  ToggleCard: 'toggle-card',
+  ToggleCardProps: 'toggle-card',
 };
 
 /** Literal value of a JSX attribute after migration. `null` drops the attribute: it is the 2.0 default. */
@@ -685,6 +687,53 @@ export const COMPONENTS: Record<string, ComponentRule> = {
     wave: 'onda 6 (#33)',
     transforms: ['themed'],
   },
+
+  // ── Figma alignment of the 19 code-only components (2.0) ───────────────────────────────────────
+  ToggleCardCompact: {
+    // Figma [RDS] Forms/ToggleCard has one component with layout=default|compact: the same props, one name.
+    wave: 'alinhamento Figma (19 componentes)',
+    to: 'ToggleCard',
+    props: { layout: { absent: 'compact' } },
+  },
+  CurrencyInput: {
+    wave: 'alinhamento Figma (19 componentes)',
+    props: { size: { drop: true } }, // ignored since 2.0: the [RDS] Input has one height (44)
+  },
+  SelectableCard: {
+    // A thin wrapper over ChoiceCard layout="row": a native radio, never a link.
+    wave: 'alinhamento Figma (19 componentes)',
+    props: {
+      indicator: { drop: true }, // looks only: the row always shows its radio
+      as: {
+        dropIf: 'button',
+        manual: 'SelectableCard as="a" saiu: o card é um radio, não um link. Navegue em onClick, ou use um <a> fora do card.',
+      },
+      href: { manual: 'SelectableCard perdeu `href`: o card é um radio, não um link. Navegue em onClick, ou use um <a> fora do card.' },
+      ribbon: { manual: 'SelectableCard perdeu `ribbon`: o ChoiceCard não tem fita. Leve o texto para o rótulo (children).' },
+    },
+  },
+  ChoicePreviewCard: {
+    // A thin wrapper over ChoiceCard layout="preview".
+    wave: 'alinhamento Figma (19 componentes)',
+    props: {
+      previewAspect: { drop: true }, // looks only: the picture is always 16:9
+      locked: {
+        dropIf: false,
+        manual: 'ChoicePreviewCard perdeu `locked`: o ChoiceCard não tem estado travado. Use `disabled` e explique o motivo em `description`.',
+      },
+      badge: { manual: 'ChoicePreviewCard perdeu `badge`: o ChoiceCard não tem selo na imagem. Leve o texto para `description`.' },
+    },
+  },
+  ImageUpload: {
+    // A thin wrapper over FileInput variant="tile": always the tile, whatever the variant or the aspect.
+    wave: 'alinhamento Figma (19 componentes)',
+    props: {
+      aspect: { drop: true },
+      variant: { drop: true },
+      previewClassName: { drop: true },
+      previewWrapperClassName: { drop: true },
+    },
+  },
 };
 
 /** Type-only exports: renamed (`to`) or gone/changed with no mechanical path (`manual`). */
@@ -741,6 +790,10 @@ export const TYPES: Record<string, { to?: string; manual?: string; follows?: str
   BlockerCardTone: { manual: `BlockerCardTone ${PRODUCT_LEFT}.` },
   CopilotHintProps: { manual: `CopilotHintProps ${PRODUCT_LEFT}.` },
   CopilotHintPriority: { manual: `CopilotHintPriority ${PRODUCT_LEFT}.` },
+  // Figma alignment of the 19 code-only components (2.0).
+  ToggleCardCompactProps: { to: 'ToggleCardProps', follows: 'ToggleCardCompact' },
+  ImageUploadAspect: { manual: 'ImageUploadAspect saiu com a prop `aspect` do ImageUpload (o tile é sempre quadrado).' },
+  ImageUploadVariant: { manual: 'ImageUploadVariant saiu com a prop `variant` do ImageUpload (é sempre o tile).' },
 };
 
 /** Value exports gone with no mechanical replacement. */
@@ -768,8 +821,6 @@ export const MOVED_EXPORTS: Record<string, string> = {
   CropPreset: '@rojaostudio/ds/components/image-crop-modal',
   ImageUpload: '@rojaostudio/ds/components/image-upload',
   ImageUploadProps: '@rojaostudio/ds/components/image-upload',
-  ImageUploadAspect: '@rojaostudio/ds/components/image-upload',
-  ImageUploadVariant: '@rojaostudio/ds/components/image-upload',
   ImageUploadLabels: '@rojaostudio/ds/components/image-upload',
 };
 

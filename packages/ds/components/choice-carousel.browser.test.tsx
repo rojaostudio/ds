@@ -79,20 +79,39 @@ describe('ChoiceCarousel behaviour', () => {
     expect(boxes.map((b) => b.getAttribute('aria-checked'))).toEqual(['false', 'true', 'false']);
   });
 
-  it('from 768 the arrows show and scroll the row; the previous one is off at the start', async () => {
+  it('from 768 the arrows show and scroll the row; an arrow is not there when there is nothing more that way', async () => {
     await page.viewport(1024, 768);
     const el = await render(
       <div style={{ maxWidth: 400, padding: '0 24px' }}>
         <Single />
       </div>,
     );
-    const [prev, next] = el.querySelectorAll<HTMLElement>('.rds-choice-carousel__arrow');
-    expect(getComputedStyle(next).display).not.toBe('none');
-    expect(prev.getAttribute('aria-disabled')).toBe('true');
+    const prev = () => el.querySelector<HTMLElement>('.rds-choice-carousel__arrow--prev');
+    const next = () => el.querySelector<HTMLElement>('.rds-choice-carousel__arrow--next');
+    // At the start: no previous arrow at all (not a faded one), the next one in view.
+    await expect.poll(() => next()).not.toBeNull();
+    expect(prev()).toBeNull();
+    expect(getComputedStyle(next()!).display).not.toBe('none');
     const track = el.querySelector<HTMLElement>('.rds-choice-carousel__track')!;
     track.style.scrollBehavior = 'auto';
-    next.click();
+    next()!.click();
     await expect.poll(() => track.scrollLeft).toBeGreaterThan(0);
+    await expect.poll(() => prev()).not.toBeNull();
+    // At the end: the next arrow leaves.
+    track.scrollLeft = track.scrollWidth;
+    await expect.poll(() => next()).toBeNull();
+    expect(prev()).not.toBeNull();
+  });
+
+  it('without overflow there are no arrows', async () => {
+    await page.viewport(1024, 768);
+    const el = await render(
+      <div style={{ maxWidth: 900 }}>
+        <Multiple />
+      </div>,
+    );
+    await new Promise((r) => requestAnimationFrame(r));
+    expect(el.querySelectorAll('.rds-choice-carousel__arrow')).toHaveLength(0);
   });
 
   it('below 768 the arrows are gone; the arrow keys scroll the row', async () => {

@@ -7,14 +7,6 @@ import { ChoiceCard } from './choice-card';
 export interface SelectableCardProps {
   selected?: boolean;
   onClick?: () => void;
-  /** Ignored: the card is a radio now, never a link. */
-  as?: 'button' | 'a';
-  /** Ignored: the card is a radio now, never a link. */
-  href?: string;
-  /** Ignored: the ChoiceCard row always shows its radio. */
-  indicator?: 'radio' | 'check' | 'chevron' | 'none';
-  /** Ignored: the ChoiceCard has no ribbon. */
-  ribbon?: ReactNode;
   disabled?: boolean;
   className?: string;
   children: ReactNode;
@@ -22,8 +14,8 @@ export interface SelectableCardProps {
 
 /**
  * @deprecated Use ChoiceCard (Figma [RDS] Content/ChoiceCard, layout="row"). A thin wrapper over it: `children`
- * is the label, `onClick` is `onSelect`. It is a native radio now, not a button: `as`, `href`, `indicator` and
- * `ribbon` are ignored, and a chosen card cannot be un-chosen by clicking it again.
+ * is the label, `onClick` is `onSelect`. It is a native radio now, not a button (`as`, `href`, `indicator` and
+ * `ribbon` left in 2.0), and a chosen card cannot be un-chosen by clicking it again.
  */
 export function SelectableCard({ selected = false, onClick, disabled, className, children }: SelectableCardProps) {
   return (
