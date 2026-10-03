@@ -3,13 +3,12 @@
  * SavingBar (Actions collection, savingbar/*): full width (at least 320), 12 24 padding, 16 between the
  * message (label, medium, at most 2 lines with an ellipsis) and the actions (8 apart). The Buttons use the inverse
  * tone, drawn for this band in both modes, so the bar needs no theme switch of its own.
- * Two arrangements, by the bar's own width (a size container, as the Figma's viewport mode): expanded from 1024,
+ * Two arrangements, by the screen width, as the Figma viewport mode (layout/compact below lg 1024): expanded from 1024,
  * the message grows (at least 160) beside the actions; compact below it, the message on top and Descartar and
  * Salvar under it, sharing the width.
  */
 .rds-savingbar {
   box-sizing: border-box;
-  container-type: inline-size;
   width: 100%;
   min-width: min(320px, 100%);
   padding: var(--space-12) var(--space-24);
@@ -80,7 +79,7 @@
   gap: var(--space-8);
 }
 
-@container (max-width: 1023px) {
+@media (max-width: 1023px) {
   .rds-savingbar__row {
     flex-direction: column;
     align-items: stretch;

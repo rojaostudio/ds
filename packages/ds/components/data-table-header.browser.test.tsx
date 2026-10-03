@@ -315,15 +315,15 @@ describe('DataTableHeader compact (bar below 1024)', () => {
     expect(bar.scrollWidth).toBeLessThanOrEqual(bar.clientWidth);
   });
 
-  it('the arrangement follows the bar, not the screen: a bar of 600 on a 1280 screen is compact', async () => {
+  it('the arrangement follows the screen, as the Figma viewport mode: a bar of 976 (sidebar beside it) on a 1280 screen stays expanded', async () => {
     await page.viewport(1280, 800);
     const el = await render(
-      <div style={{ width: 600 }}>
+      <div style={{ width: 976 }}>
         <Produtos />
       </div>,
     );
-    expect(visible(el.querySelector('.rds-data-table-header__wide')!)).toBe(false);
-    expect(visible(el.querySelector('.rds-data-table-header__narrow')!)).toBe(true);
+    expect(visible(el.querySelector('.rds-data-table-header__wide')!)).toBe(true);
+    expect(visible(el.querySelector('.rds-data-table-header__narrow')!)).toBe(false);
   });
 
   it('one filter: no dot while "Todas"; on, a dot (aria-hidden, the Badge neutral colour) and the name with the state', async () => {
