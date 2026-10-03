@@ -2978,7 +2978,7 @@ input:focus-visible + .rds-checkbox__box {
 /*
  * ChoiceCarousel: no tokens of its own; the IconButtons bring theirs. A row that scrolls sideways and snaps to each
  * option (160 wide, 200 from 768), 12 apart, no scrollbar. From 768 the outline arrows sit on the row's edges, half
- * outside, and fade away when there is nothing more that way.
+ * outside, and are not there when there is nothing more that way.
  */
 .rds-choice-carousel {
   position: relative;
@@ -3032,7 +3032,6 @@ input:focus-visible + .rds-checkbox__box {
     display: inline-flex;
     border-radius: var(--radius-full);
     box-shadow: var(--elevation-raised);
-    transition: opacity var(--motion-duration-base) var(--motion-easing-standard);
   }
 
   .rds-choice-carousel__arrow--prev {
@@ -3043,11 +3042,6 @@ input:focus-visible + .rds-checkbox__box {
   .rds-choice-carousel__arrow--next {
     right: 0;
     transform: translate(50%, -50%);
-  }
-
-  .rds-choice-carousel__arrow[aria-disabled='true'] {
-    opacity: 0;
-    pointer-events: none;
   }
 }
 
@@ -3584,7 +3578,7 @@ input:focus-visible + .rds-checkbox__box {
 /* components/data-table-header.css */
 /* @tokens data-table-header */
 /*
- * DataTableHeader: no tokens of its own; the Input, FilterChip, Chip, Button, Badge, Separator, DropdownMenu,
+ * DataTableHeader: no tokens of its own; the Input, FilterChip, Chip, Button, Separator, DropdownMenu,
  * Popover and Drawer bring theirs. One row, 8 apart, 12 above the table; the search takes the free width. The wide
  * parts show from 768, the narrow ones below it. In the Popover and the Drawer the filters stack 16 apart, each
  * one a caption-sized label over its chips.
@@ -4409,8 +4403,8 @@ input:focus-visible + .rds-checkbox__box {
 /* @tokens floating-stepper */
 /*
  * FloatingStepper: no tokens of its own; the Card and the Buttons bring theirs. A pill (radius/full) of 44 Buttons,
- * 4 inside and 4 apart, raised by elevation/overlay because it floats over the page. A 1 × 24 line in the card's
- * border colour before the action.
+ * 4 inside and 4 apart, raised by elevation/overlay because it floats over the page. A vertical Separator, 24
+ * tall, before the action.
  */
 .rds-floating-stepper {
   flex-direction: row;
@@ -4429,12 +4423,9 @@ input:focus-visible + .rds-checkbox__box {
   border-radius: var(--radius-full);
 }
 
-.rds-floating-stepper__divider {
-  flex: none;
-  width: var(--border-width);
+.rds-floating-stepper > .rds-floating-stepper__divider {
+  align-self: center;
   height: var(--size-24);
-  margin-inline: var(--space-4);
-  background: var(--card-border);
 }
 
 /* components/footer.css */
@@ -4904,10 +4895,11 @@ input:focus-visible + .rds-checkbox__box {
 /* components/image-crop-modal.css */
 /* @tokens image-crop-modal */
 /*
- * ImageCropModal: no tokens of its own; the Dialog, the ToggleGroup, the Alert and the Spinner bring theirs. 12
- * apart: the presets (they share the width), the stage (at least 300, at most 60% of the viewport, the image
- * letterboxed inside 16 of padding, a line in the dialog's border colour), the error or the hint. While sending,
- * the dialog's scrim covers the image.
+ * ImageCropModal (Figma [RDS] Overlays/ImageCropModal): the Dialog, the ToggleGroup, the Alert and the Spinner bring
+ * their tokens; the crop brings its own (Overlays, image-crop-modal/*). 12 apart: the presets (they share the
+ * width), the stage (320 tall, on image-crop-modal/stage/background, the image letterboxed inside 16 of padding, a
+ * line in the dialog's border colour), the error or the hint. Over the image, outside the crop, the shade; the crop's
+ * line and its handles in their own colours. While sending, the dialog's scrim covers the stage.
  */
 .rds-image-crop {
   display: flex;
@@ -4930,17 +4922,42 @@ input:focus-visible + .rds-checkbox__box {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 300px;
+  height: 320px;
+  /* On a short viewport (a phone on its side) the stage gives way so the footer stays in view. */
   max-height: 60vh;
   padding: var(--space-16);
   overflow: hidden;
+  background: var(--image-crop-modal-stage-background);
   border: var(--border-width) solid var(--dialog-border);
   border-radius: var(--radius-control);
 }
 
+/*
+ * react-image-crop's own stylesheet is unlayered, so it wins over these layered rules wherever both set the same
+ * property. The shade is an SVG rect with fill as an attribute (black at 50%): any CSS beats it. The handles read
+ * the library's variables, set here. The selection's marching ants are hard-coded: the two !important take them
+ * off so the crop is one solid line in the selection colour (the library's focus outline stays).
+ */
 .rds-image-crop__crop {
   max-width: 100%;
-  max-height: calc(60vh - var(--space-32));
+  max-height: calc(min(320px, 60vh) - var(--space-32));
+  --rc-drag-handle-bg-colour: var(--image-crop-modal-handle);
+  --rc-border-color: var(--image-crop-modal-handle);
+}
+
+.rds-image-crop__crop .ReactCrop__crop-mask > rect {
+  fill: var(--image-crop-modal-shade);
+  fill-opacity: 1;
+}
+
+.rds-image-crop__crop .ReactCrop__crop-selection {
+  background-image: none !important;
+  border: var(--border-width) solid var(--image-crop-modal-selection);
+  animation: none !important;
+}
+
+.rds-image-crop__crop .ReactCrop__drag-handle {
+  border-radius: var(--radius-xs);
 }
 
 .rds-image-crop__image {
@@ -7358,8 +7375,9 @@ body:has(.rds-modal) {
 /* @tokens page-skeleton */
 /*
  * PageSkeleton and CardsSkeleton: no tokens of their own; the Skeleton and the Card bring theirs. Blocks 24 apart
- * (24 padding when padded). The table is a small Card: the header row on the card's footer background, a line
- * between rows. The cards: 2 per row (4 from 1024), the charts 1 (2 from 1024), 16 apart.
+ * (24 padding when padded). The Cards keep their elevation/raised, as in the Figma. The table is a small Card: the
+ * header row on the card's footer background, a line between rows. The cards: 2 per row (4 from 1024), the charts
+ * 1 (2 from 1024), 16 apart.
  */
 .rds-page-skeleton {
   display: flex;
@@ -7376,10 +7394,6 @@ body:has(.rds-modal) {
   align-items: center;
   justify-content: space-between;
   gap: var(--space-16);
-}
-
-.rds-page-skeleton__table {
-  box-shadow: none;
 }
 
 .rds-page-skeleton__row {
@@ -7428,7 +7442,6 @@ body:has(.rds-modal) {
 .rds-page-skeleton__card {
   gap: var(--space-12);
   padding: var(--space-16);
-  box-shadow: none;
 }
 
 .rds-page-skeleton__card .rds-skeleton {
@@ -10642,23 +10655,13 @@ tbody > tr:last-child > .rds-table__status {
   }
 }
 
-/* components/toggle-card-compact.css */
-/* @tokens toggle-card-compact */
-/*
- * ToggleCardCompact: no tokens of its own; the Item, the Switch and the IconButton bring theirs. The pencil and the
- * Switch 8 apart at the end of the row.
- */
-.rds-toggle-card-compact__actions {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-8);
-}
-
 /* components/toggle-card.css */
 /* @tokens toggle-card */
 /*
- * ToggleCard: no tokens of its own; the Card and the Switch bring theirs. The Switch row pads 16 on the sides (4 top and
- * bottom); the options under it pad 16, 16 apart, after a line in the card's border colour.
+ * ToggleCard: no tokens of its own; the Card, the Item, the Switch and the IconButton bring theirs.
+ * layout=default: the Switch row pads 16 on the sides (4 top and bottom); the options under it pad 16, 16 apart,
+ * after a line in the card's border colour.
+ * layout=compact: the outline Item; the pencil and the Switch 8 apart at the end of the row.
  */
 .rds-toggle-card__header {
   padding: var(--space-4) var(--space-16);
@@ -10670,6 +10673,12 @@ tbody > tr:last-child > .rds-table__status {
   gap: var(--space-16);
   padding: var(--space-16);
   border-top: var(--border-width) solid var(--card-border);
+}
+
+.rds-toggle-card__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
 }
 
 /* components/toggle-group.css */

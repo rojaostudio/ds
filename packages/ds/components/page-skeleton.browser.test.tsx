@@ -39,4 +39,16 @@ describe('PageSkeleton behaviour', () => {
     expect(el.querySelectorAll('.rds-page-skeleton__grid--charts .rds-card')).toHaveLength(2);
     expect(getComputedStyle(el.querySelector('.rds-page-skeleton')!).paddingTop).toBe('24px');
   });
+
+  it('the Cards keep their shadow (elevation/raised, as in the Figma)', async () => {
+    const el = await render(
+      <div>
+        <PageSkeleton rows={1} />
+        <CardsSkeleton count={1} />
+      </div>,
+    );
+    const cards = [...el.querySelectorAll('.rds-card')];
+    expect(cards.length).toBeGreaterThan(0);
+    for (const card of cards) expect(getComputedStyle(card).boxShadow).not.toBe('none');
+  });
 });

@@ -6,13 +6,15 @@ import 'react-image-crop/dist/ReactCrop.css';
 import { Alert } from './alert';
 import { Button } from './button';
 import { Dialog } from './dialog';
+import { RectangleHorizontalIcon, RectangleVerticalIcon, SquareDashedIcon, SquareIcon } from './internal/icons';
 import { Spinner } from './spinner';
 import { ToggleGroup, ToggleGroupItem } from './toggle-group';
 
 /**
- * ImageCropModal — a composition of the Dialog, a ToggleGroup (the aspect presets), the Alert (an aspect out of
- * bounds) and the Spinner: crops an image before upload. Needs `react-image-crop` (an optional peer, needed only
- * here). Styles: image-crop-modal.css.
+ * ImageCropModal — Figma [RDS] Overlays/ImageCropModal: a composition of the Dialog, a ToggleGroup (the aspect
+ * presets), the Alert (an aspect out of bounds) and the Spinner: crops an image before upload. Needs
+ * `react-image-crop` (an optional peer, needed only here). The crop's shade, line and handles and the stage's
+ * background are its own tokens (Overlays, image-crop-modal/*). Styles: image-crop-modal.css.
  *
  * Uso:
  *   <ImageCropModal
@@ -35,35 +37,13 @@ export interface CropPreset {
   icon?:   React.ReactNode;
 }
 
-// Ícone que desenha um retângulo na proporção w:h dentro de um box 18x18 — dá pra "ver" a
-// forma do recorte sem entender a razão numérica.
-function RatioIcon({ w, h }: { w: number; h: number }) {
-  const box = 16;
-  const rw = w >= h ? box : (w / h) * box;
-  const rh = h >= w ? box : (h / w) * box;
-  return (
-    <svg width="16" height="16" viewBox="0 0 18 18" fill="none" aria-hidden>
-      <rect x={(18 - rw) / 2} y={(18 - rh) / 2} width={rw} height={rh} rx="1.5" stroke="currentColor" strokeWidth="1.6" />
-    </svg>
-  );
-}
-
-// Ícone do "Livre": retângulo tracejado (recorte sem proporção fixa).
-function FreeIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 18 18" fill="none" aria-hidden>
-      <rect x="2.5" y="2.5" width="13" height="13" rx="1.5" stroke="currentColor" strokeWidth="1.6" strokeDasharray="2.5 2.2" />
-    </svg>
-  );
-}
-
 // Ordem: proporções primeiro (1:1 é o default), Livre por último — a maioria dos lojistas
 // não decodifica "1:1/4:5/16:9", então o padrão nasce numa proporção segura.
 const DEFAULT_PRESETS: CropPreset[] = [
-  { id: 'square',    label: '1:1',  aspect: 1,      icon: <RatioIcon w={1} h={1} /> },
-  { id: 'portrait',  label: '4:5',  aspect: 4 / 5,  icon: <RatioIcon w={4} h={5} /> },
-  { id: 'landscape', label: '16:9', aspect: 16 / 9, icon: <RatioIcon w={16} h={9} /> },
-  { id: 'free',      label: 'Livre',                icon: <FreeIcon /> },
+  { id: 'square',    label: '1:1',  aspect: 1,      icon: <SquareIcon /> },
+  { id: 'portrait',  label: '4:5',  aspect: 4 / 5,  icon: <RectangleVerticalIcon /> },
+  { id: 'landscape', label: '16:9', aspect: 16 / 9, icon: <RectangleHorizontalIcon /> },
+  { id: 'free',      label: 'Livre',                icon: <SquareDashedIcon /> },
 ];
 
 const DEFAULT_MIN_ASPECT = 0.5;
@@ -362,9 +342,12 @@ export function ImageCropModal({
         </div>
 
         {aspectError && <Alert tone="danger" title={aspectError} announce="alert" />}
-        {!aspectError && preset.id === 'free' && (
+        {/* The hint only while the crop can be adjusted (ready): not while loading or sending, not over an error. */}
+        {!aspectError && imgLoaded && !busy && (
           <p className="rds-image-crop__hint">
-            Livre: proporção entre {minAspect.toFixed(1)} (vertical) e {maxAspect.toFixed(1)} (horizontal).
+            {preset.aspect
+              ? 'Arraste as alças para ajustar o recorte.'
+              : `Livre: proporção entre ${minAspect.toFixed(1)} (vertical) e ${maxAspect.toFixed(1)} (horizontal).`}
           </p>
         )}
       </div>

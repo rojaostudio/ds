@@ -6,12 +6,10 @@ import { ImageCropModal, type CropPreset } from './image-crop-modal';
 
 /**
  * @deprecated Use `<FileInput variant="tile">` (Figma [RDS] Forms/FileInput): the image's square with the preview
- * and the swap and remove buttons. ImageUpload is now a thin wrapper over it that keeps the 1.x API compiling and
- * keeps the upload (`onUpload`) and the crop (`crop`). Every variant renders the tile: an image asks for a preview.
+ * and the swap and remove buttons. ImageUpload is now a thin wrapper over it that keeps most of the 1.x API compiling and
+ * keeps the upload (`onUpload`) and the crop (`crop`). It is always the tile (`variant`, `aspect` and the preview
+ * class names left in 2.0): an image asks for a preview.
  */
-
-export type ImageUploadAspect = 'logo' | 'banner' | 'square';
-export type ImageUploadVariant = 'button' | 'dropzone' | 'tile';
 
 export interface ImageUploadLabels {
   /** The empty tile's text (FileInput's `tileText`). */
@@ -54,10 +52,6 @@ export interface ImageUploadCrop {
 }
 
 export interface ImageUploadProps {
-  /** @deprecated Ignored: the tile's preview fills the square. */
-  previewClassName?: string;
-  /** @deprecated Ignored. */
-  previewWrapperClassName?: string;
   /** The form field name: a hidden input carries the image's URL. */
   name: string;
   /** The image's URL, '' for none. */
@@ -67,12 +61,8 @@ export interface ImageUploadProps {
   onUpload: (file: File) => Promise<string>;
   label?: string;
   hint?: string;
-  /** @deprecated Ignored: the tile is a 112 square. */
-  aspect?: ImageUploadAspect;
   accept?: string;
   className?: string;
-  /** @deprecated Ignored: every variant is the tile. */
-  variant?: ImageUploadVariant;
   crop?: ImageUploadCrop;
   labels?: Partial<ImageUploadLabels>;
 }

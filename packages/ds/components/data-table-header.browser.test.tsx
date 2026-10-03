@@ -104,12 +104,13 @@ describe('DataTableHeader behaviour', () => {
     expect(trigger.className).toContain('rds-button--fill');
   });
 
-  it('two filters collapse into Filtros (with the count); the active one stays as a Chip that removes it', async () => {
+  it('two filters collapse into Filtros (the count in the label, "Filtros · 1"); the active one stays as a Chip that removes it', async () => {
     await page.viewport(1280, 800);
     const el = await render(<Example two />);
     const wide = el.querySelector<HTMLElement>('.rds-data-table-header__wide')!;
     const toggle = wide.querySelector<HTMLButtonElement>('[data-filter-toggle]')!;
-    expect(toggle.textContent).toBe('Filtros1');
+    expect(toggle.textContent).toBe('Filtros · 1');
+    expect(toggle.querySelector('.rds-badge')).toBeNull();
     expect(wide.querySelector('.rds-chip')!.textContent).toContain('Site');
     await userEvent.click(wide.querySelector<HTMLElement>('[aria-label="Remover filtro Canal"]')!);
     await vi.waitFor(() => expect(wide.querySelector('.rds-chip')).toBeNull());
@@ -124,7 +125,7 @@ describe('DataTableHeader behaviour', () => {
     const group = document.querySelector<HTMLElement>('[role="group"][aria-label="Status"]')!;
     await userEvent.click([...group.querySelectorAll<HTMLElement>('.rds-filter-chip')].find((c) => c.textContent?.startsWith('Concluídos'))!);
     await vi.waitFor(() => expect(document.querySelector('[role="group"][aria-label="Status"]')).toBeNull());
-    expect(el.querySelector('.rds-data-table-header__wide [data-filter-toggle]')!.textContent).toBe('Filtros2');
+    expect(el.querySelector('.rds-data-table-header__wide [data-filter-toggle]')!.textContent).toBe('Filtros · 2');
   });
 
   it('on a narrow screen the wide parts hide; mobileCollapse puts the filters and the actions in a Drawer', async () => {
@@ -136,5 +137,31 @@ describe('DataTableHeader behaviour', () => {
     const drawer = document.querySelector<HTMLElement>('[role="dialog"]')!;
     expect(drawer.querySelector('[role="group"][aria-label="Canal"]')).not.toBeNull();
     expect([...drawer.querySelectorAll('button')].some((b) => b.textContent === 'Novo pedido')).toBe(true);
+  });
+
+  it('at 796 wide, the Figma case (two quick filters, two filters on, "Filtros · 3"): the search is not squeezed', async () => {
+    await page.viewport(1280, 800);
+    const noop = () => {};
+    const el = await render(
+      <div style={{ width: 796 }}>
+        <DataTableHeader
+          search={{ value: 'Maria', onChange: noop, placeholder: 'Buscar pedidos…' }}
+          pillFilters={[
+            { key: 'open', label: 'Abertos', active: true, count: 12, onClick: noop },
+            { key: 'late', label: 'Atrasados', active: false, count: 3, onClick: noop },
+          ]}
+          filters={[
+            { key: 'status', label: 'Status', value: 'paid', options: [{ value: '', label: 'Todos' }, { value: 'paid', label: 'Pago' }], onChange: noop },
+            { key: 'method', label: 'Forma', value: 'pix', options: [{ value: '', label: 'Todas' }, { value: 'pix', label: 'Pix' }], onChange: noop },
+          ]}
+          onClear={noop}
+          actions={<Button>Novo pedido</Button>}
+        />
+      </div>,
+    );
+    expect(el.querySelector('.rds-data-table-header__wide [data-filter-toggle]')!.textContent).toBe('Filtros · 3');
+    const search = el.querySelector<HTMLElement>('.rds-data-table-header__search')!;
+    // flex-basis 256 with wrap: what does not fit beside it goes to the next line instead of squeezing it.
+    expect(search.getBoundingClientRect().width).toBeGreaterThanOrEqual(256);
   });
 });

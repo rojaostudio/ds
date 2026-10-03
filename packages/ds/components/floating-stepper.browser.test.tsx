@@ -49,10 +49,13 @@ describe('FloatingStepper behaviour', () => {
     expect(all).toHaveBeenCalledWith('payment');
   });
 
-  it('the action is a last Button after a line', async () => {
+  it('the action is a last Button after a vertical Separator, 24 tall', async () => {
     const onClick = vi.fn();
     const el = await render(<FloatingStepper steps={STEPS} current="cart" action={{ label: 'Recomeçar', onClick }} />);
-    expect(el.querySelector('.rds-floating-stepper__divider')).not.toBeNull();
+    const line = el.querySelector<HTMLElement>('.rds-floating-stepper__divider')!;
+    expect(line.classList.contains('rds-separator--vertical')).toBe(true);
+    expect(line.getAttribute('aria-hidden')).toBe('true');
+    expect(line.getBoundingClientRect().height).toBe(24);
     const last = [...el.querySelectorAll<HTMLButtonElement>('.rds-button')].at(-1)!;
     expect(last.textContent).toBe('Recomeçar');
     last.click();

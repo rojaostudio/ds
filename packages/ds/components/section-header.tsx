@@ -6,12 +6,13 @@ import { PageHeader } from './page-header';
  * title, kept because SettingsList composes it and the products still use it. New code uses
  * `<PageHeader titleAs="h2" title description actions />`.
  *
- * action → actions. eyebrow and number (not in the Figma) still render as a line above the title. Styles: section-header.css.
+ * action → actions. eyebrow and number are deprecated (not in the Figma); they still render as a line above the
+ * title. Styles: section-header.css.
  */
 export interface SectionHeaderProps {
-  /** Small uppercase line above the title (overline). */
+  /** @deprecated Not in the Figma [RDS] (the SectionHeader pattern): a small uppercase line above the title. */
   eyebrow?: string;
-  /** Section or step number, before the eyebrow: "02 · CONTEÚDO". */
+  /** @deprecated Not in the Figma [RDS]: the section or step number, before the eyebrow ("02 · CONTEÚDO"). */
   number?: string;
   title: string;
   description?: string;

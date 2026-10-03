@@ -158,7 +158,7 @@ describe('ChoiceCard deprecated wrappers', () => {
   it('SelectableCard is a row ChoiceCard; onClick chooses', async () => {
     const onClick = vi.fn();
     const el = await render(
-      <SelectableCard onClick={onClick} indicator="chevron">
+      <SelectableCard onClick={onClick}>
         Plano mensal
       </SelectableCard>,
     );

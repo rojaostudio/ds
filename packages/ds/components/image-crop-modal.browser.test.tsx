@@ -50,6 +50,47 @@ describe('ImageCropModal behaviour', () => {
     expect(dialog().querySelector('.rds-image-crop__hint')!.textContent).toContain('Livre');
   });
 
+  it('the presets carry the [RDS] icons; the ready state says how to adjust the crop', async () => {
+    const file = await photo();
+    await render(<ImageCropModal open file={file} onCancel={() => {}} onConfirm={() => {}} />);
+    await settle();
+    await loaded();
+    const items = [...dialog().querySelectorAll<HTMLButtonElement>('[aria-label="Proporção"] button')];
+    for (const item of items) expect(item.querySelector('svg')).not.toBeNull();
+    // square, rectangle-vertical, rectangle-horizontal (one rect each) and square-dashed (a path).
+    expect(items.slice(0, 3).map((i) => i.querySelector('rect')!.getAttribute('width'))).toEqual(['18', '12', '20']);
+    expect(items[3].querySelector('path')).not.toBeNull();
+    expect(dialog().querySelector('.rds-image-crop__hint')!.textContent).toBe('Arraste as alças para ajustar o recorte.');
+  });
+
+  it('the stage, the shade, the crop line and the handles read the image-crop-modal tokens', async () => {
+    const file = await photo();
+    await render(<ImageCropModal open file={file} onCancel={() => {}} onConfirm={() => {}} />);
+    await settle();
+    await loaded();
+    const resolve = (token: string) => {
+      const probe = document.createElement('div');
+      probe.style.color = `var(${token})`;
+      dialog().appendChild(probe);
+      const value = getComputedStyle(probe).color;
+      probe.remove();
+      return value;
+    };
+    const stage = dialog().querySelector<HTMLElement>('.rds-image-crop__stage')!;
+    expect(getComputedStyle(stage).height).toBe('320px');
+    expect(getComputedStyle(stage).backgroundColor).toBe(resolve('--image-crop-modal-stage-background'));
+    expect(resolve('--image-crop-modal-stage-background')).toBe(resolve('--surface-muted'));
+    const shade = dialog().querySelector<SVGRectElement>('.ReactCrop__crop-mask > rect')!;
+    expect(getComputedStyle(shade).fill).toBe(resolve('--image-crop-modal-shade'));
+    expect(resolve('--image-crop-modal-shade')).toBe(resolve('--surface-scrim'));
+    const selection = dialog().querySelector<HTMLElement>('.ReactCrop__crop-selection')!;
+    expect(getComputedStyle(selection).borderTopColor).toBe(resolve('--image-crop-modal-selection'));
+    expect(getComputedStyle(selection).backgroundImage).toBe('none');
+    const handle = dialog().querySelector<HTMLElement>('.ReactCrop__drag-handle')!;
+    expect(getComputedStyle(handle).backgroundColor).toBe(resolve('--image-crop-modal-handle'));
+    expect(resolve('--image-crop-modal-handle')).toBe(resolve('--text-on-cover'));
+  });
+
   it('a single preset shows no bar', async () => {
     const file = await photo();
     await render(

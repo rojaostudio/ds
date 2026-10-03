@@ -3,12 +3,13 @@
 import type { ReactNode } from 'react';
 import { Button } from './button';
 import { Card } from './card';
+import { Separator } from './separator';
 
 /**
  * FloatingStepper — a composition of the Card (as a pill) and Buttons (Figma [RDS] Actions/Button, neutral): the
  * floating steps of a flow (point of sale, checkout). The current step is the filled Button (aria-current="step");
  * earlier steps go back, later ones are disabled; `canNavigate` changes the rule. `action` is a last Button after
- * a line (Reset). Where it floats is the caller's (className or a wrapper). Styles: floating-stepper.css.
+ * a vertical Separator (Reset). Where it floats is the caller's (className or a wrapper). Styles: floating-stepper.css.
  */
 
 export type FloatingStepperStep = { key: string; label: string };
@@ -52,7 +53,7 @@ export function FloatingStepper({ steps, current, onNavigate, canNavigate, actio
       })}
       {action && (
         <>
-          <span className="rds-floating-stepper__divider" aria-hidden="true" />
+          <Separator orientation="vertical" className="rds-floating-stepper__divider" />
           <Button tone="neutral" variant="ghost" icon={action.icon} onClick={action.onClick}>
             {action.label}
           </Button>

@@ -1,9 +1,10 @@
 /* @tokens image-crop-modal */
 /*
- * ImageCropModal: no tokens of its own; the Dialog, the ToggleGroup, the Alert and the Spinner bring theirs. 12
- * apart: the presets (they share the width), the stage (at least 300, at most 60% of the viewport, the image
- * letterboxed inside 16 of padding, a line in the dialog's border colour), the error or the hint. While sending,
- * the dialog's scrim covers the image.
+ * ImageCropModal (Figma [RDS] Overlays/ImageCropModal): the Dialog, the ToggleGroup, the Alert and the Spinner bring
+ * their tokens; the crop brings its own (Overlays, image-crop-modal/*). 12 apart: the presets (they share the
+ * width), the stage (320 tall, on image-crop-modal/stage/background, the image letterboxed inside 16 of padding, a
+ * line in the dialog's border colour), the error or the hint. Over the image, outside the crop, the shade; the crop's
+ * line and its handles in their own colours. While sending, the dialog's scrim covers the stage.
  */
 .rds-image-crop {
   display: flex;
@@ -26,17 +27,42 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 300px;
+  height: 320px;
+  /* On a short viewport (a phone on its side) the stage gives way so the footer stays in view. */
   max-height: 60vh;
   padding: var(--space-16);
   overflow: hidden;
+  background: var(--image-crop-modal-stage-background);
   border: var(--border-width) solid var(--dialog-border);
   border-radius: var(--radius-control);
 }
 
+/*
+ * react-image-crop's own stylesheet is unlayered, so it wins over these layered rules wherever both set the same
+ * property. The shade is an SVG rect with fill as an attribute (black at 50%): any CSS beats it. The handles read
+ * the library's variables, set here. The selection's marching ants are hard-coded: the two !important take them
+ * off so the crop is one solid line in the selection colour (the library's focus outline stays).
+ */
 .rds-image-crop__crop {
   max-width: 100%;
-  max-height: calc(60vh - var(--space-32));
+  max-height: calc(min(320px, 60vh) - var(--space-32));
+  --rc-drag-handle-bg-colour: var(--image-crop-modal-handle);
+  --rc-border-color: var(--image-crop-modal-handle);
+}
+
+.rds-image-crop__crop .ReactCrop__crop-mask > rect {
+  fill: var(--image-crop-modal-shade);
+  fill-opacity: 1;
+}
+
+.rds-image-crop__crop .ReactCrop__crop-selection {
+  background-image: none !important;
+  border: var(--border-width) solid var(--image-crop-modal-selection);
+  animation: none !important;
+}
+
+.rds-image-crop__crop .ReactCrop__drag-handle {
+  border-radius: var(--radius-xs);
 }
 
 .rds-image-crop__image {

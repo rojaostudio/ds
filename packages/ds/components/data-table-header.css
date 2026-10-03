@@ -1,6 +1,6 @@
 /* @tokens data-table-header */
 /*
- * DataTableHeader: no tokens of its own; the Input, FilterChip, Chip, Button, Badge, Separator, DropdownMenu,
+ * DataTableHeader: no tokens of its own; the Input, FilterChip, Chip, Button, Separator, DropdownMenu,
  * Popover and Drawer bring theirs. One row, 8 apart, 12 above the table; the search takes the free width. The wide
  * parts show from 768, the narrow ones below it. In the Popover and the Drawer the filters stack 16 apart, each
  * one a caption-sized label over its chips.

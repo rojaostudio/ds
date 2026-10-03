@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, type ComponentPropsWithRef, type ReactElement, type ReactNode } from 'react';
-import { Badge } from './badge';
 import { Button } from './button';
 import { Chip } from './chip';
 import { Drawer } from './drawer';
@@ -85,12 +84,21 @@ export function FilterDropdown({ f, placement = 'bottom-start' }: { f: DataTable
   );
 }
 
-/** "Filtros" with how many are on: an outline Button (filled while any is on). Forwards its ref for the Popover. */
+/**
+ * "Filtros" with how many are on, in the label ("Filtros · 3", as in the Figma: the Button has no Badge): an outline
+ * Button with the sliders before the text (filled while any is on). Forwards its ref for the Popover.
+ */
 function FiltersButton({ count, ...rest }: { count: number } & Omit<ComponentPropsWithRef<'button'>, 'children'>) {
   return (
-    <Button {...rest} tone="neutral" variant={count > 0 ? 'fill' : 'outline'} icon={<SlidersIcon />} data-filter-toggle="">
-      Filtros
-      {count > 0 && <Badge value={count} tone="neutral" variant="soft" />}
+    <Button
+      {...rest}
+      tone="neutral"
+      variant={count > 0 ? 'fill' : 'outline'}
+      icon={<SlidersIcon />}
+      iconPosition="start"
+      data-filter-toggle=""
+    >
+      {count > 0 ? `Filtros · ${count}` : 'Filtros'}
     </Button>
   );
 }
