@@ -9,9 +9,8 @@ const Band = ({ children }: { children: React.ReactNode }) => (
   <div style={{ background: 'var(--colors-primary-default)', padding: 16, display: 'flex', gap: 8 }}>{children}</div>
 );
 
-// The [RDS] accent/highlight badge passes in light (text/heading, navy, on the accent highlight), but in dark its
-// label on the highlight is 3.7:1. Kept out of the dark matrix and pinned below until the Figma decides.
-const KNOWN_DARK_HIGHLIGHT = (mode: string) => (mode === 'dark' ? ['.rds-badge--accent-highlight'] : []);
+// The [RDS] accent/highlight badge: text/heading on colors/accent/highlight. In dark it failed (3.7:1) on the orange
+// highlight the generator drew; the Figma table puts it on navy/700 and it passes in both modes.
 
 describe.each(MODES)('Badge (%s)', (mode) => {
   it('every tone × variant, label and number, passes axe', async () => {
@@ -40,7 +39,7 @@ describe.each(MODES)('Badge (%s)', (mode) => {
       </div>,
       mode,
     );
-    expect(await axeViolations(el, KNOWN_DARK_HIGHLIGHT(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 });
 
@@ -50,7 +49,7 @@ describe('Badge behaviour', () => {
     expect(await axeViolations(el)).toEqual([]);
   });
 
-  it.fails('accent highlight passes axe in dark (the label on the accent highlight is 3.7:1)', async () => {
+  it('accent highlight passes axe in dark (the Figma highlight is navy/700)', async () => {
     const el = await render(<Badge tone="accent" variant="highlight">Destaque</Badge>, 'dark');
     expect(await axeViolations(el)).toEqual([]);
   });

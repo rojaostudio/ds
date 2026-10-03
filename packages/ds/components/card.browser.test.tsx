@@ -28,10 +28,9 @@ const full = (surface: CardSurface, size: CardSize) => (
   </Card>
 );
 
-// A violation of the Figma itself, kept out of the matrix and pinned with it.fails below: the tint card in dark.
-// surface/tint is a strong orange (#b34b00, footer #d95a00), so card/description (text/muted, 3.6:1), the footer
-// note (text/body, bound straight to the theme in .card/footer, 3.5:1) and the action outline Button (2.1:1) all
-// fail on it.
+// The tint card in dark used to fail (card/description 3.6:1, the footer note 3.5:1, the outline Button 2.1:1) on a
+// strong orange tint (#b34b00): that tint was the generator's, not the Figma's. The rojao theme is the Figma table
+// now (surface/tint blue/800 in dark) and the whole card passes.
 
 describe.each(MODES)('Card (%s)', (mode) => {
   it('surface default, both sizes, with header, content and footer, passes axe', async () => {
@@ -46,10 +45,9 @@ describe('Card (tint)', () => {
     expect(await axeViolations(el)).toEqual([]);
   });
 
-  it('surface tint, both sizes, passes axe in dark apart from the three known pieces', async () => {
+  it('surface tint, both sizes, passes axe in dark', async () => {
     const el = await render(<div style={{ display: 'grid', gap: 16, maxWidth: 400 }}>{SIZES.map((size) => full('tint', size))}</div>, 'dark');
-    const known = ['.rds-card__description', '.rds-card__note', '.rds-card__footer .rds-button--outline'];
-    expect(await axeViolations(el, known)).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 
   it('the title (card/title → text/heading, navy) passes axe on the rojao light theme', async () => {
@@ -57,7 +55,7 @@ describe('Card (tint)', () => {
     expect(await axeViolations(el)).toEqual([]);
   });
 
-  it.fails('surface tint passes axe in dark (description, note and outline action on the orange tint)', async () => {
+  it('surface tint passes axe in dark (description, note and outline action on the blue tint of the Figma)', async () => {
     const el = await render(full('tint', 'default'), 'dark');
     expect(await axeViolations(el)).toEqual([]);
   });

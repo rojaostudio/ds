@@ -8,9 +8,8 @@ import { MODES, axeViolations, cleanup, render, settle } from './__tests__/rende
 afterEach(cleanup);
 
 // In dark, sidebar/item/label/active (colors/primary/default) over sidebar/item/background/active (surface/tint/default)
-// measures 3.36:1 on the rojao theme: a violation of the Figma itself. Kept out of the dark matrix and pinned with
-// it.fails below.
-const KNOWN = (mode: string) => (mode === 'light' ? [] : ['.rds-sidebar__item[aria-current="page"]']);
+// measured 3.36:1 while the rojao theme came from the generator (an orange tint). The theme is the Figma table now
+// (blue/800 tint) and the pair passes: nothing is kept out of the matrix any more.
 
 function Example(props: Partial<SidebarProps>) {
   return (
@@ -45,7 +44,7 @@ describe.each(MODES)('Sidebar (%s)', (mode) => {
       </div>,
       mode,
     );
-    expect(await axeViolations(el, KNOWN(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 });
 
@@ -55,7 +54,7 @@ describe('Sidebar behaviour', () => {
     expect(await axeViolations(el)).toEqual([]);
   });
 
-  it.fails('the current entry (sidebar/item/label/active on background/active) passes axe on the rojao dark theme', async () => {
+  it('the current entry (sidebar/item/label/active on background/active) passes axe on the rojao dark theme', async () => {
     const el = await render(<Example />, 'dark');
     expect(await axeViolations(el)).toEqual([]);
   });
