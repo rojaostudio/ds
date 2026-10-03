@@ -41,7 +41,8 @@ describe.each(MODES)('ChoiceList (%s)', (mode) => {
       mode,
     );
     await userEvent.hover(rows(el)[2]);
-    expect(getComputedStyle(rows(el)[2]).backgroundColor).not.toBe('rgba(0, 0, 0, 0)');
+    // The hover fill sits behind @media (hover: hover), which a headless runner may not match (as in CI).
+    if (matchMedia('(hover: hover)').matches) expect(getComputedStyle(rows(el)[2]).backgroundColor).not.toBe('rgba(0, 0, 0, 0)');
     expect(await axeViolations(el)).toEqual([]);
   });
 });
