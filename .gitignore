@@ -36,3 +36,6 @@ brands-out
 # vitest browser mode: failure screenshots and attachments
 __screenshots__/
 .vitest-attachments/
+
+# agent worktrees
+.claude/worktrees/

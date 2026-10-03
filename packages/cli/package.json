@@ -1,6 +1,7 @@
 {
   "name": "rojao-ds",
-  "version": "0.1.0-next.0",
+  "private": true,
+  "version": "0.1.0-next.1",
   "description": "CLI do Rojão DS — `npx rojao-ds init` gera o tema da sua marca e o arquivo de regras para a IA (CLAUDE.md, .cursorrules, AGENTS.md).",
   "license": "MIT",
   "author": "Rojão Studio (https://rojao.studio)",

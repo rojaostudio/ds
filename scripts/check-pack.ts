@@ -50,6 +50,13 @@ let falhas = 0;
 const tmp = mkdtempSync(join(tmpdir(), "rojao-pack-"));
 
 for (const { pacote, tetoKB } of REGRAS) {
+  // Um pacote marcado `private` não vai para o npm (ex.: a CLI antes da primeira publicação manual).
+  const dir = pacote === "rojao-ds" ? "cli" : pacote.replace("@rojaostudio/", "");
+  if (JSON.parse(readFileSync(join(process.cwd(), "packages", dir, "package.json"), "utf8")).private) {
+    console.log(`
+${pacote}: private, fora da publicação`);
+    continue;
+  }
   // Invocar pnpm de dentro de um script e chato em dois sistemas por motivos opostos: no
   // Linux (o CI) `execFileSync("pnpm")` resolve direto; no Windows o binario e um shim que so
   // o shell acha, e o Node 20+ recusa .cmd sem shell. Tenta o caminho limpo, cai pro shell se

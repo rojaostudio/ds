@@ -5,7 +5,7 @@
 //
 // Each theme role is followed through the aliases of the `base` collection (in the brand's mode) down to a
 // primitive of the [RDS] Primitives library, kept by name ("accyan/400") with the colour Figma resolves.
-// The brand's own variables in the `brand` collection (`<brand>/<name>`, as acassius/cyan) come along in `vars`.
+// The brand's own variables in the `brand` collection (`<brand>/<name>`, as marca/ciano) come along in `vars`.
 const BRAND = "rojao";
 
 const cols = await figma.variables.getLocalVariableCollectionsAsync();
