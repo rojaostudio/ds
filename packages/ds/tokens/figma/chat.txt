@@ -1,6 +1,7 @@
-# [RDS] Components · collection Chat · file w64JuUL45DO4jGu3WEy9HU · extracted 2026-10-02
+# [RDS] Components · collection Chat · file w64JuUL45DO4jGu3WEy9HU · extracted 2026-10-03
 # DO NOT EDIT. Figma is the source: publish in Figma, run the extraction, save the output here.
-# Format: name|type (C colour, F number, S string, B boolean)|@collection:target (alias) OR raw value|WEB codeSyntax ("=" when it is the path with hyphens)
+# Format: name|type (C colour, F number, S string, B boolean)|@collection:target (alias) OR raw value|WEB codeSyntax ("=" when it is the path with hyphens)[|obsolete]
+# obsolete: the Figma description starts with "Obsoleto"; the token stays for old code and no stylesheet has to read it.
 attachment/background|C|@theme:surface/card|=
 attachment/border|C|@theme:border/default|=
 attachment/border-error|C|@theme:colors/state/error|=

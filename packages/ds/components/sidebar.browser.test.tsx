@@ -113,4 +113,38 @@ describe('Sidebar behaviour', () => {
     await settle();
     await expect.element(page.getByRole('tooltip')).toHaveTextContent('Painel');
   });
+
+  it.each(MODES)('the current entry with a count (sidebar/item/count on the tint) passes axe (%s)', async (mode) => {
+    const el = await render(
+      <Sidebar module="Pedidos">
+        <SidebarItem icon={<InfoIcon />} href="#/painel" active count={2}>
+          Painel
+        </SidebarItem>
+      </Sidebar>,
+      mode,
+    );
+    expect(await axeViolations(el)).toEqual([]);
+  });
+
+  it('the current entry: label 600 in sidebar/item/label/active and the 3 × 20 marker in sidebar/item/indicator', async () => {
+    for (const mode of MODES) {
+      const el = await render(<Example />, mode);
+      const current = el.querySelector<HTMLElement>('[aria-current="page"]')!;
+      const other = el.querySelector<HTMLElement>('a[href="#/agenda"]')!;
+      expect(getComputedStyle(current.querySelector('.rds-sidebar__label')!).fontWeight).toBe('600');
+      expect(getComputedStyle(other.querySelector('.rds-sidebar__label')!).fontWeight).toBe('500');
+      const probe = document.createElement('span');
+      current.append(probe);
+      probe.style.color = 'var(--sidebar-item-indicator)';
+      const indicator = getComputedStyle(probe).color;
+      probe.style.color = 'var(--sidebar-item-label-active)';
+      const label = getComputedStyle(probe).color;
+      probe.remove();
+      expect(getComputedStyle(current).color).toBe(label);
+      const mark = getComputedStyle(current, '::before');
+      expect([mark.width, mark.height, mark.backgroundColor]).toEqual(['3px', '20px', indicator]);
+      expect(getComputedStyle(other, '::before').content).toBe('none');
+      cleanup();
+    }
+  });
 });

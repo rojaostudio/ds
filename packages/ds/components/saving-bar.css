@@ -1,15 +1,15 @@
 /* @tokens savingbar */
 /*
  * SavingBar (Actions collection, savingbar/*): full width (at least 320), 12 24 padding, 16 between the
- * message (label, medium) and the actions (8 apart). The message grows. The Buttons use the inverse
+ * message (label, medium, at most 2 lines with an ellipsis) and the actions (8 apart). The Buttons use the inverse
  * tone, drawn for this band in both modes, so the bar needs no theme switch of its own.
+ * Two arrangements, by the bar's own width (a size container, as the Figma's viewport mode): expanded from 1024,
+ * the message grows (at least 160) beside the actions; compact below it, the message on top and Descartar and
+ * Salvar under it, sharing the width.
  */
 .rds-savingbar {
   box-sizing: border-box;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-16);
+  container-type: inline-size;
   width: 100%;
   min-width: min(320px, 100%);
   padding: var(--space-12) var(--space-24);
@@ -18,16 +18,32 @@
   font-family: var(--type-font-stack);
 }
 
+.rds-savingbar__row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-16);
+}
+
 .rds-savingbar__message {
   display: flex;
-  flex: 1;
+  flex: 1 1 160px;
   align-items: center;
   gap: var(--space-12);
-  min-width: 0;
+  min-width: 160px;
   margin: 0;
   font-size: var(--type-label-size);
   font-weight: 500;
   line-height: var(--type-label-line);
+}
+
+.rds-savingbar__text {
+  display: -webkit-box;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
 }
 
 .rds-savingbar__icon {
@@ -60,8 +76,25 @@
 
 .rds-savingbar__actions {
   display: flex;
-  flex-wrap: wrap;
+  flex: none;
   gap: var(--space-8);
+}
+
+@container (max-width: 1023px) {
+  .rds-savingbar__row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .rds-savingbar__message {
+    flex: none;
+    min-width: 0;
+  }
+
+  .rds-savingbar__actions > * {
+    flex: 1 1 0;
+    min-width: 0;
+  }
 }
 
 @media (forced-colors: active) {

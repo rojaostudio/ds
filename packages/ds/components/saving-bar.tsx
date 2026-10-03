@@ -56,30 +56,33 @@ export function SavingBar({
       {...rest}
       className={['rds-savingbar', className].filter(Boolean).join(' ')}
     >
-      {/* A live region: the change of status is said without moving focus. */}
-      <p className="rds-savingbar__message" role="status">
-        {/* The text beside them already says it; the loader and the alert are only the picture. */}
-        {saving && (
-          <span className="rds-savingbar__icon rds-savingbar__loader" aria-hidden="true">
-            <Loader />
-          </span>
-        )}
-        {error && (
-          <span className="rds-savingbar__icon" aria-hidden="true">
-            <AlertIcon />
-          </span>
-        )}
-        <span>{saving ? savingMessage : error ? errorMessage : message}</span>
-      </p>
-      <div className="rds-savingbar__actions">
-        {onDiscard && (
-          <Button tone="inverse" variant="ghost" disabled={saving} onClick={onDiscard}>
-            {discardLabel}
+      {/* The bar is the size container; this row is what changes arrangement (expanded or compact). */}
+      <div className="rds-savingbar__row">
+        {/* A live region: the change of status is said without moving focus. */}
+        <p className="rds-savingbar__message" role="status">
+          {/* The text beside them already says it; the loader and the alert are only the picture. */}
+          {saving && (
+            <span className="rds-savingbar__icon rds-savingbar__loader" aria-hidden="true">
+              <Loader />
+            </span>
+          )}
+          {error && (
+            <span className="rds-savingbar__icon" aria-hidden="true">
+              <AlertIcon />
+            </span>
+          )}
+          <span className="rds-savingbar__text">{saving ? savingMessage : error ? errorMessage : message}</span>
+        </p>
+        <div className="rds-savingbar__actions">
+          {onDiscard && (
+            <Button tone="inverse" variant="ghost" disabled={saving} onClick={onDiscard}>
+              {discardLabel}
+            </Button>
+          )}
+          <Button tone="inverse" variant="fill" disabled={saving} onClick={onSave}>
+            {error ? retryLabel : saveLabel}
           </Button>
-        )}
-        <Button tone="inverse" variant="fill" disabled={saving} onClick={onSave}>
-          {error ? retryLabel : saveLabel}
-        </Button>
+        </div>
       </div>
     </div>
   );

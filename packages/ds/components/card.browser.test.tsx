@@ -9,7 +9,9 @@ import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 afterEach(cleanup);
 
 const SIZES: CardSize[] = ['default', 'sm'];
+const SURFACES: CardSurface[] = ['default', 'outline', 'tint'];
 
+// The footer of the Figma: the secondary action a neutral ghost Button, the main one (action fill) last.
 const full = (surface: CardSurface, size: CardSize) => (
   <Card key={`${surface}-${size}`} surface={surface} size={size}>
     <CardHeader
@@ -22,7 +24,9 @@ const full = (surface: CardSurface, size: CardSize) => (
       <p style={{ margin: 0 }}>Até 3 pedidos abertos ao mesmo tempo.</p>
     </CardContent>
     <CardFooter note="Cancele quando quiser.">
-      <Button variant="outline">Comparar</Button>
+      <Button tone="neutral" variant="ghost">
+        Comparar
+      </Button>
       <Button>Assinar</Button>
     </CardFooter>
   </Card>
@@ -30,33 +34,11 @@ const full = (surface: CardSurface, size: CardSize) => (
 
 // The tint card in dark used to fail (card/description 3.6:1, the footer note 3.5:1, the outline Button 2.1:1) on a
 // strong orange tint (#b34b00): that tint was the generator's, not the Figma's. The rojao theme is the Figma table
-// now (surface/tint blue/800 in dark) and the whole card passes.
+// now (surface/tint blue/800 in dark) and the whole card passes; the tint title reads card/tint/title (text/on/tint).
 
 describe.each(MODES)('Card (%s)', (mode) => {
-  it('surface default, both sizes, with header, content and footer, passes axe', async () => {
-    const el = await render(<div style={{ display: 'grid', gap: 16, maxWidth: 400 }}>{SIZES.map((size) => full('default', size))}</div>, mode);
-    expect(await axeViolations(el)).toEqual([]);
-  });
-});
-
-describe('Card (tint)', () => {
-  it('surface tint, both sizes, passes axe in light', async () => {
-    const el = await render(<div style={{ display: 'grid', gap: 16, maxWidth: 400 }}>{SIZES.map((size) => full('tint', size))}</div>, 'light');
-    expect(await axeViolations(el)).toEqual([]);
-  });
-
-  it('surface tint, both sizes, passes axe in dark', async () => {
-    const el = await render(<div style={{ display: 'grid', gap: 16, maxWidth: 400 }}>{SIZES.map((size) => full('tint', size))}</div>, 'dark');
-    expect(await axeViolations(el)).toEqual([]);
-  });
-
-  it('the title (card/title → text/heading, navy) passes axe on the rojao light theme', async () => {
-    const el = await render(full('default', 'default'), 'light');
-    expect(await axeViolations(el)).toEqual([]);
-  });
-
-  it('surface tint passes axe in dark (description, note and outline action on the blue tint of the Figma)', async () => {
-    const el = await render(full('tint', 'default'), 'dark');
+  it.each(SURFACES)('surface %s, both sizes, with header, content and footer, passes axe', async (surface) => {
+    const el = await render(<div style={{ display: 'grid', gap: 16, maxWidth: 400 }}>{SIZES.map((size) => full(surface, size))}</div>, mode);
     expect(await axeViolations(el)).toEqual([]);
   });
 });
@@ -83,20 +65,88 @@ describe('Card behaviour', () => {
     expect(plain.querySelector('header, footer')).toBeNull();
   });
 
-  it('default pads 16 and sm pads 12; tint has no border colour', async () => {
+  it('default pads 24 and sm pads 16, 24 between header, content and actions', async () => {
     const el = await render(
       <div>
+        {full('default', 'default')}
+        {full('default', 'sm')}
+      </div>,
+    );
+    const [big, small] = el.querySelectorAll<HTMLElement>('.rds-card');
+    const pads = (card: HTMLElement) => ({
+      header: getComputedStyle(card.querySelector('.rds-card__header')!).paddingTop,
+      content: getComputedStyle(card.querySelector('.rds-card__content')!).padding,
+      footer: getComputedStyle(card.querySelector('.rds-card__footer')!).padding,
+    });
+    expect(pads(big)).toEqual({ header: '24px', content: '24px', footer: '0px 24px 24px' });
+    expect(pads(small)).toEqual({ header: '16px', content: '16px', footer: '0px 16px 16px' });
+  });
+
+  it('default has border and shadow; outline only the border, no fill nor shadow; tint the plate, no border nor shadow', async () => {
+    const el = await render(<div style={{ display: 'grid', gap: 16, maxWidth: 400 }}>{SURFACES.map((surface) => full(surface, 'default'))}</div>);
+    const [d, o, t] = [...el.querySelectorAll<HTMLElement>('.rds-card')].map((c) => getComputedStyle(c));
+    const transparent = 'rgba(0, 0, 0, 0)';
+    expect(d.borderTopColor).not.toBe(transparent);
+    expect(d.boxShadow).not.toBe('none');
+    expect(d.backgroundColor).not.toBe(transparent);
+    expect(o.borderTopColor).toBe(d.borderTopColor);
+    expect(o.boxShadow).toBe('none');
+    expect(o.backgroundColor).toBe(transparent);
+    expect(t.borderTopColor).toBe(transparent);
+    expect(t.boxShadow).toBe('none');
+    expect(t.backgroundColor).not.toBe(d.backgroundColor);
+  });
+
+  it('the tint title reads card/tint/title; the others card/title', async () => {
+    const el = await render(<div>{SURFACES.map((surface) => full(surface, 'default'))}</div>);
+    const [d, o, t] = [...el.querySelectorAll<HTMLElement>('.rds-card__title')].map((x) => getComputedStyle(x).color);
+    const probe = document.createElement('span');
+    el.append(probe);
+    probe.style.color = 'var(--card-tint-title)';
+    const tintTitle = getComputedStyle(probe).color;
+    probe.style.color = 'var(--card-title)';
+    const title = getComputedStyle(probe).color;
+    expect([d, o, t]).toEqual([title, title, tintTitle]);
+  });
+
+  it('the footer has no band and no rule; the actions sit side by side, 12 apart, at the end', async () => {
+    const el = await render(<div style={{ maxWidth: 400 }}>{full('default', 'default')}</div>);
+    const footer = el.querySelector<HTMLElement>('.rds-card__footer')!;
+    expect(getComputedStyle(footer).backgroundColor).toBe('rgba(0, 0, 0, 0)');
+    expect(getComputedStyle(footer).borderTopWidth).toBe('0px');
+    const [secondary, main] = footer.querySelectorAll<HTMLElement>('.rds-button');
+    const a = secondary.getBoundingClientRect();
+    const b = main.getBoundingClientRect();
+    expect(a.top).toBe(b.top);
+    expect(b.left - a.right).toBe(12);
+    expect(footer.getBoundingClientRect().right - b.right).toBe(24);
+  });
+
+  it('align="full" puts the two actions side by side, half each', async () => {
+    const el = await render(
+      <div style={{ width: 360 }}>
         <Card>
-          <CardContent>A</CardContent>
-        </Card>
-        <Card size="sm" surface="tint">
-          <CardContent>B</CardContent>
+          <CardContent>Pix</CardContent>
+          <CardFooter align="full">
+            <Button tone="neutral" variant="ghost">
+              Voltar
+            </Button>
+            <Button>Pagar</Button>
+          </CardFooter>
         </Card>
       </div>,
     );
-    const [a, b] = el.querySelectorAll<HTMLElement>('.rds-card__content');
-    expect(getComputedStyle(a).paddingTop).toBe('16px');
-    expect(getComputedStyle(b).paddingTop).toBe('12px');
-    expect(getComputedStyle(el.querySelectorAll('.rds-card')[1]).borderTopColor).toBe('rgba(0, 0, 0, 0)');
+    const [a, b] = [...el.querySelectorAll<HTMLElement>('.rds-card__footer .rds-button')].map((x) => x.getBoundingClientRect());
+    expect(a.top).toBe(b.top);
+    expect(Math.abs(a.width - b.width)).toBeLessThan(1);
+  });
+
+  it('the header action is opt-in', async () => {
+    const el = await render(
+      <Card>
+        <CardHeader title="Resumo" />
+      </Card>,
+    );
+    expect(el.querySelector('.rds-card__action')).toBeNull();
   });
 });

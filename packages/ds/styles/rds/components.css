@@ -292,9 +292,6 @@
   --chart-tooltip-border: var(--border-default);
   --chart-label: var(--text-body);
   --chart-tooltip-title: var(--text-heading);
-  --chart-bar-hover: var(--surface-muted);
-  --chart-focus-ring: var(--focus-ring);
-  --chart-tick: var(--border-strong);
   --carousel-slide-background: var(--surface-muted);
   --carousel-dot: var(--border-strong);
   --carousel-dot-active: var(--colors-primary-default);
@@ -374,6 +371,9 @@
   --choice-card-preview-background: var(--surface-muted);
   --choice-card-preview-border: var(--border-default);
   --choice-card-preview-icon: var(--text-subtle);
+  --chart-bar-hover: var(--surface-muted);
+  --chart-focus-ring: var(--focus-ring);
+  --chart-tick: var(--border-strong);
   --choice-list-item-background-hover: var(--surface-muted);
   --choice-list-item-background-selected: var(--surface-tint-default);
   --choice-list-item-indicator: var(--colors-primary-default);
@@ -385,9 +385,10 @@
   --choice-list-item-trailing-default: var(--text-body);
   --choice-list-item-trailing-disabled: var(--text-disabled);
   --choice-list-focus-ring: var(--focus-ring);
-  --choice-list-item-description-selected: var(--text-on-tint);
   --heading-default: var(--text-heading);
   --heading-accent: var(--colors-accent-default);
+  --choice-list-item-description-selected: var(--text-on-tint);
+  --card-tint-title: var(--text-on-tint);
 
   /* external */
   --google-button-light-background: #ffffff;
@@ -939,7 +940,7 @@
   --sidebar-item-background-active: var(--surface-tint-default);
   --sidebar-item-label-default: var(--text-muted);
   --sidebar-item-label-hover: var(--text-body);
-  --sidebar-item-label-active: var(--colors-primary-default);
+  --sidebar-item-label-active: var(--text-on-tint);
   --sidebar-module: var(--text-heading);
   --sidebar-user: var(--text-muted);
   --pagination-focus-ring: var(--focus-ring);
@@ -977,6 +978,7 @@
   --tabs-dot-indicator: var(--colors-state-success);
   --sidebar-section-label: var(--text-subtle);
   --sidebar-dark-section-label: var(--text-on-primary);
+  --sidebar-item-indicator: var(--colors-primary-default);
 
   /* overlays */
   --menu-background: var(--surface-card);

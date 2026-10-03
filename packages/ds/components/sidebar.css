@@ -2,7 +2,9 @@
 /*
  * Sidebar (Navigation collection, sidebar/*): 240 wide (64 collapsed), 12 × 8 inside, a 1px border on the right.
  * Header: the brand mark (24) and the module (16/24 medium), 10 apart, 44 tall. Entries of 44, 12 inside, 12 between
- * icon (20) and label (14/20 medium), 4 apart; the current one on the brand tint with the label in colors/primary.
+ * icon (20) and label (14/20 medium), 4 apart; the current one on the brand tint, its label semibold in
+ * sidebar/item/label/active and a 3 × 20 marker on the left in sidebar/item/indicator, so the current entry does not
+ * rest on colour alone.
  * Section labels 11/14 bold, 16 above and 6 below, with a 14 chevron. Foot: who is signed in (12/16) and Sair.
  * dark (deprecated in the Figma) reads sidebar/dark/*; the current entry stays the light pill.
  */
@@ -107,6 +109,7 @@
 }
 
 .rds-sidebar__item {
+  position: relative;
   box-sizing: border-box;
   display: flex;
   align-items: center;
@@ -166,8 +169,21 @@
   color: var(--sidebar-item-label-active);
 }
 
-.rds-sidebar__item[aria-current='page'] .rds-sidebar__count {
-  color: var(--sidebar-item-label-active);
+.rds-sidebar__item[aria-current='page'] .rds-sidebar__label {
+  font-weight: 600;
+}
+
+/* Figma .sidebar/item state=active: the marker, 3 × 20, on the left edge, vertically centred, radius 2. */
+.rds-sidebar__item[aria-current='page']::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: 0;
+  top: 50%;
+  width: 3px;
+  height: var(--size-20);
+  border-radius: 2px;
+  background: var(--sidebar-item-indicator);
+  transform: translateY(-50%);
 }
 
 .rds-sidebar__item:focus-visible,
@@ -235,5 +251,9 @@
 @media (forced-colors: active) {
   .rds-sidebar__item[aria-current='page'] {
     outline: var(--border-width) solid CanvasText;
+  }
+
+  .rds-sidebar__item[aria-current='page']::before {
+    background: Highlight;
   }
 }

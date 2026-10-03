@@ -1,33 +1,44 @@
 /* @tokens card */
 /*
- * Card (Content collection, card/*): header, content and footer. default pads 16, sm pads 12. tint is the brand's
- * light background, with no border. Corners in radius/container, shadow elevation/raised.
+ * Card (Content collection, card/*): header, content and footer. default pads 24, sm pads 16; 24 between the
+ * header, the content and the actions (sm: 16). Corners in radius/container.
+ *   default: card/background, a card/border hairline and elevation/raised.
+ *   outline: only the hairline, no fill, no shadow; it takes the surface underneath (cards side by side in a grid,
+ *            inside a panel or a list, where stacked shadows turn into noise).
+ *   tint:    the brand's light plate (card/tint/background), no border, no shadow, title in card/tint/title.
+ * The footer has no band and no rule: the actions sit side by side, the main one last (on the right). The
+ * card/footer/background tokens are obsolete in Figma (03/10/2026) and not read here.
  */
 .rds-card {
-  --_pad: var(--space-16);
-  --_background: var(--card-background);
-  --_footer: var(--card-footer-background);
-  --_border: var(--card-border);
+  --_pad: var(--space-24);
+  --_title: var(--card-title);
 
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border: var(--border-width) solid var(--_border);
+  border: var(--border-width) solid var(--card-border);
   border-radius: var(--radius-container);
-  background: var(--_background);
+  background: var(--card-background);
   box-shadow: var(--elevation-raised);
   font-family: var(--type-font-stack);
 }
 
 .rds-card--sm {
-  --_pad: var(--space-12);
+  --_pad: var(--space-16);
+}
+
+.rds-card--outline {
+  background: transparent;
+  box-shadow: none;
 }
 
 .rds-card--tint {
-  --_background: var(--card-tint-background);
-  --_footer: var(--card-tint-footer-background);
-  --_border: transparent;
+  --_title: var(--card-tint-title);
+
+  border-color: transparent;
+  background: var(--card-tint-background);
+  box-shadow: none;
 }
 
 .rds-card__header {
@@ -58,7 +69,7 @@
 
 .rds-card__title {
   margin: 0;
-  color: var(--card-title);
+  color: var(--_title);
   font-size: var(--type-label-size);
   line-height: var(--type-label-line);
   font-weight: 500;
@@ -97,32 +108,27 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-16);
-  padding: var(--_pad);
-  border-top: var(--border-width) solid var(--card-border);
-  background: var(--_footer);
-}
-
-.rds-card--tint .rds-card__footer {
-  border-top-color: transparent;
+  padding: 0 var(--_pad) var(--_pad);
 }
 
 .rds-card__actions {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-16);
+  gap: var(--space-12);
 }
 
 .rds-card__footer--end .rds-card__actions {
   justify-content: flex-end;
 }
 
+/* full: the two actions side by side, half each, for a narrow card on a phone. */
 .rds-card__footer--full .rds-card__actions {
-  flex-direction: column;
-  gap: var(--space-8);
+  flex-wrap: nowrap;
 }
 
 .rds-card__footer--full .rds-card__actions > * {
-  width: 100%;
+  flex: 1 1 0;
+  min-width: 0;
 }
 
 .rds-card__note {
@@ -133,8 +139,7 @@
 }
 
 @media (forced-colors: active) {
-  .rds-card,
-  .rds-card--tint .rds-card__footer {
+  .rds-card {
     border-color: CanvasText;
   }
 }

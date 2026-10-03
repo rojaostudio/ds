@@ -2,7 +2,9 @@ import { useState } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { Button } from './button';
+import { Checkbox } from './checkbox';
 import { DataTableHeader, type DataTableFilterDef } from './data-table-header';
+import { FilterChip, FilterChipGroup } from './filter-chip';
 import { MODES, axeViolations, cleanup, render, settle } from './__tests__/render';
 
 afterEach(cleanup);
@@ -24,7 +26,17 @@ const CHANNEL = [
   { value: 'whatsapp', label: 'WhatsApp' },
 ];
 
-function Example({ two = false, mobileCollapse = false, onSearch }: { two?: boolean; mobileCollapse?: boolean; onSearch?: (v: string) => void }) {
+function Example({
+  two = false,
+  mobileCollapse = false,
+  withView = false,
+  onSearch,
+}: {
+  two?: boolean;
+  mobileCollapse?: boolean;
+  withView?: boolean;
+  onSearch?: (v: string) => void;
+}) {
   const [q, setQ] = useState('');
   const [status, setStatus] = useState('');
   const [channel, setChannel] = useState('site');
@@ -41,7 +53,14 @@ function Example({ two = false, mobileCollapse = false, onSearch }: { two?: bool
         },
         placeholder: 'Buscar pedidos',
       }}
-      pillFilters={[{ key: 'late', label: 'Atrasados', active: late, count: 2, onClick: () => setLate((v) => !v) }]}
+      quickFilters={
+        <FilterChipGroup aria-label="Filtros rápidos">
+          <FilterChip active={late} count={2} onClick={() => setLate((v) => !v)}>
+            Atrasados
+          </FilterChip>
+        </FilterChipGroup>
+      }
+      view={withView ? <Checkbox>Agrupar por produto</Checkbox> : undefined}
       filters={filters}
       onClear={() => {
         setStatus('');
@@ -60,10 +79,16 @@ describe.each(MODES)('DataTableHeader (%s)', (mode) => {
     const el = await render(
       <div>
         <Example />
-        <Example two />
+        <Example two withView />
       </div>,
       mode,
     );
+    expect(await axeViolations(el, KNOWN_LIGHT(mode))).toEqual([]);
+  });
+
+  it('on a narrow screen, with the view control, passes axe', async () => {
+    await page.viewport(390, 800);
+    const el = await render(<Example two withView />, mode);
     expect(await axeViolations(el, KNOWN_LIGHT(mode))).toEqual([]);
   });
 
@@ -89,10 +114,10 @@ describe('DataTableHeader behaviour', () => {
     expect(onSearch).toHaveBeenLastCalledWith('');
   });
 
-  it('quick filters are FilterChips; one filter is a dropdown whose trigger fills when a value is chosen', async () => {
+  it('the quick filters slot holds what it is given (FilterChips here); one filter is a dropdown whose trigger fills when a value is chosen', async () => {
     await page.viewport(1280, 800);
     const el = await render(<Example />);
-    const chip = el.querySelector<HTMLButtonElement>('[data-pill-filter] .rds-filter-chip')!;
+    const chip = el.querySelector<HTMLButtonElement>('.rds-data-table-header__quick .rds-filter-chip')!;
     await userEvent.click(chip);
     expect(chip.getAttribute('aria-pressed')).toBe('true');
     const trigger = el.querySelector<HTMLButtonElement>('.rds-data-table-header__wide .rds-button')!;
@@ -139,17 +164,23 @@ describe('DataTableHeader behaviour', () => {
     expect([...drawer.querySelectorAll('button')].some((b) => b.textContent === 'Novo pedido')).toBe(true);
   });
 
-  it('at 796 wide, the Figma case (two quick filters, two filters on, "Filtros · 3"): the search is not squeezed', async () => {
+  it('at 796 wide, the Figma case (two quick filters, two filters on): "Filtros · 2" counts what it opens; the search keeps 320', async () => {
     await page.viewport(1280, 800);
     const noop = () => {};
     const el = await render(
       <div style={{ width: 796 }}>
         <DataTableHeader
           search={{ value: 'Maria', onChange: noop, placeholder: 'Buscar pedidos…' }}
-          pillFilters={[
-            { key: 'open', label: 'Abertos', active: true, count: 12, onClick: noop },
-            { key: 'late', label: 'Atrasados', active: false, count: 3, onClick: noop },
-          ]}
+          quickFilters={
+            <FilterChipGroup aria-label="Filtros rápidos">
+              <FilterChip active count={12} onClick={noop}>
+                Abertos
+              </FilterChip>
+              <FilterChip count={3} onClick={noop}>
+                Atrasados
+              </FilterChip>
+            </FilterChipGroup>
+          }
           filters={[
             { key: 'status', label: 'Status', value: 'paid', options: [{ value: '', label: 'Todos' }, { value: 'paid', label: 'Pago' }], onChange: noop },
             { key: 'method', label: 'Forma', value: 'pix', options: [{ value: '', label: 'Todas' }, { value: 'pix', label: 'Pix' }], onChange: noop },
@@ -159,9 +190,42 @@ describe('DataTableHeader behaviour', () => {
         />
       </div>,
     );
-    expect(el.querySelector('.rds-data-table-header__wide [data-filter-toggle]')!.textContent).toBe('Filtros · 3');
+    // The quick filters show their own state in view: the count is the filters behind the button.
+    expect(el.querySelector('.rds-data-table-header__wide [data-filter-toggle]')!.textContent).toBe('Filtros · 2');
     const search = el.querySelector<HTMLElement>('.rds-data-table-header__search')!;
-    // flex-basis 256 with wrap: what does not fit beside it goes to the next line instead of squeezing it.
-    expect(search.getBoundingClientRect().width).toBeGreaterThanOrEqual(256);
+    // flex-basis and min-width 320 with wrap: what does not fit beside it goes to the next line.
+    expect(getComputedStyle(search).minWidth).toBe('min(320px, 100%)');
+    expect(search.getBoundingClientRect().width).toBeGreaterThanOrEqual(320);
+    expect(getComputedStyle(el.querySelector('.rds-data-table-header')!).justifyContent).toBe('flex-end');
+  });
+
+  it('the search never gets wider than a bar narrower than 320 (min-width: min(320, 100%))', async () => {
+    await page.viewport(1280, 800);
+    const el = await render(
+      <div style={{ width: 280 }}>
+        <DataTableHeader search={{ value: '', onChange: () => {}, placeholder: 'Buscar' }} />
+      </div>,
+    );
+    const bar = el.querySelector<HTMLElement>('.rds-data-table-header')!;
+    const search = el.querySelector<HTMLElement>('.rds-data-table-header__search')!;
+    expect(search.getBoundingClientRect().width).toBeLessThanOrEqual(bar.getBoundingClientRect().width);
+    expect(bar.scrollWidth).toBeLessThanOrEqual(bar.clientWidth);
+  });
+
+  it('the view control comes after the filters and before the actions, on a wide and on a narrow screen', async () => {
+    for (const width of [1280, 390]) {
+      await page.viewport(width, 800);
+      const el = await render(<Example two withView />);
+      const bar = el.querySelector<HTMLElement>('.rds-data-table-header')!;
+      const order = [...bar.children].map((c) => c.className);
+      const view = order.findIndex((c) => c.includes('__view'));
+      const lastFilters = Math.max(...order.map((c, i) => (c.includes('__wide') || c.includes('__narrow') ? i : -1)));
+      expect(view).toBeGreaterThan(lastFilters);
+      expect(view).toBeLessThan(order.findIndex((c) => c.includes('__actions')));
+      const viewEl = bar.querySelector<HTMLElement>('.rds-data-table-header__view')!;
+      expect(getComputedStyle(viewEl).display).not.toBe('none');
+      expect(viewEl.textContent).toContain('Agrupar por produto');
+      cleanup();
+    }
   });
 });

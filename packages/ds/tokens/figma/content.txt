@@ -1,6 +1,7 @@
-# [RDS] Components · collection Content · file w64JuUL45DO4jGu3WEy9HU · extracted 2026-10-02
+# [RDS] Components · collection Content · file w64JuUL45DO4jGu3WEy9HU · extracted 2026-10-03
 # DO NOT EDIT. Figma is the source: publish in Figma, run the extraction, save the output here.
-# Format: name|type (C colour, F number, S string, B boolean)|@collection:target (alias) OR raw value|WEB codeSyntax ("=" when it is the path with hyphens)
+# Format: name|type (C colour, F number, S string, B boolean)|@collection:target (alias) OR raw value|WEB codeSyntax ("=" when it is the path with hyphens)[|obsolete]
+# obsolete: the Figma description starts with "Obsoleto"; the token stays for old code and no stylesheet has to read it.
 avatar/fallback/background|C|@theme:surface/muted|=
 avatar/fallback/label|C|@theme:text/subtle|=
 avatar/icon/background|C|@theme:surface/muted|=
@@ -35,11 +36,11 @@ tile/danger/soft/background|C|@theme:surface/error|=
 tile/danger/soft/icon|C|@theme:text/error|=
 card/background|C|@theme:surface/card|=
 card/border|C|@theme:border/default|=
-card/footer/background|C|@theme:surface/panel|=
+card/footer/background|C|@theme:surface/panel|=|obsolete
 card/title|C|@theme:text/heading|=
 card/description|C|@theme:text/muted|=
 card/tint/background|C|@theme:surface/tint/default|=
-card/tint/footer/background|C|@theme:surface/tint/strong|=
+card/tint/footer/background|C|@theme:surface/tint/strong|=|obsolete
 kbd/background|C|@theme:surface/muted|=
 kbd/border|C|@theme:border/default|=
 kbd/label|C|@theme:text/body|=
@@ -72,9 +73,6 @@ chart/tooltip/background|C|@theme:surface/card|=
 chart/tooltip/border|C|@theme:border/default|=
 chart/label|C|@theme:text/body|=
 chart/tooltip/title|C|@theme:text/heading|=
-chart/bar/hover|C|@theme:surface/muted|=
-chart/focus/ring|C|@theme:focus/ring|=
-chart/tick|C|@theme:border/strong|=
 carousel/slide/background|C|@theme:surface/muted|=
 carousel/dot|C|@theme:border/strong|=
 carousel/dot/active|C|@theme:colors/primary/default|=
@@ -154,6 +152,9 @@ choice-card/check/icon/preview|C|@theme:text/on/primary|=
 choice-card/preview/background|C|@theme:surface/muted|=
 choice-card/preview/border|C|@theme:border/default|=
 choice-card/preview/icon|C|@theme:text/subtle|=
+chart/bar/hover|C|@theme:surface/muted|=
+chart/focus/ring|C|@theme:focus/ring|=
+chart/tick|C|@theme:border/strong|=
 choice-list/item/background/hover|C|@theme:surface/muted|=
 choice-list/item/background/selected|C|@theme:surface/tint/default|=
 choice-list/item/indicator|C|@theme:colors/primary/default|=
@@ -165,6 +166,7 @@ choice-list/item/description/disabled|C|@theme:text/disabled|=
 choice-list/item/trailing/default|C|@theme:text/body|=
 choice-list/item/trailing/disabled|C|@theme:text/disabled|=
 choice-list/focus/ring|C|@theme:focus/ring|=
-choice-list/item/description/selected|C|@theme:text/on/tint|=
 heading/default|C|@theme:text/heading|=
 heading/accent|C|@theme:colors/accent/default|=
+choice-list/item/description/selected|C|@theme:text/on/tint|=
+card/tint/title|C|@theme:text/on/tint|=

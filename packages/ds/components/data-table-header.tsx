@@ -35,20 +35,21 @@ export type DataTableFilterDef = {
   onChange: (v: string) => void;
 };
 
-export type DataTablePillDef = {
-  key: string;
-  label: string;
-  active: boolean;
-  count?: number;
-  onClick: () => void;
-};
-
 export type DataTableHeaderProps = {
   search?: DataTableHeaderSearch;
   filters?: DataTableFilterDef[];
-  /** Quick filters, always in view: FilterChips. */
-  pillFilters?: DataTablePillDef[];
+  /**
+   * Quick filters, always in view (Figma: `showQuickFilters` + the `quickFilters` slot): up to three, a
+   * FilterChipGroup with its FilterChips; four or more, one Button with a menu (DropdownMenu), "Categoria: Todas".
+   */
+  quickFilters?: ReactNode;
+  /** Clears the `filters` (the quick filters are cleared where they are, in view). */
   onClear?: () => void;
+  /**
+   * A view control after the filters and before the actions (Figma: `showView` + the `view` slot), such as a
+   * Checkbox "Agrupar por produto". In view on a narrow screen too.
+   */
+  view?: ReactNode;
   actions?: ReactNode;
   className?: string;
   /** On a narrow screen, moves the filters and the actions into a Drawer. The quick filters stay in view. */
@@ -199,28 +200,33 @@ function MobileSingleFilter({ f }: { f: DataTableFilterDef }) {
 
 /**
  * DataTableHeader — a composition of the Input (search), FilterChips, Buttons, the DropdownMenu, the Popover and
- * the Drawer: the bar above a table. The search fills the row; quick filters are FilterChips; one filter is a
- * dropdown, two or more collapse into "Filtros" (the active ones stay in view as removable Chips). From 768 the
- * wide layout shows; below it, the filters open in a Drawer or a Popover. Styles: data-table-header.css.
+ * the Drawer: the bar above a table. The search is always on the left and takes the free width (at least 320); the
+ * filters are always on the right; what does not fit wraps. Quick filters go in the `quickFilters` slot; one filter
+ * is a dropdown, two or more collapse into "Filtros" (the active ones stay in view as removable Chips); the `view`
+ * control comes after the filters, before the actions. From 768 the wide layout shows; below it, the filters open
+ * in a Drawer or a Popover. "Filtros · N" counts the active `filters`, the ones that button opens.
+ * Styles: data-table-header.css.
  */
 export function DataTableHeader({
   search,
   filters = [],
-  pillFilters = [],
+  quickFilters,
   onClear,
+  view,
   actions,
   className,
   mobileCollapse = false,
 }: DataTableHeaderProps) {
   const [sheetOpen, setSheetOpen] = useState(false);
 
-  const activeFilterCount = filters.filter((f) => f.value !== '').length + pillFilters.filter((p) => p.active).length;
+  // The count says how many of the filters behind "Filtros" are on; the quick filters show their own state in view.
+  const activeFilterCount = filters.filter((f) => f.value !== '').length;
   // Two or more filters collapse into "Filtros" on a wide screen; the active ones stay in view as Chips.
   const collapseDesktop = filters.length >= 2;
   const activeFilters = filters.filter((f) => f.value !== '');
   // One filter is a direct dropdown on a narrow screen too.
   const singleFilter = filters.length === 1 ? filters[0] : null;
-  const lead = Boolean(search || pillFilters.length > 0);
+  const lead = Boolean(search || quickFilters);
 
   return (
     <div className={['rds-data-table-header', className].filter(Boolean).join(' ')}>
@@ -238,15 +244,7 @@ export function DataTableHeader({
         />
       )}
 
-      {pillFilters.length > 0 && (
-        <FilterChipGroup aria-label="Filtros rápidos" data-pill-filter="">
-          {pillFilters.map((p) => (
-            <FilterChip key={p.key} active={p.active} count={p.count} onClick={p.onClick}>
-              {p.label}
-            </FilterChip>
-          ))}
-        </FilterChipGroup>
-      )}
+      {quickFilters && <div className="rds-data-table-header__quick">{quickFilters}</div>}
 
       {filters.length > 0 && (
         <div className="rds-data-table-header__wide">
@@ -320,6 +318,8 @@ export function DataTableHeader({
           </Drawer>
         </div>
       )}
+
+      {view && <div className="rds-data-table-header__view">{view}</div>}
 
       {/* The actions: always on a wide screen; on a narrow one only without mobileCollapse (else in the Drawer). */}
       {actions && <div className={mobileCollapse ? 'rds-data-table-header__wide' : 'rds-data-table-header__actions'}>{actions}</div>}

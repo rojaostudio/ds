@@ -60,4 +60,60 @@ describe('SavingBar behaviour', () => {
     retry.click();
     expect(onSave).toHaveBeenCalledOnce();
   });
+
+  it('at 390 (compact): the message on top, at most 2 lines, no word broken; Descartar and Salvar share the width', async () => {
+    const message = 'Você alterou o preço, o estoque e a descrição de três produtos e ainda não salvou nenhuma dessas alterações';
+    const el = await render(
+      <div style={{ width: 390 }}>
+        <SavingBar message={message} onSave={() => {}} onDiscard={() => {}} />
+      </div>,
+    );
+    const bar = el.querySelector<HTMLElement>('.rds-savingbar')!;
+    const row = bar.querySelector<HTMLElement>('.rds-savingbar__row')!;
+    expect(getComputedStyle(bar).containerType).toBe('inline-size');
+    expect(getComputedStyle(row).flexDirection).toBe('column');
+    const text = bar.querySelector<HTMLElement>('.rds-savingbar__text')!;
+    const style = getComputedStyle(text);
+    expect(style.webkitLineClamp).toBe('2');
+    expect(text.getBoundingClientRect().height).toBeLessThanOrEqual(2 * parseFloat(style.lineHeight) + 0.5);
+    expect(['normal', 'keep-all']).toContain(style.wordBreak);
+    expect(style.overflowWrap).toBe('normal');
+    const [discard, save] = [...bar.querySelectorAll<HTMLElement>('button')];
+    const a = discard.getBoundingClientRect();
+    const b = save.getBoundingClientRect();
+    expect(a.top).toBeGreaterThan(text.getBoundingClientRect().bottom);
+    expect(a.top).toBe(b.top);
+    expect(Math.abs(a.width - b.width)).toBeLessThan(1);
+    // Each label on one line: a button keeps its 44.
+    for (const r of [a, b]) expect(r.height).toBe(44);
+    expect(bar.scrollWidth).toBeLessThanOrEqual(bar.clientWidth);
+  });
+
+  it('from 1024 (expanded): one row, the message grows (at least 160) beside the actions', async () => {
+    const el = await render(
+      <div style={{ width: 1100 }}>
+        <SavingBar onSave={() => {}} onDiscard={() => {}} />
+      </div>,
+    );
+    const row = el.querySelector<HTMLElement>('.rds-savingbar__row')!;
+    expect(getComputedStyle(row).flexDirection).toBe('row');
+    const msg = el.querySelector<HTMLElement>('.rds-savingbar__message')!;
+    expect(getComputedStyle(msg).minWidth).toBe('160px');
+    expect(getComputedStyle(msg).flexBasis).toBe('160px');
+    const actions = el.querySelector<HTMLElement>('.rds-savingbar__actions')!.getBoundingClientRect();
+    expect(actions.top).toBeLessThan(msg.getBoundingClientRect().bottom);
+  });
+
+  it('compact passes axe in both modes', async () => {
+    for (const mode of MODES) {
+      const el = await render(
+        <div style={{ width: 390 }}>
+          <SavingBar status="error" onSave={() => {}} onDiscard={() => {}} />
+        </div>,
+        mode,
+      );
+      expect(await axeViolations(el)).toEqual([]);
+      cleanup();
+    }
+  });
 });

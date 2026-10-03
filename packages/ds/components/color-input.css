@@ -49,7 +49,7 @@
 .rds-color-input__swatch:focus-visible,
 .rds-color-input__swatch:has(.rds-color-input__native:focus-visible) {
   outline: var(--focus-ring-width) solid var(--_border-focus);
-  outline-offset: var(--border-width);
+  outline-offset: var(--focus-ring-width);
 }
 
 .rds-color-input__native {
@@ -116,14 +116,15 @@
   cursor: pointer;
 }
 
+/* Selected and focus: the ring of Button and Checkbox, focus-ring-width wide and as far off the swatch (a gap). */
 .rds-color-input__choice[aria-pressed='true'] {
-  outline: calc(var(--border-width) * 2) solid var(--color-input-swatch-selected);
-  outline-offset: var(--border-width);
+  outline: var(--focus-ring-width) solid var(--color-input-swatch-selected);
+  outline-offset: var(--focus-ring-width);
 }
 
 .rds-color-input__choice:focus-visible {
   outline: var(--focus-ring-width) solid var(--color-input-border-focus);
-  outline-offset: var(--border-width);
+  outline-offset: var(--focus-ring-width);
 }
 
 @media (forced-colors: active) {
