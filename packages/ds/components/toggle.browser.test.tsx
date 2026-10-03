@@ -15,21 +15,19 @@ const Bold = () => (
 
 // The [RDS] paints "on" with toggle/label/pressed → colors/primary/default over toggle/background/pressed →
 // surface/tint/subtle (#26; surface/tint/default before). In dark, subtle is the default tint itself (no step
-// below 900), so it is still #c9cdd8 on the rojao tint #b34b00 (3.4:1). Kept out of the axe matrix and pinned
-// below until the Figma decides.
-const KNOWN_DARK_PRESSED = (mode: string) => mode === 'dark';
+// below 900). It failed (3.4:1) on the orange tint #b34b00 the generator drew; the rojao theme is the Figma table
+// now, with subtle at blue/900 in dark, and "on" passes in both modes.
 
 describe.each(MODES)('Toggle (%s)', (mode) => {
   it('every variant, off and on, enabled and disabled, passes axe', async () => {
-    const pressed = !KNOWN_DARK_PRESSED(mode);
     const el = await render(
       <div style={{ display: 'grid', gap: 8 }}>
         {VARIANTS.map((variant) => (
           <div key={variant} style={{ display: 'flex', gap: 8 }}>
             <Toggle variant={variant}>Negrito</Toggle>
-            {pressed && <Toggle variant={variant} defaultPressed>Negrito</Toggle>}
+            <Toggle variant={variant} defaultPressed>Negrito</Toggle>
             <Toggle variant={variant} icon={<Bold />} aria-label="Negrito" />
-            {pressed && <Toggle variant={variant} icon={<Bold />} defaultPressed>Negrito</Toggle>}
+            <Toggle variant={variant} icon={<Bold />} defaultPressed>Negrito</Toggle>
             <Toggle variant={variant} disabled>Negrito</Toggle>
             <Toggle variant={variant} disabled defaultPressed>Negrito</Toggle>
           </div>
@@ -81,7 +79,7 @@ describe.each(MODES)('Toggle (%s)', (mode) => {
 });
 
 describe('Toggle behaviour', () => {
-  it.fails('pressed on the rojao dark theme passes axe (primary label on the orange tint)', async () => {
+  it('pressed on the rojao dark theme passes axe (primary label on the blue tint of the Figma)', async () => {
     const el = await render(
       <div style={{ display: 'flex', gap: 8 }}>
         <Toggle variant="ghost" defaultPressed>Negrito</Toggle>

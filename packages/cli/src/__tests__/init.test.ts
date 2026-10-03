@@ -91,9 +91,9 @@ describe("rojao-ds init — modos de entrada", () => {
     const t = io();
     expect(await run(["init", "--color", "#7C3AED", "--name", "Acme"], t.io)).toBe(0);
     const css = read("rds-theme.css");
-    expect(css).toMatch(/^:root, \.ds-scope \{/);
+    expect(css).toMatch(/^:root, \.ds-scope, \[data-rds-scope\] \{/);
     expect(css).toContain("--colors-primary-default: #7C3AED");
-    expect(css).toContain(".ds-plate {");
+    expect(css).toContain(".ds-plate, [data-rds-plate] {");
     const md = read("CLAUDE.md");
     expect(md).toContain("# Design System — Acme");
     expect(md).toContain('@import "./rds-theme.css";');

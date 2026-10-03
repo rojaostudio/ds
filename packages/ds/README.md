@@ -26,7 +26,7 @@ Add `dark` to `<html>` (or any element) for dark mode:
 <html class="dark">
 ```
 
-The stylesheet declares its layers first (`rds.theme`, `rds.tokens`, `rds.components`), so your own unlayered CSS
+The stylesheet declares its layers first (`rds.legacy`, `rds.theme`, `rds.tokens`, `rds.components`), so your own unlayered CSS
 always wins over the design system without `!important`. The components need no Tailwind and no other stylesheet.
 
 ### Legacy: `base.css` (deprecated)
@@ -41,6 +41,41 @@ utilities (`bg-surface-*`, `text-fg-*`, `h-control-*`…) and its CSS variables,
 @import "@rojaostudio/ds/styles/base.css";
 @import "@rojaostudio/ds/styles/rds.css";
 ```
+
+Both stylesheets declare the same layer order, `rds.legacy, rds.theme, rds.tokens, rds.components`, and everything
+in `base.css` (its variables, the primitives, the `h1`–`h6` rule, the `rojao-*` animations) lives in `rds.legacy`.
+So, whatever the import order, the 2.0 wins wherever the two declare the same variable: 31 names, among them
+`--surface-page`, `--text-muted`, `--text-disabled`, `--border-default`, `--border-strong`, `--radius-card`,
+`--radius-control`, `--z-modal`, `--z-dropdown`, `--z-tooltip`, `--space-4` … `--space-64`, `--toast-text`,
+`--toast-border`. A 1.x utility that reads one of them (`bg-surface-page`, `text-fg-muted` through
+`--text-muted`) shows the 2.0 value while both are imported; the 1.x-only names (`--brand-primary`,
+`--surface-default`…) keep theirs. Tailwind's `@utility` and `@theme` blocks stay at the top level, as Tailwind
+requires, and the focus ring stays in Tailwind's `base` layer, so `outline-none` still wins over it. Your own
+unlayered CSS wins over all of it.
+
+## Theme scopes
+
+The shipped theme switches on `.dark`, `.ds-plate` and `.ds-scope`, and on three generic attributes:
+`data-rds-mode="dark"`, `data-rds-plate` and `data-rds-scope`. The component tokens are declared again on each of
+them (`RDS_SCOPE_SELECTORS` in `@rojaostudio/ds-core/generate`): a component token holds `var(--theme-role)`, which
+resolves where it is declared, so a theme switched on an element none of them match would repaint the roles but
+not the components inside.
+
+```html
+<section data-rds-mode="dark">…</section>   <!-- a dark section on a light page -->
+```
+
+For your own theme, `emitRdsCss(theme, { scope, dark, plate })` checks each selector against that list and throws
+on one the components would not follow:
+
+```ts
+emitRdsCss(theme, { scope: ".my-scope[data-rds-scope]" });          // <div class="my-scope" data-rds-scope>
+emitRdsCss(theme, { scope: ":root", dark: ':root[data-theme="dark"]' }); // next-themes, attribute="data-theme"
+emitRdsCss(theme, { scope: ".my-scope" });                           // throws: add data-rds-scope
+```
+
+A dark selector anchored at the root (`:root[…]`, `html…`) is used as is, which is where next-themes puts its
+attribute. `allowUncovered: true` skips the check, for a theme read only by your own CSS.
 
 ## Import the component, not the barrel
 

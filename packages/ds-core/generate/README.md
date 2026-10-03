@@ -62,3 +62,15 @@ writeFileSync("app/theme.css", emitRdsCss(rdsThemeFromTable(table)));
 Importe o CSS gerado depois de `@rojaostudio/ds/styles/rds.css`. Mudou a marca no Figma: exporte de novo e rode o script.
 
 `generateRdsTheme(def)` continua para quem só tem uma cor (sem Figma): ele deriva os papéis pela regra da marca Rojão.
+
+O tema da Rojão publicado em `@rojaostudio/ds/styles/rds/theme.css` sai assim, da tabela `figma/brands/rojao.rds.json`. O que o gerador ainda desenha diferente dela está fixado em `__tests__/rds-rojao-table.test.ts` (snapshot).
+
+### Contraste
+
+`rdsContrastReport(theme)` mede os pares de texto principais (`RDS_CONTRAST_PAIRS`: heading e body sobre page e card, muted e link sobre card, cada `text/on/*` sobre o seu fundo, `text/error` sobre `surface/error`) nos três modos e devolve os que ficam abaixo de 4,5:1. Cor com alfa não é medida. `rdsThemeFromTable` roda o relatório e só avisa (`opts.warn`, padrão `console.warn`): a tabela é o Figma um para um.
+
+No gerador, `text/heading` é a cor da marca quando ela passa sobre `surface/card` e `surface/page`; quando não passa (um amarelo), é o degrau da própria rampa mais perto dela, escurecendo, que passa. No escuro, o mesmo clareando. Um `BrandDef.brand.heading` explícito que reprova fica como foi dado, com aviso. Os `text/on/*` são escolhidos por contraste.
+
+### Escopo próprio
+
+`emitRdsCss(theme, { scope, dark, plate })` confere cada seletor contra `RDS_SCOPE_SELECTORS`, os seletores em que o `@rojaostudio/ds` redeclara os tokens de componente (`:root`, `.ds-scope`, `[data-rds-scope]`, `.dark`, `[data-rds-mode]`, `.ds-plate`, `[data-rds-plate]`), e lança erro quando um deles deixaria os componentes com as cores da raiz. Use `.meu-escopo[data-rds-scope]`, ou ancore na raiz (`dark: ':root[data-theme="dark"]'`, o next-themes com `attribute="data-theme"`). `allowUncovered: true` pula a conferência, para um tema lido só pelo seu CSS.

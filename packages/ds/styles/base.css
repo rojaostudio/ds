@@ -26,9 +26,17 @@
    Run `pnpm build:tokens` in the DS to regenerate.
    ───────────────────────────────────────────────────────────── */
 
-/* Primitives — auto-generated from tokens/index.ts */
-@import "./_primitives.generated.css";
+/* Cascade layers, lowest first: the same order rds.css declares, whichever of the two is imported first.
+   Everything of this file except Tailwind's @utility and @theme blocks (which Tailwind wants at the top level)
+   lives in rds.legacy, below rds.theme: with rds.css also imported, the 2.0 variables win wherever the names
+   collide (--surface-page, --text-muted, --border-default, --radius-card, --z-modal, --space-*, --toast-text…)
+   and the h1–h6 rule loses to the 2.0 components. */
+@layer rds.legacy, rds.theme, rds.tokens, rds.components;
 
+/* Primitives — auto-generated from tokens/index.ts */
+@import "./_primitives.generated.css" layer(rds.legacy);
+
+@layer rds.legacy {
 /* ── CSS Custom Properties — light (default, neutral theme) ── */
 /* .ds-scope: qualquer wrapper que precise recalcular tokens de COMPONENTE (ex.
    --option-tile-bg) sob um override local de token SEMÂNTICO (ex. --surface-default)
@@ -724,6 +732,7 @@ h1, h2, h3, h4, h5, h6 {
   .rojao-toast--enter-top, .rojao-toast--enter-bottom,
   .rojao-toast--exit-top,  .rojao-toast--exit-bottom { animation: none; }
 }
+} /* @layer rds.legacy */
 
 /* ── Control size utilities — h-control-sm/md/lg, size-control-sm/md/lg ── */
 @utility h-control-sm   { height: var(--space-control-height-sm); }
@@ -925,6 +934,9 @@ h1, h2, h3, h4, h5, h6 {
  * sem ele, num botão com borda da mesma família de cor, o anel some dentro da
  * borda. E ele é desenhado com a cor da superfície, então funciona igual sobre
  * fundo claro e sobre o escuro do chrome.
+ *
+ * Stays in Tailwind's `base` layer, not in rds.legacy: it sets no variable, and in `base` Tailwind's utilities
+ * (`outline-none`) still win over it, as they did in 1.x. Both layers sit below the rds.* ones.
  */
 @layer base {
   :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {

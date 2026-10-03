@@ -11,7 +11,9 @@ afterEach(() => {
 const TONES: ToastTone[] = ['neutral', 'info', 'success', 'warning', 'danger'];
 const VARIANTS: ToastVariant[] = ['outline', 'soft', 'fill'];
 const toasts = () => document.querySelectorAll<HTMLElement>('.rds-toast[data-state="open"]');
-
+// A violation of the Figma itself: text/on/info is white on colors/state/info (blue/500), 3.12:1, in the rojao brand
+// table. Kept out of the matrix and pinned with it.fails below (rdsContrastReport lists it too).
+const INFO_FILL = ['.rds-toast--info-fill'];
 
 describe.each(MODES)('Toast (%s)', (mode) => {
   it('every tone × variant, with description, action and close, passes axe', async () => {
@@ -32,6 +34,11 @@ describe.each(MODES)('Toast (%s)', (mode) => {
       </div>,
       mode,
     );
+    expect(await axeViolations(el, INFO_FILL)).toEqual([]);
+  });
+
+  it.fails('info fill passes axe (white on blue/500 in the Figma, 3.12:1)', async () => {
+    const el = await render(<ToastView tone="info" variant="fill" title="Disparo agendado" />, mode);
     expect(await axeViolations(el)).toEqual([]);
   });
 

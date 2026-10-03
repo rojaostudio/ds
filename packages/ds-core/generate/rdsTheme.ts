@@ -14,7 +14,10 @@
  */
 import { primitives } from "../tokens";
 import type { BrandDef, ColorRef } from "../tokens/recipe.schema";
-import { buildScale, contrastRatio, isHex, onColor, refToHex, type Scale, type ScaleStep } from "./scale";
+import {
+  buildScale, contrastRatio, hexToHsl, hslToHex, isHex, onColor, refToHex, relativeLuminance, SCALE_STEPS,
+  type Scale, type ScaleStep,
+} from "./scale";
 
 export type RdsMode = "light" | "dark" | "brand";
 export type RdsTheme = Record<RdsMode, Record<string, string>> & {
@@ -64,6 +67,42 @@ function ramp(c: ColorRef, custom?: CustomPalettes): { base: string; scale: Scal
 
 /** Best text colour on a fill: white or black, whichever contrasts more. */
 const on = (bg: string) => onColor(bg);
+
+/** WCAG AA for body text. */
+const AA = 4.5;
+const readsOn = (fg: string, bgs: string[]) => bgs.every((bg) => contrastRatio(fg, bg) >= AA);
+
+/**
+ * A brand colour used as text: itself when it clears AA on every background, otherwise the step of its own ramp
+ * closest to it, going darker (text on light surfaces) or lighter (text on dark ones), that does. A ramp that
+ * never gets there (a derived yellow ends near 3.9:1 on white) is carried on along its own hue, darker or lighter
+ * by 2% of HSL lightness at a time, before `fallback` (black or white).
+ */
+function readableFrom(base: string, scale: Scale, bgs: string[], toward: "darker" | "lighter", fallback: string): string {
+  if (readsOn(base, bgs)) return base;
+  const lb = relativeLuminance(base);
+  const steps = SCALE_STEPS.map((s) => scale[s])
+    .filter((c): c is string => !!c && isHex(c))
+    .filter((c) => (toward === "darker" ? relativeLuminance(c) < lb : relativeLuminance(c) > lb))
+    // Closest to the brand colour first.
+    .sort((a, b) => Math.abs(relativeLuminance(a) - lb) - Math.abs(relativeLuminance(b) - lb));
+  const step = steps.find((c) => readsOn(c, bgs));
+  if (step) return step;
+  const [h, s, l0] = hexToHsl(steps[steps.length - 1] ?? base);
+  for (let l = l0; toward === "darker" ? l >= 0 : l <= 100; l += toward === "darker" ? -2 : 2) {
+    const c = hslToHex(h, s, l);
+    if (readsOn(c, bgs)) return c;
+  }
+  return fallback;
+}
+
+export type RdsThemeOptions = {
+  /** Where the warnings go (an explicit BrandDef.heading that fails AA). Default console.warn. */
+  warn?: (message: string) => void;
+};
+
+/** console.warn where there is one (ds-core is typed without DOM or Node). */
+const defaultWarn = (m: string) => (globalThis as { console?: { warn(m: string): void } }).console?.warn(m);
 
 /**
  * Roles of the [RDS] theme collection, in Figma order: [name, dark source, brand source].
@@ -116,7 +155,8 @@ const lighterStep = (s: ScaleStep): ScaleStep => (s >= 200 ? ((s - 100) as Scale
 /** CSS custom property of a role: the Figma path with hyphens (the [RDS] codeSyntax rule). */
 export const roleVar = (role: string) => `--${role.replaceAll("/", "-")}`;
 
-export function generateRdsTheme(def: BrandDef): RdsTheme {
+export function generateRdsTheme(def: BrandDef, opts: RdsThemeOptions = {}): RdsTheme {
+  const warn = opts.warn ?? defaultWarn;
   const b = def.brand;
   const own = def.palettes;
   const P = ramp(b.primary, own);
@@ -128,7 +168,17 @@ export function generateRdsTheme(def: BrandDef): RdsTheme {
   const L = palette("blue");
   const red = palette("red"), green = palette("green"), orange = palette("orange");
   const teal = palette("teal"), purple = palette("purple");
-  const heading = b.heading ? ramp(b.heading, own).base : P.base;
+  // text/heading on light: an explicit BrandDef.heading is kept as given (a warning when it fails AA); without one,
+  // the primary, or the step of its ramp closest to it that clears AA on surface/card and surface/page.
+  const lightBgs = [WHITE, N[100]];
+  let heading: string;
+  if (b.heading) {
+    heading = ramp(b.heading, own).base;
+    if (!readsOn(heading, lightBgs)) {
+      const worst = Math.min(...lightBgs.map((bg) => contrastRatio(heading, bg)));
+      warn(`generateRdsTheme(${def.name}): heading ${heading} is ${worst.toFixed(2)}:1 on surface/card or surface/page (AA asks 4.5:1). Kept as given.`);
+    }
+  } else heading = readableFrom(P.base, P.scale, lightBgs, "darker", BLACK);
   const invert = b.invert ? ramp(b.invert, own).base : WHITE;
 
   // base — plain (light) tokens.
@@ -144,11 +194,12 @@ export function generateRdsTheme(def: BrandDef): RdsTheme {
     "surface/page": N[100], "surface/card": WHITE, "surface/panel": N[50], "surface/muted": N[100],
     "surface/muted-strong": N[200], "surface/disabled": black(10), "surface/scrim": black(50),
     "border/default": N[200], "border/strong": N[500], "border/strong-hover": N[600],
-    "surface/tint/default": A.scale[TINT_DEFAULT], "surface/tint/strong": A.scale[300], "text/on/tint": BLACK,
+    "surface/tint/default": A.scale[TINT_DEFAULT], "surface/tint/strong": A.scale[300],
     // Light selection fill (pressed Toggle, choice tile): one step lighter than the default tint
     // (200 → 100, 100 → 50).
     "surface/tint/subtle": A.scale[lighterStep(TINT_DEFAULT)],
-    "surface/action/default": L[100], "surface/action/strong": L[200], "text/on/action-tonal": P.scale[700],
+    "surface/action/default": L[100], "surface/action/strong": L[200],
+    "text/on/action-tonal": readableFrom(P.scale[700], P.scale, [L[100]], "darker", BLACK),
     "surface/lift/action": P.scale[50], "surface/lift/action-strong": L[100],
     "surface/band/action": L[100], "surface/band/base": L[100], "text/on/band-action": BLACK, "text/on/band-base": BLACK,
     "surface/band/mark-action": L[500], "surface/band/mark-base": L[500],
@@ -176,6 +227,7 @@ export function generateRdsTheme(def: BrandDef): RdsTheme {
     ["colors/state/info", "text/on/info"], ["colors/state/warning", "text/on/warning"],
     ["colors/state/neutral", "text/on/neutral"], ["surface/cover", "text/on/cover"],
     ["surface/lift/action", "text/on/lift-action"], ["colors/primary/dark", "text/on/primary-strong"],
+    ["surface/tint/default", "text/on/tint"],
   ] as const) l[text] = on(l[fill]);
   l["logo/primary"] = l["colors/primary/default"];
   l["logo/signature"] = l["colors/primary/default"];
@@ -188,7 +240,7 @@ export function generateRdsTheme(def: BrandDef): RdsTheme {
     "surface/page": N[900], "surface/panel": N[900], "surface/card": N[900], "surface/muted": N[800],
     "surface/muted-strong": N[700], "surface/disabled": white(10), "surface/scrim": black(70),
     "border/default": N[800], "border/strong": N[500], "border/strong-hover": N[400],
-    "text/heading": N[50], "text/body": N[100], "text/muted": N[300], "text/subtle": N[400],
+    "text/heading": readableFrom(N[50], N, [N[900]], "lighter", WHITE), "text/body": N[100], "text/muted": N[300], "text/subtle": N[400],
     "text/disabled": white(40), "text/disabled-invert": black(40), "text/link": L[300], "text/action": L[300],
     "focus/ring": N[100], "focus/ring-inset": N[900],
     "shadow/ambient": black(20), "shadow/key": black(40), "shadow/strong": black(60),
@@ -198,11 +250,12 @@ export function generateRdsTheme(def: BrandDef): RdsTheme {
     "colors/secondary/active": S.scale[200], "colors/secondary/light": S.scale[500],
     "colors/accent/default": A.scale[300], "colors/accent/hover": A.scale[200], "colors/accent/highlight": A.scale[800],
     "colors/accent/mark": A.scale[300],
-    "surface/tint/default": A.scale[900], "surface/tint/strong": A.scale[800], "text/on/tint": WHITE,
+    "surface/tint/default": A.scale[900], "surface/tint/strong": A.scale[800],
     // No step below 900 in dark: subtle is the default tint.
     "surface/tint/subtle": A.scale[900],
-    "surface/action/default": L[900], "surface/action/strong": L[800], "text/on/action-tonal": P.scale[200],
-    "surface/lift/action": P.scale[800], "surface/lift/action-strong": P.scale[700], "text/on/lift-action": WHITE,
+    "surface/action/default": L[900], "surface/action/strong": L[800],
+    "text/on/action-tonal": readableFrom(P.scale[200], P.scale, [L[900]], "lighter", WHITE),
+    "surface/lift/action": P.scale[800], "surface/lift/action-strong": P.scale[700],
     "colors/state/error-strong": red[400], "colors/state/success-strong": green[300],
     "colors/state/warning-strong": orange[400],
     "surface/error": red[900], "surface/error-strong": red[900], "text/error": red[300],
@@ -217,7 +270,8 @@ export function generateRdsTheme(def: BrandDef): RdsTheme {
   for (const [fill, text] of [
     ["colors/primary/default", "text/on/primary"], ["colors/secondary/default", "text/on/secondary"],
     ["colors/accent/default", "text/on/accent"], ["colors/accent/mark", "text/on/accent-mark"],
-    ["colors/primary/dark", "text/on/primary-strong"],
+    ["colors/primary/dark", "text/on/primary-strong"], ["surface/tint/default", "text/on/tint"],
+    ["surface/lift/action", "text/on/lift-action"],
   ] as const) d[text] = on(d[fill]);
 
   // base — brand/… tokens: the "plate" of the brand, a section painted with the primary colour.
@@ -227,6 +281,16 @@ export function generateRdsTheme(def: BrandDef): RdsTheme {
   const ink = on(plate);
   const inkA = ink === WHITE ? white : black;
   const antiInk = ink === WHITE ? black : white;
+  // The card on the plate: the step of the primary ramp nearest to the plate that still carries the ink at AA
+  // (navy/800 on a navy/900 plate, as Figma draws it). The plate itself when no step does.
+  const lp = relativeLuminance(plate);
+  const plateCard =
+    SCALE_STEPS.map((st) => P.scale[st])
+      .filter((c): c is string => !!c && isHex(c) && c.toLowerCase() !== plate.toLowerCase())
+      .sort((a, b2) => Math.abs(relativeLuminance(a) - lp) - Math.abs(relativeLuminance(b2) - lp))
+      .find((c) => contrastRatio(ink, c) >= AA) ?? plate;
+  // Text on colors/primary/dark (P[100]) on the plate: the plate colour when it reads there, else black or white.
+  const onPrimaryStrong = contrastRatio(plate, P.scale[100]) >= AA ? plate : on(P.scale[100]);
   const br: Record<string, string> = {
     "colors/primary/light": P.scale[300], "colors/primary/default": ink, "colors/primary/dark": P.scale[100],
     "colors/primary/active": P.scale[200],
@@ -234,7 +298,7 @@ export function generateRdsTheme(def: BrandDef): RdsTheme {
     "colors/secondary/hover": S.scale[100],
     "text/heading": ink, "text/body": ink,
     "text/link": contrastRatio(l["colors/accent/invert"], plate) >= 4.5 ? l["colors/accent/invert"] : ink,
-    "surface/page": plate, "surface/card": l["colors/primary/light"], "surface/panel": plate,
+    "surface/page": plate, "surface/card": plateCard, "surface/panel": plate,
     "border/default": inkA(20), "surface/tint/default": inkA(10), "surface/tint/strong": inkA(20),
     "surface/tint/subtle": inkA(5),
     "text/on/action-tonal": ink, "text/on/primary": plate, "text/on/secondary": plate, "text/on/tint": ink,
@@ -242,7 +306,7 @@ export function generateRdsTheme(def: BrandDef): RdsTheme {
     "focus/ring": ink, "focus/ring-inset": plate, "surface/disabled": inkA(10),
     "text/disabled": inkA(40), "text/muted": inkA(70), "text/disabled-invert": antiInk(40), "text/action": ink,
     "surface/lift/action": inkA(10), "text/on/lift-action": ink, "surface/lift/action-strong": inkA(20),
-    "text/on/primary-strong": plate, "text/subtle": inkA(60), "surface/muted": inkA(10),
+    "text/on/primary-strong": onPrimaryStrong, "text/subtle": inkA(60), "surface/muted": inkA(10),
     "surface/muted-strong": inkA(20), "border/strong": inkA(60), "border/strong-hover": inkA(80),
     "text/on/primary-subtle": inkA(30),
   };
@@ -262,35 +326,86 @@ export function generateRdsTheme(def: BrandDef): RdsTheme {
   return out;
 }
 
+/**
+ * The selectors on which @rojaostudio/ds redeclares its component tokens (styles/rds/components.css and
+ * foundation.css). A component token holds `var(--theme-role)`, and a custom property is resolved on the element
+ * where it is declared: a theme scope that none of these match would repaint the roles but not the components
+ * inside it, which keep the colours resolved at :root. The attributes are the generic way in: put
+ * `data-rds-scope` on a scope element, `data-rds-mode="dark"` on a dark one, `data-rds-plate` on a plate.
+ */
+export const RDS_SCOPE_SELECTORS = [
+  ":root", ".ds-scope", "[data-rds-scope]", ".dark", "[data-rds-mode]", ".ds-plate", "[data-rds-plate]",
+] as const;
+/** RDS_SCOPE_SELECTORS as one selector list, as the component token layer is emitted. */
+export const RDS_TOKEN_SCOPE = RDS_SCOPE_SELECTORS.join(", ");
+
 export type RdsCssOptions = {
-  /** Scope of the light mode. Default `:root, .ds-scope`. */
+  /** Scope of the light mode. Default `:root, .ds-scope, [data-rds-scope]`. */
   scope?: string;
-  /** Selector of the dark mode, combined with the scope. Default `.dark`. */
+  /**
+   * Selector of the dark mode, combined with each scope. Default `.dark, [data-rds-mode="dark"]`. A selector
+   * anchored at the root (`:root[data-theme="dark"]`, `html.dark`) is used as is: the theme switches on <html>,
+   * as next-themes does.
+   */
   dark?: string;
-  /** Selector of the brand plate (a section painted with the primary). Default `.ds-plate`. */
+  /** Selector of the brand plate (a section painted with the primary). Default `.ds-plate, [data-rds-plate]`. */
   plate?: string;
+  /**
+   * Skip the check that every selector is covered by the component tokens of @rojaostudio/ds (RDS_SCOPE_SELECTORS).
+   * Only for a theme read by your own CSS, without the components.
+   */
+  allowUncovered?: boolean;
+};
+
+const split = (list: string) => list.split(",").map((s) => s.trim()).filter(Boolean);
+const rootAnchored = (sel: string) => /^(:root|html)(?![\w-])/i.test(sel);
+/** The compound selector that picks the element (the last one, after any combinator). */
+const subject = (sel: string) => sel.trim().split(/\s*[>+~]\s*|\s+/).pop() ?? sel;
+const COVERING = /\.(ds-scope|dark|ds-plate)(?![\w-])|\[\s*data-rds-(scope|mode|plate)\s*([~|^$*]?=[^\]]*)?\]/;
+const covered = (sel: string) => {
+  const s = subject(sel);
+  return /^(:root|html)(?![\w-])/i.test(s) || COVERING.test(s);
 };
 
 /**
  * The theme as CSS. Dark and plate only carry what differs from light: they inherit the rest
  * through the cascade, like the [RDS] modes that point back to the plain token.
+ *
+ * Throws when a selector would leave the components of @rojaostudio/ds on the root colours (see
+ * RDS_SCOPE_SELECTORS), unless `allowUncovered`.
  */
 export function emitRdsCss(theme: RdsTheme, opts: RdsCssOptions = {}): string {
-  const scope = opts.scope ?? ":root, .ds-scope";
-  const dark = opts.dark ?? ".dark";
-  const plate = opts.plate ?? ".ds-plate";
-  const block = (sel: string, map: Record<string, string>, only?: Record<string, string>) => {
+  const scopes = split(opts.scope ?? ":root, .ds-scope, [data-rds-scope]");
+  const darks = split(opts.dark ?? '.dark, [data-rds-mode="dark"]');
+  const plates = split(opts.plate ?? ".ds-plate, [data-rds-plate]");
+  const block = (sels: string[], map: Record<string, string>, only?: Record<string, string>) => {
     const lines = Object.entries(map)
       .filter(([k, v]) => !only || only[k] !== v)
       .map(([k, v]) => `  ${k}: ${k === "--type-font-mono" ? `"${v}", monospace` : v};`);
-    return `${sel} {\n${lines.join("\n")}\n}`;
+    return `${sels.join(", ")} {\n${lines.join("\n")}\n}`;
   };
-  const scopes = scope.split(",").map((s) => s.trim());
-  const darkSel = scopes.map((s) => (s === ":root" ? `:root${dark}, ${dark}` : `${s}${dark}, ${dark} ${s}`)).join(", ");
+  const darkSels = scopes.flatMap((s) =>
+    darks.flatMap((d) => {
+      if (rootAnchored(d)) return s === ":root" ? [d] : [`${d} ${s}`];
+      return s === ":root" ? [`:root${d}`, d] : [`${s}${d}`, `${d} ${s}`];
+    }),
+  );
+  if (!opts.allowUncovered) {
+    const bad = [...new Set([...scopes, ...darkSels, ...plates].filter((sel) => !covered(sel)))];
+    if (bad.length)
+      throw new Error(
+        `emitRdsCss: ${bad.map((b) => `"${b}"`).join(", ")} ${bad.length > 1 ? "are" : "is"} not covered by the ` +
+          `component tokens of @rojaostudio/ds, redeclared only on ${RDS_TOKEN_SCOPE}. The components inside would keep ` +
+          `the colours resolved at :root. Anchor the selector at the root (':root[data-theme="dark"]', as next-themes ` +
+          `sets it on <html>), or add the attribute the tokens cover: data-rds-scope on a scope ('.my-scope[data-rds-scope]'), ` +
+          `data-rds-mode on a dark element ('[data-rds-mode="dark"]'), data-rds-plate on a plate. ` +
+          `Pass allowUncovered: true only for a theme without the components.`,
+      );
+  }
   return [
-    block(scope, { ...theme.light, ...theme.vars }),
-    block(darkSel, theme.dark, theme.light),
-    block(plate, theme.brand, theme.light),
+    block(scopes, { ...theme.light, ...theme.vars }),
+    block(darkSels, theme.dark, theme.light),
+    block(plates, theme.brand, theme.light),
   ].join("\n\n") + "\n";
 }
 
@@ -299,6 +414,37 @@ export function rdsContrast(theme: RdsTheme, mode: RdsMode, fg: string, bg: stri
   const a = theme[mode][roleVar(fg)], c = theme[mode][roleVar(bg)];
   if (!/^#[0-9a-f]{6}$/i.test(a) || !/^#[0-9a-f]{6}$/i.test(c)) return null;
   return contrastRatio(a, c);
+}
+
+/**
+ * The main text pairs of the theme: [text role, the surface it sits on]. Measured in every mode; a pair with an
+ * alpha colour is skipped (its contrast depends on what is below).
+ */
+export const RDS_CONTRAST_PAIRS: ReadonlyArray<readonly [string, string]> = [
+  ["text/heading", "surface/page"], ["text/heading", "surface/card"],
+  ["text/body", "surface/page"], ["text/body", "surface/card"],
+  ["text/muted", "surface/card"], ["text/link", "surface/card"],
+  ["text/on/primary", "colors/primary/default"], ["text/on/secondary", "colors/secondary/default"],
+  ["text/on/accent", "colors/accent/default"], ["text/on/accent-mark", "colors/accent/mark"],
+  ["text/on/tint", "surface/tint/default"], ["text/on/action-tonal", "surface/action/default"],
+  ["text/on/lift-action", "surface/lift/action"], ["text/on/primary-strong", "colors/primary/dark"],
+  ["text/on/cover", "surface/cover"], ["text/on/error", "colors/state/error"],
+  ["text/on/success", "colors/state/success"], ["text/on/info", "colors/state/info"],
+  ["text/on/warning", "colors/state/warning"], ["text/on/neutral", "colors/state/neutral"],
+  ["text/error", "surface/error"],
+];
+
+export type RdsContrastFailure = { mode: RdsMode; fg: string; bg: string; ratio: number };
+
+/** The pairs of RDS_CONTRAST_PAIRS that fail WCAG AA (4.5:1), mode by mode. Empty means every pair passes. */
+export function rdsContrastReport(theme: RdsTheme): RdsContrastFailure[] {
+  const out: RdsContrastFailure[] = [];
+  for (const mode of ["light", "dark", "brand"] as RdsMode[])
+    for (const [fg, bg] of RDS_CONTRAST_PAIRS) {
+      const ratio = rdsContrast(theme, mode, fg, bg);
+      if (ratio !== null && ratio < AA) out.push({ mode, fg, bg, ratio: Math.round(ratio * 100) / 100 });
+    }
+  return out;
 }
 
 /**
@@ -317,8 +463,12 @@ export type RdsBrandTable = {
 
 const isColourRef = (v: string) => /^[a-z][a-z0-9-]*\/[a-z]?\d+$/i.test(v);
 
-/** The theme of a brand table. Fails on a missing role or an unknown primitive, listing them all. */
-export function rdsThemeFromTable(table: RdsBrandTable): RdsTheme {
+/**
+ * The theme of a brand table. Fails on a missing role or an unknown primitive, listing them all. The contrast of
+ * the main text pairs (rdsContrastReport) is only reported, through `opts.warn`: the table is the brand as drawn
+ * in Figma, kept one to one even where a pair fails.
+ */
+export function rdsThemeFromTable(table: RdsBrandTable, opts: RdsThemeOptions = {}): RdsTheme {
   const out: RdsTheme = { light: {}, dark: {}, brand: {} };
   const problems: string[] = [];
   for (const mode of ["light", "dark", "brand"] as RdsMode[]) {
@@ -351,5 +501,11 @@ export function rdsThemeFromTable(table: RdsBrandTable): RdsTheme {
     }
   }
   if (problems.length) throw new Error(`rdsThemeFromTable(${table.name}):\n  ${problems.join("\n  ")}`);
+  const fails = rdsContrastReport(out);
+  if (fails.length)
+    (opts.warn ?? defaultWarn)(
+      `rdsThemeFromTable(${table.name}): ${fails.length} text pair(s) below 4.5:1\n  ` +
+        fails.map((f) => `${f.mode}: ${f.fg} on ${f.bg} ${f.ratio}:1`).join("\n  "),
+    );
   return out;
 }
