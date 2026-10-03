@@ -4399,35 +4399,6 @@ input:focus-visible + .rds-checkbox__box {
   }
 }
 
-/* components/floating-stepper.css */
-/* @tokens floating-stepper */
-/*
- * FloatingStepper: no tokens of its own; the Card and the Buttons bring theirs. A pill (radius/full) of 44 Buttons,
- * 4 inside and 4 apart, raised by elevation/overlay because it floats over the page. A vertical Separator, 24
- * tall, before the action.
- */
-.rds-floating-stepper {
-  flex-direction: row;
-  align-items: center;
-  gap: var(--space-4);
-  width: max-content;
-  max-width: 100%;
-  padding: var(--space-4);
-  border-radius: var(--radius-full);
-  box-shadow: var(--elevation-overlay);
-  overflow-x: auto;
-}
-
-.rds-floating-stepper > .rds-button {
-  flex: none;
-  border-radius: var(--radius-full);
-}
-
-.rds-floating-stepper > .rds-floating-stepper__divider {
-  align-self: center;
-  height: var(--size-24);
-}
-
 /* components/footer.css */
 /* @tokens footer */
 /*
@@ -4892,12 +4863,12 @@ input:focus-visible + .rds-checkbox__box {
   }
 }
 
-/* components/image-crop-modal.css */
-/* @tokens image-crop-modal */
+/* components/image-crop-dialog.css */
+/* @tokens image-crop-dialog */
 /*
- * ImageCropModal (Figma [RDS] Overlays/ImageCropModal): the Dialog, the ToggleGroup, the Alert and the Spinner bring
- * their tokens; the crop brings its own (Overlays, image-crop-modal/*). 12 apart: the presets (they share the
- * width), the stage (320 tall, on image-crop-modal/stage/background, the image letterboxed inside 16 of padding, a
+ * ImageCropDialog (Figma [RDS] Overlays/ImageCropDialog): the Dialog, the ToggleGroup, the Alert and the Spinner bring
+ * their tokens; the crop brings its own (Overlays, image-crop-dialog/*). 12 apart: the presets (they share the
+ * width), the stage (320 tall, on image-crop-dialog/stage/background, the image letterboxed inside 16 of padding, a
  * line in the dialog's border colour), the error or the hint. Over the image, outside the crop, the shade; the crop's
  * line and its handles in their own colours. While sending, the dialog's scrim covers the stage.
  */
@@ -4927,7 +4898,7 @@ input:focus-visible + .rds-checkbox__box {
   max-height: 60vh;
   padding: var(--space-16);
   overflow: hidden;
-  background: var(--image-crop-modal-stage-background);
+  background: var(--image-crop-dialog-stage-background);
   border: var(--border-width) solid var(--dialog-border);
   border-radius: var(--radius-control);
 }
@@ -4941,18 +4912,18 @@ input:focus-visible + .rds-checkbox__box {
 .rds-image-crop__crop {
   max-width: 100%;
   max-height: calc(min(320px, 60vh) - var(--space-32));
-  --rc-drag-handle-bg-colour: var(--image-crop-modal-handle);
-  --rc-border-color: var(--image-crop-modal-handle);
+  --rc-drag-handle-bg-colour: var(--image-crop-dialog-handle);
+  --rc-border-color: var(--image-crop-dialog-handle);
 }
 
 .rds-image-crop__crop .ReactCrop__crop-mask > rect {
-  fill: var(--image-crop-modal-shade);
+  fill: var(--image-crop-dialog-shade);
   fill-opacity: 1;
 }
 
 .rds-image-crop__crop .ReactCrop__crop-selection {
   background-image: none !important;
-  border: var(--border-width) solid var(--image-crop-modal-selection);
+  border: var(--border-width) solid var(--image-crop-dialog-selection);
   animation: none !important;
 }
 
@@ -9719,6 +9690,35 @@ input:focus-visible + .rds-radio__circle {
     forced-color-adjust: none;
     background: Highlight;
   }
+}
+
+/* components/stepper.css */
+/* @tokens stepper */
+/*
+ * Stepper: no tokens of its own; the Card and the Buttons bring theirs. A pill (radius/full) of 44 Buttons,
+ * 4 inside and 4 apart, raised by elevation/overlay because it floats over the page. A vertical Separator, 24
+ * tall, before the action.
+ */
+.rds-stepper {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-4);
+  width: max-content;
+  max-width: 100%;
+  padding: var(--space-4);
+  border-radius: var(--radius-full);
+  box-shadow: var(--elevation-overlay);
+  overflow-x: auto;
+}
+
+.rds-stepper > .rds-button {
+  flex: none;
+  border-radius: var(--radius-full);
+}
+
+.rds-stepper > .rds-stepper__divider {
+  align-self: center;
+  height: var(--size-24);
 }
 
 /* components/summary-bar.css */

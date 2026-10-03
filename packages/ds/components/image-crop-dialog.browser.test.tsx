@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { userEvent } from 'vitest/browser';
+import { ImageCropDialog } from './image-crop-dialog';
 import { ImageCropModal } from './image-crop-modal';
 import { MODES, axeViolations, cleanup, render, settle } from './__tests__/render';
 
@@ -24,20 +25,20 @@ async function photo(width = 320, height = 200): Promise<File> {
 const dialog = () => document.querySelector<HTMLElement>('[role="dialog"]')!;
 const loaded = () => vi.waitFor(() => expect(dialog().querySelector('.rds-image-crop__layer')).toBeNull());
 
-describe.each(MODES)('ImageCropModal (%s)', (mode) => {
+describe.each(MODES)('ImageCropDialog (%s)', (mode) => {
   it('open, with the image loaded, passes axe', async () => {
     const file = await photo();
-    await render(<ImageCropModal open file={file} position="Foto 1 de 3" onCancel={() => {}} onConfirm={() => {}} />, mode);
+    await render(<ImageCropDialog open file={file} position="Foto 1 de 3" onCancel={() => {}} onConfirm={() => {}} />, mode);
     await settle();
     await loaded();
     expect(outsideRegion(await axeViolations(document.body, KNOWN(mode)))).toEqual([]);
   });
 });
 
-describe('ImageCropModal behaviour', () => {
+describe('ImageCropDialog behaviour', () => {
   it('a Dialog with the presets as a ToggleGroup: 1:1 first; choosing another presses it', async () => {
     const file = await photo();
-    await render(<ImageCropModal open file={file} position="Foto 1 de 3" onCancel={() => {}} onConfirm={() => {}} />);
+    await render(<ImageCropDialog open file={file} position="Foto 1 de 3" onCancel={() => {}} onConfirm={() => {}} />);
     await settle();
     expect(dialog().querySelector('.rds-dialog__title')!.textContent).toBe('Ajustar foto · Foto 1 de 3');
     const group = dialog().querySelector('[aria-label="Proporção"]')!;
@@ -52,7 +53,7 @@ describe('ImageCropModal behaviour', () => {
 
   it('the presets carry the [RDS] icons; the ready state says how to adjust the crop', async () => {
     const file = await photo();
-    await render(<ImageCropModal open file={file} onCancel={() => {}} onConfirm={() => {}} />);
+    await render(<ImageCropDialog open file={file} onCancel={() => {}} onConfirm={() => {}} />);
     await settle();
     await loaded();
     const items = [...dialog().querySelectorAll<HTMLButtonElement>('[aria-label="Proporção"] button')];
@@ -63,9 +64,9 @@ describe('ImageCropModal behaviour', () => {
     expect(dialog().querySelector('.rds-image-crop__hint')!.textContent).toBe('Arraste as alças para ajustar o recorte.');
   });
 
-  it('the stage, the shade, the crop line and the handles read the image-crop-modal tokens', async () => {
+  it('the stage, the shade, the crop line and the handles read the image-crop-dialog tokens', async () => {
     const file = await photo();
-    await render(<ImageCropModal open file={file} onCancel={() => {}} onConfirm={() => {}} />);
+    await render(<ImageCropDialog open file={file} onCancel={() => {}} onConfirm={() => {}} />);
     await settle();
     await loaded();
     const resolve = (token: string) => {
@@ -78,23 +79,23 @@ describe('ImageCropModal behaviour', () => {
     };
     const stage = dialog().querySelector<HTMLElement>('.rds-image-crop__stage')!;
     expect(getComputedStyle(stage).height).toBe('320px');
-    expect(getComputedStyle(stage).backgroundColor).toBe(resolve('--image-crop-modal-stage-background'));
-    expect(resolve('--image-crop-modal-stage-background')).toBe(resolve('--surface-muted'));
+    expect(getComputedStyle(stage).backgroundColor).toBe(resolve('--image-crop-dialog-stage-background'));
+    expect(resolve('--image-crop-dialog-stage-background')).toBe(resolve('--surface-muted'));
     const shade = dialog().querySelector<SVGRectElement>('.ReactCrop__crop-mask > rect')!;
-    expect(getComputedStyle(shade).fill).toBe(resolve('--image-crop-modal-shade'));
-    expect(resolve('--image-crop-modal-shade')).toBe(resolve('--surface-scrim'));
+    expect(getComputedStyle(shade).fill).toBe(resolve('--image-crop-dialog-shade'));
+    expect(resolve('--image-crop-dialog-shade')).toBe(resolve('--surface-scrim'));
     const selection = dialog().querySelector<HTMLElement>('.ReactCrop__crop-selection')!;
-    expect(getComputedStyle(selection).borderTopColor).toBe(resolve('--image-crop-modal-selection'));
+    expect(getComputedStyle(selection).borderTopColor).toBe(resolve('--image-crop-dialog-selection'));
     expect(getComputedStyle(selection).backgroundImage).toBe('none');
     const handle = dialog().querySelector<HTMLElement>('.ReactCrop__drag-handle')!;
-    expect(getComputedStyle(handle).backgroundColor).toBe(resolve('--image-crop-modal-handle'));
-    expect(resolve('--image-crop-modal-handle')).toBe(resolve('--text-on-cover'));
+    expect(getComputedStyle(handle).backgroundColor).toBe(resolve('--image-crop-dialog-handle'));
+    expect(resolve('--image-crop-dialog-handle')).toBe(resolve('--text-on-cover'));
   });
 
   it('a single preset shows no bar', async () => {
     const file = await photo();
     await render(
-      <ImageCropModal open file={file} presets={[{ id: 'banner', label: 'Banner', aspect: 3 }]} onCancel={() => {}} onConfirm={() => {}} />,
+      <ImageCropDialog open file={file} presets={[{ id: 'banner', label: 'Banner', aspect: 3 }]} onCancel={() => {}} onConfirm={() => {}} />,
     );
     await settle();
     expect(dialog().querySelector('[aria-label="Proporção"]')).toBeNull();
@@ -105,7 +106,7 @@ describe('ImageCropModal behaviour', () => {
     let finish!: () => void;
     const onConfirm = vi.fn((_blob: Blob) => new Promise<void>((resolve) => (finish = resolve)));
     const onCancel = vi.fn();
-    await render(<ImageCropModal open file={file} onCancel={onCancel} onConfirm={onConfirm} />);
+    await render(<ImageCropDialog open file={file} onCancel={onCancel} onConfirm={onConfirm} />);
     await settle();
     await loaded();
     const buttons = () => [...dialog().querySelectorAll<HTMLButtonElement>('.rds-dialog__footer .rds-button, footer .rds-button')];
@@ -118,5 +119,11 @@ describe('ImageCropModal behaviour', () => {
     await vi.waitFor(() => expect(dialog().querySelector('.rds-image-crop__layer--busy')).toBeNull());
     await userEvent.click(buttons().find((b) => b.textContent === 'Cancelar')!);
     expect(onCancel).toHaveBeenCalled();
+  });
+});
+
+describe('ImageCropDialog: the old name', () => {
+  it('ImageCropModal (deprecated, components/image-crop-modal) is the ImageCropDialog', () => {
+    expect(ImageCropModal).toBe(ImageCropDialog);
   });
 });

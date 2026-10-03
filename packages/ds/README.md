@@ -99,7 +99,7 @@ renders itself (the × of Alert, Dialog and Toast, the Calendar and Carousel arr
 ## Requirements
 
 React 19. Tailwind CSS is an **optional** peer: only the legacy `base.css` needs it. A few components bring an
-optional peer of their own, installed only if you use them: `react-image-crop` (ImageCropModal, ImageUpload) and
+optional peer of their own, installed only if you use them: `react-image-crop` (ImageCropDialog, ImageUpload) and
 `react-international-phone` (PhoneInput).
 
 ## Icons
@@ -114,6 +114,11 @@ import { PixIcon } from '@rojaostudio/ds/icons';
 ```
 
 ## React Native
+
+> **Experimental, outside semver in 2.0.** The native target (`@rojaostudio/ds/native/*`) still follows the 1.x
+> API (`Button variant="primary"`, `Modal`, `Menu`…) and the 1.x theme (`generateTheme`). It will be aligned with
+> the 2.0 components in 2.1; until then it may change in any release, minor and patch included. Pin an exact
+> version if you depend on it. The web components never import from it.
 
 ```tsx
 import { DSThemeProvider } from '@rojaostudio/ds/native/components';

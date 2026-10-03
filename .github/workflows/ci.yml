@@ -48,7 +48,7 @@ jobs:
       # so o `ds` — o build dele importa `@rojaostudio/ds-core/tokens`, que aponta pro dist que
       # ainda nao existe. O turbo respeita o `dependsOn: ["^build"]` e resolve a ordem.
       - name: Build design system
-        run: pnpm exec turbo run build --filter=@rojaostudio/ds --filter=@rojaostudio/ds-core --filter=rojao-ds
+        run: pnpm exec turbo run build --filter=@rojaostudio/ds --filter=@rojaostudio/ds-core --filter=rojao-ds --filter=@rojaostudio/ds-codemod
 
       # O gate do tarball (#105): empacota de verdade e olha o que saiu, em vez de confiar no
       # files[]. Tres defeitos desta familia ja chegaram a versoes publicadas.

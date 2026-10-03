@@ -1,5 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { Stepper } from './stepper';
 import { FloatingStepper } from './floating-stepper';
+import { FloatingStepper as FromBarrel, Stepper as StepperFromBarrel } from './index';
 import { RotateCcwIcon } from './internal/icons';
 import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
@@ -11,19 +13,19 @@ const STEPS = [
   { key: 'payment', label: 'Pagamento' },
 ];
 
-describe.each(MODES)('FloatingStepper (%s)', (mode) => {
+describe.each(MODES)('Stepper (%s)', (mode) => {
   it('with the action passes axe', async () => {
     const el = await render(
-      <FloatingStepper steps={STEPS} current="customer" action={{ label: 'Recomeçar', icon: <RotateCcwIcon />, onClick: () => {} }} />,
+      <Stepper steps={STEPS} current="customer" action={{ label: 'Recomeçar', icon: <RotateCcwIcon />, onClick: () => {} }} />,
       mode,
     );
     expect(await axeViolations(el)).toEqual([]);
   });
 });
 
-describe('FloatingStepper behaviour', () => {
+describe('Stepper behaviour', () => {
   it('a named navigation; the current step is the filled Button with aria-current="step"', async () => {
-    const el = await render(<FloatingStepper steps={STEPS} current="customer" />);
+    const el = await render(<Stepper steps={STEPS} current="customer" />);
     const nav = el.querySelector('[role="navigation"]')!;
     expect(nav.getAttribute('aria-label')).toBe('Etapas');
     const [cart, customer, payment] = nav.querySelectorAll<HTMLButtonElement>('.rds-button');
@@ -36,7 +38,7 @@ describe('FloatingStepper behaviour', () => {
 
   it('earlier steps go back, later ones do nothing; canNavigate changes the rule', async () => {
     const onNavigate = vi.fn();
-    const el = await render(<FloatingStepper steps={STEPS} current="customer" onNavigate={onNavigate} />);
+    const el = await render(<Stepper steps={STEPS} current="customer" onNavigate={onNavigate} />);
     const [cart, customer, payment] = el.querySelectorAll<HTMLButtonElement>('.rds-button');
     cart.click();
     customer.click();
@@ -44,15 +46,15 @@ describe('FloatingStepper behaviour', () => {
     expect(onNavigate.mock.calls).toEqual([['cart']]);
 
     const all = vi.fn();
-    const free = await render(<FloatingStepper steps={STEPS} current="cart" onNavigate={all} canNavigate={() => true} />);
+    const free = await render(<Stepper steps={STEPS} current="cart" onNavigate={all} canNavigate={() => true} />);
     free.querySelectorAll<HTMLButtonElement>('.rds-button')[2].click();
     expect(all).toHaveBeenCalledWith('payment');
   });
 
   it('the action is a last Button after a vertical Separator, 24 tall', async () => {
     const onClick = vi.fn();
-    const el = await render(<FloatingStepper steps={STEPS} current="cart" action={{ label: 'Recomeçar', onClick }} />);
-    const line = el.querySelector<HTMLElement>('.rds-floating-stepper__divider')!;
+    const el = await render(<Stepper steps={STEPS} current="cart" action={{ label: 'Recomeçar', onClick }} />);
+    const line = el.querySelector<HTMLElement>('.rds-stepper__divider')!;
     expect(line.classList.contains('rds-separator--vertical')).toBe(true);
     expect(line.getAttribute('aria-hidden')).toBe('true');
     expect(line.getBoundingClientRect().height).toBe(24);
@@ -60,5 +62,13 @@ describe('FloatingStepper behaviour', () => {
     expect(last.textContent).toBe('Recomeçar');
     last.click();
     expect(onClick).toHaveBeenCalledOnce();
+  });
+});
+
+describe('Stepper: the old name', () => {
+  it('FloatingStepper (deprecated) is the Stepper, from its old deep import and from the barrel', () => {
+    expect(FloatingStepper).toBe(Stepper);
+    expect(FromBarrel).toBe(Stepper);
+    expect(StepperFromBarrel).toBe(Stepper);
   });
 });

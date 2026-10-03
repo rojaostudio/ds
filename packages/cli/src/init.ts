@@ -8,6 +8,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { parseArgs } from "node:util";
+import { runMigrate, type Spawn } from "./migrate";
 import {
   emitClaudeMd,
   emitRdsCss,
@@ -28,6 +29,8 @@ export type Io = {
   ask: (pergunta: string) => Promise<string>;
   /** Há alguém no terminal para responder. Sem isso, nada é perguntado. */
   interactive: boolean;
+  /** Roda um comando com o terminal ligado (o `migrate` chama o npx). */
+  spawn?: Spawn;
 };
 
 export const TARGETS: Record<ClaudeMdTarget, string> = {
@@ -42,6 +45,7 @@ export const HELP = `rojao-ds — o tema da sua marca no Rojão DS 2.0
 
 Uso:
   npx rojao-ds init [opções]
+  npx rojao-ds migrate <pasta> [--apply]   migra um projeto 0.x/1.x para a 2.0 (via npx @rojaostudio/ds-codemod)
 
 Gera, na pasta atual:
   • o tema da marca (${DEFAULT_OUT}), para importar DEPOIS de @rojaostudio/ds/styles/rds.css;
@@ -282,6 +286,9 @@ type Values = {
 
 /** Roda a CLI. Devolve o código de saída. */
 export async function run(argv: string[], io: Io, version = "0.0.0"): Promise<number> {
+  // `migrate` repassa os argumentos ao codemod como vieram: as opções são dele, não desta CLI.
+  if (argv[0] === "migrate") return runMigrate(argv.slice(1), io);
+
   let values: Values;
   let positionals: string[];
   try {
@@ -302,7 +309,7 @@ export async function run(argv: string[], io: Io, version = "0.0.0"): Promise<nu
     return command === undefined && !values.help ? 1 : 0;
   }
   if (command !== "init") {
-    io.err(`✗ comando desconhecido: ${command}. O único comando é init.`);
+    io.err(`✗ comando desconhecido: ${command}. Os comandos são init e migrate.`);
     io.err("  Veja: npx rojao-ds --help");
     return 1;
   }

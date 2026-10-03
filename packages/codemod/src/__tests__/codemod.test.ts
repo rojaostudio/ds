@@ -2,7 +2,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { transformSource } from '../codemod';
-import { COMPONENTS, TYPES } from '../map';
+import { COMPONENTS, MOVED_EXPORTS, TYPES } from '../map';
 
 const FIXTURES = join(__dirname, '..', '__fixtures__');
 const read = (name: string) => readFileSync(join(FIXTURES, name), 'utf8');
@@ -57,14 +57,17 @@ describe('codemod: every renamed export in the map', () => {
     const src = `import { ${old} } from '@rojaostudio/ds/components';\n\nexport const A = () => <${old}${required} />;\n`;
     const r = transformSource(src, 'a.tsx');
     expect(r.manual).toEqual([]);
-    expect(r.output).toContain(`import { ${rule.to} } from '@rojaostudio/ds/components';`);
+    // Out of the barrel (optional peers): the renamed export lands on its own entry point.
+    const entry = MOVED_EXPORTS[rule.to!] ?? '@rojaostudio/ds/components';
+    expect(r.output).toContain(`import { ${rule.to} } from '${entry}';`);
     expect(r.output).toContain(`<${rule.to}${required}`);
   });
 
   it.each(Object.entries(TYPES).filter(([, t]) => t.to))('type %s → its 2.0 name', (old, t) => {
     const src = `import type { ${old} } from '@rojaostudio/ds/components';\n\nexport type A = ${old};\n`;
     const r = transformSource(src, 'a.ts');
-    expect(r.output).toBe(`import type { ${t.to} } from '@rojaostudio/ds/components';\n\nexport type A = ${t.to};\n`);
+    const entry = MOVED_EXPORTS[t.to!] ?? '@rojaostudio/ds/components';
+    expect(r.output).toBe(`import type { ${t.to} } from '${entry}';\n\nexport type A = ${t.to};\n`);
   });
 });
 

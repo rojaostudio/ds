@@ -8,7 +8,7 @@
  *
  * Messages (`manual`, `note`) are shown to the person migrating, so they are in pt-BR. Comments are in English.
  *
- * How the codemod reads this file (scripts/migrate/codemod.ts):
+ * How the codemod reads this file (codemod.ts, next to it):
  *  - `PACKAGE_RENAMES` and `FILE_RENAMES` rewrite module specifiers.
  *  - `COMPONENTS[oldExportName]` drives every JSX usage of a component imported from the DS:
  *      `to`          the export was renamed: the import and every reference are renamed together. A renamed
@@ -58,6 +58,8 @@ export const FILE_RENAMES: Record<string, string | null> = {
   'form-card-header': 'card', // wave 6 (#33): FormCardHeader → CardHeader
   search: 'input', // wave 6 (#33): Search → Input type="search"
   notice: 'alert', // wave 6 (#33): Notice → Alert
+  'floating-stepper': 'stepper', // 2.0 renames: FloatingStepper → Stepper (the old file stays, deprecated)
+  'image-crop-modal': 'image-crop-dialog', // 2.0 renames: ImageCropModal → ImageCropDialog (the old file stays, deprecated)
   'use-focus-trap': null, // wave 2 (#15): Radix handles focus now
   'use-dismiss': null, // wave 2 (#15)
 };
@@ -109,6 +111,12 @@ export const FILE_OF_EXPORT: Record<string, string> = {
   PhoneProps: 'phone',
   ToggleCard: 'toggle-card',
   ToggleCardProps: 'toggle-card',
+  Stepper: 'stepper',
+  StepperProps: 'stepper',
+  StepperStep: 'stepper',
+  ImageCropDialog: 'image-crop-dialog',
+  ImageCropDialogProps: 'image-crop-dialog',
+  CropPreset: 'image-crop-dialog',
 };
 
 /** Literal value of a JSX attribute after migration. `null` drops the attribute: it is the 2.0 default. */
@@ -734,6 +742,11 @@ export const COMPONENTS: Record<string, ComponentRule> = {
       previewWrapperClassName: { drop: true },
     },
   },
+
+  // ── 2.0 renames (the old names stay as deprecated aliases) ──────────────────────────────────────
+  // Same props: only the name, the file and the `rds-*` classes changed.
+  FloatingStepper: { wave: 'renomes 2.0', to: 'Stepper' },
+  ImageCropModal: { wave: 'renomes 2.0', to: 'ImageCropDialog' },
 };
 
 /** Type-only exports: renamed (`to`) or gone/changed with no mechanical path (`manual`). */
@@ -794,6 +807,10 @@ export const TYPES: Record<string, { to?: string; manual?: string; follows?: str
   ToggleCardCompactProps: { to: 'ToggleCardProps', follows: 'ToggleCardCompact' },
   ImageUploadAspect: { manual: 'ImageUploadAspect saiu com a prop `aspect` do ImageUpload (o tile é sempre quadrado).' },
   ImageUploadVariant: { manual: 'ImageUploadVariant saiu com a prop `variant` do ImageUpload (é sempre o tile).' },
+  // 2.0 renames.
+  FloatingStepperProps: { to: 'StepperProps', follows: 'FloatingStepper' },
+  FloatingStepperStep: { to: 'StepperStep', follows: 'FloatingStepper' },
+  ImageCropModalProps: { to: 'ImageCropDialogProps', follows: 'ImageCropModal' },
 };
 
 /** Value exports gone with no mechanical replacement. */
@@ -816,9 +833,12 @@ export const MOVED_EXPORTS: Record<string, string> = {
   // Out of the barrel because they import optional peers (#2): only their own entry point has them.
   PhoneInput: '@rojaostudio/ds/components/phone-input',
   PhoneInputProps: '@rojaostudio/ds/components/phone-input',
+  ImageCropDialog: '@rojaostudio/ds/components/image-crop-dialog',
+  ImageCropDialogProps: '@rojaostudio/ds/components/image-crop-dialog',
+  CropPreset: '@rojaostudio/ds/components/image-crop-dialog',
+  // The old name, when a file keeps it: its own (deprecated) entry point still exists.
   ImageCropModal: '@rojaostudio/ds/components/image-crop-modal',
   ImageCropModalProps: '@rojaostudio/ds/components/image-crop-modal',
-  CropPreset: '@rojaostudio/ds/components/image-crop-modal',
   ImageUpload: '@rojaostudio/ds/components/image-upload',
   ImageUploadProps: '@rojaostudio/ds/components/image-upload',
   ImageUploadLabels: '@rojaostudio/ds/components/image-upload',

@@ -1,6 +1,8 @@
+#!/usr/bin/env node
 /**
- * migrate-consumer.ts — migrates a consumer of `@rojaostudio/ds` from `0.x` or `1.x` straight to `2.0`.
- * Run: pnpm migrate:consumer <consumer-path> [--apply] [--verbose] [--report <file.json>]
+ * cli.ts — the `rojao-ds-codemod` bin: migrates a consumer of `@rojaostudio/ds` from `0.x` or `1.x` straight to `2.0`.
+ * Run: npx @rojaostudio/ds-codemod <consumer-path> [--apply] [--verbose] [--report <file.json>]
+ * (inside this repo: pnpm migrate:consumer <consumer-path> …; `npx rojao-ds migrate` forwards here too)
  *
  * Without `--apply` it is a dry run: it prints the plan and writes nothing.
  *
@@ -15,10 +17,10 @@
  *    it needs the old `node_modules`. If it was cleaned, the script refuses to apply (the 0.x versions stay frozen
  *    on GitHub Packages, #103) instead of writing an approximate theme and claiming it migrated.
  *
- * 2. 1.x → 2.0: the components follow the Figma [RDS] (waves 1 to 4, #14 to #17). The codemod in ./migrate
+ * 2. 1.x → 2.0: the components follow the Figma [RDS] (waves 1 to 4, #14 to #17). The codemod in ./codemod.ts
  *    rewrites imports, renamed components and mechanical props, and reports, file:line, what needs a person
  *    (structural changes such as Select `options[]` → `<SelectItem>`). With `--apply` it also writes a
- *    `TODO(ds-2.0): …` comment above each of those. The rules are data in ./migrate/map.ts. It also lists, as
+ *    `TODO(ds-2.0): …` comment above each of those. The rules are data in ./map.ts. It also lists, as
  *    warnings, what compiles on 2.0 but should move on: the deprecated wrappers still in the package (Dropzone,
  *    SettingRow…) and the IconButtons that should go with a Tooltip (#29). Those are never written.
  *
@@ -32,13 +34,26 @@
 import { existsSync, readFileSync, writeFileSync, copyFileSync, readdirSync } from 'node:fs';
 import { join, dirname, basename } from 'node:path';
 import { execFileSync } from 'node:child_process';
-import { mentionsDs, transformSource } from './migrate/codemod';
-import type { Finding } from './migrate/codemod';
-import { RDS_CSS } from './migrate/map';
+import { mentionsDs, transformSource } from './codemod';
+import type { Finding } from './codemod';
+import { RDS_CSS } from './map';
 
 const TARGET_VERSION = '^2.0.0';
 
+const USAGE = [
+  'uso: npx @rojaostudio/ds-codemod <pasta-do-projeto> [--apply] [--verbose] [--report <arquivo.json>]',
+  '',
+  '  sem --apply      dry-run: mostra o plano e os casos manuais (arquivo:linha), não escreve nada',
+  '  --apply          escreve as mudanças e um TODO(ds-2.0) acima de cada caso manual',
+  '  --verbose        lista também cada transformação automática',
+  '  --report <json>  grava o relatório completo em JSON',
+].join('\n');
+
 const args = process.argv.slice(2);
+if (args.includes('--help') || args.includes('-h')) {
+  console.log(USAGE);
+  process.exit(0);
+}
 const apply = args.includes('--apply');
 const verbose = args.includes('--verbose');
 const reportIdx = args.indexOf('--report');
@@ -46,7 +61,7 @@ const reportPath = reportIdx >= 0 ? args[reportIdx + 1] : undefined;
 const targetArg = args.find((a, i) => !a.startsWith('--') && args[i - 1] !== '--report');
 
 if (!targetArg) {
-  console.error('uso: pnpm migrate:consumer <caminho-do-consumidor> [--apply] [--verbose] [--report <arquivo.json>]');
+  console.error(USAGE);
   process.exit(1);
 }
 
@@ -60,7 +75,7 @@ if (!existsSync(root)) {
  * A file-system walk, not `git grep`.
  *
  * `git grep` looks like the obvious choice — fast, already honours `.gitignore`. But it only sees TRACKED files, and
- * in `reels-web` the `app/globals.css` was never committed. The script answered "no .css imports the DS" and would
+ * in one consumer the `app/globals.css` was never committed. The script answered "no .css imports the DS" and would
  * have skipped the whole theme migration, silently. A silent false negative is worse than an error: you see the
  * error. Hence walking the folder, skipping build output and dot folders (`.claude/worktrees` holds copies).
  */

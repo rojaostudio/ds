@@ -1,3 +1,12 @@
+/**
+ * Componentes React Native do DS (`@rojaostudio/ds/native/components`).
+ *
+ * @experimental Fora do semver na 2.0: o alvo nativo segue a API 1.x (Button variant='primary', Modal, Menu…) e
+ * o tema do generateTheme 1.x. Será alinhado à 2.0 na 2.1; até lá pode mudar em qualquer versão. A web não
+ * importa nada daqui (components/__tests__/native-boundary.test.ts).
+ *
+ * @packageDocumentation
+ */
 export { DSThemeProvider, useTheme, type ThemeTokens } from './theme';
 export { Text, type TextVariant, type TextColor } from './text';
 export { Button, type ButtonVariant, type ButtonSize } from './button';
