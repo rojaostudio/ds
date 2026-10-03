@@ -255,11 +255,9 @@
   --tile-danger-soft-icon: var(--text-error);
   --card-background: var(--surface-card);
   --card-border: var(--border-default);
-  --card-footer-background: var(--surface-panel);
   --card-title: var(--text-heading);
   --card-description: var(--text-muted);
   --card-tint-background: var(--surface-tint-default);
-  --card-tint-footer-background: var(--surface-tint-strong);
   --kbd-background: var(--surface-muted);
   --kbd-border: var(--border-default);
   --kbd-label: var(--text-body);
@@ -951,12 +949,6 @@
   --pagination-item-label-disabled: var(--text-disabled);
   --pagination-summary: var(--text-muted);
   --sidebar-item-count: var(--text-muted);
-  --sidebar-dark-background: var(--colors-primary-default);
-  --sidebar-dark-item-background-hover: var(--colors-primary-light);
-  --sidebar-dark-item-label-default: var(--text-on-primary);
-  --sidebar-dark-item-label-hover: var(--text-on-primary-strong);
-  --sidebar-dark-module: var(--text-on-primary-strong);
-  --sidebar-dark-user: var(--text-on-primary);
   --breadcrumb-inverse-label-default: var(--text-on-primary);
   --breadcrumb-inverse-label-hover: var(--text-on-primary-strong);
   --breadcrumb-inverse-label-current: var(--text-on-primary-strong);
@@ -977,7 +969,6 @@
   --tabs-dot-background: var(--colors-state-success);
   --tabs-dot-indicator: var(--colors-state-success);
   --sidebar-section-label: var(--text-subtle);
-  --sidebar-dark-section-label: var(--text-on-primary);
   --sidebar-item-indicator: var(--colors-primary-default);
 
   /* overlays */

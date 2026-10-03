@@ -169,24 +169,12 @@ describe("cascade layers", () => {
 describe("the real [RDS] extraction", () => {
   const all = loadAll(join(__dirname, "..", ".."));
 
-  it("has the 992 component tokens of the 10 collections", () => {
-    expect(all.tokens).toHaveLength(992);
+  it("has the 983 component tokens of the 10 collections", () => {
+    expect(all.tokens).toHaveLength(983);
   });
 
-  it("marks obsolete only what Figma calls Obsoleto: the card footer bands (03/10/2026), and sidebar/dark/* (pending)", () => {
-    // sidebar/dark/* lost its reader with the Sidebar `tone` (vocabulary, 03/10/2026): the dark bar is the brand mode
-    // (.ds-plate). The flag is in tokens/figma/navigation.txt until Figma marks them "Obsoleto" too.
-    expect(all.tokens.filter((t) => t.obsolete).map((t) => t.name)).toEqual([
-      "card/footer/background",
-      "card/tint/footer/background",
-      "sidebar/dark/background",
-      "sidebar/dark/item/background/hover",
-      "sidebar/dark/item/label/default",
-      "sidebar/dark/item/label/hover",
-      "sidebar/dark/module",
-      "sidebar/dark/user",
-      "sidebar/dark/section/label",
-    ]);
+  it("has no obsolete token left: unused tokens are deleted in Figma, not kept", () => {
+    expect(all.tokens.filter((t) => t.obsolete).map((t) => t.name)).toEqual([]);
   });
 
   it("every token a stylesheet group owns is used, the obsolete aside", () => {
