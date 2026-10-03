@@ -45,8 +45,8 @@
   --_background: var(--badge-accent-fill-background);
   --_label: var(--badge-accent-fill-label);
 }
-/* The brand's highlighter: the one badge that reads as a marker. */
-.rds-badge--accent-highlight {
+/* accent soft: the brand's highlighter, the one badge that reads as a marker (the old `highlight`). */
+.rds-badge--accent-soft {
   --_background: var(--badge-accent-highlight-background);
   --_label: var(--badge-accent-highlight-label);
 }

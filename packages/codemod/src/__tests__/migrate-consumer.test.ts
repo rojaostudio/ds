@@ -66,7 +66,36 @@ describe('migrate-consumer', () => {
     expect(readFileSync(join(root, 'app', 'globals.css'), 'utf8')).not.toContain('rds.css');
   }, 60_000);
 
-  it('a project already on 2.0 has nothing to migrate', () => {
-    expect(run()).toContain('já está em ^2.0.0');
+  it('a project already on 2.0 only gets the vocabulary step (nothing left to change here)', () => {
+    const out = run();
+    expect(out).toContain('vocabulário único de props');
+    expect(out).toContain('0 transformação(ões) automática(s)');
+    // No package.json step: the version is the project's call in the vocabulary mode.
+    expect(out).not.toContain('→ "@rojaostudio/ds"');
+  }, 60_000);
+
+  it('2.0.0-next → the vocabulary: --apply rewrites the props and leaves package.json alone', () => {
+    const pkg = JSON.stringify({ name: 'consumer', dependencies: { '@rojaostudio/ds': '2.0.0-next.16' } }, null, 2);
+    writeFileSync(join(root, 'package.json'), pkg);
+    writeFileSync(
+      join(root, 'app', 'next.tsx'),
+      [
+        "import { Card, CardContent, Spinner } from '@rojaostudio/ds/components';",
+        '',
+        'export const N = () => (',
+        '  <Card surface="tint">',
+        '    <CardContent>',
+        '      <Spinner size="default" />',
+        '    </CardContent>',
+        '  </Card>',
+        ');',
+        '',
+      ].join('\n'),
+    );
+    run('--apply');
+    const next = readFileSync(join(root, 'app', 'next.tsx'), 'utf8');
+    expect(next).toContain('<Card variant="soft">');
+    expect(next).toContain('<Spinner size="md" />');
+    expect(readFileSync(join(root, 'package.json'), 'utf8')).toBe(pkg);
   }, 60_000);
 });

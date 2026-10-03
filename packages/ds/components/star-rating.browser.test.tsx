@@ -4,7 +4,7 @@ import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
 afterEach(cleanup);
 
-const SIZES: StarRatingSize[] = ['sm', 'default', 'lg'];
+const SIZES: StarRatingSize[] = ['sm', 'md', 'lg'];
 
 describe.each(MODES)('StarRating (%s)', (mode) => {
   it('every size, every half value, with and without label, passes axe', async () => {

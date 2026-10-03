@@ -44,7 +44,7 @@ export function normalizeHex(text: string): string | null {
 /**
  * ColorInput — Figma [RDS] Forms/ColorInput. One colour, chosen or typed: the swatch shows it and the hex beside it
  * is editable (#RRGGBB, with or without #). The swatch opens a popover with the palette the caller passes (Figma:
- * menu=open); without one, the system's colour picker. Enter or leaving the field confirms the hex; an invalid hex
+ * open=true); without one, the system's colour picker. Enter or leaving the field confirms the hex; an invalid hex
  * goes back to the last valid one. The swatch's colour is the person's data, not a token: it is the one inline
  * style the DS allows (style.backgroundColor of the swatch and of each palette colour). Choosing among a few fixed
  * colours without a hex is the ToggleGroup or the ChoiceCard. Styles: color-input.css and internal/field.css.

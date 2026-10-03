@@ -13,21 +13,21 @@ const Layers = () => (
 );
 
 describe.each(MODES)('FilterChip (%s)', (mode) => {
-  it('inactive, active, with count and icon, link and disabled pass axe', async () => {
+  it('off, pressed, with count and icon, link and disabled pass axe', async () => {
     const el = await render(
       <FilterChipGroup aria-label="Filtrar por tipo">
-        <FilterChip active>Todos</FilterChip>
+        <FilterChip pressed>Todos</FilterChip>
         <FilterChip count={12}>Entradas</FilterChip>
-        <FilterChip icon={<Layers />} count={3} active>
+        <FilterChip icon={<Layers />} count={3} pressed>
           Saídas
         </FilterChip>
-        <FilterChip asChild active>
+        <FilterChip asChild pressed>
           <a href="#ajustes">Ajustes</a>
         </FilterChip>
         <FilterChip disabled count={0}>
           Estornos
         </FilterChip>
-        <FilterChip disabled active>
+        <FilterChip disabled pressed>
           Arquivados
         </FilterChip>
       </FilterChipGroup>,
@@ -52,19 +52,19 @@ describe('FilterChip behaviour', () => {
   });
 
   it('a button with aria-pressed that turns on and off, by click and by keyboard', async () => {
-    const onActiveChange = vi.fn();
-    const el = await render(<FilterChip onActiveChange={onActiveChange}>Entradas</FilterChip>);
+    const onPressedChange = vi.fn();
+    const el = await render(<FilterChip onPressedChange={onPressedChange}>Entradas</FilterChip>);
     const chip = el.querySelector('button')!;
     expect(chip.getAttribute('aria-pressed')).toBe('false');
     await userEvent.click(chip);
     expect(chip.getAttribute('aria-pressed')).toBe('true');
-    expect(onActiveChange).toHaveBeenLastCalledWith(true);
+    expect(onPressedChange).toHaveBeenLastCalledWith(true);
     chip.focus();
     await userEvent.keyboard('{Enter}');
     expect(chip.getAttribute('aria-pressed')).toBe('false');
     await userEvent.keyboard(' ');
     expect(chip.getAttribute('aria-pressed')).toBe('true');
-    expect(onActiveChange).toHaveBeenCalledTimes(3);
+    expect(onPressedChange).toHaveBeenCalledTimes(3);
   });
 
   it('controlled: one filter on in a group (Todos, Entradas, Saídas)', async () => {
@@ -73,7 +73,7 @@ describe('FilterChip behaviour', () => {
       return (
         <FilterChipGroup aria-label="Filtrar por tipo">
           {['todos', 'entradas', 'saidas'].map((v) => (
-            <FilterChip key={v} active={on === v} onClick={() => setOn(v)}>
+            <FilterChip key={v} pressed={on === v} onClick={() => setOn(v)}>
               {v}
             </FilterChip>
           ))}
@@ -93,9 +93,9 @@ describe('FilterChip behaviour', () => {
     expect(el.querySelector('button')!.textContent).toBe('Entradas12');
   });
 
-  it('asChild renders the link with aria-current when active, and no aria-pressed', async () => {
+  it('asChild renders the link with aria-current when pressed, and no aria-pressed', async () => {
     const el = await render(
-      <FilterChip asChild active count={4}>
+      <FilterChip asChild pressed count={4}>
         <a href="?filtro=entradas">Entradas</a>
       </FilterChip>,
     );
@@ -107,10 +107,10 @@ describe('FilterChip behaviour', () => {
   });
 
   it('disabled: focusable, does not turn on and a link does not navigate', async () => {
-    const onActiveChange = vi.fn();
+    const onPressedChange = vi.fn();
     const el = await render(
       <>
-        <FilterChip disabled onActiveChange={onActiveChange}>
+        <FilterChip disabled onPressedChange={onPressedChange}>
           Estornos
         </FilterChip>
         <FilterChip asChild disabled>
@@ -125,10 +125,29 @@ describe('FilterChip behaviour', () => {
     chip.click();
     await userEvent.keyboard('{Enter}');
     expect(chip.getAttribute('aria-pressed')).toBe('false');
-    expect(onActiveChange).not.toHaveBeenCalled();
+    expect(onPressedChange).not.toHaveBeenCalled();
     const link = el.querySelector('a')!;
     const event = new MouseEvent('click', { bubbles: true, cancelable: true });
     link.dispatchEvent(event);
     expect(event.defaultPrevented).toBe(true);
+  });
+});
+
+describe('FilterChip vocabulary', () => {
+  it('the deprecated active, defaultActive and onActiveChange still work', async () => {
+    const onActiveChange = vi.fn();
+    const el = await render(
+      <>
+        <FilterChip active>Todos</FilterChip>
+        <FilterChip defaultActive onActiveChange={onActiveChange}>
+          Entradas
+        </FilterChip>
+      </>,
+    );
+    const [a, b] = el.querySelectorAll('button');
+    expect(a.getAttribute('aria-pressed')).toBe('true');
+    expect(b.getAttribute('aria-pressed')).toBe('true');
+    await userEvent.click(b);
+    expect(onActiveChange).toHaveBeenLastCalledWith(false);
   });
 });

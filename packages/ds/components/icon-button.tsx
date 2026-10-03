@@ -19,7 +19,7 @@ export interface IconButtonProps extends Omit<ComponentPropsWithRef<'button'>, '
   label: string;
   /** Same tones as the Button. */
   tone?: ButtonTone;
-  /** Figma calls this property `style`. */
+  /** The emphasis (Figma: `variant`). */
   variant?: ButtonVariant;
   /**
    * The size of the square (Figma: `size`): sm 36 with a 16 icon, md 44 with a 20 icon (default), lg 52 with a 24

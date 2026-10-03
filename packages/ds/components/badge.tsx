@@ -1,8 +1,8 @@
 import type { HTMLAttributes, ReactNode } from 'react';
 
 export type BadgeTone = 'neutral' | 'action' | 'accent' | 'inverse';
-/** Figma calls this property `style`. */
-export type BadgeVariant = 'fill' | 'soft' | 'highlight';
+/** The emphasis (Figma: `variant`): fill (solid) or soft (a light plate; on accent, the brand's highlighter). */
+export type BadgeVariant = 'fill' | 'soft';
 
 interface BadgeBase extends Omit<HTMLAttributes<HTMLSpanElement>, 'children'> {
   /** The label (Figma: `label`): "Nova", "Grátis". Ignored when `value` is given. */
@@ -12,13 +12,17 @@ interface BadgeBase extends Omit<HTMLAttributes<HTMLSpanElement>, 'children'> {
 }
 
 /**
- * Not every tone has every variant (as in Figma): soft only on neutral and action, highlight only on accent,
- * inverse only fill. The types allow only those.
+ * Not every tone has every variant (as in Figma): inverse is only fill. On accent, soft is the brand's highlighter
+ * (the old `highlight`). The types allow only those.
  */
 export type BadgeProps = BadgeBase &
   (
-    | { tone?: 'neutral' | 'action'; variant?: 'fill' | 'soft' }
-    | { tone: 'accent'; variant?: 'fill' | 'highlight' }
+    | { tone?: 'neutral' | 'action'; variant?: BadgeVariant }
+    | {
+        tone: 'accent';
+        /** `'highlight'` is deprecated (2.0.0-next): it is `variant="soft"` on `tone="accent"`. */
+        variant?: BadgeVariant | 'highlight';
+      }
     | { tone: 'inverse'; variant?: 'fill' }
   );
 
@@ -32,10 +36,11 @@ export function formatBadgeValue(value: number) {
  */
 export function Badge({ tone = 'neutral', variant = 'fill', value, children, className, ...rest }: BadgeProps) {
   const isNumber = value !== undefined;
+  const emphasis = variant === 'highlight' ? 'soft' : variant;
   return (
     <span
       {...rest}
-      className={['rds-badge', `rds-badge--${tone}-${variant}`, isNumber && 'rds-badge--number', className]
+      className={['rds-badge', `rds-badge--${tone}-${emphasis}`, isNumber && 'rds-badge--number', className]
         .filter(Boolean)
         .join(' ')}
     >

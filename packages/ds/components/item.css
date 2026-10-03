@@ -1,6 +1,6 @@
 /* @tokens item */
 /*
- * Item (Content collection, item/*): one list row, at least 44 tall. default pads 12 16, gap 16; sm pads 8 12,
+ * Item (Content collection, item/*): one list row, at least 44 tall. md pads 12 16, gap 16; sm pads 8 12,
  * gap 12. Corners in radius/container. Title in label (16/24 medium), description in small (14/20); sm one step down.
  */
 .rds-item-group {
@@ -12,11 +12,11 @@
   list-style: none;
 }
 
-.rds-item-group:has(> .rds-item--default) {
+.rds-item-group:has(> .rds-item--ghost) {
   gap: 0;
 }
 
-.rds-item-group > .rds-item--default + .rds-item--default {
+.rds-item-group > .rds-item--ghost + .rds-item--ghost {
   border-top: var(--border-width) solid var(--item-border);
 }
 
@@ -42,7 +42,7 @@
   --_gap: var(--space-12);
 }
 
-.rds-item--default {
+.rds-item--ghost {
   padding: var(--_pad-y) var(--_pad-x);
   border-width: 0;
   border-radius: 0;
@@ -52,7 +52,7 @@
   border-color: var(--item-border);
 }
 
-.rds-item--muted {
+.rds-item--soft {
   background: var(--item-muted-background);
 }
 
@@ -98,7 +98,7 @@
 
 @media (forced-colors: active) {
   .rds-item--outline,
-  .rds-item--muted {
+  .rds-item--soft {
     border-color: CanvasText;
   }
 }

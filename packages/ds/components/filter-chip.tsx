@@ -11,17 +11,23 @@ export interface FilterChipProps extends Omit<ComponentPropsWithRef<'button'>, '
   count?: ReactNode;
   /** An icon before the label, in the label's colour (Figma: `showIcon` + `icon`). Decorative. */
   icon?: ReactNode;
-  /** Controlled: the filter is on (Figma: state=active). */
-  active?: boolean;
+  /** Controlled: the filter is on (Figma: `pressed`), as the Toggle. */
+  pressed?: boolean;
   /** Uncontrolled: on at first. */
-  defaultActive?: boolean;
+  defaultPressed?: boolean;
   /** Called with the new state when the chip is pressed (a button, not a link). */
+  onPressedChange?: (pressed: boolean) => void;
+  /** @deprecated Use `pressed` (2.0.0-next). */
+  active?: boolean;
+  /** @deprecated Use `defaultPressed` (2.0.0-next). */
+  defaultActive?: boolean;
+  /** @deprecated Use `onPressedChange` (2.0.0-next). */
   onActiveChange?: (active: boolean) => void;
   /** Rendered as aria-disabled="true": stays in the tab order and takes focus, but does not turn on or navigate. */
   disabled?: boolean;
   /**
    * Render the single child element (an `<a>`, a framework `Link`) with the chip's classes, for a filter that
-   * lives in the URL and should survive back/forward. The link gets aria-current when active.
+   * lives in the URL and should survive back/forward. The link gets aria-current when pressed.
    */
   asChild?: boolean;
 }
@@ -36,8 +42,11 @@ export function FilterChip({
   children,
   count,
   icon,
+  pressed: pressedProp,
+  defaultPressed,
+  onPressedChange,
   active,
-  defaultActive = false,
+  defaultActive,
   onActiveChange,
   disabled,
   asChild,
@@ -46,22 +55,23 @@ export function FilterChip({
   onClick,
   ...rest
 }: FilterChipProps) {
-  const [own, setOwn] = useState(defaultActive);
-  const on = active ?? own;
+  const pressed = pressedProp ?? active;
+  const [own, setOwn] = useState(defaultPressed ?? defaultActive ?? false);
+  const on = pressed ?? own;
   const Root = asChild ? Slot : 'button';
 
   function click(event: MouseEvent<HTMLButtonElement>) {
     onClick?.(event);
     if (event.defaultPrevented || asChild) return;
-    if (active === undefined) setOwn(!on);
-    onActiveChange?.(!on);
+    if (pressed === undefined) setOwn(!on);
+    (onPressedChange ?? onActiveChange)?.(!on);
   }
 
   return (
     <Root
       {...rest}
       type={asChild ? undefined : type}
-      className={['rds-filter-chip', on && 'rds-filter-chip--active', className].filter(Boolean).join(' ')}
+      className={['rds-filter-chip', on && 'rds-filter-chip--pressed', className].filter(Boolean).join(' ')}
       aria-pressed={asChild ? undefined : on}
       aria-current={asChild && on ? 'true' : undefined}
       aria-disabled={disabled || undefined}

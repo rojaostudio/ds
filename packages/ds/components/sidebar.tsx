@@ -17,7 +17,6 @@ import { ChevronDownIcon } from './internal/icons';
 import { Separator } from './separator';
 import { Tooltip } from './tooltip';
 
-export type SidebarTone = 'light' | 'dark';
 export type SidebarHeader = 'mark' | 'logo';
 
 const SidebarContext = createContext<{ collapsed: boolean }>({ collapsed: false });
@@ -38,11 +37,6 @@ export interface SidebarProps extends Omit<HTMLAttributes<HTMLElement>, 'childre
   user?: ReactNode;
   /** 64 wide with only the icons, for a tablet; each entry keeps its name and shows it in a Tooltip. */
   collapsed?: boolean;
-  /**
-   * light (default) or dark (colors/primary; the active entry stays the light pill). dark is deprecated in the
-   * Figma since 27/09/2026: for the brand colour, put the Sidebar in a brand-mode scope and keep light.
-   */
-  tone?: SidebarTone;
   /** The entries (Figma: the `items` slot): SidebarItem, SidebarSection, SidebarSeparator. */
   children: ReactNode;
   /** The foot, under the user: usually the "Sair" SidebarItem. */
@@ -52,7 +46,8 @@ export interface SidebarProps extends Omit<HTMLAttributes<HTMLElement>, 'childre
 /**
  * Sidebar — Figma [RDS] Navigation/Sidebar. The product's main navigation, fixed on the left: a <nav> named
  * "Navegação principal" (override with aria-label) with a list; the current entry has aria-current="page".
- * Styles: sidebar.css.
+ * The theme is not a prop: the Sidebar follows its container. For the brand-coloured bar (the old `tone="dark"`),
+ * put it inside a `.ds-plate` (the brand mode); for the dark theme, inside `.dark`. Styles: sidebar.css.
  */
 export function Sidebar({
   header = 'mark',
@@ -61,7 +56,6 @@ export function Sidebar({
   module,
   user,
   collapsed = false,
-  tone = 'light',
   children,
   footer,
   className,
@@ -73,7 +67,7 @@ export function Sidebar({
       <nav
         aria-label="Navegação principal"
         {...rest}
-        className={['rds-sidebar', tone === 'dark' && 'rds-sidebar--dark', collapsed && 'rds-sidebar--collapsed', className]
+        className={['rds-sidebar', collapsed && 'rds-sidebar--collapsed', className]
           .filter(Boolean)
           .join(' ')}
       >
@@ -112,7 +106,9 @@ export interface SidebarItemProps {
   /** A link: where the entry leads. Without `href` nor `asChild`, the entry is a button (Sair). */
   href?: string;
   onClick?: MouseEventHandler<HTMLElement>;
-  /** The current page (Figma: `state=active`): aria-current="page". Only one at a time. */
+  /** The current page (Figma: `current`): aria-current="page". Only one at a time. */
+  current?: boolean;
+  /** @deprecated Use `current` (2.0.0-next). */
   active?: boolean;
   /** A number on the right, such as pending items (Figma: `showCount` + `count`). Hidden when collapsed. */
   count?: number | string;
@@ -121,7 +117,8 @@ export interface SidebarItemProps {
 }
 
 /** One entry (Figma: .sidebar/item): 44 tall, icon of 20. */
-export function SidebarItem({ children, icon, href, onClick, active, count, asChild }: SidebarItemProps) {
+export function SidebarItem({ children, icon, href, onClick, current, active, count, asChild }: SidebarItemProps) {
+  const isCurrent = current ?? active;
   const { collapsed } = useContext(SidebarContext);
   const link = asChild && isValidElement(children) ? (children as ReactElement<{ className?: string; children?: ReactNode }>) : null;
   const label = link ? link.props.children : children;
@@ -134,7 +131,7 @@ export function SidebarItem({ children, icon, href, onClick, active, count, asCh
       {count !== undefined && !collapsed && <span className="rds-sidebar__count">{count}</span>}
     </>
   );
-  const common = { 'aria-current': active ? ('page' as const) : undefined, onClick };
+  const common = { 'aria-current': isCurrent ? ('page' as const) : undefined, onClick };
   const entry = link ? (
     cloneElement(link, {
       ...common,

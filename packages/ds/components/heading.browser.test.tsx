@@ -20,7 +20,7 @@ const LEVELS: Array<[HeadingLevel, string, string]> = [
   ['value', '20px', '30px'],
 ];
 
-const title = (tone: 'default' | 'accent' = 'default') => (
+const title = (tone: 'neutral' | 'accent' = 'neutral') => (
   <Heading tone={tone}>
     Entregas da <Heading.Mark>semana</Heading.Mark>
   </Heading>
@@ -32,7 +32,7 @@ const title = (tone: 'default' | 'accent' = 'default') => (
 const KNOWN_LIGHT_ORANGE = (mode: string) => (mode === 'light' ? ['.rds-heading__mark'] : []);
 
 describe.each(MODES)('Heading (%s)', (mode) => {
-  it('is an h2 by default, in heading/default, and passes axe', async () => {
+  it('is an h2 by default, in heading/default (tone neutral), and passes axe', async () => {
     const el = await render(<Heading>Entregas da semana</Heading>, mode);
     const h = el.querySelector('h2')!;
     expect(h.className).toContain('rds-heading--heading');
@@ -41,7 +41,7 @@ describe.each(MODES)('Heading (%s)', (mode) => {
   });
 
   it('paints the mark in the other colour of the pair', async () => {
-    const el = await render(<div>{title('default')}{title('accent')}</div>, mode);
+    const el = await render(<div>{title('neutral')}{title('accent')}</div>, mode);
     const [plain, accent] = el.querySelectorAll<HTMLElement>('.rds-heading');
     expect(getComputedStyle(plain).color).toBe(rgb(DEFAULT[mode]));
     expect(getComputedStyle(plain.querySelector('.rds-heading__mark')!).color).toBe(rgb(ACCENT[mode]));
@@ -50,7 +50,7 @@ describe.each(MODES)('Heading (%s)', (mode) => {
   });
 
   it('a default Heading with a mark passes axe (the orange mark aside on light)', async () => {
-    const el = await render(title('default'), mode);
+    const el = await render(title('neutral'), mode);
     expect(await axeViolations(el, KNOWN_LIGHT_ORANGE(mode))).toEqual([]);
   });
 
@@ -72,7 +72,7 @@ describe('Heading on dark and on the plate', () => {
   it('both tones pass axe on the brand plate (white and flare-300 on navy-900)', async () => {
     const el = await render(
       <div className="ds-plate" style={{ background: 'var(--surface-page)', padding: 16 }}>
-        {title('default')}
+        {title('neutral')}
         {title('accent')}
       </div>,
       'light',
@@ -83,7 +83,7 @@ describe('Heading on dark and on the plate', () => {
   });
 
   it.fails('the orange on white passes axe (tone=accent, or the mark, on the rojao light theme: 2.9:1)', async () => {
-    const el = await render(<div>{title('default')}{title('accent')}</div>, 'light');
+    const el = await render(<div>{title('neutral')}{title('accent')}</div>, 'light');
     expect(await axeViolations(el)).toEqual([]);
   });
 });

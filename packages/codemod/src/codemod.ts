@@ -15,6 +15,10 @@
  *
  * Granularity: a component whose name stays (Button, Input…) is migrated usage by usage. A renamed one (Modal →
  * Dialog) is all-or-nothing per file, because its import and every reference change together.
+ *
+ * The 2.0.0-next vocabulary (map.ts VOCABULARY) runs on every 2.0 usage: the ones already on the 2.0 API, the
+ * components with no 1.x rule, and, after the 1.x rules, on what those left untouched. With `from: 'next'` (a project
+ * already on 2.0.0-next) only the vocabulary runs: no 1.x rule, no import move.
  */
 import { Node, Project, SyntaxKind, ts } from 'ts-morph';
 import type {
@@ -29,6 +33,7 @@ import type {
 } from 'ts-morph';
 import {
   BADGE_VARIANTS,
+  BUBBLE_VARIANTS,
   BUTTON_MANUAL,
   BUTTON_TONES,
   BUTTON_VARIANTS,
@@ -48,6 +53,8 @@ import {
   TOAST_MANUAL,
   TOAST_TONES,
   TYPES,
+  VOCABULARY,
+  VOCABULARY_TYPES,
 } from './map';
 import type { ComponentRule, PropRule } from './map';
 
@@ -72,6 +79,12 @@ export interface TransformResult {
 export interface TransformOptions {
   /** Write a `TODO(ds-2.0)` comment above each manual usage (the CLI's --apply). */
   annotate?: boolean;
+  /**
+   * Where the project comes from. `'1.x'` (default): the 0.x/1.x → 2.0 rules, then the 2.0.0-next vocabulary.
+   * `'next'`: the project is already on 2.0.0-next; only the vocabulary runs (the 1.x rules would misread 2.0 values
+   * that share a name with 1.x ones, such as the Avatar `size="sm"`).
+   */
+  from?: '1.x' | 'next';
 }
 
 const project = new Project({
@@ -413,9 +426,16 @@ class Migrator {
     this.collectNames();
 
     this.collectNotices();
-    this.migrateComponents();
-    this.migrateToast();
-    this.migrateTypesAndExports();
+    if (this.options.from === 'next') {
+      // Every import stays where it is: the vocabulary renames props and types, never modules.
+      for (const b of this.bindings) b.keep = true;
+      this.migrateVocabularyOnly();
+    } else {
+      this.migrateComponents();
+      this.migrateToast();
+      this.migrateTypesAndExports();
+    }
+    this.migrateVocabularyTypes();
     this.emitImports();
 
     if (this.options.annotate) this.emitTodos();
@@ -575,13 +595,18 @@ class Migrator {
     for (const b of this.bindings) {
       if (b.imp.kind === 'other' || b.typeOnly) continue;
       const rule = COMPONENTS[b.imported];
-      if (!rule) continue;
+      if (!rule) {
+        // A 2.0 component with no 1.x rule (Item, Marker, Stat…): only the vocabulary.
+        this.migrateVocabulary(b);
+        continue;
+      }
       const tags = this.jsxTagsOf(b);
 
       if (rule.manual) {
         const isNew = rule.newApiProps && tags.some((t) => hasAnyAttr(t, rule.newApiProps!));
         if (isNew) {
           b.keep = true;
+          this.migrateVocabulary(b);
           continue;
         }
         b.keep = true;
@@ -592,14 +617,16 @@ class Migrator {
       }
 
       if (rule.to && rule.newApiProps && tags.some((t) => hasAnyAttr(t, rule.newApiProps!))) {
-        // Already the 2.0 component with this name (the 2.0 Drawer, the 2.0 Toggle): nothing to migrate.
+        // Already the 2.0 component with this name (the 2.0 Drawer, the 2.0 Toggle): only the vocabulary.
         b.keep = true;
+        this.migrateVocabulary(b);
         continue;
       }
 
-      const ctxs = tags
-        .filter((t) => !(rule.newApiProps && hasAnyAttr(t, rule.newApiProps)))
-        .map((t) => this.processElement(t, b, rule));
+      // A usage already on the 2.0 API gets only the vocabulary; the others the 1.x rules, then the vocabulary.
+      const ctxs = tags.map((t) =>
+        rule.newApiProps && hasAnyAttr(t, rule.newApiProps) ? this.vocabularyCtx(t, b.imported) : this.processElement(t, b, rule),
+      );
       planned.push({ b, rule, ctxs });
     }
 
@@ -761,7 +788,66 @@ class Migrator {
     }
     for (const [prop, pr] of Object.entries(rule.props ?? {})) this.applyProp(c, prop, pr);
     for (const t of rule.transforms ?? []) TRANSFORMS[t](c);
+    // The 1.x usage lands on the final names: the vocabulary of the 2.0 component, on what the 1.x rules left.
+    if (!c.manual.length && !c.convertTo) this.applyVocabulary(c, rule.to ?? b.imported);
     return c;
+  }
+
+  // ── the 2.0.0-next vocabulary ───────────────────────────────────────────────────────────────────
+
+  /** The vocabulary's rules on one usage, skipping what an earlier rule already rewrote. */
+  private applyVocabulary(c: ElementCtx, name: string) {
+    const rule = VOCABULARY[name];
+    if (!rule) return;
+    for (const t of rule.transforms ?? []) TRANSFORMS[t](c);
+    for (const [prop, pr] of Object.entries(rule.props ?? {})) {
+      if (!c.isTouched(prop)) this.applyProp(c, prop, pr);
+    }
+  }
+
+  private vocabularyCtx(tag: Tag, name: string): ElementCtx {
+    const c = new ElementCtx(tag, name);
+    this.applyVocabulary(c, name);
+    return c;
+  }
+
+  /** Every usage of a binding that stays on its name, through the vocabulary only: committed here. */
+  private migrateVocabulary(b: Binding) {
+    if (!VOCABULARY[b.imported]) return;
+    for (const tag of this.jsxTagsOf(b)) {
+      const c = this.vocabularyCtx(tag, b.imported);
+      if (c.manual.length) {
+        for (const m of c.manual) this.reportManual(tag.getStart(), m.rule, m.message);
+        continue;
+      }
+      if (!c.dirty) continue;
+      const current = tag.getTagNameNode().getText();
+      this.edits.push(...c.edits(this.code, current, current));
+      this.reportAuto(tag.getStart(), `vocabulario:${b.imported}`, [b.imported, ...c.changes].join('; '));
+    }
+  }
+
+  /** `from: 'next'`: the vocabulary on every DS component, nothing else. */
+  private migrateVocabularyOnly() {
+    for (const b of this.bindings) {
+      if (b.imp.kind === 'other' || b.typeOnly) continue;
+      this.migrateVocabulary(b);
+    }
+  }
+
+  /** Type exports renamed or removed by the vocabulary. */
+  private migrateVocabularyTypes() {
+    for (const b of this.bindings) {
+      if (b.imp.kind === 'other' || b.remove) continue;
+      const t = VOCABULARY_TYPES[b.imported];
+      if (!t || b.to) continue;
+      if (t.manual) {
+        b.keep = true;
+        this.reportManual(b.spec.getStart(), `type:${b.imported}`, t.manual);
+      } else if (t.to) {
+        this.renameBinding(b, t.to);
+      }
+    }
   }
 
   private applyProp(c: ElementCtx, prop: string, pr: PropRule) {
@@ -787,6 +873,28 @@ class Migrator {
       } else c.addManual(id, pr.manual ?? `${prop} saiu na 2.0.`);
       return;
     }
+    if (pr.renameValues) {
+      const to = pr.to ?? prop;
+      if (to !== prop && c.has(to)) return c.addManual(id, `${c.component}: ${prop} e ${to} juntos — o ${prop} virou ${to}; fique só com ${to}.`);
+      const lit = literal(v);
+      if (lit === undefined) {
+        if (v.kind === 'expr' && pr.dynamicManual) return c.addManual(id, pr.dynamicManual);
+        if (to !== prop) {
+          c.rename(prop, to);
+          c.note(`${prop} → ${to}`);
+        }
+        return;
+      }
+      const mapped = lit in pr.renameValues ? pr.renameValues[lit] : lit;
+      if (mapped === null) {
+        c.remove(prop);
+        c.note(`${prop}="${lit}" removido (é o padrão da 2.0)`);
+      } else if (to !== prop || mapped !== lit) {
+        c.replace(prop, stringAttr(to, mapped));
+        c.note(`${prop}="${lit}" → ${to}="${mapped}"`);
+      }
+      return;
+    }
     if (pr.values) {
       const lit = literal(v);
       if (lit === undefined) {
@@ -801,6 +909,8 @@ class Migrator {
       if (mapped === null) {
         c.remove(prop);
         c.note(`${prop}="${lit}" removido (é o padrão da 2.0)`);
+      } else if (to === prop && mapped === lit) {
+        // Already the 2.0 value: nothing to write.
       } else {
         c.replace(prop, stringAttr(to, mapped));
         if (to !== prop || mapped !== lit) c.note(`${prop}="${lit}" → ${to}="${mapped}"`);
@@ -808,6 +918,7 @@ class Migrator {
       return;
     }
     if (pr.to) {
+      if (c.has(pr.to)) return c.addManual(id, `${c.component}: ${prop} e ${pr.to} juntos — o ${prop} virou ${pr.to}; fique só com ${pr.to}.`);
       c.rename(prop, pr.to);
       c.note(`${prop} → ${pr.to}`);
       return;
@@ -1465,7 +1576,7 @@ const TRANSFORMS: Record<string, Transform> = {
     const list = Node.isIdentifier(v.node) || Node.isPropertyAccessExpression(v.node) || Node.isCallExpression(v.node) ? v.text : `(${v.text})`;
     c.replace(
       'pillFilters',
-      `quickFilters={<FilterChipGroup aria-label="Filtros rápidos">{${list}.map((quick) => (<FilterChip key={quick.key} active={quick.active} count={quick.count} onClick={quick.onClick}>{quick.label}</FilterChip>))}</FilterChipGroup>}`,
+      `quickFilters={<FilterChipGroup aria-label="Filtros rápidos">{${list}.map((quick) => (<FilterChip key={quick.key} pressed={quick.active} count={quick.count} onClick={quick.onClick}>{quick.label}</FilterChip>))}</FilterChipGroup>}`,
     );
     c.needs.add('FilterChipGroup');
     c.needs.add('FilterChip');
@@ -1565,6 +1676,82 @@ const TRANSFORMS: Record<string, Transform> = {
     if (c.has('rows')) c.remove('minRows');
     else c.rename('minRows', 'rows');
     c.note('minRows → rows');
+  },
+
+  bubbleVocab(c) {
+    if (c.isTouched('variant')) return; // the ChatBubble rule already wrote the 2.0 surface
+    const v = c.value('variant');
+    if (!v) return;
+    const lit = literal(v);
+    if (lit === undefined) {
+      return c.addManual(
+        'Bubble.variant',
+        'Bubble: variant dinâmico — a superfície virou variant (fill, soft, outline, ghost) + tone (neutral, action, danger) + typing. muted→soft, tinted→soft + tone="action", error→soft + tone="danger", typing→typing. Mapeie à mão.',
+      );
+    }
+    const target = BUBBLE_VARIANTS[lit];
+    if (!target) return c.addManual('Bubble.variant', `Bubble variant="${lit}" não existe na 2.0: use fill, soft, outline ou ghost.`);
+    if (target.variant === lit && !target.tone) return; // already the vocabulary
+    const parts: string[] = [];
+    if (target.typing) {
+      if (!c.has('typing')) parts.push('typing');
+    } else parts.push(`variant="${target.variant}"`);
+    if (target.tone) {
+      const tone = c.value('tone');
+      if (tone && literal(tone) !== target.tone) {
+        return c.addManual('Bubble.tone', `Bubble variant="${lit}" vira tone="${target.tone}", mas este Bubble já tem outro tone: confira à mão.`);
+      }
+      if (!tone) parts.push(`tone="${target.tone}"`);
+    }
+    if (parts.length) c.replace('variant', parts.join(' '));
+    else c.remove('variant');
+    c.note(`variant="${lit}" → ${parts.join(' ') || 'typing'}`);
+  },
+
+  badgeHighlight(c) {
+    if (c.isTouched('variant')) return;
+    const v = c.value('variant');
+    if (!v || literal(v) !== 'highlight') return;
+    const tone = c.value('tone');
+    if (tone && literal(tone) !== 'accent') {
+      return c.addManual('Badge.highlight', 'Badge variant="highlight" é o soft do tone accent: este Badge tem outro tone, confira à mão.');
+    }
+    c.replace('variant', tone ? 'variant="soft"' : 'variant="soft" tone="accent"');
+    c.note('variant="highlight" → variant="soft" tone="accent"');
+  },
+
+  statMuted(c) {
+    if (c.isTouched('tone')) return;
+    const v = c.value('tone');
+    if (!v || literal(v) !== 'muted') return;
+    if (c.has('muted')) c.remove('tone');
+    else c.replace('tone', 'muted');
+    c.note('tone="muted" → muted');
+  },
+
+  rowActionsItems(c) {
+    if (c.isTouched('items')) return;
+    const attr = c.attrs.get('items');
+    const v = attr ? attrValue(attr) : undefined;
+    if (!attr || !v || v.kind !== 'expr' || !Node.isArrayLiteralExpression(v.node)) return;
+    const base = attr.getStart();
+    const local: Edit[] = [];
+    for (const el of v.node.getElements()) {
+      if (!Node.isObjectLiteralExpression(el)) continue;
+      const variant = el.getProperty('variant');
+      if (!variant) continue;
+      const init = Node.isPropertyAssignment(variant) ? variant.getInitializer() : undefined;
+      const lit = init && (Node.isStringLiteral(init) || Node.isNoSubstitutionTemplateLiteral(init)) ? init.getLiteralValue() : undefined;
+      if (el.getProperty('tone')) return c.addManual('RowActions.items', 'RowActions: item com variant e tone — o variant virou tone; fique só com tone.');
+      if (lit !== 'default' && lit !== 'danger') {
+        return c.addManual('RowActions.items', 'RowActions: o variant dos items virou tone (default→neutral, danger igual). Este é dinâmico: troque à mão.');
+      }
+      const q = init!.getText()[0];
+      local.push({ start: variant.getStart() - base, end: variant.getEnd() - base, text: `tone: ${q}${lit === 'default' ? 'neutral' : 'danger'}${q}` });
+    }
+    if (!local.length) return;
+    c.replace('items', applyEdits(attr.getText(), local));
+    c.note('items[].variant → items[].tone');
   },
 
   chatBubble(c) {

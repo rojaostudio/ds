@@ -4,7 +4,7 @@ import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
 afterEach(cleanup);
 
-const SIZES: AvatarSize[] = ['sm', 'default', 'lg', 'xl'];
+const SIZES: AvatarSize[] = ['sm', 'md', 'lg', 'xl'];
 const TYPES: AvatarType[] = ['person', 'brand'];
 // A 1×1 PNG: the image variant without the network.
 const PHOTO =
@@ -101,5 +101,18 @@ describe('Avatar behaviour', () => {
     const more = group.querySelectorAll('.rds-avatar')[2];
     expect(more.getAttribute('aria-label')).toBe('mais 1 pessoa');
     expect(more.getBoundingClientRect().width).toBe(24);
+  });
+});
+
+describe('Avatar vocabulary', () => {
+  it('the deprecated size="default" is md, on the Avatar and the group', async () => {
+    const el = await render(
+      <AvatarGroup aria-label="Equipe" size="default">
+        <Avatar name="Ana Lima" />
+        <Avatar name="Bia Melo" size="default" />
+      </AvatarGroup>,
+    );
+    expect(el.querySelector('.rds-avatar-group')!.className).toContain('rds-avatar-group--md');
+    for (const a of el.querySelectorAll('.rds-avatar')) expect(a.className).toContain('rds-avatar--md');
   });
 });

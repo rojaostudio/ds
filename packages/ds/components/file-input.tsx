@@ -12,17 +12,22 @@ import {
 import { FieldAction, FieldShell, hasContent, useFieldIds, warnIfUnlabelled, type FieldTextProps } from './internal/field';
 import { CloseIcon, ImagePlusIcon, PaperclipIcon, UploadIcon } from './internal/icons';
 
-export type FileInputVariant = 'field' | 'dropzone' | 'tile';
+/** The field's arrangement (Figma: `layout`). */
+export type FileInputLayout = 'field' | 'dropzone' | 'tile';
+/** @deprecated Use FileInputLayout (2.0.0-next: `variant` is `layout`). */
+export type FileInputVariant = FileInputLayout;
 
 export interface FileInputProps
   extends Omit<FieldTextProps, 'labelPosition'>,
     Omit<ComponentPropsWithRef<'input'>, 'type' | 'children' | 'prefix' | 'value' | 'defaultValue' | 'size'> {
   /**
-   * The shape (Figma: `variant`). field (default): the Input's box, for a dense form. dropzone: a dashed area to drop
-   * the file on, when the file is what the screen is about (a receipt, a spreadsheet). tile: a 112 square with the image's
-   * preview, for a photo or a logo.
+   * The arrangement (Figma: `layout`). field (default): the Input's box, for a dense form. dropzone: a dashed area to
+   * drop the file on, when the file is what the screen is about (a receipt, a spreadsheet). tile: a 112 square with
+   * the image's preview, for a photo or a logo.
    */
-  variant?: FileInputVariant;
+  layout?: FileInputLayout;
+  /** @deprecated Use `layout` (2.0.0-next): the same three values. */
+  variant?: FileInputLayout;
   /** Controlled: the name shown (Figma: `fileName`). By default, the chosen file's name. */
   fileName?: string;
   /** Controlled: the size beside the name in the dropzone (Figma: `fileSize`). By default, the chosen file's, as "1,2 MB". */
@@ -70,7 +75,7 @@ export function formatFileSize(bytes: number): string {
 }
 
 /**
- * FileInput — Figma [RDS] Forms/FileInput. A file field in three shapes (`variant`): field, the Input's box with the
+ * FileInput — Figma [RDS] Forms/FileInput. A file field in three layouts (`layout`): field, the Input's box with the
  * clip, "Escolher arquivo" and the name; dropzone, a dashed area that takes a dragged file; tile, a square with the
  * image's preview and the buttons to swap or remove it. In every shape the native <input type="file"> does the work:
  * it lies transparent over the box, so a click, Enter or Space open the system's chooser, the label names it,
@@ -79,7 +84,8 @@ export function formatFileSize(bytes: number): string {
  * internal/field.css.
  */
 export function FileInput({
-  variant = 'field',
+  layout: layoutProp,
+  variant,
   label,
   hint,
   error,
@@ -106,9 +112,10 @@ export function FileInput({
   ref,
   ...input
 }: FileInputProps) {
+  const layout: FileInputLayout = layoutProp ?? variant ?? 'field';
   warnIfUnlabelled('FileInput', label, input['aria-label'], input['aria-labelledby']);
   // The dropzone keeps its hint inside the area, also in error: the hint is not the shell's.
-  const inside = variant === 'dropzone';
+  const inside = layout === 'dropzone';
   const ids = useFieldIds(id, inside ? undefined : hint, error, errorMessage);
   const { controlId, errorId, invalid } = ids;
   const own = useRef<HTMLInputElement | null>(null);
@@ -121,11 +128,11 @@ export function FileInput({
   const shownName = fileName ?? chosen?.name ?? '';
   const shownSize = fileSize ?? (fileName === undefined && chosen ? formatFileSize(chosen.size) : undefined);
   const shownPreview = preview ?? chosen?.url ?? '';
-  const filled = variant === 'tile' ? Boolean(shownPreview) : Boolean(shownName);
+  const filled = layout === 'tile' ? Boolean(shownPreview) : Boolean(shownName);
   const showClear = clearable && filled && !disabled;
   const insideHintId = inside && hasContent(hint) && !filled ? `${controlId}-hint` : undefined;
   const describedBy = [inside ? insideHintId : ids.hintId, errorId, input['aria-describedby']].filter(Boolean).join(' ') || undefined;
-  const removeName = clearLabel ?? (variant === 'tile' ? 'Remover imagem' : 'Remover arquivo');
+  const removeName = clearLabel ?? (layout === 'tile' ? 'Remover imagem' : 'Remover arquivo');
 
   function change(event: ChangeEvent<HTMLInputElement>) {
     const files = event.target.files;
@@ -135,7 +142,7 @@ export function FileInput({
       const size = Array.from(files).reduce((sum, file) => sum + file.size, 0);
       const first = files[0];
       const url =
-        variant === 'tile' && first.type.startsWith('image/') && typeof URL.createObjectURL === 'function'
+        layout === 'tile' && first.type.startsWith('image/') && typeof URL.createObjectURL === 'function'
           ? URL.createObjectURL(first)
           : undefined;
       setChosen({ name: files.length === 1 ? first.name : `${files.length} arquivos`, size, url });
@@ -191,7 +198,7 @@ export function FileInput({
   };
 
   // Filled, the tile is the preview: the input leaves the surface (the swap button opens it), but stays labelled.
-  const covered = !(variant === 'tile' && filled);
+  const covered = !(layout === 'tile' && filled);
 
   const control = (
     <input
@@ -199,7 +206,7 @@ export function FileInput({
       ref={setRef}
       id={controlId}
       type="file"
-      accept={input.accept ?? (variant === 'tile' ? 'image/*' : undefined)}
+      accept={input.accept ?? (layout === 'tile' ? 'image/*' : undefined)}
       className={['rds-field__control', 'rds-file-input__control', !covered && 'rds-file-input__control--off']
         .filter(Boolean)
         .join(' ')}
@@ -215,7 +222,7 @@ export function FileInput({
   const clearButton = showClear && <FieldAction label={removeName} icon={<CloseIcon />} onClick={clear} />;
 
   let face: ReactNode;
-  if (variant === 'dropzone') {
+  if (layout === 'dropzone') {
     face = filled ? (
       <span className="rds-file-input__file">
         <span className="rds-file-input__circle" aria-hidden="true">
@@ -244,7 +251,7 @@ export function FileInput({
         </span>
       </>
     );
-  } else if (variant === 'tile') {
+  } else if (layout === 'tile') {
     face = filled ? (
       <img className="rds-file-input__preview" src={shownPreview} alt={previewAlt ?? (typeof label === 'string' ? `Prévia de ${label}` : 'Prévia')} />
     ) : (
@@ -276,18 +283,18 @@ export function FileInput({
   }
 
   const boxClassName = [
-    variant === 'field' && showClear && 'rds-field__box--action',
-    variant === 'dropzone' && 'rds-file-input__area',
-    variant === 'tile' && 'rds-file-input__area rds-file-input__tile',
-    variant !== 'field' && filled && 'rds-file-input__area--filled',
-    variant !== 'field' && dragging && 'rds-file-input__area--dragging',
+    layout === 'field' && showClear && 'rds-field__box--action',
+    layout === 'dropzone' && 'rds-file-input__area',
+    layout === 'tile' && 'rds-file-input__area rds-file-input__tile',
+    layout !== 'field' && filled && 'rds-file-input__area--filled',
+    layout !== 'field' && dragging && 'rds-file-input__area--dragging',
   ]
     .filter(Boolean)
     .join(' ');
 
   return (
     <FieldShell
-      kind={`rds-file-input rds-file-input--${variant}`}
+      kind={`rds-file-input rds-file-input--${layout}`}
       controlId={controlId}
       hintId={inside ? undefined : ids.hintId}
       errorId={errorId}
@@ -298,13 +305,13 @@ export function FileInput({
       required={required}
       disabled={disabled}
       boxClassName={boxClassName || undefined}
-      boxProps={variant === 'field' ? undefined : boxProps}
+      boxProps={layout === 'field' ? undefined : boxProps}
       className={className}
       style={style}
     >
       {face}
       {control}
-      {variant === 'tile'
+      {layout === 'tile'
         ? filled &&
           !disabled && (
             <span className="rds-file-input__actions">
@@ -312,7 +319,7 @@ export function FileInput({
               {clearButton}
             </span>
           )
-        : variant === 'field' && clearButton}
+        : layout === 'field' && clearButton}
     </FieldShell>
   );
 }

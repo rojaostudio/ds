@@ -26,6 +26,14 @@ npx rojao-ds migrate ./meu-app [--apply]
   em vez de escrever um tema aproximado.
 - **Projeto:** atualiza a versão no `package.json`, limpa o registry do GitHub Packages do `.npmrc`,
   remove `transpilePackages` e acrescenta o `@source` do Tailwind quando faltar.
+- **Vocabulário único de props (2.0.0-next):** um projeto que já está na 2.x (ou com `--from-next`)
+  passa só por esta etapa, sem mexer em `package.json`, tema ou CSS. `size="default"` → `md`,
+  `tone="default"` → `neutral`, Card `surface` → `variant` (default → surface, tint → soft),
+  Item `variant` default/muted → ghost/soft, Marker `variant` → `kind`, FileInput `variant` →
+  `layout`, Bubble `variant` → `variant` + `tone` + `typing`, Badge `highlight` → `soft` + `accent`,
+  Stat `tone` positive/negative → success/danger e `tone="muted"` → `muted`, FilterChip `active` →
+  `pressed`, SidebarItem `active` → `current`, Sidebar `tone` sai (o escuro de marca é um `.ds-plate`
+  em volta). Num projeto 1.x, as mesmas regras rodam depois das da 1.x.
 - **Avisos:** wrappers deprecated que seguem no pacote (`Dropzone`, `SettingRow`…) e `IconButton`
   sem `Tooltip`. Só listados, nunca escritos.
 
@@ -39,6 +47,7 @@ Não roda `install` nem build, e não mexe no CSS global para acrescentar
 | `--apply` | escreve as mudanças (sem ela, é dry-run) |
 | `--verbose` | lista cada transformação automática |
 | `--report <arquivo.json>` | grava o relatório completo em JSON |
+| `--from-next` | só o vocabulário de props (automático quando o `package.json` já diz 2.x) |
 | `-h, --help` | ajuda |
 
 Rode numa working tree limpa e revise o `git diff` antes de instalar.

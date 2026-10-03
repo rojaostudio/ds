@@ -22,7 +22,7 @@ export interface ButtonProps extends ComponentPropsWithRef<'button'> {
   children: ReactNode;
   /** The role: brand click (action), quiet (neutral), destructive (danger), or over the brand plate (inverse). */
   tone?: ButtonTone;
-  /** The emphasis (Figma: `style`): fill draws the most attention, ghost the least. */
+  /** The emphasis (Figma: `variant`): fill draws the most attention, ghost the least. */
   variant?: ButtonVariant;
   /**
    * The height, by the space available (Figma: `size`): sm 36, md 44 (default), lg 52. Text 14/20 on sm and md,

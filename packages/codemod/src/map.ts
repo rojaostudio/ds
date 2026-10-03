@@ -24,6 +24,10 @@
  *  - `EXPORTS_MANUAL` flags exports that are gone with no mechanical replacement (`buttonVariants`, `Th`…).
  *  - `MOVED_EXPORTS` moves an export to another entry point (`PixIcon` → `@rojaostudio/ds/icons`).
  *  - `DEPRECATED` and `ICON_BUTTON_TOOLTIP` are notices: reported, never transformed.
+ *  - `VOCABULARY` and `VOCABULARY_TYPES` are the single prop vocabulary of 2.0.0-next (03/10/2026): the Figma
+ *    [RDS] names (`tone` neutral…, `variant` only for emphasis, `size` md as the default, selection as booleans).
+ *    They are keyed by the 2.0 export name and run on 2.0 usages: alone on a 2.0.0-next project (`from: 'next'`),
+ *    and after the 1.x rules on a 1.x one, so a 1.x usage lands on the final names.
  */
 
 /** Old package names → the published one. `@rojao/ds` is the scope before the move to npmjs (#102). */
@@ -135,6 +139,14 @@ export interface PropRule {
   manual?: string;
   /** Added when the prop is absent, because the old default differs from the 2.0 one (`size="lg"` on the Avatar). */
   absent?: string;
+  /**
+   * Lenient literal map (the vocabulary): a literal listed here is rewritten, any other literal is left as it is
+   * (it is already a valid value). A dynamic value keeps its expression, renamed to `to` when there is one, unless
+   * `dynamicManual` says the values differ.
+   */
+  renameValues?: ValueMap;
+  /** With `renameValues`: a dynamic value cannot be mapped (the names changed), so the usage is manual. */
+  dynamicManual?: string;
 }
 
 export type TransformName =
@@ -161,7 +173,12 @@ export type TransformName =
   | 'textareaRows' // minRows → rows
   | 'chatBubble' // variant bot/user → align (+ variant fill for the user)
   | 'noChildren' // children have no place in the 2.0 component → manual
-  | 'quickFilters'; // DataTableHeader: pillFilters[] → quickFilters={<FilterChipGroup>…<FilterChip>…}
+  | 'quickFilters' // DataTableHeader: pillFilters[] → quickFilters={<FilterChipGroup>…<FilterChip>…}
+  // The 2.0.0-next vocabulary (VOCABULARY):
+  | 'bubbleVocab' // Bubble: variant muted/tinted/error/typing → variant soft + tone, typing
+  | 'badgeHighlight' // Badge: variant="highlight" → variant="soft" tone="accent"
+  | 'statMuted' // Stat: tone="muted" → muted
+  | 'rowActionsItems'; // RowActions: items[].variant → items[].tone (default → neutral)
 
 export interface ComponentRule {
   /** Which wave changed it, for the reader. */
@@ -251,7 +268,7 @@ export const COMPONENTS: Record<string, ComponentRule> = {
       onClick: {
         manual: 'O Chip 2.0 não é botão (só o × remove). Para escolher, use FilterChip ou Toggle.',
       },
-      selected: { manual: 'selected saiu do Chip: o estado de escolha é do FilterChip (`active`).' },
+      selected: { manual: 'selected saiu do Chip: o estado de escolha é do FilterChip (`pressed`).' },
       highlight: { manual: 'highlight (sugestão de IA) saiu do Chip 2.0: não há variante equivalente.' },
     },
   },
@@ -351,7 +368,8 @@ export const COMPONENTS: Record<string, ComponentRule> = {
   },
   FilterChip: {
     wave: 'onda 1 (#14)',
-    newApiProps: ['onActiveChange', 'defaultActive', 'asChild'],
+    // `active` became `pressed` in the vocabulary (VOCABULARY.FilterChip renames it after these rules).
+    newApiProps: ['onActiveChange', 'defaultActive', 'asChild', 'pressed', 'defaultPressed', 'onPressedChange'],
     transforms: ['labelToChildren', 'filterChipHref'],
   },
   FilterChipGroup: {
@@ -392,9 +410,9 @@ export const COMPONENTS: Record<string, ComponentRule> = {
     wave: 'onda 2 (#15)',
     newApiProps: ['tone', 'showLabel'],
     props: {
-      // 2.0 has only default and inverse: the old current/brand/muted all become the default ring.
+      // 2.0 has only neutral and inverse: the old current/brand/muted all become the neutral ring (the default).
       color: { to: 'tone', values: { inverse: 'inverse', current: null, brand: null, muted: null } },
-      // By size in px: xs 12 and sm 16 → sm 16; md 20 and lg 24 → default 24; xl 32 → lg 32.
+      // By size in px: xs 12 and sm 16 → sm 16; md 20 and lg 24 → md 24 (the 2.0 default); xl 32 → lg 32.
       size: { values: { xs: 'sm', sm: 'sm', md: null, lg: null, xl: 'lg' } },
     },
   },
@@ -449,7 +467,7 @@ export const COMPONENTS: Record<string, ComponentRule> = {
       ...OVERLAY_COMMON,
       size: {
         values: { sm: 'sm', md: null, lg: 'lg' },
-        manual: 'O Dialog tem só sm, default e lg: xl e full saíram. Escolha lg ou troque por Sheet.',
+        manual: 'O Dialog tem só sm, md e lg: xl e full saíram. Escolha lg ou troque por Sheet.',
       },
       headerAction: {
         manual: 'headerAction saiu do Dialog: leve a ação para o conteúdo ou para o rodapé (`footer`).',
@@ -534,12 +552,12 @@ export const COMPONENTS: Record<string, ComponentRule> = {
     wave: 'onda 3 (#16)',
     newApiProps: ['surface', 'as'],
     props: {
-      // 2.0.0-next (03/10/2026): surface=outline is the old `outlined` (border, no shadow); `elevated` was the old
-      // default and is the 2.0 default. filled/flat/invert have no faithful surface.
+      // 2.0 `variant` (vocabulary, 03/10/2026): outline is the old `outlined` (border, no shadow); `elevated` was the
+      // old default and is the 2.0 default (surface). filled/flat/invert have no faithful variant. The 2.0 values
+      // are listed too, so a 2.0 usage passes untouched.
       variant: {
-        to: 'surface',
-        values: { outlined: 'outline', elevated: null },
-        manual: 'Card perdeu as variantes filled/flat/invert: use surface="default", "outline" ou "tint" e size.',
+        values: { outlined: 'outline', elevated: null, surface: 'surface', soft: 'soft', outline: 'outline' },
+        manual: 'Card perdeu as variantes filled/flat/invert: use variant="surface", "outline" ou "soft" e size.',
       },
       interactive: {
         manual: 'Card perdeu `interactive`: para card clicável, ponha um link/botão de verdade dentro (o título, por exemplo).',
@@ -554,7 +572,7 @@ export const COMPONENTS: Record<string, ComponentRule> = {
   CardBody: {
     wave: 'onda 3 (#16)',
     to: 'CardContent',
-    props: { noPadding: { manual: 'CardContent não tem noPadding: o espaçamento é o do Card (size default ou sm).' } },
+    props: { noPadding: { manual: 'CardContent não tem noPadding: o espaçamento é o do Card (size md ou sm).' } },
   },
   CardTitle: {
     wave: 'onda 3 (#16)',
@@ -587,14 +605,16 @@ export const COMPONENTS: Record<string, ComponentRule> = {
     wave: 'onda 3 (#16)',
     newApiProps: ['type', 'fallbackText', 'showBadge', 'badgeLabel'],
     props: {
-      // By size in px: xs 24 → sm 24; sm 32 → default 32; md 40 (the old default) → lg 40; xl 64 → xl 56.
+      // By size in px: xs 24 → sm 24; sm 32 → md 32 (the 2.0 default); md 40 (the old default) → lg 40; xl 64 → xl 56.
       size: {
         values: { xs: 'sm', sm: null, md: 'lg', xl: 'xl' },
         absent: 'lg',
         manual: 'Avatar lg (48px) não tem tamanho igual na 2.0: escolha lg (40) ou xl (56).',
       },
       status: { manual: 'Avatar perdeu `status`: use showBadge + badgeLabel, ou um <Status> ao lado.' },
-      variant: { manual: 'Avatar perdeu variant brand/neutral: type="brand" é logo de marca (quadrado), não cor.' },
+      variant: {
+        manual: 'Avatar perdeu variant brand/neutral: type="brand" é logo de marca (quadrado), não cor. O que o Avatar mostra (foto, iniciais, ícone) é o `content` do Figma e sai das props.',
+      },
       alt: { manual: 'Avatar perdeu `alt`: o nome acessível vem de `name`.' },
     },
   },
@@ -605,7 +625,7 @@ export const COMPONENTS: Record<string, ComponentRule> = {
       size: {
         values: { xs: 'sm', sm: null, md: 'lg' },
         absent: 'lg',
-        manual: 'AvatarGroup não tem lg (48) nem xl: escolha sm, default ou lg.',
+        manual: 'AvatarGroup não tem lg (48) nem xl: escolha sm, md ou lg.',
       },
     },
     require: { 'aria-label': 'AvatarGroup 2.0 exige aria-label (quem são: "Equipe do projeto").' },
@@ -649,7 +669,7 @@ export const COMPONENTS: Record<string, ComponentRule> = {
     to: 'Bubble',
     props: {
       ariaLabel: { to: 'aria-label' },
-      state: { manual: 'ChatBubble `state` (editing/pending) não existe no Bubble: use variant="error" para não enviada.' },
+      state: { manual: 'ChatBubble `state` (editing/pending) não existe no Bubble: use variant="soft" tone="danger" para não enviada.' },
       dim: { manual: 'ChatBubble `dim` saiu do Bubble.' },
     },
     transforms: ['chatBubble'],
@@ -743,7 +763,7 @@ export const COMPONENTS: Record<string, ComponentRule> = {
     },
   },
   ImageUpload: {
-    // A thin wrapper over FileInput variant="tile": always the tile, whatever the variant or the aspect.
+    // A thin wrapper over FileInput layout="tile": always the tile, whatever the variant or the aspect.
     wave: 'alinhamento Figma (19 componentes)',
     props: {
       aspect: { drop: true },
@@ -777,7 +797,7 @@ export const TYPES: Record<string, { to?: string; manual?: string; follows?: str
   IconButtonVariant: { manual: 'IconButtonVariant saiu: use ButtonVariant (fill, outline, ghost).' },
   IconButtonColor: { manual: 'IconButtonColor saiu: use ButtonTone (action, neutral, danger, inverse).' },
   IconButtonSize: { to: 'ButtonSize' }, // the same sm/md/lg (#34)
-  BadgeVariant: { manual: 'BadgeVariant mudou: fill, soft, highlight (o status com bolinha virou o componente Status).' },
+  BadgeVariant: { manual: 'BadgeVariant mudou: fill e soft (soft no tone accent é o marca-texto; o status com bolinha virou o componente Status).' },
   ToastVariant: { manual: 'ToastVariant mudou: a cor é ToastTone (neutral, info, success, warning, danger); variant é outline/soft/fill.' },
   ToastPosition: { manual: 'ToastPosition saiu: o Toaster 2.0 tem uma posição só.' },
   ToastOptions: { manual: 'ToastOptions mudou de forma: { title, description, tone, variant } (title obrigatório; variant de cor virou tone).' },
@@ -796,8 +816,9 @@ export const TYPES: Record<string, { to?: string; manual?: string; follows?: str
   FilterChipItem: { manual: 'FilterChipItem saiu: o FilterChipGroup recebe <FilterChip> como filhos.' },
   ToggleOption: { manual: 'ToggleOption deixou de ser exportado: use <ToggleGroupItem>.' },
   DrawerSize: { manual: 'DrawerSize saiu: o Sheet 2.0 tem largura fixa.' },
-  CardVariant: { manual: 'CardVariant saiu: use CardSurface (default, tint).' },
-  SpinnerColor: { manual: 'SpinnerColor saiu: use SpinnerTone (default, inverse).' },
+  // CardVariant is a 2.0 name again (surface, soft, outline): an import of it is left alone; the typecheck shows a
+  // 1.x value (filled, flat…) that no longer fits.
+  SpinnerColor: { manual: 'SpinnerColor saiu: use SpinnerTone (neutral, inverse).' },
   // Wave 6 (#33).
   FormCardHeaderProps: { to: 'CardHeaderProps', follows: 'FormCardHeader' }, // subtitle is `description` there
   SearchProps: { to: 'InputProps', follows: 'Search' },
@@ -863,10 +884,10 @@ export const MOVED_EXPORTS: Record<string, string> = {
  * compound member.
  */
 export const DEPRECATED: Record<string, string> = {
-  Dropzone: 'Dropzone é deprecated: migre para <FileInput variant="dropzone">.',
-  ImageUpload: 'ImageUpload é deprecated: migre para <FileInput variant="tile"> (upload em onFiles, URL em preview).',
+  Dropzone: 'Dropzone é deprecated: migre para <FileInput layout="dropzone">.',
+  ImageUpload: 'ImageUpload é deprecated: migre para <FileInput layout="tile"> (upload em onFiles, URL em preview).',
   PricingCard: 'PricingCard é deprecated: migre para <PricingPlan> dentro de um <Pricing>.',
-  TypingIndicator: 'TypingIndicator é deprecated: migre para <Bubble variant="typing" />.',
+  TypingIndicator: 'TypingIndicator é deprecated: migre para <Bubble typing />.',
   SelectableCard: 'SelectableCard é deprecated: migre para <ChoiceCard layout="row">.',
   OptionTile: 'OptionTile é deprecated: migre para <ChoiceCard layout="tile">.',
   OptionTileGrid: 'OptionTileGrid é deprecated: migre para <ChoiceCardGroup layout="tile">.',
@@ -973,4 +994,133 @@ export const NOTICE_TONES: Record<string, string> = {
   success: 'success',
   warning: 'warning',
   critical: 'danger',
+};
+
+// ── The 2.0.0-next vocabulary (03/10/2026) ─────────────────────────────────────────────────────────────
+// The Figma [RDS] took one prop vocabulary and the code follows it 1:1: `tone` neutral|action|accent|info|success|
+// warning|danger|inverse (never `default`); `variant` only for emphasis (fill|soft|outline|ghost; the Card
+// surface|soft|outline); `size` sm|md|lg (+xs/xl) with md as the default (never `default`); selection as booleans;
+// the theme is not a prop. The package keeps the old names as deprecated aliases where that is cheap (size and tone
+// `default`, Card `surface`, Marker/FileInput `variant`, SidebarItem `active`, FilterChip `active`…); the codemod
+// moves the code to the new names anyway. Shape changes (Bubble, Stat `muted`, Sidebar `tone`) have no alias.
+
+/** `size="default"` → `size="md"`: md is the 2.0 default. Anything else (sm, lg, a variable) stays. */
+const SIZE_MD: PropRule = { renameValues: { default: 'md' } };
+/** `tone="default"` → `tone="neutral"`. */
+const TONE_NEUTRAL: PropRule = { renameValues: { default: 'neutral' } };
+
+export interface VocabRule {
+  props?: Record<string, PropRule>;
+  transforms?: TransformName[];
+}
+
+/** Keyed by the 2.0 export name. Transforms run first; the props then skip what a transform already rewrote. */
+export const VOCABULARY: Record<string, VocabRule> = {
+  // size default → md
+  Avatar: { props: { size: SIZE_MD } },
+  AvatarGroup: { props: { size: SIZE_MD } },
+  Tile: { props: { size: SIZE_MD } },
+  Status: { props: { size: SIZE_MD } },
+  StarRating: { props: { size: SIZE_MD } },
+  Dialog: { props: { size: SIZE_MD } },
+  Progress: { props: { size: SIZE_MD } },
+  Spinner: { props: { size: SIZE_MD, tone: TONE_NEUTRAL } },
+  // tone default → neutral
+  Breadcrumb: { props: { tone: TONE_NEUTRAL } },
+  Heading: { props: { tone: TONE_NEUTRAL } },
+  DropdownMenuItem: { props: { tone: TONE_NEUTRAL } },
+  ContextMenuItem: { props: { tone: TONE_NEUTRAL } },
+  // Card: surface → variant (default → surface, tint → soft), size default → md
+  Card: {
+    props: {
+      surface: {
+        to: 'variant',
+        renameValues: { default: 'surface', tint: 'soft', outline: 'outline' },
+        dynamicManual:
+          'Card: `surface` virou `variant` com outros nomes (default→surface, tint→soft, outline→outline). Mapeie o valor dinâmico à mão.',
+      },
+      size: SIZE_MD,
+    },
+  },
+  // Item: variant default → ghost, muted → soft; size default → md
+  Item: {
+    props: {
+      variant: {
+        renameValues: { default: 'ghost', muted: 'soft' },
+        dynamicManual:
+          'Item: variant mudou de nomes (default→ghost, muted→soft, outline igual). Mapeie o valor dinâmico à mão (o nome antigo ainda funciona, deprecated).',
+      },
+      size: SIZE_MD,
+    },
+  },
+  // Marker: variant → kind (default → inline)
+  Marker: {
+    props: {
+      variant: {
+        to: 'kind',
+        renameValues: { default: 'inline' },
+        dynamicManual: 'Marker: `variant` virou `kind` e default virou inline (border e separator iguais). Mapeie o valor dinâmico à mão.',
+      },
+    },
+  },
+  // FileInput: variant → layout (the same values)
+  FileInput: { props: { variant: { to: 'layout' } } },
+  // Stat: tone default/positive/negative → neutral/success/danger; tone="muted" → muted
+  Stat: {
+    transforms: ['statMuted'],
+    props: {
+      tone: {
+        renameValues: { default: 'neutral', positive: 'success', negative: 'danger' },
+        dynamicManual:
+          'Stat: tone mudou (default→neutral, positive→success, negative→danger; muted virou a prop booleana `muted`). Mapeie o valor dinâmico à mão.',
+      },
+    },
+  },
+  // Sidebar: the theme is not a prop
+  Sidebar: {
+    props: {
+      tone: {
+        dropIf: 'light',
+        manual:
+          'Sidebar perdeu `tone`: o tema é o do contêiner. Para a barra na cor da marca (o antigo tone="dark"), ponha a Sidebar dentro de um elemento com class="ds-plate" (modo brand); para o tema escuro, dentro de .dark.',
+      },
+    },
+  },
+  // SidebarItem: active → current
+  SidebarItem: { props: { active: { to: 'current' } } },
+  // FilterChip: active → pressed (as the Toggle)
+  FilterChip: {
+    props: {
+      active: { to: 'pressed' },
+      defaultActive: { to: 'defaultPressed' },
+      onActiveChange: { to: 'onPressedChange' },
+    },
+  },
+  // Bubble: one surface prop → variant + tone + typing
+  Bubble: { transforms: ['bubbleVocab'] },
+  // Badge: highlight → soft on accent
+  Badge: { transforms: ['badgeHighlight'] },
+  // RowActions: the items' variant → tone
+  RowActions: { transforms: ['rowActionsItems'] },
+};
+
+/** Bubble: the old surface → variant + tone (+ typing). */
+export const BUBBLE_VARIANTS: Record<string, { variant?: string; tone?: string; typing?: true }> = {
+  fill: { variant: 'fill' },
+  muted: { variant: 'soft' },
+  tinted: { variant: 'soft', tone: 'action' },
+  outline: { variant: 'outline' },
+  ghost: { variant: 'ghost' },
+  error: { variant: 'soft', tone: 'danger' },
+  typing: { typing: true },
+  soft: { variant: 'soft' }, // already the vocabulary
+};
+
+/** Type exports of the vocabulary: renamed (`to`; the old name stays as a deprecated alias) or gone (`manual`). */
+export const VOCABULARY_TYPES: Record<string, { to?: string; manual?: string }> = {
+  AvatarVariant: { to: 'AvatarContent' },
+  FileInputVariant: { to: 'FileInputLayout' },
+  MarkerVariant: { manual: 'MarkerVariant (deprecated) virou MarkerKind: inline, border, separator (default virou inline).' },
+  CardSurface: { manual: 'CardSurface (deprecated) virou CardVariant: surface, soft, outline (default→surface, tint→soft).' },
+  SidebarTone: { manual: 'SidebarTone saiu: o tema da Sidebar é o do contêiner (.ds-plate para a cor da marca, .dark para o escuro).' },
 };

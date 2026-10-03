@@ -76,7 +76,7 @@ const mask24 = (text: string) => {
 
 /**
  * TimePicker — Figma [RDS] Forms/TimePicker. A time field that takes typing (HH:mm, the colon comes by itself) and
- * opens the list of times in the chosen step (Figma: menu=open). It is the Input with the clock at the end and the
+ * opens the list of times in the chosen step (Figma: open=true). It is the Input with the clock at the end and the
  * Listbox under it (ARIA combobox), as the DatePicker is the Input with the Calendar: the focus stays in the field,
  * the arrows walk the list, Enter chooses and Escape closes without changing. No tokens of its own (--input-*,
  * --listbox-*). A date is the DatePicker; a duration, the NumberInput. Styles: time-picker.css,

@@ -85,7 +85,7 @@
   line-height: var(--type-body-line);
 }
 
-.rds-avatar--brand.rds-avatar--default {
+.rds-avatar--brand.rds-avatar--md {
   font-size: var(--type-body-size);
   line-height: var(--type-body-line);
 }

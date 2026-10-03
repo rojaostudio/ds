@@ -2,11 +2,14 @@
 
 import { ModalClose, ModalShell, type ModalProps } from './internal/modal';
 
-export type DialogSize = 'sm' | 'default' | 'lg';
+export type DialogSize = 'sm' | 'md' | 'lg';
 
 export interface DialogProps extends ModalProps {
-  /** sm 400 (a question with one field), default 560 (a short form), lg 720 (a table or a preview). */
-  size?: DialogSize;
+  /**
+   * sm 400 (a question with one field), md 560 (a short form, the default), lg 720 (a table or a preview) (Figma:
+   * `size`). `'default'` is deprecated (2.0.0-next): it is `'md'`.
+   */
+  size?: DialogSize | 'default';
 }
 
 /**
@@ -16,8 +19,8 @@ export interface DialogProps extends ModalProps {
  * the veil close it, and the page behind doesn't scroll. Something with no way back is the AlertDialog; a long
  * form is the Sheet. Styles: internal/modal.css and dialog.css.
  */
-export function Dialog({ size = 'default', ...props }: DialogProps) {
-  return <ModalShell prefix="rds-dialog" modifiers={[`rds-dialog--${size}`]} {...props} />;
+export function Dialog({ size = 'md', ...props }: DialogProps) {
+  return <ModalShell prefix="rds-dialog" modifiers={[`rds-dialog--${size === 'default' ? 'md' : size}`]} {...props} />;
 }
 
 /** Wraps an element inside the Dialog that closes it when pressed, with asChild. */

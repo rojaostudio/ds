@@ -4,7 +4,7 @@ import { useId, type HTMLAttributes, type ReactNode } from 'react';
 
 /** task: something moving to the end (upload, import). measure: a value inside a known range (quota used). */
 export type ProgressKind = 'task' | 'measure';
-export type ProgressSize = 'default' | 'sm';
+export type ProgressSize = 'md' | 'sm';
 
 export interface ProgressProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
   /** 0 to `max` (Figma: `value`, 0 to 100 in steps of 5; the code takes any value). */
@@ -20,8 +20,8 @@ export interface ProgressProps extends Omit<HTMLAttributes<HTMLDivElement>, 'chi
   valueText?: ReactNode;
   /** task → role="progressbar"; measure → role="meter". */
   kind?: ProgressKind;
-  /** default: 8px bar; sm: 4px, for dense lists (Figma: `size`). */
-  size?: ProgressSize;
+  /** md: 8px bar (default); sm: 4px, for dense lists (Figma: `size`). `'default'` is deprecated (2.0.0-next): it is `'md'`. */
+  size?: ProgressSize | 'default';
 }
 
 /**
@@ -36,7 +36,7 @@ export function Progress({
   showValue = true,
   valueText,
   kind = 'task',
-  size = 'default',
+  size = 'md',
   className,
   ...rest
 }: ProgressProps) {
@@ -45,7 +45,7 @@ export function Progress({
   const percent = max > 0 ? (clamped / max) * 100 : 0;
   const text = valueText ?? `${Math.round(percent)}%`;
   return (
-    <div {...rest} className={['rds-progress', `rds-progress--${size}`, className].filter(Boolean).join(' ')}>
+    <div {...rest} className={['rds-progress', `rds-progress--${size === 'default' ? 'md' : size}`, className].filter(Boolean).join(' ')}>
       {(showLabel || showValue) && (
         <div className="rds-progress__row">
           {showLabel && (

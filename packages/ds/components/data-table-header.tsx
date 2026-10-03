@@ -125,7 +125,7 @@ function FilterGroups({
           </p>
           <FilterChipGroup aria-label={f.label}>
             {f.options.map((opt) => (
-              <FilterChip key={opt.value} active={f.value === opt.value} count={opt.count} onClick={() => onPick(f, opt.value)}>
+              <FilterChip key={opt.value} pressed={f.value === opt.value} count={opt.count} onClick={() => onPick(f, opt.value)}>
                 {opt.label}
               </FilterChip>
             ))}

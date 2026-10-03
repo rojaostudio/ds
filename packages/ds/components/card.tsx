@@ -2,19 +2,30 @@
 
 import { createContext, useContext, useId, type HTMLAttributes, type ReactNode } from 'react';
 
+/** The surface (Figma: `variant`). */
+export type CardVariant = 'surface' | 'soft' | 'outline';
+/** @deprecated Use CardVariant (2.0.0-next): default → surface, tint → soft, outline stays. */
 export type CardSurface = 'default' | 'outline' | 'tint';
-export type CardSize = 'default' | 'sm';
+export type CardSize = 'md' | 'sm';
+
+const SURFACE_TO_VARIANT: Record<CardSurface, CardVariant> = { default: 'surface', tint: 'soft', outline: 'outline' };
 type Heading = 'h2' | 'h3' | 'h4';
 
 export interface CardProps extends HTMLAttributes<HTMLElement> {
   /**
-   * default: white, with a border and elevation/raised; the default, for a topic on its own on the page.
-   * outline: only the border, no fill nor shadow, it takes the surface underneath; for cards side by side in a grid,
-   * inside a panel or a list. tint: the brand's light plate, no border nor shadow; a rare highlight, one per screen.
+   * The surface (Figma: `variant`). surface (default): white, with a border and elevation/raised, for a topic on its
+   * own on the page. outline: only the border, no fill nor shadow, it takes the surface underneath; for cards side by
+   * side in a grid, inside a panel or a list. soft: the brand's light plate, no border nor shadow; a rare highlight,
+   * one per screen.
    */
+  variant?: CardVariant;
+  /** @deprecated Use `variant` (2.0.0-next): default → surface, tint → soft, outline → outline. */
   surface?: CardSurface;
-  /** sm pads 16 (default 24) and makes the header text smaller, for dense lists and indicators. */
-  size?: CardSize;
+  /**
+   * md (default) pads 24; sm pads 16 and makes the header text smaller, for dense lists and indicators (Figma:
+   * `size`). `'default'` is deprecated (2.0.0-next): it is `'md'`.
+   */
+  size?: CardSize | 'default';
   /** article (default) for a topic that reads on its own; section or div when it is part of something larger. */
   as?: 'article' | 'section' | 'div';
   /**
@@ -30,7 +41,8 @@ const TitleId = createContext<string | undefined>(undefined);
  * Card — Figma [RDS] Content/Card. A topic that reads on its own: a plan, a summary with an action. Never a card
  * inside a card. When it has a CardHeader, the title names the card. Styles: card.css.
  */
-export function Card({ surface = 'default', size = 'default', as: Root = 'article', className, children, ...rest }: CardProps) {
+export function Card({ variant, surface, size = 'md', as: Root = 'article', className, children, ...rest }: CardProps) {
+  const look = variant ?? (surface ? SURFACE_TO_VARIANT[surface] : 'surface');
   const titleId = useId();
   const labelled = Root !== 'div' && !rest['aria-label'] && !rest['aria-labelledby'];
   return (
@@ -38,7 +50,7 @@ export function Card({ surface = 'default', size = 'default', as: Root = 'articl
       <Root
         aria-labelledby={labelled ? titleId : undefined}
         {...rest}
-        className={['rds-card', `rds-card--${surface}`, size === 'sm' && 'rds-card--sm', className].filter(Boolean).join(' ')}
+        className={['rds-card', `rds-card--${look}`, size === 'sm' && 'rds-card--sm', className].filter(Boolean).join(' ')}
       >
         {children}
       </Root>
@@ -53,7 +65,7 @@ export interface CardHeaderProps extends Omit<HTMLAttributes<HTMLElement>, 'titl
   titleAs?: Heading;
   /** One supporting line (Figma: `showDescription` + `description`). */
   description?: ReactNode;
-  /** A Tile before the text (Figma: `showIcon`): variant soft, size default (sm on a small card). */
+  /** A Tile before the text (Figma: `showIcon`): variant soft, size md (sm on a small card). */
   icon?: ReactNode;
   /** Opt-in: one action on the right (Figma: `showAction` + `action`), a ghost Button or an IconButton. None by default. */
   action?: ReactNode;

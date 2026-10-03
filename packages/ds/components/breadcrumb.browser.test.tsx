@@ -20,12 +20,12 @@ const LONG: BreadcrumbItem[] = [
 ];
 
 describe.each(MODES)('Breadcrumb (%s)', (mode) => {
-  it('default, and inverse over colors/primary, pass axe', async () => {
+  it('neutral (default), and inverse over colors/primary, pass axe', async () => {
     const el = await render(
       <div style={{ display: 'grid', gap: 16 }}>
         <Breadcrumb items={PATH} />
         <Breadcrumb items={LONG} aria-label="Caminho longo" />
-        <div style={{ background: 'var(--sidebar-dark-background)', padding: 8 }}>
+        <div className="ds-plate" style={{ background: 'var(--surface-page)', padding: 8 }}>
           <Breadcrumb items={PATH} tone="inverse" aria-label="Caminho sobre a marca" />
         </div>
       </div>,

@@ -1,7 +1,7 @@
 'use client';
 
 import { Children, type HTMLAttributes, type ReactNode } from 'react';
-import { Stat, StatFramedDefault, type StatTone } from './stat';
+import { Stat, StatFramedDefault, type LegacyStatTone, type StatTone } from './stat';
 
 /** @deprecated Use StatTone. */
 export type SummaryBarTone = StatTone;
@@ -10,7 +10,8 @@ export type SummaryBarTone = StatTone;
 export interface SummaryBarItem {
   label: string;
   value: string;
-  tone?: StatTone;
+  /** `'muted'` (the 2.0.0-next tone) is the Stat's `muted`. */
+  tone?: StatTone | LegacyStatTone | 'muted';
   /** Ignored: the Stat has no icon in the Figma [RDS]. */
   icon?: ReactNode;
 }
@@ -33,7 +34,13 @@ export interface SummaryBarProps extends Omit<HTMLAttributes<HTMLUListElement>, 
  */
 export function SummaryBar({ children, layout = 'row', items, className, ...rest }: SummaryBarProps) {
   const cells = items
-    ? items.map((item, i) => <Stat key={i} label={item.label} value={item.value} tone={item.tone} />)
+    ? items.map((item, i) => <Stat
+          key={i}
+          label={item.label}
+          value={item.value}
+          tone={item.tone === 'muted' ? undefined : item.tone}
+          muted={item.tone === 'muted'}
+        />)
     : Children.toArray(children);
   return (
     <StatFramedDefault.Provider value={false}>

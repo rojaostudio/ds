@@ -8,7 +8,7 @@ import { Tooltip } from './tooltip';
 import { AlertIcon, CircleCheckIcon, CloseIcon, InfoIcon, TriangleAlertIcon } from './internal/icons';
 
 export type ToastTone = 'neutral' | 'info' | 'success' | 'warning' | 'danger';
-/** Figma calls this property `style`: outline (white with a border, the default), soft (light plate), fill (full plate). */
+/** The emphasis (Figma: `variant`): outline (white with a border, the default), soft (light plate), fill (full plate). */
 export type ToastVariant = 'outline' | 'soft' | 'fill';
 
 export interface ToastOptions {

@@ -1,11 +1,11 @@
 /* @tokens card */
 /*
- * Card (Content collection, card/*): header, content and footer. default pads 24, sm pads 16; 24 between the
- * header, the content and the actions (sm: 16). Corners in radius/container.
- *   default: card/background, a card/border hairline and elevation/raised.
+ * Card (Content collection, card/*): header, content and footer. md pads 24, sm pads 16; 24 between the
+ * header, the content and the actions (sm: 16). Corners in radius/container. The Figma `variant`:
+ *   surface: card/background, a card/border hairline and elevation/raised (the default).
  *   outline: only the hairline, no fill, no shadow; it takes the surface underneath (cards side by side in a grid,
  *            inside a panel or a list, where stacked shadows turn into noise).
- *   tint:    the brand's light plate (card/tint/background), no border, no shadow, title in card/tint/title.
+ *   soft:    the brand's light plate (card/tint/background), no border, no shadow, title in card/tint/title.
  * The footer has no band and no rule: the actions sit side by side, the main one last (on the right). The
  * card/footer/background tokens are obsolete in Figma (03/10/2026) and not read here.
  */
@@ -33,7 +33,7 @@
   box-shadow: none;
 }
 
-.rds-card--tint {
+.rds-card--soft {
   --_title: var(--card-tint-title);
 
   border-color: transparent;

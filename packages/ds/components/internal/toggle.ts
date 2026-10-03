@@ -1,6 +1,6 @@
 // Shared by Toggle and ToggleGroupItem. Not exported from the package.
 
-/** Figma calls this property `style`: ghost in a toolbar, outline when it stands alone. */
+/** The emphasis (Figma: `variant`): ghost in a toolbar, outline when it stands alone. */
 export type ToggleVariant = 'ghost' | 'outline';
 
 export function toggleClassName(variant: ToggleVariant, extra?: string) {

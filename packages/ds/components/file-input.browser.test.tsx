@@ -48,14 +48,14 @@ describe.each(MODES)('FileInput (%s)', (mode) => {
   it('dropzone and tile pass axe in every state: empty, hint, error, required, disabled, filled', async () => {
     const el = await render(
       <div style={{ display: 'grid', gap: 16, maxWidth: 320 }}>
-        <FileInput variant="dropzone" label="Comprovante" hint="PDF ou DOCX, até 5 MB." required />
-        <FileInput variant="dropzone" label="Comprovante" hint="PDF ou DOCX, até 5 MB." errorMessage="O arquivo passa de 5 MB." />
-        <FileInput variant="dropzone" label="Comprovante" hint="PDF ou DOCX, até 5 MB." disabled />
-        <FileInput variant="dropzone" label="Comprovante" fileName="arquivo.pdf" fileSize="1,2 MB" />
-        <FileInput variant="tile" label="Logo" tileText="Enviar logo" hint="PNG ou JPG, até 2 MB." />
-        <FileInput variant="tile" label="Logo" tileText="Enviar logo" errorMessage="A imagem passa de 2 MB." />
-        <FileInput variant="tile" label="Logo" tileText="Enviar logo" disabled />
-        <FileInput variant="tile" label="Logo" preview={PNG_URL} />
+        <FileInput layout="dropzone" label="Comprovante" hint="PDF ou DOCX, até 5 MB." required />
+        <FileInput layout="dropzone" label="Comprovante" hint="PDF ou DOCX, até 5 MB." errorMessage="O arquivo passa de 5 MB." />
+        <FileInput layout="dropzone" label="Comprovante" hint="PDF ou DOCX, até 5 MB." disabled />
+        <FileInput layout="dropzone" label="Comprovante" fileName="arquivo.pdf" fileSize="1,2 MB" />
+        <FileInput layout="tile" label="Logo" tileText="Enviar logo" hint="PNG ou JPG, até 2 MB." />
+        <FileInput layout="tile" label="Logo" tileText="Enviar logo" errorMessage="A imagem passa de 2 MB." />
+        <FileInput layout="tile" label="Logo" tileText="Enviar logo" disabled />
+        <FileInput layout="tile" label="Logo" preview={PNG_URL} />
       </div>,
       mode,
     );
@@ -125,7 +125,7 @@ describe('FileInput behaviour', () => {
   });
 });
 
-describe('FileInput variants', () => {
+describe('FileInput layouts', () => {
   it('formats the size the way a person reads it', () => {
     expect(formatFileSize(512)).toBe('512 B');
     expect(formatFileSize(1258291)).toBe('1,2 MB');
@@ -135,7 +135,7 @@ describe('FileInput variants', () => {
   it('dropzone: the hint stays inside the area, named and described; choosing shows the name, the size and the ×', async () => {
     const onFiles = vi.fn();
     const el = await render(
-      <FileInput variant="dropzone" label="Comprovante" hint="PDF ou DOCX, até 5 MB." errorMessage="O arquivo passa de 5 MB." onFiles={onFiles} />,
+      <FileInput layout="dropzone" label="Comprovante" hint="PDF ou DOCX, até 5 MB." errorMessage="O arquivo passa de 5 MB." onFiles={onFiles} />,
     );
     const input = el.querySelector('input')!;
     expect(input.labels?.[0]?.textContent).toBe('Comprovante');
@@ -154,7 +154,7 @@ describe('FileInput variants', () => {
 
   it('dropzone: a file dragged over lights the area; dropped, it goes into the native input', async () => {
     const onChange = vi.fn();
-    const el = await render(<FileInput variant="dropzone" label="Comprovante" onChange={onChange} />);
+    const el = await render(<FileInput layout="dropzone" label="Comprovante" onChange={onChange} />);
     const box = el.querySelector('.rds-field__box')!;
     expect(await dropOn(box, [pdf()])).toBe(true);
     expect(box.classList.contains('rds-file-input__area--dragging')).toBe(false);
@@ -167,8 +167,8 @@ describe('FileInput variants', () => {
   it('dropzone: two files on a single input keep the first; disabled ignores the drop', async () => {
     const el = await render(
       <>
-        <FileInput variant="dropzone" label="Comprovante" />
-        <FileInput variant="dropzone" label="Anexo" disabled />
+        <FileInput layout="dropzone" label="Comprovante" />
+        <FileInput layout="dropzone" label="Anexo" disabled />
       </>,
     );
     const [one, off] = Array.from(el.querySelectorAll('.rds-field__box'));
@@ -180,7 +180,7 @@ describe('FileInput variants', () => {
 
   it('tile: empty, the tile is the chooser; with an image, the preview with swap and remove', async () => {
     const onClear = vi.fn();
-    const el = await render(<FileInput variant="tile" label="Logo" tileText="Enviar logo" onClear={onClear} />);
+    const el = await render(<FileInput layout="tile" label="Logo" tileText="Enviar logo" onClear={onClear} />);
     const input = el.querySelector('input')!;
     expect(input.accept).toBe('image/*');
     expect(el.textContent).toContain('Enviar logo');
@@ -202,7 +202,7 @@ describe('FileInput variants', () => {
   });
 
   it('tile: `preview` controls the image (a saved one)', async () => {
-    const el = await render(<FileInput variant="tile" label="Logo" preview={PNG_URL} previewAlt="Logo da loja" />);
+    const el = await render(<FileInput layout="tile" label="Logo" preview={PNG_URL} previewAlt="Logo da loja" />);
     expect(el.querySelector('img')!.alt).toBe('Logo da loja');
     expect(el.querySelector('[aria-label="Trocar imagem"]')).not.toBeNull();
   });
@@ -243,5 +243,12 @@ describe('deprecated wrappers', () => {
     await userEvent.upload(el.querySelector<HTMLInputElement>('input[type="file"]')!, png());
     await vi.waitFor(() => expect(el.textContent).toContain('A imagem passa de 2 MB.'));
     expect(el.querySelector('input[type="file"]')!.getAttribute('aria-invalid')).toBe('true');
+  });
+});
+
+describe('FileInput vocabulary', () => {
+  it('the deprecated variant is the layout', async () => {
+    const el = await render(<FileInput variant="dropzone" label="Comprovante" />);
+    expect(el.querySelector('.rds-file-input--dropzone')).not.toBeNull();
   });
 });

@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { Button } from './button';
-import { Card, CardContent, CardFooter, CardHeader, type CardSize, type CardSurface } from './card';
+import { Card, CardContent, CardFooter, CardHeader, type CardSize, type CardVariant } from './card';
 import { IconButton } from './icon-button';
 import { MoreVerticalIcon, InfoIcon } from './internal/icons';
 import { Tile } from './tile';
@@ -8,16 +8,16 @@ import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
 afterEach(cleanup);
 
-const SIZES: CardSize[] = ['default', 'sm'];
-const SURFACES: CardSurface[] = ['default', 'outline', 'tint'];
+const SIZES: CardSize[] = ['md', 'sm'];
+const SURFACES: CardVariant[] = ['surface', 'outline', 'soft'];
 
 // The footer of the Figma: the secondary action a neutral ghost Button, the main one (action fill) last.
-const full = (surface: CardSurface, size: CardSize) => (
-  <Card key={`${surface}-${size}`} surface={surface} size={size}>
+const full = (variant: CardVariant, size: CardSize) => (
+  <Card key={`${variant}-${size}`} variant={variant} size={size}>
     <CardHeader
       title="Plano Essencial"
       description="Para quem está começando"
-      icon={<Tile icon={<InfoIcon />} variant="soft" size={size === 'sm' ? 'sm' : 'default'} />}
+      icon={<Tile icon={<InfoIcon />} variant="soft" size={size === 'sm' ? 'sm' : 'md'} />}
       action={<IconButton icon={<MoreVerticalIcon />} label="Mais ações" tone="neutral" variant="ghost" />}
     />
     <CardContent>
@@ -37,7 +37,7 @@ const full = (surface: CardSurface, size: CardSize) => (
 // now (surface/tint blue/800 in dark) and the whole card passes; the tint title reads card/tint/title (text/on/tint).
 
 describe.each(MODES)('Card (%s)', (mode) => {
-  it.each(SURFACES)('surface %s, both sizes, with header, content and footer, passes axe', async (surface) => {
+  it.each(SURFACES)('variant %s, both sizes, with header, content and footer, passes axe', async (surface) => {
     const el = await render(<div style={{ display: 'grid', gap: 16, maxWidth: 400 }}>{SIZES.map((size) => full(surface, size))}</div>, mode);
     expect(await axeViolations(el)).toEqual([]);
   });
@@ -65,11 +65,11 @@ describe('Card behaviour', () => {
     expect(plain.querySelector('header, footer')).toBeNull();
   });
 
-  it('default pads 24 and sm pads 16, 24 between header, content and actions', async () => {
+  it('md pads 24 and sm pads 16, 24 between header, content and actions', async () => {
     const el = await render(
       <div>
-        {full('default', 'default')}
-        {full('default', 'sm')}
+        {full('surface', 'md')}
+        {full('surface', 'sm')}
       </div>,
     );
     const [big, small] = el.querySelectorAll<HTMLElement>('.rds-card');
@@ -82,8 +82,8 @@ describe('Card behaviour', () => {
     expect(pads(small)).toEqual({ header: '16px', content: '16px', footer: '0px 16px 16px' });
   });
 
-  it('default has border and shadow; outline only the border, no fill nor shadow; tint the plate, no border nor shadow', async () => {
-    const el = await render(<div style={{ display: 'grid', gap: 16, maxWidth: 400 }}>{SURFACES.map((surface) => full(surface, 'default'))}</div>);
+  it('surface has border and shadow; outline only the border, no fill nor shadow; soft the plate, no border nor shadow', async () => {
+    const el = await render(<div style={{ display: 'grid', gap: 16, maxWidth: 400 }}>{SURFACES.map((surface) => full(surface, 'md'))}</div>);
     const [d, o, t] = [...el.querySelectorAll<HTMLElement>('.rds-card')].map((c) => getComputedStyle(c));
     const transparent = 'rgba(0, 0, 0, 0)';
     expect(d.borderTopColor).not.toBe(transparent);
@@ -97,8 +97,8 @@ describe('Card behaviour', () => {
     expect(t.backgroundColor).not.toBe(d.backgroundColor);
   });
 
-  it('the tint title reads card/tint/title; the others card/title', async () => {
-    const el = await render(<div>{SURFACES.map((surface) => full(surface, 'default'))}</div>);
+  it('the soft title reads card/tint/title; the others card/title', async () => {
+    const el = await render(<div>{SURFACES.map((surface) => full(surface, 'md'))}</div>);
     const [d, o, t] = [...el.querySelectorAll<HTMLElement>('.rds-card__title')].map((x) => getComputedStyle(x).color);
     const probe = document.createElement('span');
     el.append(probe);
@@ -110,7 +110,7 @@ describe('Card behaviour', () => {
   });
 
   it('the footer has no band and no rule; the actions sit side by side, 12 apart, at the end', async () => {
-    const el = await render(<div style={{ maxWidth: 400 }}>{full('default', 'default')}</div>);
+    const el = await render(<div style={{ maxWidth: 400 }}>{full('surface', 'md')}</div>);
     const footer = el.querySelector<HTMLElement>('.rds-card__footer')!;
     expect(getComputedStyle(footer).backgroundColor).toBe('rgba(0, 0, 0, 0)');
     expect(getComputedStyle(footer).borderTopWidth).toBe('0px');
@@ -148,5 +148,28 @@ describe('Card behaviour', () => {
       </Card>,
     );
     expect(el.querySelector('.rds-card__action')).toBeNull();
+  });
+});
+
+describe('Card vocabulary', () => {
+  it('the deprecated surface and size="default" still map to variant and md', async () => {
+    const el = await render(
+      <>
+        <Card surface="tint" size="default">
+          <CardContent>a</CardContent>
+        </Card>
+        <Card surface="default">
+          <CardContent>b</CardContent>
+        </Card>
+        <Card variant="outline" surface="tint">
+          <CardContent>c</CardContent>
+        </Card>
+      </>,
+    );
+    const [a, b, c] = [...el.querySelectorAll<HTMLElement>('.rds-card')].map((x) => x.className);
+    expect(a).toContain('rds-card--soft');
+    expect(a).not.toContain('rds-card--sm');
+    expect(b).toContain('rds-card--surface');
+    expect(c).toContain('rds-card--outline');
   });
 });

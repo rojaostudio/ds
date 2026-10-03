@@ -66,8 +66,11 @@ export function DropdownMenu({
 export interface DropdownMenuItemProps extends MenuItemContentProps {
   /** Runs when the item is chosen (click, Enter or Space); the menu then closes. A destructive action asks first (AlertDialog). */
   onSelect?: () => void;
-  /** danger for what destroys: last, after a separator (Figma: `tone`). */
-  tone?: DropdownMenuItemTone;
+  /**
+   * neutral (default), or danger for what destroys: last, after a separator (Figma: `tone`). `'default'` is
+   * deprecated (2.0.0-next): it is `'neutral'`.
+   */
+  tone?: DropdownMenuItemTone | 'default';
   /** Stays in the list, can't be chosen, and the arrows skip it. */
   disabled?: boolean;
   /** The text typing jumps by, when the label is not plain text. */

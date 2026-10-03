@@ -6,7 +6,8 @@
  * sidebar/item/label/active and a 3 × 20 marker on the left in sidebar/item/indicator, so the current entry does not
  * rest on colour alone.
  * Section labels 11/14 bold, 16 above and 6 below, with a 14 chevron. Foot: who is signed in (12/16) and Sair.
- * dark (deprecated in the Figma) reads sidebar/dark/*; the current entry stays the light pill.
+ * No tone: the Sidebar follows its container's mode. The brand-coloured bar is a `.ds-plate` around it (the brand
+ * mode), the dark one a `.dark`.
  */
 .rds-sidebar {
   --_background: var(--sidebar-background);
@@ -30,21 +31,6 @@
   border-right: var(--border-width) solid var(--sidebar-border);
   background: var(--_background);
   font-family: var(--type-font-stack);
-}
-
-.rds-sidebar--dark {
-  --_background: var(--sidebar-dark-background);
-  --_label: var(--sidebar-dark-item-label-default);
-  --_label-hover: var(--sidebar-dark-item-label-hover);
-  --_hover: var(--sidebar-dark-item-background-hover);
-  --_module: var(--sidebar-dark-module);
-  --_user: var(--sidebar-dark-user);
-  --_section: var(--sidebar-dark-section-label);
-  --_count: var(--sidebar-dark-item-label-default);
-  /* No dark ring token: the strongest text over the brand, which is what the ring needs to show there. */
-  --_ring: var(--sidebar-dark-module);
-
-  border-right-color: transparent;
 }
 
 .rds-sidebar--collapsed {

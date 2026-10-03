@@ -11,7 +11,7 @@ const KNOWN_LIGHT = (_mode: string): string[] => [];
 const ITEMS = [
   { label: 'Editar', onClick: () => {} },
   { label: 'Duplicar', onClick: () => {} },
-  { label: 'Excluir', variant: 'danger' as const, onClick: () => {} },
+  { label: 'Excluir', tone: 'danger' as const, onClick: () => {} },
 ];
 
 // The menu is portalled to the body, outside the test's <main>: the landmark rule (region) does not apply to a
@@ -65,6 +65,7 @@ describe('RowActions behaviour', () => {
       <RowActions
         primaryLabel="Ver"
         items={[
+          // The deprecated `variant` (2.0.0-next) still works: it is `tone`.
           { label: 'Excluir', variant: 'danger', onClick: onDelete },
           { label: 'Editar', onClick: () => {} },
         ]}

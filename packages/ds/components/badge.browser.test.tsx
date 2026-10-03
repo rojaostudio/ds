@@ -22,7 +22,7 @@ describe.each(MODES)('Badge (%s)', (mode) => {
           <Badge tone="action">Nova</Badge>
           <Badge tone="action" variant="soft">Grátis</Badge>
           <Badge tone="accent">Destaque</Badge>
-          <Badge tone="accent" variant="highlight">Destaque</Badge>
+          <Badge tone="accent" variant="soft">Destaque</Badge>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <Badge value={3} />
@@ -30,7 +30,7 @@ describe.each(MODES)('Badge (%s)', (mode) => {
           <Badge tone="action" value={120} />
           <Badge tone="action" variant="soft" value={5} />
           <Badge tone="accent" value={8} />
-          <Badge tone="accent" variant="highlight" value={8} />
+          <Badge tone="accent" variant="soft" value={8} />
         </div>
         <Band>
           <Badge tone="inverse">Nova</Badge>
@@ -44,13 +44,13 @@ describe.each(MODES)('Badge (%s)', (mode) => {
 });
 
 describe('Badge behaviour', () => {
-  it('accent highlight passes axe in light (text/heading, navy, on the accent highlight)', async () => {
-    const el = await render(<Badge tone="accent" variant="highlight">Destaque</Badge>, 'light');
+  it('accent soft passes axe in light (text/heading, navy, on the accent highlight)', async () => {
+    const el = await render(<Badge tone="accent" variant="soft">Destaque</Badge>, 'light');
     expect(await axeViolations(el)).toEqual([]);
   });
 
-  it('accent highlight passes axe in dark (the Figma highlight is navy/700)', async () => {
-    const el = await render(<Badge tone="accent" variant="highlight">Destaque</Badge>, 'dark');
+  it('accent soft passes axe in dark (the Figma highlight is navy/700)', async () => {
+    const el = await render(<Badge tone="accent" variant="soft">Destaque</Badge>, 'dark');
     expect(await axeViolations(el)).toEqual([]);
   });
 
@@ -65,5 +65,12 @@ describe('Badge behaviour', () => {
     expect(big.textContent).toBe('99+');
     expect(small.getBoundingClientRect().width).toBe(32);
     expect(small.getBoundingClientRect().height).toBe(32);
+  });
+});
+
+describe('Badge vocabulary', () => {
+  it('the deprecated variant="highlight" is the accent soft', async () => {
+    const el = await render(<Badge tone="accent" variant="highlight">Destaque</Badge>, 'light');
+    expect(el.querySelector('.rds-badge')!.className).toContain('rds-badge--accent-soft');
   });
 });

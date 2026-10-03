@@ -34,7 +34,7 @@ async function open(el: HTMLElement) {
 }
 
 describe.each(MODES)('Dialog (%s)', (mode) => {
-  it.each(['sm', 'default', 'lg'] as const)('open, size %s, passes axe', async (size) => {
+  it.each(['sm', 'md', 'lg'] as const)('open, size %s, passes axe', async (size) => {
     const el = await render(<Example size={size} />, mode);
     const d = await open(el);
     expect(d.classList).toContain(`rds-dialog--${size}`);
@@ -51,7 +51,7 @@ describe('Dialog behaviour', () => {
 
   it('the sizes are 400, 560 and 720 wide', async () => {
     await page.viewport(1280, 800);
-    for (const [size, width] of [['sm', 400], ['default', 560], ['lg', 720]] as const) {
+    for (const [size, width] of [['sm', 400], ['md', 560], ['lg', 720]] as const) {
       const el = await render(<Example size={size} />);
       const d = await open(el);
       expect(Math.round(d.getBoundingClientRect().width)).toBe(width);
