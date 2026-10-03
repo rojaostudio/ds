@@ -3,7 +3,7 @@
 // The parts shared by Dialog, Sheet and Drawer (Radix Dialog): the veil, the box, the header (title, description
 // and the close IconButton), the content and the footer. Each component gives the box its place (centre, side,
 // bottom) and its colours in its own stylesheet. Not exported from the package.
-import type { CSSProperties, ReactElement, ReactNode } from 'react';
+import { useRef, type CSSProperties, type ReactElement, type ReactNode } from 'react';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { Button } from '../button';
 import { IconButton } from '../icon-button';
@@ -76,6 +76,9 @@ export function ModalShell({
   container,
   className,
 }: ModalShellProps) {
+  // Controlled without a trigger (opened by a button the shell doesn't own, like the SavingBar's details): Radix
+  // would give the focus back to its trigger, which there isn't. Keep what had the focus when it opened instead.
+  const opener = useRef<HTMLElement | null>(null);
   const cancel = (
     <DialogPrimitive.Close asChild key="cancel">
       <Button tone="neutral" variant="outline">
@@ -101,6 +104,7 @@ export function ModalShell({
           className={['rds-modal', prefix, ...modifiers, className].filter(Boolean).join(' ')}
           style={boxStyle}
           onOpenAutoFocus={(event) => {
+            opener.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
             // The focus opens on the first control of the content, not on the close button.
             const box = event.currentTarget as HTMLElement;
             const first = box.querySelector<HTMLElement>(
@@ -110,6 +114,11 @@ export function ModalShell({
               event.preventDefault();
               first.focus();
             }
+          }}
+          onCloseAutoFocus={(event) => {
+            if (trigger || !opener.current?.isConnected) return;
+            event.preventDefault();
+            opener.current.focus();
           }}
           // Without a description, say so explicitly (Radix warns otherwise).
           {...(description ? {} : { 'aria-describedby': undefined })}

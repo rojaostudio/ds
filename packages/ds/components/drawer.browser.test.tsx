@@ -105,4 +105,33 @@ describe('Drawer behaviour', () => {
     drag(d.querySelector<HTMLElement>('.rds-drawer__handle-area')!, 120);
     await vi.waitFor(() => expect(drawer()).toBeNull());
   });
+
+  it('long content: the panel stops at 85% of the screen and only the content scrolls; title and footer stay put', async () => {
+    await page.viewport(390, 844);
+    const el = await render(
+      <Drawer trigger={<Button variant="outline">O que falta</Button>} title="O que falta" confirmLabel="Entendi">
+        <ul>
+          {Array.from({ length: 60 }, (_, i) => (
+            <li key={i}>Item {i + 1} da lista do que falta</li>
+          ))}
+        </ul>
+      </Drawer>,
+    );
+    const d = await open(el);
+    const box = d.getBoundingClientRect();
+    expect(box.height).toBeLessThanOrEqual(844 * 0.85 + 0.5);
+    expect(Math.round(box.bottom)).toBe(844);
+    const body = d.querySelector<HTMLElement>('.rds-modal__body')!;
+    expect(getComputedStyle(body).overflowY).toBe('auto');
+    expect(getComputedStyle(body).overscrollBehaviorY).toBe('contain');
+    expect(body.scrollHeight).toBeGreaterThan(body.clientHeight);
+    const header = d.querySelector<HTMLElement>('.rds-modal__header')!;
+    const footer = d.querySelector<HTMLElement>('.rds-modal__footer')!;
+    const before = [header.getBoundingClientRect().top, footer.getBoundingClientRect().top];
+    body.scrollTop = body.scrollHeight;
+    expect(body.scrollTop).toBeGreaterThan(0);
+    expect([header.getBoundingClientRect().top, footer.getBoundingClientRect().top]).toEqual(before);
+    expect(footer.getBoundingClientRect().bottom).toBeLessThanOrEqual(box.bottom);
+    expect(d.scrollHeight).toBeLessThanOrEqual(d.clientHeight);
+  });
 });
