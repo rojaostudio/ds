@@ -51,6 +51,12 @@ export type DataTableHeaderProps = {
    * Checkbox "Agrupar por produto". In view in the compact arrangement too.
    */
   view?: ReactNode;
+  /**
+   * The list's action (Figma: `showActions`, off by default, + the `actions` instance): an IconButton, neutral outline
+   * md, with its Tooltip, such as a gear "Organizar categorias" or exporting. It sits outside the tools, always at the
+   * end of the FIRST line, on the right; the tools wrap, the action never goes down.
+   * Creating is NOT an action of the bar: creating is the FAB. The component does not enforce this; it documents it.
+   */
   actions?: ReactNode;
   className?: string;
   /** In the compact arrangement (bar below 1024), moves the filters and the actions into a Drawer. The quick filters stay in view. */
@@ -253,8 +259,10 @@ function MobileSingleFilter({ f }: { f: DataTableFilterDef }) {
 
 /**
  * DataTableHeader — a composition of the Input (search), FilterChips, Buttons, the DropdownMenu, the Popover and
- * the Drawer: the bar above a table. The search is always on the left and takes the free width (at least 320); the
- * filters are always on the right; what does not fit wraps. Quick filters go in the `quickFilters` slot; one filter
+ * the Drawer: the bar above a table. A row that never wraps: the tools (the search, the quick filters, the filters,
+ * the view control) wrap inside their own group; the action stays outside it, at the end of the first line, on the
+ * right. The search is always on the left and takes the free width (at least 320); the filters are always on the
+ * right; what does not fit wraps. Quick filters go in the `quickFilters` slot; one filter
  * is a dropdown, two or more collapse into "Filtros" (the active ones stay in view as removable Chips); the `view`
  * control comes after the filters, before the actions. "Filtros · N" counts the active `filters`, the ones that
  * button opens.
@@ -288,110 +296,116 @@ export function DataTableHeader({
 
   return (
     <div className={['rds-data-table-header', className].filter(Boolean).join(' ')}>
-      {search && (
-        <Input
-          className="rds-data-table-header__search"
-          type="search"
-          aria-label={search.placeholder ?? 'Buscar…'}
-          placeholder={search.placeholder ?? 'Buscar…'}
-          leadingIcon={<SearchIcon />}
-          clearable
-          clearLabel="Limpar busca"
-          value={search.value}
-          onChange={(e) => search.onChange(e.target.value)}
-        />
-      )}
-
-      {quickFilters && <div className="rds-data-table-header__quick">{quickFilters}</div>}
-
-      {filters.length > 0 && (
-        <div className="rds-data-table-header__wide">
-          {lead && <Separator orientation="vertical" />}
-          {collapseDesktop ? (
-            <>
-              {activeFilters.map((f) => (
-                <Chip key={f.key} onRemove={() => f.onChange('')} removeLabel={`Remover filtro ${f.label}`}>
-                  {optionLabel(f)}
-                </Chip>
-              ))}
-              <FiltersPopover
-                filters={filters}
-                onClear={onClear}
-                showClear={activeFilterCount > 0}
-                trigger={<FiltersButton count={activeFilterCount} />}
-              />
-            </>
-          ) : (
-            filters.map((f) => <FilterDropdown key={f.key} f={f} />)
-          )}
-          {/* Collapsed, clearing lives in the popover. */}
-          {onClear && activeFilterCount > 0 && !collapseDesktop && (
-            <Tooltip text="Limpar filtros">
-              <IconButton icon={<CloseIcon />} label="Limpar filtros" variant="ghost" tone="neutral" onClick={onClear} />
-            </Tooltip>
-          )}
-        </div>
-      )}
-
-      {singleFilter && !(mobileCollapse && actions) && (
-        <div className="rds-data-table-header__narrow">
-          <MobileSingleFilter f={singleFilter} />
-        </div>
-      )}
-
-      {!mobileCollapse && filters.length >= 2 && (
-        <div className="rds-data-table-header__narrow">
-          <FiltersPopover
-            filters={filters}
-            onClear={onClear}
-            showClear={activeFilterCount > 0}
-            trigger={
-              <CompactFilterTrigger
-                label="Filtros"
-                state={activeState(activeFilterCount)}
-                indicator={activeFilterCount > 0 ? activeFilterCount : undefined}
-              />
-            }
+      <div className="rds-data-table-header__tools">
+        {search && (
+          <Input
+            className="rds-data-table-header__search"
+            type="search"
+            aria-label={search.placeholder ?? 'Buscar…'}
+            placeholder={search.placeholder ?? 'Buscar…'}
+            leadingIcon={<SearchIcon />}
+            clearable
+            clearLabel="Limpar busca"
+            value={search.value}
+            onChange={(e) => search.onChange(e.target.value)}
           />
+        )}
+
+        {quickFilters && <div className="rds-data-table-header__quick">{quickFilters}</div>}
+
+        {filters.length > 0 && (
+          <div className="rds-data-table-header__wide">
+            {lead && <Separator orientation="vertical" />}
+            {collapseDesktop ? (
+              <>
+                {activeFilters.map((f) => (
+                  <Chip key={f.key} onRemove={() => f.onChange('')} removeLabel={`Remover filtro ${f.label}`}>
+                    {optionLabel(f)}
+                  </Chip>
+                ))}
+                <FiltersPopover
+                  filters={filters}
+                  onClear={onClear}
+                  showClear={activeFilterCount > 0}
+                  trigger={<FiltersButton count={activeFilterCount} />}
+                />
+              </>
+            ) : (
+              filters.map((f) => <FilterDropdown key={f.key} f={f} />)
+            )}
+            {/* Collapsed, clearing lives in the popover. */}
+            {onClear && activeFilterCount > 0 && !collapseDesktop && (
+              <Tooltip text="Limpar filtros">
+                <IconButton icon={<CloseIcon />} label="Limpar filtros" variant="ghost" tone="neutral" onClick={onClear} />
+              </Tooltip>
+            )}
+          </div>
+        )}
+
+        {singleFilter && !(mobileCollapse && actions) && (
+          <div className="rds-data-table-header__narrow">
+            <MobileSingleFilter f={singleFilter} />
+          </div>
+        )}
+
+        {!mobileCollapse && filters.length >= 2 && (
+          <div className="rds-data-table-header__narrow">
+            <FiltersPopover
+              filters={filters}
+              onClear={onClear}
+              showClear={activeFilterCount > 0}
+              trigger={
+                <CompactFilterTrigger
+                  label="Filtros"
+                  state={activeState(activeFilterCount)}
+                  indicator={activeFilterCount > 0 ? activeFilterCount : undefined}
+                />
+              }
+            />
+          </div>
+        )}
+
+        {mobileCollapse && (filters.length >= 2 || actions) && (
+          <div className="rds-data-table-header__narrow">
+            <CompactFilterTrigger
+              label="Filtros"
+              state={activeState(activeFilterCount)}
+              indicator={activeFilterCount === 0 ? undefined : filters.length === 1 ? 'dot' : activeFilterCount}
+              onClick={() => setSheetOpen(true)}
+            />
+            <Drawer open={sheetOpen} onOpenChange={setSheetOpen} title="Filtros">
+              <div className="rds-data-table-header__groups">
+                <FilterGroups
+                  filters={filters}
+                  onPick={(f, v) => {
+                    f.onChange(v);
+                    setSheetOpen(false);
+                  }}
+                  onClear={
+                    onClear
+                      ? () => {
+                          onClear();
+                          setSheetOpen(false);
+                        }
+                      : undefined
+                  }
+                  showClear={activeFilterCount > 0}
+                />
+                {actions && <div className="rds-data-table-header__drawer-actions">{actions}</div>}
+              </div>
+            </Drawer>
+          </div>
+        )}
+
+        {view && <div className="rds-data-table-header__view">{view}</div>}
+      </div>
+
+      {/* The action, outside the tools: always when expanded; compact only without mobileCollapse (else in the Drawer). */}
+      {actions && (
+        <div className={['rds-data-table-header__actions', mobileCollapse && 'rds-data-table-header__wide'].filter(Boolean).join(' ')}>
+          {actions}
         </div>
       )}
-
-      {mobileCollapse && (filters.length >= 2 || actions) && (
-        <div className="rds-data-table-header__narrow">
-          <CompactFilterTrigger
-            label="Filtros"
-            state={activeState(activeFilterCount)}
-            indicator={activeFilterCount === 0 ? undefined : filters.length === 1 ? 'dot' : activeFilterCount}
-            onClick={() => setSheetOpen(true)}
-          />
-          <Drawer open={sheetOpen} onOpenChange={setSheetOpen} title="Filtros">
-            <div className="rds-data-table-header__groups">
-              <FilterGroups
-                filters={filters}
-                onPick={(f, v) => {
-                  f.onChange(v);
-                  setSheetOpen(false);
-                }}
-                onClear={
-                  onClear
-                    ? () => {
-                        onClear();
-                        setSheetOpen(false);
-                      }
-                    : undefined
-                }
-                showClear={activeFilterCount > 0}
-              />
-              {actions && <div className="rds-data-table-header__drawer-actions">{actions}</div>}
-            </div>
-          </Drawer>
-        </div>
-      )}
-
-      {view && <div className="rds-data-table-header__view">{view}</div>}
-
-      {/* The actions: always when expanded; when compact only without mobileCollapse (else in the Drawer). */}
-      {actions && <div className={mobileCollapse ? 'rds-data-table-header__wide' : 'rds-data-table-header__actions'}>{actions}</div>}
     </div>
   );
 }
