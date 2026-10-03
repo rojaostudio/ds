@@ -41,11 +41,15 @@ Sem nenhuma delas, a cor é perguntada no terminal.
 | `-n, --name <nome>` | nome da marca (padrão: o do recipe/tabela, senão o do `package.json`) |
 | `--target <alvo>` | `claude`, `cursor` ou `agents` (padrão: o arquivo de regras que já existir, senão `claude`) |
 | `-o, --out <arquivo>` | onde escrever o tema (padrão: `rds-theme.css`) |
-| `-y, --yes` | sobrescreve sem perguntar |
+| `-y, --yes` | sobrescreve o tema sem perguntar |
 | `-h, --help` | ajuda |
 
-Arquivo que já existe não é sobrescrito sem confirmação. Sem terminal (CI, script) e sem `--yes`, a
-CLI recusa e não escreve nada.
+O arquivo de regras nunca é sobrescrito: a CLI escreve só o bloco entre `<!-- rojao-ds:start -->` e
+`<!-- rojao-ds:end -->`. Se o arquivo já existe sem o bloco, ele é acrescentado no fim; se já tem, só
+o bloco é trocado e o resto do arquivo fica como está. Rodar de novo não duplica nada.
+
+O tema (`rds-theme.css`) é sobrescrito, então pede confirmação. Sem terminal (CI, script) e sem
+`--yes`, a CLI recusa e não escreve nada.
 
 ## Sem dependência
 

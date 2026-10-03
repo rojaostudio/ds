@@ -45,7 +45,8 @@ Uso:
 
 Gera, na pasta atual:
   • o tema da marca (${DEFAULT_OUT}), para importar DEPOIS de @rojaostudio/ds/styles/rds.css;
-  • o arquivo de regras da IA (CLAUDE.md, .cursorrules ou AGENTS.md).
+  • o arquivo de regras da IA (CLAUDE.md, .cursorrules ou AGENTS.md). Se ele já existe, só o
+    bloco entre <!-- rojao-ds:start --> e <!-- rojao-ds:end --> é escrito; o resto fica.
 
 De onde vem a marca (escolha uma; sem nenhuma, a cor é perguntada):
   -c, --color <hex>      a cor da marca, ex.: #7C3AED
@@ -56,7 +57,7 @@ Opções:
   -n, --name <nome>      nome da marca (padrão: o do recipe/tabela, senão o do package.json)
       --target <alvo>    claude | cursor | agents (padrão: o arquivo que já existir, senão claude)
   -o, --out <arquivo>    onde escrever o tema (padrão: ${DEFAULT_OUT})
-  -y, --yes              sobrescreve sem perguntar
+  -y, --yes              sobrescreve o tema sem perguntar
   -h, --help             mostra esta ajuda
   -v, --version          mostra a versão
 
@@ -145,6 +146,28 @@ function asTable(raw: unknown): RdsBrandTable {
     throw new CliError(`tabela em formato desconhecido: ${t.$schema} (esperava rds-brand-table/1).`);
   }
   return t as RdsBrandTable;
+}
+
+export const BLOCK_START = "<!-- rojao-ds:start -->";
+export const BLOCK_END = "<!-- rojao-ds:end -->";
+
+/** As regras entre marcadores: o init reescreve só isto num arquivo que já existe. */
+function rulesBlock(md: string): string {
+  return `${BLOCK_START}\n${md.replace(/\s+$/, "")}\n${BLOCK_END}`;
+}
+
+/**
+ * Põe o bloco no arquivo de regras: substitui o bloco entre os marcadores, se houver; senão,
+ * acrescenta no fim, depois de uma linha em branco. O texto de fora do bloco não muda.
+ */
+export function mergeRulesBlock(existing: string, block: string): { text: string; mode: "replaced" | "appended" } {
+  const start = existing.indexOf(BLOCK_START);
+  const end = start === -1 ? -1 : existing.indexOf(BLOCK_END, start);
+  if (start !== -1 && end !== -1) {
+    return { text: existing.slice(0, start) + block + existing.slice(end + BLOCK_END.length), mode: "replaced" };
+  }
+  const head = existing.replace(/\s+$/, "");
+  return { text: head ? `${head}\n\n${block}\n` : `${block}\n`, mode: "appended" };
 }
 
 type Brand = { label: string; name: string; theme: RdsTheme; source: BrandDef | RdsBrandTable };
@@ -309,33 +332,42 @@ async function init(v: Values, io: Io): Promise<number> {
   const rulesAbs = join(io.cwd, TARGETS[target]);
   const cssImport = importPath(io.cwd, cssAbs);
 
-  const files = [
-    { abs: cssAbs, label: importPath(io.cwd, cssAbs).replace(/^\.\//, ""), content: emitRdsCss(brand.theme) },
-    {
-      abs: rulesAbs,
-      label: TARGETS[target],
-      content: emitClaudeMd(brand.source, { theme: brand.theme, cssFile: cssImport.replace(/^\.\//, ""), target }),
-    },
-  ];
+  const css = { abs: cssAbs, label: importPath(io.cwd, cssAbs).replace(/^\.\//, ""), content: emitRdsCss(brand.theme) };
+  const rules = {
+    abs: rulesAbs,
+    label: TARGETS[target],
+    block: rulesBlock(emitClaudeMd(brand.source, { theme: brand.theme, cssFile: cssImport.replace(/^\.\//, ""), target })),
+  };
 
-  // Antes de escrever qualquer coisa: o que já existe? Sem --yes e sem terminal, recusa tudo.
-  const existing = files.filter((f) => existsSync(f.abs));
-  if (existing.length && !v.yes && !io.interactive) {
-    for (const f of existing) io.err(`✗ ${f.label} já existe.`);
+  // Só o tema é sobrescrito; o arquivo de regras recebe um bloco e preserva o resto, então não pede confirmação.
+  // Antes de escrever qualquer coisa: sem --yes e sem terminal, um tema existente recusa tudo.
+  const cssExists = existsSync(css.abs);
+  if (cssExists && !v.yes && !io.interactive) {
+    io.err(`✗ ${css.label} já existe.`);
     io.err("  Nada foi escrito. Rode de novo com --yes para sobrescrever.");
     return 1;
   }
 
   io.out(`Marca: ${brand.name} — ${brand.label}`);
-  for (const f of files) {
-    const exists = existsSync(f.abs);
-    if (exists && !v.yes && !(await confirm(io, `${f.label} já existe. Sobrescrever?`))) {
-      io.out(`– ${f.label} mantido`);
-      continue;
+  if (cssExists && !v.yes && !(await confirm(io, `${css.label} já existe. Sobrescrever?`))) {
+    io.out(`– ${css.label} mantido`);
+  } else {
+    mkdirSync(dirname(css.abs), { recursive: true });
+    writeFileSync(css.abs, css.content);
+    io.out(`✓ ${css.label} ${cssExists ? "atualizado" : "criado"}`);
+  }
+
+  if (!existsSync(rules.abs)) {
+    writeFileSync(rules.abs, `${rules.block}\n`);
+    io.out(`✓ ${rules.label} criado`);
+  } else {
+    const before = readFileSync(rules.abs, "utf8");
+    const { text, mode } = mergeRulesBlock(before, rules.block);
+    if (text === before) io.out(`✓ ${rules.label} já está em dia`);
+    else {
+      writeFileSync(rules.abs, text);
+      io.out(`✓ ${rules.label}: bloco do Rojão DS ${mode === "replaced" ? "atualizado" : "acrescentado no fim"} (o resto do arquivo foi mantido)`);
     }
-    mkdirSync(dirname(f.abs), { recursive: true });
-    writeFileSync(f.abs, f.content);
-    io.out(`✓ ${f.label} ${exists ? "atualizado" : "criado"}`);
   }
 
   io.out("");

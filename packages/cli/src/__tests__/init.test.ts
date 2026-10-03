@@ -3,7 +3,7 @@ import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "no
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { RDS_ROLES as ROLES } from "@rojaostudio/ds-core/generate";
-import { normalizeHex, run, type Io } from "../init";
+import { BLOCK_END, BLOCK_START, mergeRulesBlock, normalizeHex, run, type Io } from "../init";
 
 let dir: string;
 beforeEach(() => {
@@ -202,6 +202,7 @@ describe("rojao-ds init — alvos", () => {
     write(".cursorrules", "regras antigas");
     expect(await run(["init", "-c", "#7C3AED", "--yes"], io().io)).toBe(0);
     expect(read(".cursorrules")).toContain("file: .cursorrules");
+    expect(read(".cursorrules")).toMatch(/^regras antigas\n\n<!-- rojao-ds:start -->/);
     expect(existsSync(join(dir, "CLAUDE.md"))).toBe(false);
   });
 
@@ -230,54 +231,94 @@ describe("rojao-ds init — alvos", () => {
   it("vários arquivos de regras: pergunta qual usar", async () => {
     write("CLAUDE.md", "a");
     write("AGENTS.md", "b");
-    const t = io({ interactive: true, answers: ["2", "s"] });
+    const t = io({ interactive: true, answers: ["2"] });
     expect(await run(["init", "-c", "#7C3AED"], t.io)).toBe(0);
     expect(read("AGENTS.md")).toContain("file: AGENTS.md");
     expect(read("CLAUDE.md")).toBe("a");
   });
 });
 
-describe("rojao-ds init — sobrescrever", () => {
+describe("rojao-ds init — tema existente", () => {
   it("sem terminal e sem --yes: recusa e não escreve nada", async () => {
-    write("CLAUDE.md", "meu claude");
+    write("rds-theme.css", "/* meu tema */");
     const t = io();
     expect(await run(["init", "-c", "#7C3AED"], t.io)).toBe(1);
-    expect(t.errText()).toContain("CLAUDE.md já existe");
+    expect(t.errText()).toContain("rds-theme.css já existe");
     expect(t.errText()).toContain("--yes");
-    expect(read("CLAUDE.md")).toBe("meu claude");
-    // Nem o tema, que não existia: a recusa vem antes de qualquer escrita.
-    expect(existsSync(join(dir, "rds-theme.css"))).toBe(false);
+    expect(read("rds-theme.css")).toBe("/* meu tema */");
+    // Nem o arquivo de regras: a recusa vem antes de qualquer escrita.
+    expect(existsSync(join(dir, "CLAUDE.md"))).toBe(false);
   });
 
   it("com terminal: pergunta e respeita o não", async () => {
     write("rds-theme.css", "/* meu tema */");
-    write("CLAUDE.md", "meu claude");
-    const t = io({ interactive: true, answers: ["n", ""] });
+    const t = io({ interactive: true, answers: ["n"] });
     expect(await run(["init", "-c", "#7C3AED"], t.io)).toBe(0);
-    expect(t.asked.every((q) => q.includes("Sobrescrever?"))).toBe(true);
+    expect(t.asked).toEqual(["rds-theme.css já existe. Sobrescrever? (s/N) "]);
     expect(read("rds-theme.css")).toBe("/* meu tema */");
-    expect(read("CLAUDE.md")).toBe("meu claude");
     expect(t.text()).toContain("– rds-theme.css mantido");
   });
 
-  it("com terminal: o sim sobrescreve só o arquivo confirmado", async () => {
+  it("com terminal: o sim sobrescreve", async () => {
     write("rds-theme.css", "/* meu tema */");
-    write("CLAUDE.md", "meu claude");
-    const t = io({ interactive: true, answers: ["s", "n"] });
+    const t = io({ interactive: true, answers: ["s"] });
     expect(await run(["init", "-c", "#7C3AED"], t.io)).toBe(0);
     expect(read("rds-theme.css")).toContain("--colors-primary-default");
-    expect(read("CLAUDE.md")).toBe("meu claude");
   });
 
   it("--yes sobrescreve sem perguntar", async () => {
     write("rds-theme.css", "/* meu tema */");
-    write("CLAUDE.md", "meu claude");
     const t = io({ interactive: true });
     expect(await run(["init", "-c", "#7C3AED", "--yes"], t.io)).toBe(0);
     expect(t.asked).toEqual([]);
     expect(read("rds-theme.css")).toContain("--colors-primary-default");
-    expect(read("CLAUDE.md")).toContain("# Design System");
-    expect(t.text()).toContain("✓ CLAUDE.md atualizado");
+    expect(t.text()).toContain("✓ rds-theme.css atualizado");
+  });
+});
+
+describe("rojao-ds init — bloco no arquivo de regras", () => {
+  it("arquivo novo nasce só com o bloco entre marcadores", async () => {
+    await run(["init", "-c", "#7C3AED"], io().io);
+    const md = read("CLAUDE.md");
+    expect(md.startsWith(`${BLOCK_START}\n# Design System`)).toBe(true);
+    expect(md.endsWith(`${BLOCK_END}\n`)).toBe(true);
+  });
+
+  it("arquivo sem bloco: acrescenta no fim, sem perguntar, mesmo sem terminal", async () => {
+    write("CLAUDE.md", "# Meu projeto\n\nRegras minhas.\n");
+    const t = io();
+    expect(await run(["init", "-c", "#7C3AED"], t.io)).toBe(0);
+    const md = read("CLAUDE.md");
+    expect(md.startsWith(`# Meu projeto\n\nRegras minhas.\n\n${BLOCK_START}\n# Design System`)).toBe(true);
+    expect(md.endsWith(`${BLOCK_END}\n`)).toBe(true);
+    expect(t.text()).toContain("acrescentado no fim");
+  });
+
+  it("arquivo com bloco: substitui só o bloco e mantém o texto antes e depois", async () => {
+    write("CLAUDE.md", `antes\n\n${BLOCK_START}\nconteúdo velho\n${BLOCK_END}\n\ndepois\n`);
+    const t = io();
+    expect(await run(["init", "-c", "#7C3AED", "--name", "acme"], t.io)).toBe(0);
+    const md = read("CLAUDE.md");
+    expect(md.startsWith(`antes\n\n${BLOCK_START}\n# Design System — Acme`)).toBe(true);
+    expect(md.endsWith(`${BLOCK_END}\n\ndepois\n`)).toBe(true);
+    expect(md).not.toContain("conteúdo velho");
+    expect(md.split(BLOCK_START)).toHaveLength(2);
+    expect(t.text()).toContain("bloco do Rojão DS atualizado");
+  });
+
+  it("reexecução é idempotente", async () => {
+    write("CLAUDE.md", "minhas regras\n");
+    await run(["init", "-c", "#7C3AED"], io().io);
+    const first = read("CLAUDE.md");
+    const t = io();
+    expect(await run(["init", "-c", "#7C3AED", "--yes"], t.io)).toBe(0);
+    expect(read("CLAUDE.md")).toBe(first);
+    expect(first.split(BLOCK_START)).toHaveLength(2);
+    expect(t.text()).toContain("CLAUDE.md já está em dia");
+  });
+
+  it("mergeRulesBlock: arquivo vazio vira só o bloco", () => {
+    expect(mergeRulesBlock("", "B")).toEqual({ text: "B\n", mode: "appended" });
   });
 });
 
