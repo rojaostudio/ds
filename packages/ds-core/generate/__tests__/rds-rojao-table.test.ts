@@ -19,16 +19,19 @@ describe("rojao: the Figma table", () => {
     for (const mode of MODES) expect(Object.keys(table.modes[mode]).sort()).toEqual(ROLES.map(([r]) => r).sort());
   });
 
-  // A violation of the Figma itself, reported (not failed) by rdsThemeFromTable: white on blue/500 is 3.12:1.
-  // The generator picks black there. When Figma fixes it, this list empties.
-  it("the contrast report of the table: only text/on/info, in Figma", () => {
+  // Figma fixed text/on/info (black on blue/500): nothing below AA in the table, and no warning.
+  it("the contrast report of the table is empty", () => {
     const warnings: string[] = [];
     const t = rdsThemeFromTable(table, { warn: (m) => warnings.push(m) });
-    expect(rdsContrastReport(t)).toEqual(
-      MODES.map((mode) => ({ mode, fg: "text/on/info", bg: "colors/state/info", ratio: 3.12 })),
-    );
-    expect(warnings).toHaveLength(1);
-    expect(warnings[0]).toMatch(/3 text pair\(s\) below 4\.5:1/);
+    expect(rdsContrastReport(t)).toEqual([]);
+    expect(warnings).toEqual([]);
+  });
+
+  it("border/error: red/600 on light, red/400 on dark, red/300 on the plate, as the generator draws it", () => {
+    const fig = rdsThemeFromTable(table);
+    const gen = generateRdsTheme(recipes.rojao);
+    expect(MODES.map((m) => table.modes[m]["border/error"])).toEqual(["red/600", "red/400", "red/300"]);
+    for (const m of MODES) expect(gen[m]["--border-error"]).toBe(fig[m]["--border-error"]);
   });
 
   it("text/heading is navy on light, as the recipe", () => {

@@ -35,6 +35,25 @@ describe("[RDS] theme from a brand table", () => {
     expect(() => rdsThemeFromTable(t)).toThrow(/dark: role "text\/body" is missing[\s\S]*brand: "surface\/page" points to unknown primitive "nope\/500"/);
   });
 
+  // A table exported before border/error existed (a consumer keeps its export): the role is taken, mode by mode,
+  // from the token Figma aliases it to, with a warning to export again. Without that token it fails as any role.
+  it("a table without border/error loads it from the Figma aliases, with a warning to export again", () => {
+    const t = table();
+    t.primitives["red/600"] = "#c50003";
+    t.primitives["red/400"] = "#ff6c5c";
+    t.primitives["red/300"] = "#ffa598";
+    t.modes.light["colors/state/error"] = "red/600";
+    t.modes.dark["colors/state/error-strong"] = "red/400";
+    t.modes.brand["text/error"] = "red/300";
+    for (const mode of ["light", "dark", "brand"] as const) delete t.modes[mode]["border/error"];
+    const warnings: string[] = [];
+    const theme = rdsThemeFromTable(t, { warn: (m) => warnings.push(m) });
+    expect([theme.light, theme.dark, theme.brand].map((m) => m["--border-error"])).toEqual(["#c50003", "#ff6c5c", "#ffa598"]);
+    expect(warnings[0]).toMatch(/exported before "border\/error"[\s\S]*Export the table again with figma\/export-brand\.js/);
+    delete t.modes.dark["colors/state/error-strong"];
+    expect(() => rdsThemeFromTable(t, { warn: () => {} })).toThrow(/dark: role "colors\/state\/error-strong" is missing[\s\S]*dark: role "border\/error" is missing/);
+  });
+
   it("emits CSS with dark and plate carrying only what differs", () => {
     const css = emitRdsCss(rdsThemeFromTable(table()));
     expect(css).toContain(":root, .ds-scope, [data-rds-scope] {\n");

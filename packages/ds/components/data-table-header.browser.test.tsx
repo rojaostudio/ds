@@ -9,10 +9,7 @@ import { MODES, axeViolations, cleanup, render, settle } from './__tests__/rende
 
 afterEach(cleanup);
 
-// Violations of the Figma itself, each pinned with it.fails in its own component's test: the neutral outline and
-// ghost Buttons and the inactive FilterChip's count on the rojao light theme (button and filter-chip tests).
 // Floating layers are portalled out of <main>: the landmark rule does not apply to them.
-const KNOWN_LIGHT = (mode: string) => (mode === 'light' ? ['.rds-filter-chip__count'] : []);
 const outsideRegion = (lines: string[]) => lines.filter((line) => !line.startsWith('region:'));
 
 const STATUS = [
@@ -83,13 +80,13 @@ describe.each(MODES)('DataTableHeader (%s)', (mode) => {
       </div>,
       mode,
     );
-    expect(await axeViolations(el, KNOWN_LIGHT(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 
   it('on a narrow screen, with the view control, passes axe', async () => {
     await page.viewport(390, 800);
     const el = await render(<Example two withView />, mode);
-    expect(await axeViolations(el, KNOWN_LIGHT(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 
   it('the open Filtros popover passes axe', async () => {
@@ -97,7 +94,7 @@ describe.each(MODES)('DataTableHeader (%s)', (mode) => {
     const el = await render(<Example two />, mode);
     await userEvent.click(el.querySelector<HTMLElement>('.rds-data-table-header__wide [data-filter-toggle]')!);
     await settle();
-    expect(outsideRegion(await axeViolations(document.body, KNOWN_LIGHT(mode)))).toEqual([]);
+    expect(outsideRegion(await axeViolations(document.body))).toEqual([]);
   });
 });
 

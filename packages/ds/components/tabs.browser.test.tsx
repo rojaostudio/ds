@@ -46,9 +46,9 @@ describe('Tabs behaviour', () => {
     expect(await axeViolations(el)).toEqual([]);
   });
 
-  // tabs/soon/text is text/disabled over tabs/soon/background (surface/muted): 3.6:1 at 10px in dark. A violation of the
-  // Figma itself; on a disabled tab (the usual case, covered in the matrix) axe does not measure it.
-  it.fails('"em breve" on a tab that still opens passes axe', async () => {
+  // tabs/soon/text is text/subtle over tabs/soon/background (surface/muted) in the Figma (it was text/disabled, 3.6:1
+  // at 10px in dark). On a disabled tab (the usual case, covered in the matrix) axe does not measure it.
+  it('"em breve" on a tab that still opens passes axe', async () => {
     const el = await render(
       <Tabs defaultValue="a">
         <TabsList aria-label="Relatórios">

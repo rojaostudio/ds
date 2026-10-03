@@ -51,17 +51,6 @@ describe.each(MODES)('ChoiceCard (%s)', (mode) => {
 
 const LAYOUTS: ChoiceCardLayout[] = ['tile', 'preview'];
 
-// [RDS] fades the chosen preview's description to 70% (choice-card/description/color/default → text/muted at opacity
-// 0.7): on the rojao light theme that is 4.33:1 on white, under 4.5:1. A violation of the Figma itself, excluded here
-// and pinned with it.fails below. The chosen tile fades its description the same way, text/on/primary at 70% on
-// colors/primary/default: in dark the Figma draws navy/900 on navy/200, and at 70% that is 4.28:1. Also pinned below.
-const FADED = (mode: string, layout: ChoiceCardLayout) =>
-  mode === 'light' && layout === 'preview'
-    ? ['.rds-choice-card--preview.rds-choice-card--selected .rds-choice-card__description']
-    : mode === 'dark' && layout === 'tile'
-      ? ['.rds-choice-card--tile.rds-choice-card--selected .rds-choice-card__description']
-      : [];
-
 describe.each(MODES)('ChoiceCard layouts (%s)', (mode) => {
   it.each(LAYOUTS)('%s, selected and not, passes axe', async (layout) => {
     const el = await render(
@@ -72,7 +61,7 @@ describe.each(MODES)('ChoiceCard layouts (%s)', (mode) => {
       </div>,
       mode,
     );
-    expect(await axeViolations(el, FADED(mode, layout))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 
   it.each(LAYOUTS)('%s, disabled, passes axe', async (layout) => {
@@ -89,7 +78,9 @@ describe.each(MODES)('ChoiceCard layouts (%s)', (mode) => {
 });
 
 describe('ChoiceCard layouts behaviour', () => {
-  it.fails('the chosen preview description at 70% (Figma) passes axe on the rojao light theme', async () => {
+  // The [RDS] draws the chosen description at full opacity (it was 70%: 4.33:1 on white in light for the preview,
+  // 4.28:1 for the tile in dark).
+  it('the chosen preview description passes axe on the rojao light theme', async () => {
     const el = await render(
       <div style={{ width: 240 }}>
         <ChoiceCard layout="preview" name="b" selected description="Descrição breve da opção.">
@@ -101,7 +92,7 @@ describe('ChoiceCard layouts behaviour', () => {
     expect(await axeViolations(el)).toEqual([]);
   });
 
-  it.fails('the chosen tile description at 70% (Figma) passes axe on the rojao dark theme', async () => {
+  it('the chosen tile description passes axe on the rojao dark theme', async () => {
     const el = await render(
       <div style={{ width: 240 }}>
         <ChoiceCard layout="tile" name="b" selected description="Descrição breve da opção.">

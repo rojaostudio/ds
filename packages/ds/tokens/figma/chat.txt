@@ -4,7 +4,7 @@
 # obsolete: the Figma description starts with "Obsoleto"; the token stays for old code and no stylesheet has to read it.
 attachment/background|C|@theme:surface/card|=
 attachment/border|C|@theme:border/default|=
-attachment/border-error|C|@theme:colors/state/error|=
+attachment/border-error|C|@theme:border/error|=
 attachment/description|C|@theme:text/muted|=
 attachment/error|C|@theme:text/error|=
 attachment/media|C|@theme:surface/muted|=

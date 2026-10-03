@@ -183,7 +183,7 @@
   /* chat */
   --attachment-background: var(--surface-card);
   --attachment-border: var(--border-default);
-  --attachment-border-error: var(--colors-state-error);
+  --attachment-border-error: var(--border-error);
   --attachment-description: var(--text-muted);
   --attachment-error: var(--text-error);
   --attachment-media: var(--surface-muted);
@@ -551,7 +551,7 @@
   --input-border-default: var(--border-strong);
   --input-border-hover: var(--border-strong-hover);
   --input-border-focus: var(--focus-ring);
-  --input-border-error: var(--colors-state-error);
+  --input-border-error: var(--border-error);
   --input-border-disabled: var(--border-default);
   --input-value-default: var(--text-body);
   --input-value-disabled: var(--text-disabled);
@@ -580,7 +580,7 @@
   --textarea-border-default: var(--border-strong);
   --textarea-border-hover: var(--border-strong-hover);
   --textarea-border-focus: var(--focus-ring);
-  --textarea-border-error: var(--colors-state-error);
+  --textarea-border-error: var(--border-error);
   --textarea-border-disabled: var(--border-default);
   --textarea-value-default: var(--text-body);
   --textarea-value-disabled: var(--text-disabled);
@@ -601,7 +601,7 @@
   --select-border-default: var(--border-strong);
   --select-border-hover: var(--border-strong-hover);
   --select-border-focus: var(--focus-ring);
-  --select-border-error: var(--colors-state-error);
+  --select-border-error: var(--border-error);
   --select-border-disabled: var(--border-default);
   --select-value-default: var(--text-body);
   --select-value-disabled: var(--text-disabled);
@@ -629,7 +629,7 @@
   --checkbox-control-background-checked-disabled: var(--text-disabled);
   --checkbox-control-border-default: var(--border-strong);
   --checkbox-control-border-hover: var(--border-strong-hover);
-  --checkbox-control-border-error: var(--colors-state-error);
+  --checkbox-control-border-error: var(--border-error);
   --checkbox-control-border-disabled: var(--border-default);
   --checkbox-control-mark: var(--text-on-secondary);
   --checkbox-control-mark-disabled: var(--surface-card);
@@ -650,7 +650,7 @@
   --radio-control-background-checked-disabled: var(--text-disabled);
   --radio-control-border-default: var(--border-strong);
   --radio-control-border-hover: var(--border-strong-hover);
-  --radio-control-border-error: var(--colors-state-error);
+  --radio-control-border-error: var(--border-error);
   --radio-control-border-disabled: var(--border-default);
   --radio-control-dot: var(--text-on-secondary);
   --radio-control-dot-disabled: var(--surface-card);
@@ -717,7 +717,7 @@
   --otp-slot-background-disabled: var(--surface-disabled);
   --otp-slot-border-default: var(--border-strong);
   --otp-slot-border-active: var(--focus-ring);
-  --otp-slot-border-error: var(--colors-state-error);
+  --otp-slot-border-error: var(--border-error);
   --otp-slot-border-disabled: var(--border-default);
   --combobox-empty: var(--text-muted);
   --calendar-background: var(--surface-card);
@@ -749,7 +749,7 @@
   --file-input-area-border-default: var(--border-strong);
   --file-input-area-border-hover: var(--focus-ring);
   --file-input-area-border-focus: var(--focus-ring);
-  --file-input-area-border-error: var(--colors-state-error);
+  --file-input-area-border-error: var(--border-error);
   --file-input-area-border-disabled: var(--border-default);
   --file-input-area-icon-default: var(--colors-primary-default);
   --file-input-area-icon-disabled: var(--text-disabled);
@@ -772,7 +772,7 @@
   --chip-input-border-default: var(--border-strong);
   --chip-input-border-hover: var(--border-strong-hover);
   --chip-input-border-focus: var(--focus-ring);
-  --chip-input-border-error: var(--colors-state-error);
+  --chip-input-border-error: var(--border-error);
   --chip-input-border-disabled: var(--border-default);
   --chip-input-value-default: var(--text-body);
   --chip-input-value-disabled: var(--text-disabled);
@@ -791,7 +791,7 @@
   --number-input-border-default: var(--border-strong);
   --number-input-border-hover: var(--border-strong-hover);
   --number-input-border-focus: var(--focus-ring);
-  --number-input-border-error: var(--colors-state-error);
+  --number-input-border-error: var(--border-error);
   --number-input-border-disabled: var(--border-default);
   --number-input-value-default: var(--text-body);
   --number-input-value-disabled: var(--text-disabled);
@@ -812,7 +812,7 @@
   --color-input-border-default: var(--border-strong);
   --color-input-border-hover: var(--border-strong-hover);
   --color-input-border-focus: var(--focus-ring);
-  --color-input-border-error: var(--colors-state-error);
+  --color-input-border-error: var(--border-error);
   --color-input-border-disabled: var(--border-default);
   --color-input-value-default: var(--text-body);
   --color-input-value-disabled: var(--text-disabled);
@@ -973,7 +973,7 @@
   --navmenu-trigger-background-open: var(--surface-muted);
   --navmenu-trigger-label: var(--text-body);
   --tabs-soon-background: var(--surface-muted);
-  --tabs-soon-text: var(--text-disabled);
+  --tabs-soon-text: var(--text-subtle);
   --tabs-dot-background: var(--colors-state-success);
   --tabs-dot-indicator: var(--colors-state-success);
   --sidebar-section-label: var(--text-subtle);

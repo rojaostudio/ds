@@ -70,28 +70,33 @@ const on = (bg: string) => onColor(bg);
 
 /** WCAG AA for body text. */
 const AA = 4.5;
-const readsOn = (fg: string, bgs: string[]) => bgs.every((bg) => contrastRatio(fg, bg) >= AA);
+/** WCAG 1.4.11 for what is not text (a field border, a chart mark). */
+const NON_TEXT = 3;
+const readsOn = (fg: string, bgs: string[], min = AA) => bgs.every((bg) => contrastRatio(fg, bg) >= min);
 
 /**
  * A brand colour used as text: itself when it clears AA on every background, otherwise the step of its own ramp
  * closest to it, going darker (text on light surfaces) or lighter (text on dark ones), that does. A ramp that
  * never gets there (a derived yellow ends near 3.9:1 on white) is carried on along its own hue, darker or lighter
- * by 2% of HSL lightness at a time, before `fallback` (black or white).
+ * by 2% of HSL lightness at a time, before `fallback` (black or white). `min` is the ratio asked (AA by default;
+ * NON_TEXT for a border or a chart mark).
  */
-function readableFrom(base: string, scale: Scale, bgs: string[], toward: "darker" | "lighter", fallback: string): string {
-  if (readsOn(base, bgs)) return base;
+function readableFrom(
+  base: string, scale: Scale, bgs: string[], toward: "darker" | "lighter", fallback: string, min = AA,
+): string {
+  if (readsOn(base, bgs, min)) return base;
   const lb = relativeLuminance(base);
   const steps = SCALE_STEPS.map((s) => scale[s])
     .filter((c): c is string => !!c && isHex(c))
     .filter((c) => (toward === "darker" ? relativeLuminance(c) < lb : relativeLuminance(c) > lb))
     // Closest to the brand colour first.
     .sort((a, b) => Math.abs(relativeLuminance(a) - lb) - Math.abs(relativeLuminance(b) - lb));
-  const step = steps.find((c) => readsOn(c, bgs));
+  const step = steps.find((c) => readsOn(c, bgs, min));
   if (step) return step;
   const [h, s, l0] = hexToHsl(steps[steps.length - 1] ?? base);
   for (let l = l0; toward === "darker" ? l >= 0 : l <= 100; l += toward === "darker" ? -2 : 2) {
     const c = hslToHex(h, s, l);
-    if (readsOn(c, bgs)) return c;
+    if (readsOn(c, bgs, min)) return c;
   }
   return fallback;
 }
@@ -145,8 +150,11 @@ export const ROLES: ReadonlyArray<readonly [string, "l" | "d", "l" | "d" | "b"]>
   ["logo/accent-2", "l", "l"], ["logo/accent-3", "l", "l"], ["logo/mono", "d", "d"],
   ["logo/inverse", "l", "l"], ["logo/inverse-signature", "l", "l"], ["social/ink", "d", "d"],
   ["colors/state/info-strong", "d", "d"], ["colors/state/neutral-strong", "d", "d"],
-  ["text/on/primary-subtle", "d", "b"], ["surface/tint/subtle", "d", "b"],
+  ["text/on/primary-subtle", "d", "b"], ["surface/tint/subtle", "d", "b"], ["border/error", "d", "d"],
 ];
+
+/** Toward the side of the ramp that contrasts with a background: darker on a light one, lighter on a dark one. */
+const awayFrom = (bg: string): "darker" | "lighter" => (contrastRatio(bg, BLACK) >= contrastRatio(bg, WHITE) ? "darker" : "lighter");
 
 /** The tint steps of the base collection. `surface/tint/subtle` sits one step lighter than the default. */
 const TINT_DEFAULT: ScaleStep = 200;
@@ -213,7 +221,7 @@ export function generateRdsTheme(def: BrandDef, opts: RdsThemeOptions = {}): Rds
     "surface/error": red[100], "surface/error-strong": red[200], "text/error": red[800],
     "surface/success": green[100], "text/success": green[800], "surface/info": L[100], "text/info": L[700],
     "surface/warning": orange[100], "text/warning": orange[700], "surface/neutral": N[100], "text/neutral": N[800],
-    "chart/series/1": P.scale[600], "chart/series/2": orange[500], "chart/series/3": teal[500],
+    "chart/series/2": orange[600], "chart/series/3": teal[500],
     "chart/series/4": purple[500], "chart/series/5": green[500],
     "shadow/ambient": black(5), "shadow/key": black(10), "shadow/strong": black(20),
     "type/font/mono": "Roboto Mono",
@@ -229,6 +237,11 @@ export function generateRdsTheme(def: BrandDef, opts: RdsThemeOptions = {}): Rds
     ["surface/lift/action", "text/on/lift-action"], ["colors/primary/dark", "text/on/primary-strong"],
     ["surface/tint/default", "text/on/tint"],
   ] as const) l[text] = on(l[fill]);
+  // border/error (a field in error) and chart/series/1 (the brand's own series) are marks, not text: 3:1 (WCAG
+  // 1.4.11) on surface/card, which is also the field background (input/background/default → surface/card).
+  // border/error starts from the state red, series 1 from the primary's 600; each walks its ramp until it clears.
+  l["border/error"] = readableFrom(l["colors/state/error"], red, [l["surface/card"]], awayFrom(l["surface/card"]), BLACK, NON_TEXT);
+  l["chart/series/1"] = readableFrom(P.scale[600], P.scale, [l["surface/card"]], awayFrom(l["surface/card"]), BLACK, NON_TEXT);
   l["logo/primary"] = l["colors/primary/default"];
   l["logo/signature"] = l["colors/primary/default"];
   l["logo/accent"] = l["colors/accent/logo"];
@@ -261,7 +274,7 @@ export function generateRdsTheme(def: BrandDef, opts: RdsThemeOptions = {}): Rds
     "surface/error": red[900], "surface/error-strong": red[900], "text/error": red[300],
     "surface/success": green[900], "text/success": green[300], "surface/info": L[900], "text/info": L[300],
     "surface/warning": orange[900], "text/warning": orange[300], "surface/neutral": N[800], "text/neutral": N[200],
-    "chart/series/1": P.scale[400], "chart/series/2": orange[400], "chart/series/3": teal[400],
+    "chart/series/2": orange[400], "chart/series/3": teal[400],
     "chart/series/4": purple[400], "chart/series/5": green[400],
     "logo/primary": WHITE, "logo/accent": WHITE, "logo/signature": WHITE, "logo/mono": WHITE, "social/ink": WHITE,
     "colors/state/info-strong": L[300], "colors/state/neutral-strong": N[400],
@@ -273,6 +286,9 @@ export function generateRdsTheme(def: BrandDef, opts: RdsThemeOptions = {}): Rds
     ["colors/primary/dark", "text/on/primary-strong"], ["surface/tint/default", "text/on/tint"],
     ["surface/lift/action", "text/on/lift-action"],
   ] as const) d[text] = on(d[fill]);
+  // In dark, border/error starts from error-strong (red/400) and series 1 from the primary's 400.
+  d["border/error"] = readableFrom(d["colors/state/error-strong"], red, [d["surface/card"]], awayFrom(d["surface/card"]), WHITE, NON_TEXT);
+  d["chart/series/1"] = readableFrom(P.scale[400], P.scale, [d["surface/card"]], awayFrom(d["surface/card"]), WHITE, NON_TEXT);
 
   // base — brand/… tokens: the "plate" of the brand, a section painted with the primary colour.
   // Figma draws it for dark brands (white ink over the plate). The ink is picked by contrast
@@ -281,14 +297,18 @@ export function generateRdsTheme(def: BrandDef, opts: RdsThemeOptions = {}): Rds
   const ink = on(plate);
   const inkA = ink === WHITE ? white : black;
   const antiInk = ink === WHITE ? black : white;
-  // The card on the plate: the step of the primary ramp nearest to the plate that still carries the ink at AA
-  // (navy/800 on a navy/900 plate, as Figma draws it). The plate itself when no step does.
+  // The card on the plate: the primary's 800, as Figma draws it (navy/800 on a navy/900 plate), when it is not the
+  // plate itself and carries the ink at AA. Otherwise (a light plate, where 800 is dark under a dark ink) the step
+  // of the primary ramp nearest to the plate that does; the plate itself when no step does.
   const lp = relativeLuminance(plate);
+  const isPlate = (c: string) => c.toLowerCase() === plate.toLowerCase();
   const plateCard =
-    SCALE_STEPS.map((st) => P.scale[st])
-      .filter((c): c is string => !!c && isHex(c) && c.toLowerCase() !== plate.toLowerCase())
-      .sort((a, b2) => Math.abs(relativeLuminance(a) - lp) - Math.abs(relativeLuminance(b2) - lp))
-      .find((c) => contrastRatio(ink, c) >= AA) ?? plate;
+    P.scale[800] && !isPlate(P.scale[800]) && contrastRatio(ink, P.scale[800]) >= AA
+      ? P.scale[800]
+      : SCALE_STEPS.map((st) => P.scale[st])
+          .filter((c): c is string => !!c && isHex(c) && !isPlate(c))
+          .sort((a, b2) => Math.abs(relativeLuminance(a) - lp) - Math.abs(relativeLuminance(b2) - lp))
+          .find((c) => contrastRatio(ink, c) >= AA) ?? plate;
   // Text on colors/primary/dark (P[100]) on the plate: the plate colour when it reads there, else black or white.
   const onPrimaryStrong = contrastRatio(plate, P.scale[100]) >= AA ? plate : on(P.scale[100]);
   const br: Record<string, string> = {
@@ -310,6 +330,9 @@ export function generateRdsTheme(def: BrandDef, opts: RdsThemeOptions = {}): Rds
     "surface/muted-strong": inkA(20), "border/strong": inkA(60), "border/strong-hover": inkA(80),
     "text/on/primary-subtle": inkA(30),
   };
+  // border/error on the plate starts from the light red Figma uses there (red/300, the dark text/error) and keeps
+  // 3:1 on the plate's card, the field background.
+  const brandError = readableFrom(red[300], red, [plateCard], awayFrom(plateCard), ink, NON_TEXT);
 
   const out: RdsTheme = { light: {}, dark: {}, brand: {} };
   const pick = (src: "l" | "d" | "b", role: string) => {
@@ -323,6 +346,8 @@ export function generateRdsTheme(def: BrandDef, opts: RdsThemeOptions = {}): Rds
     out.dark[roleVar(role)] = pick(darkSrc, role);
     out.brand[roleVar(role)] = pick(brandSrc, role);
   }
+  // Figma points the plate's border/error at a dark token (base dark/text/error), not at dark/border/error.
+  out.brand[roleVar("border/error")] = brandError;
   return out;
 }
 
@@ -464,13 +489,25 @@ export type RdsBrandTable = {
 const isColourRef = (v: string) => /^[a-z][a-z0-9-]*\/[a-z]?\d+$/i.test(v);
 
 /**
- * The theme of a brand table. Fails on a missing role or an unknown primitive, listing them all. The contrast of
- * the main text pairs (rdsContrastReport) is only reported, through `opts.warn`: the table is the brand as drawn
- * in Figma, kept one to one even where a pair fails.
+ * Roles added to the [RDS] theme after tables were already exported, with the role each mode aliases in Figma.
+ * A table without one still loads: the role is taken from that same mode's alias (the colour Figma resolves),
+ * with a warning to export the table again. Any other missing role fails.
+ */
+const ADDED_ROLES: Record<string, Record<RdsMode, string>> = {
+  // Figma: light → base colors/state/error, dark → base dark/colors/state/error-strong, brand → base dark/text/error.
+  "border/error": { light: "colors/state/error", dark: "colors/state/error-strong", brand: "text/error" },
+};
+
+/**
+ * The theme of a brand table. Fails on a missing role or an unknown primitive, listing them all. A table exported
+ * before a role of ADDED_ROLES existed is the exception: the role is taken from the token Figma aliases it to, and
+ * `opts.warn` asks to export the table again. The contrast of the main text pairs (rdsContrastReport) is only
+ * reported, through `opts.warn`: the table is the brand as drawn in Figma, kept one to one even where a pair fails.
  */
 export function rdsThemeFromTable(table: RdsBrandTable, opts: RdsThemeOptions = {}): RdsTheme {
   const out: RdsTheme = { light: {}, dark: {}, brand: {} };
   const problems: string[] = [];
+  const derived = new Set<string>();
   for (const mode of ["light", "dark", "brand"] as RdsMode[]) {
     const roles = table.modes?.[mode];
     if (!roles) {
@@ -478,7 +515,12 @@ export function rdsThemeFromTable(table: RdsBrandTable, opts: RdsThemeOptions = 
       continue;
     }
     for (const [role] of ROLES) {
-      const ref = roles[role];
+      let ref = roles[role];
+      const added = ADDED_ROLES[role]?.[mode];
+      if (ref === undefined && added && roles[added] !== undefined) {
+        ref = roles[added];
+        derived.add(role);
+      }
       if (ref === undefined) problems.push(`${mode}: role "${role}" is missing`);
       else if (isColourRef(ref)) {
         const value = table.primitives[ref];
@@ -501,9 +543,17 @@ export function rdsThemeFromTable(table: RdsBrandTable, opts: RdsThemeOptions = 
     }
   }
   if (problems.length) throw new Error(`rdsThemeFromTable(${table.name}):\n  ${problems.join("\n  ")}`);
+  const warn = opts.warn ?? defaultWarn;
+  if (derived.size)
+    warn(
+      `rdsThemeFromTable(${table.name}): the table was exported before ${[...derived].map((r) => `"${r}"`).join(", ")} ` +
+        `existed in the [RDS] theme. Taken from the tokens Figma aliases it to (` +
+        [...derived].map((r) => Object.entries(ADDED_ROLES[r]).map(([m, src]) => `${m}: ${src}`).join(", ")).join("; ") +
+        `). Export the table again with figma/export-brand.js.`,
+    );
   const fails = rdsContrastReport(out);
   if (fails.length)
-    (opts.warn ?? defaultWarn)(
+    warn(
       `rdsThemeFromTable(${table.name}): ${fails.length} text pair(s) below 4.5:1\n  ` +
         fails.map((f) => `${f.mode}: ${f.fg} on ${f.bg} ${f.ratio}:1`).join("\n  "),
     );

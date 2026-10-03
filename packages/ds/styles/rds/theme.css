@@ -65,7 +65,7 @@
   --border-strong: #71717a;
   --border-strong-hover: #52525b;
   --colors-state-info: #2196f3;
-  --text-on-info: #ffffff;
+  --text-on-info: #000000;
   --colors-state-warning: #ff9800;
   --colors-state-warning-strong: #dc7f00;
   --text-on-warning: #000000;
@@ -80,7 +80,7 @@
   --surface-neutral: #f4f4f5;
   --text-neutral: #27272a;
   --chart-series-1: #5a6478;
-  --chart-series-2: #dc7f00;
+  --chart-series-2: #bd6a00;
   --chart-series-3: #009688;
   --chart-series-4: #bc4ad0;
   --chart-series-5: #379c3d;
@@ -104,6 +104,7 @@
   --colors-state-neutral-strong: #52525b;
   --text-on-primary-subtle: #ffffff4d;
   --surface-tint-subtle: #f4f6f9;
+  --border-error: #c50003;
   --rojao-primary: #1b2a4a;
   --rojao-secondary: #1b2a4a;
   --rojao-accent: #ff6a00;
@@ -186,6 +187,7 @@
   --colors-state-neutral-strong: #a1a1aa;
   --text-on-primary-subtle: #0000004d;
   --surface-tint-subtle: #002445;
+  --border-error: #ff6c5c;
 }
 
 .ds-plate, [data-rds-plate] {
@@ -265,5 +267,6 @@
   --colors-state-info-strong: #8cc6ff;
   --colors-state-neutral-strong: #a1a1aa;
   --surface-tint-subtle: #ffffff0d;
+  --border-error: #ffa598;
 }
 }
