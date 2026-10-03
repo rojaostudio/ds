@@ -4,67 +4,142 @@ on:
   push:
     branches: [main]
 
-concurrency: ${{ github.workflow }}-${{ github.ref }}
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  # Nunca cancelar um release no meio: um publish interrompido deixa parte dos pacotes no npm
+  # e parte nao.
+  cancel-in-progress: false
+
+# Nada por padrao. Cada job pede so o que usa.
+permissions: {}
+
+# Ações fixadas por SHA de commit, não por tag: tag é mutável, e quem controla o repositório da
+# ação (ou rouba a conta de quem controla) pode apontar `v4` para outro código, que rodaria aqui
+# com acesso ao token de publicação. O comentário diz a versão que o SHA era quando foi fixado.
+# Para atualizar: `gh api repos/<dono>/<ação>/git/ref/tags/<tag>` (se vier `"type": "tag"`, é
+# tag anotada: seguir com `gh api repos/<dono>/<ação>/git/tags/<sha>` até chegar no commit).
 
 jobs:
-  release:
+  # ------------------------------------------------------------------------------------------
+  # 1) version — abre/atualiza o PR "Version Packages" quando há changesets pendentes.
+  #    Sem id-token, sem environment, sem npm: este job NÃO consegue publicar nada.
+  # ------------------------------------------------------------------------------------------
+  version:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     permissions:
-      contents: write
-      pull-requests: write
-      # id-token: e o que faz o Trusted Publishing funcionar. O runner pede um token OIDC de
-      # vida curta ao GitHub, o npm valida que veio deste repo e deste workflow, e publica —
-      # sem NPM_TOKEN guardado em secret nenhum. Sem esta permissao o publish com provenance
-      # falha. `packages: write` saiu: nao publicamos mais no GitHub Packages.
-      id-token: write
+      contents: write # empurrar a branch changeset-release/main
+      pull-requests: write # abrir/atualizar o PR de versão
+    outputs:
+      hasChangesets: ${{ steps.changesets.outputs.hasChangesets }}
     steps:
-      # O checkout usa um PAT em vez do GITHUB_TOKEN padrão porque PRs criados por
-      # Actions não disparam workflows (regra anti-loop do GitHub) — sem isso o PR
-      # de release nasce sem o check obrigatório e trava. Fallback pro GITHUB_TOKEN
-      # quando o secret não existe.
-      - uses: actions/checkout@v4
+      # persist-credentials: false — o checkout não deixa token gravado no .git/config, onde
+      # qualquer passo seguinte (inclusive script de dependência) poderia ler. Quem precisa
+      # empurrar é só o changesets/action, e ele se autentica sozinho: grava um ~/.netrc com o
+      # token que recebe em GITHUB_TOKEN (src/index.ts, "setting GitHub credentials") antes de
+      # qualquer `git push`. Por isso o PR de versão continua sendo aberto normalmente.
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
-          token: ${{ secrets.RELEASE_PAT || secrets.GITHUB_TOKEN }}
+          persist-credentials: false
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
 
-      - uses: actions/setup-node@v4
+      # Sem `cache: pnpm` nos jobs de release: o cache do Actions é compartilhado com os runs de
+      # PR, e cache envenenado restaurado num job de release é o caminho clássico de um PR
+      # chegar ao token de publicação. Release é raro; pagar o install inteiro é barato.
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
-          # Node >= 22.14 e o piso pro publish com OIDC. Note que a versao do npm NAO vem daqui:
-          # o Node 22 embarca npm 10.x, abaixo do que o trusted publishing exige. Ver step abaixo.
           node-version: 22
-          registry-url: https://registry.npmjs.org
-          cache: pnpm
-
-      # O npm que vem no Node 22 e o 10.9.x, e a troca de token OIDC so existe a partir do
-      # 11.5.1. Com o 10.x o CLI nem tenta autenticar: publica sem credencial e o registry
-      # responde E404 (o npm devolve 404 em vez de 403 pra nao confirmar a existencia do
-      # pacote a quem nao tem acesso). O provenance ainda e assinado, o que faz o log parecer
-      # saudavel ate a ultima linha. Fixar o Node nao fixa o npm — tem que ser explicito.
-      - name: Pin npm com suporte a trusted publishing
-        run: npm install -g npm@^11.5.1
 
       - name: Install
         run: pnpm install --frozen-lockfile --ignore-scripts
 
-      # turbo, nao --filter: com a #99 o `ds` depende do `ds-core`, e um filter direto builda
-      # so o `ds` — o build dele importa `@rojaostudio/ds-core/tokens`, que aponta pro dist que
-      # ainda nao existe. O turbo respeita o `dependsOn: ["^build"]` e resolve a ordem.
-      - name: Build design system
-        run: pnpm exec turbo run build --filter=@rojaostudio/ds --filter=@rojaostudio/ds-core --filter=rojao-ds --filter=@rojaostudio/ds-codemod
-
-      # Abre/atualiza o PR "Version Packages" quando ha changesets pendentes. Quando esse PR
-      # e mergeado (sem changesets pendentes), publica no npmjs via `pnpm release`, por OIDC.
-      - name: Create Release PR or publish
-        uses: changesets/action@v1
+      # Sem o input `publish`: com changesets pendentes, abre/atualiza o PR; sem changesets, só
+      # reporta `hasChangesets=false` e sai — quem publica é o job abaixo.
+      - name: Create or update Release PR
+        id: changesets
+        uses: changesets/action@a45c4d594aa4e2c509dc14a9f2b3b67ba3780d0d # v1.9.0
         with:
           version: pnpm version:packages
-          publish: pnpm release
           commit: "chore(release): version packages"
           title: "chore(release): version packages"
         env:
-          # PR de release precisa nascer com o PAT p/ disparar o CI (ver checkout acima).
+          # PAT e não GITHUB_TOKEN porque PRs criados com o GITHUB_TOKEN não disparam workflows
+          # (regra anti-loop do GitHub) — o PR de release nasceria sem o check obrigatório e
+          # travaria. Fallback pro GITHUB_TOKEN quando o secret não existe (aí o check tem que
+          # ser disparado à mão, fechando e reabrindo o PR — e o repo precisa manter ligado
+          # "Allow GitHub Actions to create and approve pull requests"). O PAT fica SÓ neste job.
           GITHUB_TOKEN: ${{ secrets.RELEASE_PAT || secrets.GITHUB_TOKEN }}
-          # Sem NODE_AUTH_TOKEN: o publish autentica por OIDC (Trusted Publishing). Se um dia
-          # aparecer um NPM_TOKEN aqui, e regressao — foi essa credencial de vida longa que a
+
+  # ------------------------------------------------------------------------------------------
+  # 2) publish — roda só quando NÃO há changesets pendentes (ou seja: o PR de versão acabou de
+  #    ser mergeado, ou há versão no package.json que ainda não está no npm).
+  #    É o único job com id-token, e roda no environment `npm-publish`, que exige aprovação
+  #    manual e só aceita a branch main. O Trusted Publisher do npm é amarrado a este
+  #    environment: um token OIDC emitido fora dele não publica.
+  # ------------------------------------------------------------------------------------------
+  publish:
+    needs: version
+    if: needs.version.outputs.hasChangesets == 'false'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: npm-publish
+    permissions:
+      contents: write # tags vX.Y.Z e GitHub Releases que o changesets/action cria após publicar
+      # id-token: e o que faz o Trusted Publishing funcionar. O runner pede um token OIDC de
+      # vida curta ao GitHub, o npm valida repo + workflow + environment, e publica — sem
+      # NPM_TOKEN guardado em secret nenhum.
+      id-token: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          # Node >= 22.14 e o piso pro publish com OIDC. A versao do npm NAO vem daqui:
+          # o Node 22 embarca npm 10.x, abaixo do que o trusted publishing exige. Ver step abaixo.
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+
+      # O npm que vem no Node 22 e o 10.9.x, e a troca de token OIDC so existe a partir do
+      # 11.5.1. Com o 10.x o CLI nem tenta autenticar: publica sem credencial e o registry
+      # responde E404. Versão EXATA, não faixa: o npm é quem segura o token de publicação, e uma
+      # faixa (`^11.5.1`) instalaria qualquer 11.x que saísse amanhã, inclusive uma comprometida.
+      # Atualizar à mão: `npm view npm@11 version`.
+      - name: Pin npm com suporte a trusted publishing
+        run: npm install -g npm@11.21.0
+
+      - name: Install
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      # Build ANTES e no mesmo job do publish: o publish abaixo roda com scripts desligados, então
+      # o prepack (que buildaria) não roda. O que vai pro npm é exatamente o que o gate conferiu.
+      # turbo, nao --filter: o `ds` depende do `ds-core` e o turbo respeita `dependsOn: ["^build"]`.
+      - name: Build
+        run: pnpm exec turbo run build --filter=@rojaostudio/ds --filter=@rojaostudio/ds-core --filter=rojao-ds --filter=@rojaostudio/ds-codemod
+
+      # O gate do tarball no mesmo job e no mesmo checkout do publish: sem teste, sem private/,
+      # sem "workspace:", sem script de instalação, sem dependência de terceiro fora da lista.
+      - name: Gate do tarball
+        run: pnpm check:pack
+
+      - name: Publish
+        uses: changesets/action@a45c4d594aa4e2c509dc14a9f2b3b67ba3780d0d # v1.9.0
+        with:
+          publish: pnpm release
+        env:
+          # GITHUB_TOKEN do próprio job (contents: write), só para tags e GitHub Releases. O PAT
+          # não entra aqui: nada neste job precisa disparar outro workflow.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Nenhum script de ciclo de vida roda durante o publish (prepack, prepublishOnly,
+          # postpack...). O build já foi feito acima e conferido pelo check:pack. Efeito
+          # colateral consciente: o guard-publisher.mjs (prepublishOnly) não roda aqui — ele
+          # existe para barrar `npm publish` MANUAL; neste job o publish é sempre pnpm, e o
+          # "workspace:" que ele previne já foi barrado pelo check:pack no passo anterior.
+          npm_config_ignore_scripts: "true"
+          # Sem NODE_AUTH_TOKEN/NPM_TOKEN: o publish autentica por OIDC (Trusted Publishing). Se
+          # um dia aparecer um token aqui, e regressao — foi essa credencial de vida longa que a
           # auditoria apontou como o vetor dos incidentes recentes de npm.

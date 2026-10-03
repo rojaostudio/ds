@@ -23,13 +23,16 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      # Ações fixadas por SHA de commit (tag é mutável); o comentário é a versão no momento
+      # da fixação. Mesmos SHAs do release.yml — atualizar os dois juntos.
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           fetch-depth: 0 # turbo --affected precisa do histórico pra diffar com a base
+          persist-credentials: false # nenhum passo aqui empurra nada
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 20
           cache: pnpm
@@ -55,11 +58,22 @@ jobs:
       - name: Gate do tarball
         run: pnpm check:pack
 
-      # Informativo, NAO bloqueante — e essa e a decisao, nao um esquecimento. As 27
-      # vulnerabilidades de hoje estao todas na cadeia de dev (Expo, Metro, PostCSS) e nenhuma
-      # alcanca quem instala: o `check:pack` verifica que os pacotes publicados nao carregam
-      # dependencia de terceiro em runtime, o que e uma garantia mais forte e que nao envelhece
-      # com o feed de avisos. Travar o CI aqui so ensinaria todo mundo a ignorar o passo.
+      # Informativo, NAO bloqueante — e essa e a decisao, nao um esquecimento. Estado em
+      # 03/10/2026: `pnpm audit --prod` acusa 47 avisos (38 high, 9 moderate), e o numero muda
+      # toda semana com o feed. O que importa e por onde cada um chega:
+      #   - 34 vem de `expo-image` > expo (xmldom, node-forge, postcss, image-size...). No `ds`
+      #     o expo-image e peerDependency OPCIONAL: o pacote publicado nao instala o Expo; quem
+      #     usa React Native ja tem o proprio Expo, com a versao e os avisos dele.
+      #   - 8 vem do `@rojao/config` (eslint e afins), pacote privado que nunca e publicado.
+      #   - 5 vem do `@rojaostudio/ds-codemod` > ts-morph > minimatch > brace-expansion 5.0.7
+      #     (ReDoS/CPU). ESTE alcanca quem roda o codemod — mas so pela versao travada no NOSSO
+      #     lockfile: a faixa publicada (ts-morph ^28 > minimatch ^10 > brace-expansion ^5.0.5)
+      #     resolve 5.0.12+, ja corrigido, numa instalacao nova. E o codemod roda via npx, na
+      #     maquina do dev, sobre o codigo dele — nao entra no bundle de ninguem.
+      # O `check:pack` garante que os pacotes publicados so carregam dependencia de runtime da
+      # lista permitida (@rojaostudio/*, @radix-ui/react-*, ts-morph no codemod), o que e uma
+      # garantia mais forte e que nao envelhece com o feed. Travar o CI aqui so ensinaria todo
+      # mundo a ignorar o passo.
       - name: Auditoria de dependências (informativo)
         run: pnpm audit --prod || true
 

@@ -91,7 +91,13 @@ for (const { pacote, dir, tetoKB, dependencias } of REGRAS) {
 
   const proibidos = lista.filter((f) => PROIBIDOS.some((re) => re.test(f)));
   const workspace = /"workspace:/.test(manifesto);
-  const lifecycle = /"(pre|post)install"\s*:/.test(manifesto);
+  // `install` também, não só pre/postinstall: os três rodam no `npm install` de quem consome, e
+  // o `install` puro é o que passa batido por quem só procura "postinstall". Lê o campo
+  // `scripts` do manifesto em vez de regex no texto, para não confundir com chave homônima
+  // fora de `scripts`.
+  const SCRIPTS_DE_INSTALACAO = ["preinstall", "install", "postinstall"];
+  const scriptsDoPacote = (JSON.parse(manifesto).scripts ?? {}) as Record<string, string>;
+  const lifecycle = SCRIPTS_DE_INSTALACAO.filter((s) => s in scriptsDoPacote);
   // O `pnpm audit` do workspace acusa vulnerabilidades quase todas na cadeia de dev (Expo,
   // Metro, PostCSS, ESLint), que nao alcancam quem instala. O que e publicado so carrega as
   // dependencias permitidas abaixo — e ISSO e o que vale travar, em vez de um nivel de severidade.
@@ -131,11 +137,11 @@ for (const { pacote, dir, tetoKB, dependencias } of REGRAS) {
 
   // Pacote sem script de ciclo de vida é o selo de confiança que 90% não tem: instalar não
   // executa código nosso. Se um postinstall aparecer um dia, que seja por decisão.
-  if (lifecycle) {
-    console.error(`  ✗ script de ciclo de vida (pre/postinstall) no pacote publicado`);
+  if (lifecycle.length) {
+    console.error(`  ✗ script de instalação no pacote publicado: ${lifecycle.join(", ")}`);
     falhas++;
   } else {
-    console.log("  ✓ sem pre/postinstall");
+    console.log("  ✓ sem preinstall/install/postinstall");
   }
 
   if (terceiros.length) {
