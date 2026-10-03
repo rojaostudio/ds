@@ -10,11 +10,6 @@ afterEach(cleanup);
 
 const drawer = () => document.querySelector<HTMLElement>('[role="dialog"]');
 
-// The [RDS] maps drawer/title to text/heading, and Cancel and the Input's label read text/heading too: flare-700
-// on the rojao light theme (2.9:1 on white). Kept out of the light matrix and pinned below until the Figma decides.
-const KNOWN_LIGHT = (mode: string) =>
-  mode === 'light' ? ['.rds-drawer__title', '.rds-drawer .rds-button--neutral', '.rds-field__label'] : [];
-
 function Example() {
   return (
     <Drawer
@@ -51,12 +46,12 @@ describe.each(MODES)('Drawer (%s)', (mode) => {
   it('open passes axe', async () => {
     const el = await render(<Example />, mode);
     await open(el);
-    expect(await axeViolations(document.body, KNOWN_LIGHT(mode))).toEqual([]);
+    expect(await axeViolations(document.body)).toEqual([]);
   });
 });
 
 describe('Drawer behaviour', () => {
-  it.fails('the title, Cancel and the label on the rojao light theme pass axe (text/heading is flare-700)', async () => {
+  it('the title, Cancel and the label on the rojao light theme pass axe', async () => {
     const el = await render(<Example />, 'light');
     await open(el);
     expect(await axeViolations(document.body)).toEqual([]);

@@ -4785,6 +4785,48 @@ input:focus-visible + .rds-checkbox__box {
   }
 }
 
+/* components/heading.css */
+/* @tokens heading */
+/*
+ * Heading (Content collection, heading/*): a title in the brand pair. heading/default is text/heading, heading/accent
+ * the logo orange; .heading/mark paints a stretch in the other one. level follows the type scale (band, heading,
+ * value), all bold.
+ */
+.rds-heading {
+  margin: 0;
+  font-family: var(--type-font-stack);
+  font-weight: var(--type-heading-weight);
+  color: var(--heading-default);
+  text-wrap: balance;
+}
+
+.rds-heading--band {
+  font-size: var(--type-band-size);
+  line-height: var(--type-band-line);
+}
+
+.rds-heading--heading {
+  font-size: var(--type-heading-size);
+  line-height: var(--type-heading-line);
+}
+
+.rds-heading--value {
+  font-size: var(--type-value-size);
+  line-height: var(--type-value-line);
+}
+
+.rds-heading--accent {
+  color: var(--heading-accent);
+}
+
+.rds-heading__mark {
+  color: var(--heading-accent);
+}
+
+.rds-heading--accent .rds-heading__mark {
+  color: var(--heading-default);
+}
+
 /* components/hover-card.css */
 /* @tokens hovercard */
 /* HoverCard (Feedback collection, hovercard/*): 320 wide, 16 inside, 12 between avatar and text, elevation/overlay. */

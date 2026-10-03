@@ -85,8 +85,8 @@ describe("rds-tokens output", () => {
 describe("the real [RDS] extraction", () => {
   const all = loadAll(join(__dirname, "..", ".."));
 
-  it("has the 984 component tokens of the 10 collections", () => {
-    expect(all.tokens).toHaveLength(984);
+  it("has the 986 component tokens of the 10 collections", () => {
+    expect(all.tokens).toHaveLength(986);
   });
 
   it("has no alias to a missing role or base token", () => {

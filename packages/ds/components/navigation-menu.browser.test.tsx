@@ -5,10 +5,6 @@ import { MODES, axeViolations, cleanup, render, settle } from './__tests__/rende
 
 afterEach(cleanup);
 
-// [RDS] maps navmenu/link/title to text/heading, flare on the rojao light theme (2.9:1 on white): a violation of the
-// Figma itself, as in item.browser.test.tsx. Kept out of the light matrix and pinned with it.fails.
-const KNOWN_LIGHT_TITLE = (mode: string) => (mode === 'light' ? ['.rds-navmenu__link-title'] : []);
-
 const ITEMS: NavigationMenuEntry[] = [
   {
     label: 'Para lojas',
@@ -37,12 +33,12 @@ describe.each(MODES)('NavigationMenu (%s)', (mode) => {
     expect(await axeViolations(el)).toEqual([]);
     await open(el);
     expect(el.querySelector('.rds-navmenu__panel')).not.toBeNull();
-    expect(await axeViolations(el, KNOWN_LIGHT_TITLE(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 });
 
 describe('NavigationMenu behaviour', () => {
-  it.fails('the link title (navmenu/link/title → text/heading) passes axe on the rojao light theme', async () => {
+  it('the link title (navmenu/link/title → text/heading) passes axe on the rojao light theme', async () => {
     const el = await render(<NavigationMenu aria-label="Principal" items={ITEMS} />, 'light');
     await open(el);
     expect(await axeViolations(el)).toEqual([]);

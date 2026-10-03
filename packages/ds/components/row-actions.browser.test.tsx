@@ -5,8 +5,8 @@ import { MODES, axeViolations, cleanup, render, settle } from './__tests__/rende
 
 afterEach(cleanup);
 
-// The neutral outline and ghost Buttons on the rojao light theme: pinned with it.fails in button.browser.test.tsx.
-const KNOWN_LIGHT = (mode: string) => (mode === 'light' ? ['.rds-button--neutral'] : []);
+// No known violation left: the neutral outline and ghost Buttons pass since the Rojão heading went navy.
+const KNOWN_LIGHT = (_mode: string): string[] => [];
 
 const ITEMS = [
   { label: 'Editar', onClick: () => {} },

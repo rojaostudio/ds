@@ -5,9 +5,6 @@ import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
 afterEach(cleanup);
 
-// The legend is the RadioGroup's (text/heading, flare-700 in rojao light): see radio-group.browser.test.tsx.
-const KNOWN_LIGHT_LEGEND = (mode: string) => (mode === 'light' ? ['.rds-radio-group__legend'] : []);
-
 describe.each(MODES)('Radio (%s)', (mode) => {
   it('every state passes axe: unchecked, checked, hint, disabled, in a group in error', async () => {
     const el = await render(
@@ -31,7 +28,7 @@ describe.each(MODES)('Radio (%s)', (mode) => {
       </div>,
       mode,
     );
-    expect(await axeViolations(el, KNOWN_LIGHT_LEGEND(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 
   it('the row is 44px tall (the touch minimum)', async () => {

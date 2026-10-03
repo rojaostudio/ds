@@ -10,7 +10,7 @@ afterEach(cleanup);
 // Violations of the Figma itself, each pinned with it.fails in its own component's test: the neutral outline and
 // ghost Buttons and the inactive FilterChip's count on the rojao light theme (button and filter-chip tests).
 // Floating layers are portalled out of <main>: the landmark rule does not apply to them.
-const KNOWN_LIGHT = (mode: string) => (mode === 'light' ? ['.rds-button--neutral', '.rds-filter-chip__count'] : []);
+const KNOWN_LIGHT = (mode: string) => (mode === 'light' ? ['.rds-filter-chip__count'] : []);
 const outsideRegion = (lines: string[]) => lines.filter((line) => !line.startsWith('region:'));
 
 const STATUS = [

@@ -8,10 +8,6 @@ import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
 afterEach(cleanup);
 
-// [RDS] maps benefits/title and benefits/item/title to text/heading, flare on the rojao light theme (2.9:1 on white):
-// a violation of the Figma itself, pinned with it.fails below.
-const KNOWN_LIGHT = (mode: string) => (mode === 'light' ? ['.rds-block__title', '.rds-benefits__item-title'] : []);
-
 const block = (
   <Benefits eyebrow="Por que usar" title="O que você ganha" description="Uma frase que resume os benefícios abaixo.">
     <BenefitsItem icon={<SearchIcon />} title="Busca rápida" description="Ache o produto certo em segundos." link={<Button variant="ghost">Saiba mais</Button>} />
@@ -25,12 +21,12 @@ const columns = (el: HTMLElement) => getComputedStyle(el.querySelector('.rds-ben
 describe.each(MODES)('Benefits (%s)', (mode) => {
   it.each(WIDTHS)('in a %i container passes axe', async (width) => {
     const el = await render(<InContainer width={width}>{block}</InContainer>, mode);
-    expect(await axeViolations(el, KNOWN_LIGHT(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 });
 
 describe('Benefits behaviour', () => {
-  it.fails('the titles (benefits/title, benefits/item/title → text/heading) pass axe on the rojao light theme', async () => {
+  it('the titles (benefits/title, benefits/item/title → text/heading, navy) pass axe on the rojao light theme', async () => {
     const el = await render(<InContainer width={1024}>{block}</InContainer>, 'light');
     expect(await axeViolations(el)).toEqual([]);
   });

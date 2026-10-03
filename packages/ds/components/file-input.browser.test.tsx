@@ -8,10 +8,6 @@ import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
 afterEach(cleanup);
 
-// The [RDS] maps input/label/color to text/heading, and the rojao light heading is flare-700 (#ff6a00, 2.9:1
-// on white) for a 14px label. Kept out of the light axe matrix and pinned below until the Figma decides.
-const KNOWN_LIGHT_LABEL = (mode: string) => (mode === 'light' ? ['.rds-field__label'] : []);
-
 const pdf = () => new File(['conteúdo'], 'comprovante.pdf', { type: 'application/pdf' });
 // A 1×1 PNG, so the tile has a real image to preview.
 const PNG = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
@@ -46,7 +42,7 @@ describe.each(MODES)('FileInput (%s)', (mode) => {
       </div>,
       mode,
     );
-    expect(await axeViolations(el, KNOWN_LIGHT_LABEL(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 
   it('dropzone and tile pass axe in every state: empty, hint, error, required, disabled, filled', async () => {
@@ -63,7 +59,7 @@ describe.each(MODES)('FileInput (%s)', (mode) => {
       </div>,
       mode,
     );
-    expect(await axeViolations(el, KNOWN_LIGHT_LABEL(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 
   it('is 44px tall, as the Input', async () => {
@@ -73,7 +69,7 @@ describe.each(MODES)('FileInput (%s)', (mode) => {
 });
 
 describe('FileInput behaviour', () => {
-  it.fails('the top label on the rojao light theme passes axe (text/heading is flare-700)', async () => {
+  it('the top label on the rojao light theme passes axe', async () => {
     const el = await render(<FileInput label="Comprovante" />, 'light');
     expect(await axeViolations(el)).toEqual([]);
   });

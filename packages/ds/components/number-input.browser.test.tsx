@@ -6,10 +6,6 @@ import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
 afterEach(cleanup);
 
-// The [RDS] maps number-input/label/color to text/heading, and the rojao light heading is flare-700 (#ff6a00,
-// 2.9:1 on white) for a 14px label. Kept out of the light axe matrix and pinned below until the Figma decides.
-const KNOWN_LIGHT_LABEL = (mode: string) => (mode === 'light' ? ['.rds-field__label'] : []);
-
 const field = (el: HTMLElement, i = 0) => el.querySelectorAll<HTMLInputElement>('[role="spinbutton"]')[i];
 const minus = (el: HTMLElement) => el.querySelector<HTMLButtonElement>('[aria-label="Diminuir"]')!;
 const plus = (el: HTMLElement) => el.querySelector<HTMLButtonElement>('[aria-label="Aumentar"]')!;
@@ -26,7 +22,7 @@ describe.each(MODES)('NumberInput (%s)', (mode) => {
       </div>,
       mode,
     );
-    expect(await axeViolations(el, KNOWN_LIGHT_LABEL(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 
   it('one 44 frame: − and + inside it, split by inner borders', async () => {
@@ -40,7 +36,7 @@ describe.each(MODES)('NumberInput (%s)', (mode) => {
 });
 
 describe('NumberInput behaviour', () => {
-  it.fails('the top label on the rojao light theme passes axe (text/heading is flare-700)', async () => {
+  it('the top label on the rojao light theme passes axe', async () => {
     const el = await render(<NumberInput label="Quantidade" defaultValue={3} />, 'light');
     expect(await axeViolations(el)).toEqual([]);
   });

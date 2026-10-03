@@ -6,10 +6,6 @@ import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
 afterEach(cleanup);
 
-// [RDS] maps empty/title to text/heading, which on the rojao light theme is flare (#ff6a00, 2.9:1 on white): a violation of
-// the Figma itself. Kept out of the light matrix and pinned with it.fails below, as in alert.browser.test.tsx.
-const KNOWN_LIGHT_TITLE = (mode: string) => (mode === 'light' ? ['.rds-empty__title'] : []);
-
 describe.each(MODES)('Empty (%s)', (mode) => {
   it('with icon, description and two actions, and the danger tone, passes axe', async () => {
     const el = await render(
@@ -26,12 +22,12 @@ describe.each(MODES)('Empty (%s)', (mode) => {
       </div>,
       mode,
     );
-    expect(await axeViolations(el, KNOWN_LIGHT_TITLE(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 });
 
 describe('Empty behaviour', () => {
-  it.fails('the title (empty/title → text/heading) passes axe on the rojao light theme', async () => {
+  it('the title (empty/title → text/heading) passes axe on the rojao light theme', async () => {
     const el = await render(<Empty title="Nenhum pedido por aqui" />, 'light');
     expect(await axeViolations(el)).toEqual([]);
   });

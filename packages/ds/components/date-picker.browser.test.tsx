@@ -5,12 +5,6 @@ import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
 afterEach(cleanup);
 
-// The [RDS] maps input/label/color to text/heading, and the rojao light heading is flare-700 (#ff6a00, 2.9:1
-// on white) for a 14px label. Kept out of the light axe matrix and pinned below until the Figma decides.
-const KNOWN_LIGHT_LABEL = (mode: string) => (mode === 'light' ? ['.rds-field__label'] : []);
-// The open Calendar's title is text/heading too (calendar/title): pinned in calendar.browser.test.tsx.
-const KNOWN_LIGHT_OPEN = (mode: string) => (mode === 'light' ? ['.rds-field__label', '.rds-calendar__title'] : []);
-
 const TODAY = '2026-09-30';
 const dialog = () => document.querySelector<HTMLElement>('[role="dialog"]');
 const field = (el: HTMLElement) => el.querySelector<HTMLInputElement>('input')!;
@@ -28,19 +22,19 @@ describe.each(MODES)('DatePicker (%s)', (mode) => {
       </div>,
       mode,
     );
-    expect(await axeViolations(el, KNOWN_LIGHT_LABEL(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 
   it('the open calendar passes axe', async () => {
     const el = await render(<DatePicker label="Data do disparo" defaultValue="2026-09-15" today={TODAY} />, mode);
     el.querySelector<HTMLButtonElement>('[aria-label="Escolher data"]')!.click();
     await vi.waitFor(() => expect(dialog()).not.toBeNull());
-    expect(await axeViolations(document.body, KNOWN_LIGHT_OPEN(mode))).toEqual([]);
+    expect(await axeViolations(document.body)).toEqual([]);
   });
 });
 
 describe('DatePicker behaviour', () => {
-  it.fails('the top label on the rojao light theme passes axe (text/heading is flare-700)', async () => {
+  it('the top label on the rojao light theme passes axe', async () => {
     const el = await render(<DatePicker label="Data do disparo" />, 'light');
     expect(await axeViolations(el)).toEqual([]);
   });

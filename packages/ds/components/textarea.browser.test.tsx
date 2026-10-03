@@ -4,9 +4,6 @@ import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
 afterEach(cleanup);
 
-// The [RDS] maps textarea/label/color to text/heading, and the rojao light heading is flare-700 (#ff6a00, 2.9:1
-// on white) for a 14px label. Kept out of the light axe matrix and pinned below until the Figma decides.
-const KNOWN_LIGHT_LABEL = (mode: string) => (mode === 'light' ? ['.rds-field__label'] : []);
 
 describe.each(MODES)('Textarea (%s)', (mode) => {
   it('every state passes axe: empty, filled, hint, error, disabled, required, floating', async () => {
@@ -24,12 +21,12 @@ describe.each(MODES)('Textarea (%s)', (mode) => {
       </div>,
       mode,
     );
-    expect(await axeViolations(el, KNOWN_LIGHT_LABEL(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 });
 
 describe('Textarea behaviour', () => {
-  it.fails('the top label on the rojao light theme passes axe (text/heading is flare-700)', async () => {
+  it('the top label (textarea/label/color → text/heading) passes axe on the rojao light theme', async () => {
     const el = await render(<Textarea label="Mensagem" />, 'light');
     expect(await axeViolations(el)).toEqual([]);
   });

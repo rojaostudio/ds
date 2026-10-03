@@ -5,10 +5,6 @@ import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
 afterEach(cleanup);
 
-// card/title and item/title are text/heading, flare-700 on the rojao light theme: pinned with it.fails in
-// card.browser.test.tsx and item.browser.test.tsx.
-const KNOWN_LIGHT = (mode: string) => (mode === 'light' ? ['.rds-card__title', '.rds-item__title'] : []);
-
 function Example() {
   return (
     <DangerZone title="Zona de risco" description="Ações que não têm volta">
@@ -42,7 +38,7 @@ describe.each(MODES)('DangerZone (%s)', (mode) => {
       </div>,
       mode,
     );
-    expect(await axeViolations(el, KNOWN_LIGHT(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 });
 

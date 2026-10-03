@@ -9,10 +9,6 @@ afterEach(cleanup);
 
 const STATUSES: Exclude<TableStatusValue, 'default'>[] = ['loading', 'empty', 'noResults', 'error'];
 
-// The status rows hold an Empty, whose title is empty/title → text/heading: flare on the rojao light theme (2.9:1),
-// a violation of the Figma pinned in empty.browser.test.tsx. Kept out of the light matrix.
-const KNOWN_LIGHT_TITLE = (mode: string) => (mode === 'light' ? ['.rds-empty__title'] : []);
-
 const header = (
   <TableHeader>
     <TableRow>
@@ -70,7 +66,7 @@ describe.each(MODES)('Table (%s)', (mode) => {
       </Table>,
       mode,
     );
-    expect(await axeViolations(el, KNOWN_LIGHT_TITLE(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 });
 

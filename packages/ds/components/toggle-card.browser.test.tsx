@@ -7,10 +7,6 @@ import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
 afterEach(cleanup);
 
-// The Input's top label is text/heading, flare-700 on the rojao light theme: pinned with it.fails in
-// input.browser.test.tsx.
-const KNOWN_LIGHT = (mode: string) => (mode === 'light' ? ['.rds-field__label'] : []);
-
 function Controlled({ initial = false, onChange }: { initial?: boolean; onChange?: (v: boolean) => void }) {
   const [on, setOn] = useState(initial);
   return (
@@ -39,7 +35,7 @@ describe.each(MODES)('ToggleCard (%s)', (mode) => {
       </div>,
       mode,
     );
-    expect(await axeViolations(el, KNOWN_LIGHT(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 });
 

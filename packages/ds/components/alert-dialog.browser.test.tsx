@@ -8,12 +8,6 @@ afterEach(cleanup);
 
 const dialog = () => document.querySelector<HTMLElement>('[role="alertdialog"]');
 
-// The [RDS] maps alertdialog/title to text/heading, and Cancel is the neutral outline Button, whose label is
-// text/heading too: flare-700 on the rojao light theme (2.9:1 on white). Kept out of the light matrix and pinned
-// below until the Figma decides, as in button.browser.test.tsx.
-const KNOWN_LIGHT = (mode: string) =>
-  mode === 'light' ? ['.rds-alert-dialog__title', '.rds-alert-dialog .rds-button--neutral'] : [];
-
 function Example({ tone = 'danger', onConfirm = () => {} }: { tone?: AlertDialogTone; onConfirm?: () => void }) {
   return (
     <AlertDialog
@@ -33,12 +27,12 @@ describe.each(MODES)('AlertDialog (%s)', (mode) => {
     el.querySelector('button')!.click();
     await vi.waitFor(() => expect(dialog()).not.toBeNull());
     await settle();
-    expect(await axeViolations(document.body, KNOWN_LIGHT(mode))).toEqual([]);
+    expect(await axeViolations(document.body)).toEqual([]);
   });
 });
 
 describe('AlertDialog behaviour', () => {
-  it.fails('the title and Cancel on the rojao light theme pass axe (text/heading is flare-700)', async () => {
+  it('the title and Cancel on the rojao light theme pass axe (text/heading is navy)', async () => {
     const el = await render(<Example />, 'light');
     el.querySelector('button')!.click();
     await vi.waitFor(() => expect(dialog()).not.toBeNull());

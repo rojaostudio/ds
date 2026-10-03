@@ -7,10 +7,6 @@ import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
 afterEach(cleanup);
 
-// item/title is text/heading and the neutral ghost Button's label too, flare-700 on the rojao light theme: pinned
-// with it.fails in item.browser.test.tsx and button.browser.test.tsx.
-const KNOWN_LIGHT = (mode: string) => (mode === 'light' ? ['.rds-item__title', '.rds-button--neutral'] : []);
-
 function Controlled({ initial = false, onEdit }: { initial?: boolean; onEdit?: () => void }) {
   const [on, setOn] = useState(initial);
   return (
@@ -37,7 +33,7 @@ describe.each(MODES)('ToggleCardCompact (%s)', (mode) => {
       </div>,
       mode,
     );
-    expect(await axeViolations(el, KNOWN_LIGHT(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 });
 

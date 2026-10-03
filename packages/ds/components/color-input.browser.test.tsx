@@ -5,12 +5,6 @@ import { MODES, axeViolations, cleanup, render, settle } from './__tests__/rende
 
 afterEach(cleanup);
 
-// The [RDS] maps color-input/label/color and color-input/palette/title to text/heading, and the rojao light heading
-// is flare-700 (#ff6a00, 2.9:1 on white) for 14px text. Kept out of the light axe matrix and pinned below until the
-// Figma decides.
-const KNOWN_LIGHT_LABEL = (mode: string) => (mode === 'light' ? ['.rds-field__label'] : []);
-const KNOWN_LIGHT_OPEN = (mode: string) => (mode === 'light' ? ['.rds-field__label', '.rds-color-input__palette-title'] : []);
-
 const BRAND = ['#2563EB', '#7C3AED', '#DB2777', '#DC2626', '#EA580C', '#CA8A04', '#16A34A', '#0D9488', '#0891B2', '#475569', '#0F172A', '#FFFFFF'];
 const hex = (el: HTMLElement) => el.querySelector<HTMLInputElement>('.rds-color-input__hex')!;
 const dialog = () => document.querySelector<HTMLElement>('[role="dialog"]');
@@ -27,7 +21,7 @@ describe.each(MODES)('ColorInput (%s)', (mode) => {
       </div>,
       mode,
     );
-    expect(await axeViolations(el, KNOWN_LIGHT_LABEL(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 
   it('the open palette passes axe', async () => {
@@ -35,7 +29,7 @@ describe.each(MODES)('ColorInput (%s)', (mode) => {
     await userEvent.click(el.querySelector<HTMLButtonElement>('.rds-color-input__swatch')!);
     await vi.waitFor(() => expect(dialog()).not.toBeNull());
     await settle();
-    expect(await axeViolations(document.body, KNOWN_LIGHT_OPEN(mode))).toEqual([]);
+    expect(await axeViolations(document.body)).toEqual([]);
   });
 
   it('a 44 box with the 28 swatch painted in the chosen colour', async () => {
@@ -49,12 +43,12 @@ describe.each(MODES)('ColorInput (%s)', (mode) => {
 });
 
 describe('ColorInput behaviour', () => {
-  it.fails('the top label on the rojao light theme passes axe (text/heading is flare-700)', async () => {
+  it('the top label on the rojao light theme passes axe', async () => {
     const el = await render(<ColorInput label="Cor principal" />, 'light');
     expect(await axeViolations(el)).toEqual([]);
   });
 
-  it.fails('the palette title on the rojao light theme passes axe (color-input/palette/title is text/heading)', async () => {
+  it('the palette title on the rojao light theme passes axe (color-input/palette/title is text/heading)', async () => {
     const el = await render(<ColorInput label="Cor principal" defaultValue="#2563EB" palette={BRAND} />, 'light');
     await userEvent.click(el.querySelector<HTMLButtonElement>('.rds-color-input__swatch')!);
     await vi.waitFor(() => expect(dialog()).not.toBeNull());

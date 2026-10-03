@@ -166,3 +166,5 @@ choice-list/item/trailing/default|C|@theme:text/body|=
 choice-list/item/trailing/disabled|C|@theme:text/disabled|=
 choice-list/focus/ring|C|@theme:focus/ring|=
 choice-list/item/description/selected|C|@theme:text/on/tint|=
+heading/default|C|@theme:text/heading|=
+heading/accent|C|@theme:colors/accent/default|=

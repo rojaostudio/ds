@@ -5,9 +5,6 @@ import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
 afterEach(cleanup);
 
-// The [RDS] maps input/label/color to text/heading, and the rojao light heading is flare-700 (#ff6a00, 2.9:1
-// on white) for a 14px label. Kept out of the light axe matrix and pinned below until the Figma decides.
-const KNOWN_LIGHT_LABEL = (mode: string) => (mode === 'light' ? ['.rds-field__label'] : []);
 
 const field = (el: HTMLElement) => el.querySelector<HTMLInputElement>('[role="combobox"]')!;
 const listbox = () => document.querySelector<HTMLElement>('[role="listbox"]');
@@ -26,7 +23,7 @@ describe.each(MODES)('TimePicker (%s)', (mode) => {
       </div>,
       mode,
     );
-    expect(await axeViolations(el, KNOWN_LIGHT_LABEL(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 
   it('the open list passes axe', async () => {
@@ -39,12 +36,12 @@ describe.each(MODES)('TimePicker (%s)', (mode) => {
     field(el).focus();
     await userEvent.keyboard('{ArrowDown}');
     expect(listbox()).not.toBeNull();
-    expect(await axeViolations(el, KNOWN_LIGHT_LABEL(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 });
 
 describe('TimePicker behaviour', () => {
-  it.fails('the top label on the rojao light theme passes axe (text/heading is flare-700)', async () => {
+  it('the top label (input/label/color → text/heading) passes axe on the rojao light theme', async () => {
     const el = await render(<TimePicker label="Horário" />, 'light');
     expect(await axeViolations(el)).toEqual([]);
   });

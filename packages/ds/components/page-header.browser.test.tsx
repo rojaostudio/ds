@@ -9,12 +9,6 @@ import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
 afterEach(cleanup);
 
-// [RDS] maps pageheader/title (and, inside, breadcrumb/label/current and tabs/label/selected) to text/heading, flare on
-// the rojao light theme (2.9:1 on white, under 3:1 even for large text): a violation of the Figma itself, as in
-// item.browser.test.tsx. Kept out of the light matrix and pinned with it.fails.
-const KNOWN_LIGHT = (mode: string) =>
-  mode === 'light' ? ['.rds-page-header__title', '.rds-breadcrumb__link--current', '.rds-tabs__tab[data-state="active"]'] : [];
-
 // The Tabs root wraps the header and the views: the tabs slot takes the TabsList, the panels go under the header.
 function Full() {
   return (
@@ -47,12 +41,12 @@ function Full() {
 describe.each(MODES)('PageHeader (%s)', (mode) => {
   it('breadcrumb, title, description, actions and tabs pass axe', async () => {
     const el = await render(<Full />, mode);
-    expect(await axeViolations(el, KNOWN_LIGHT(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 });
 
 describe('PageHeader behaviour', () => {
-  it.fails('the title (pageheader/title → text/heading) passes axe on the rojao light theme', async () => {
+  it('the title (pageheader/title → text/heading) passes axe on the rojao light theme', async () => {
     const el = await render(<PageHeader title="Pedidos" />, 'light');
     expect(await axeViolations(el)).toEqual([]);
   });

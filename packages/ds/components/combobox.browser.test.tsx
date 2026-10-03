@@ -5,10 +5,6 @@ import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
 afterEach(cleanup);
 
-// The [RDS] maps input/label/color to text/heading, and the rojao light heading is flare-700 (#ff6a00, 2.9:1
-// on white) for a 14px label. Kept out of the light axe matrix and pinned below until the Figma decides.
-const KNOWN_LIGHT_LABEL = (mode: string) => (mode === 'light' ? ['.rds-field__label'] : []);
-
 const audiences = ['Compradores SP', 'Compradores RJ', 'Comerciantes', 'Lojistas SP', { value: 'adm', label: 'Administradores', disabled: true }];
 
 const field = (el: HTMLElement, i = 0) => el.querySelectorAll<HTMLInputElement>('[role="combobox"]')[i];
@@ -30,7 +26,7 @@ describe.each(MODES)('Combobox (%s)', (mode) => {
       </div>,
       mode,
     );
-    expect(await axeViolations(el, KNOWN_LIGHT_LABEL(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 
   it('open, empty and create menus pass axe', async () => {
@@ -44,20 +40,20 @@ describe.each(MODES)('Combobox (%s)', (mode) => {
     input.focus();
     await userEvent.keyboard('{ArrowDown}');
     expect(listbox()).not.toBeNull();
-    expect(await axeViolations(el, KNOWN_LIGHT_LABEL(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
     await userEvent.clear(input);
     await userEvent.type(input, 'Com');
     expect(el.textContent).toContain('Cadastrar "Com"');
-    expect(await axeViolations(el, KNOWN_LIGHT_LABEL(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
     // The create option under the arrows (menu=create, hover on it).
     await userEvent.keyboard('{ArrowUp}');
     expect(activeOption(input)?.textContent).toBe('Cadastrar "Com"');
-    expect(await axeViolations(el, KNOWN_LIGHT_LABEL(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
     // menu=empty-create: the create option alone, already active.
     await userEvent.clear(input);
     await userEvent.type(input, 'xyz');
     expect(activeOption(input)?.textContent).toBe('Cadastrar "xyz"');
-    expect(await axeViolations(el, KNOWN_LIGHT_LABEL(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 
   it('the empty menu passes axe (menu=empty)', async () => {
@@ -72,7 +68,7 @@ describe.each(MODES)('Combobox (%s)', (mode) => {
     await userEvent.type(input, 'Lojistas BH');
     expect(el.querySelector('.rds-combobox__empty')?.textContent).toBe('Nenhum público com esse nome.');
     expect(listbox()).toBeNull();
-    expect(await axeViolations(el, KNOWN_LIGHT_LABEL(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 
   it('is 44px tall, as the Input', async () => {
@@ -82,7 +78,7 @@ describe.each(MODES)('Combobox (%s)', (mode) => {
 });
 
 describe('Combobox behaviour', () => {
-  it.fails('the top label on the rojao light theme passes axe (text/heading is flare-700)', async () => {
+  it('the top label on the rojao light theme passes axe', async () => {
     const el = await render(<Combobox label="Público" options={audiences} />, 'light');
     expect(await axeViolations(el)).toEqual([]);
   });

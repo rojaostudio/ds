@@ -8,8 +8,8 @@ afterEach(cleanup);
 // A 1 × 1 white PNG: what is drawn does not matter here, only the frame around it.
 const PNG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII=';
 
-// The neutral outline Button (the CopyField) on the rojao light theme: pinned with it.fails in button.browser.test.tsx.
-const KNOWN_LIGHT = (mode: string) => (mode === 'light' ? ['.rds-button--neutral'] : []);
+// No known violation left: the neutral outline Button passes since the Rojão heading went navy.
+const KNOWN_LIGHT = (_mode: string): string[] => [];
 
 describe.each(MODES)('QRDisplay (%s)', (mode) => {
   it('with a CopyField and a caption passes axe', async () => {

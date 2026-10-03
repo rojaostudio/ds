@@ -6,10 +6,6 @@ import { MODES, axeViolations, cleanup, render, settle } from './__tests__/rende
 
 afterEach(cleanup);
 
-// The [RDS] maps popover/title to text/heading: flare-700 on the rojao light theme (2.9:1 on white). Kept out of
-// the light matrix and pinned below until the Figma decides.
-const KNOWN_LIGHT_TITLE = (mode: string) => (mode === 'light' ? ['.rds-popover__title'] : []);
-
 const box = () => document.querySelector<HTMLElement>('.rds-popover');
 
 function Example() {
@@ -29,12 +25,12 @@ describe.each(MODES)('Popover (%s)', (mode) => {
     el.querySelector('button')!.click();
     await vi.waitFor(() => expect(box()).not.toBeNull());
     await settle();
-    expect(await axeViolations(document.body, KNOWN_LIGHT_TITLE(mode))).toEqual([]);
+    expect(await axeViolations(document.body)).toEqual([]);
   });
 });
 
 describe('Popover behaviour', () => {
-  it.fails('the title on the rojao light theme passes axe (text/heading is flare-700)', async () => {
+  it('the title on the rojao light theme passes axe', async () => {
     const el = await render(<Example />, 'light');
     el.querySelector('button')!.click();
     await vi.waitFor(() => expect(box()).not.toBeNull());

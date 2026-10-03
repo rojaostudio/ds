@@ -5,10 +5,6 @@ import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
 afterEach(cleanup);
 
-// The [RDS] maps otp/label to text/heading, and the rojao light heading is flare-700 (#ff6a00, 2.9:1 on white)
-// for a 14px label. Kept out of the light axe matrix and pinned below until the Figma decides.
-const KNOWN_LIGHT_LABEL = (mode: string) => (mode === 'light' ? ['.rds-otp__label'] : []);
-
 const slots = (el: HTMLElement) => Array.from(el.querySelectorAll('.rds-otp__slot')).map((s) => s.textContent);
 
 describe.each(MODES)('InputOTP (%s)', (mode) => {
@@ -23,7 +19,7 @@ describe.each(MODES)('InputOTP (%s)', (mode) => {
       </div>,
       mode,
     );
-    expect(await axeViolations(el, KNOWN_LIGHT_LABEL(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 
   it('the active box passes axe while typing', async () => {
@@ -31,7 +27,7 @@ describe.each(MODES)('InputOTP (%s)', (mode) => {
     el.querySelector('input')!.focus();
     await userEvent.keyboard('48');
     expect(el.querySelector('.rds-otp__slot--active')).not.toBeNull();
-    expect(await axeViolations(el, KNOWN_LIGHT_LABEL(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 
   it('boxes of 48 × 56, 8 apart', async () => {
@@ -43,7 +39,7 @@ describe.each(MODES)('InputOTP (%s)', (mode) => {
 });
 
 describe('InputOTP behaviour', () => {
-  it.fails('the label on the rojao light theme passes axe (text/heading is flare-700)', async () => {
+  it('the label on the rojao light theme passes axe', async () => {
     const el = await render(<InputOTP label="Código de verificação" length={4} />, 'light');
     expect(await axeViolations(el)).toEqual([]);
   });

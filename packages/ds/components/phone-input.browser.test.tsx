@@ -5,10 +5,6 @@ import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
 afterEach(cleanup);
 
-// The Input's top label is text/heading, flare-700 on the rojao light theme: pinned with it.fails in
-// input.browser.test.tsx.
-const KNOWN_LIGHT_LABEL = (mode: string) => (mode === 'light' ? ['.rds-field__label'] : []);
-
 describe.each(MODES)('PhoneInput (%s)', (mode) => {
   it('with label, hint, error and disabled passes axe', async () => {
     const el = await render(
@@ -19,7 +15,7 @@ describe.each(MODES)('PhoneInput (%s)', (mode) => {
       </div>,
       mode,
     );
-    expect(await axeViolations(el, KNOWN_LIGHT_LABEL(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 });
 

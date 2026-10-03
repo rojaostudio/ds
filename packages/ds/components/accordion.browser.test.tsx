@@ -6,10 +6,6 @@ import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
 afterEach(cleanup);
 
-// [RDS] maps accordion/title to text/heading, which on the rojao light theme is flare (#ff6a00, 2.9:1 on white): a violation of
-// the Figma itself. Kept out of the light matrix and pinned with it.fails below, as in alert.browser.test.tsx.
-const KNOWN_LIGHT_TITLE = (mode: string) => (mode === 'light' ? ['.rds-accordion__title'] : []);
-
 const faq = (props: { disabled?: boolean } = {}) => [
   <AccordionItem key="a" value="a" title="Como faço um pedido?">
     Escolha o produto, confira os detalhes e toque em Comprar.
@@ -25,7 +21,7 @@ const faq = (props: { disabled?: boolean } = {}) => [
 describe.each(MODES)('Accordion (%s)', (mode) => {
   it('closed, open and disabled items pass axe', async () => {
     const el = await render(<Accordion defaultValue="a">{faq({ disabled: true })}</Accordion>, mode);
-    expect(await axeViolations(el, KNOWN_LIGHT_TITLE(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 
   it('multiple, all open, passes axe', async () => {
@@ -35,12 +31,12 @@ describe.each(MODES)('Accordion (%s)', (mode) => {
       </Accordion>,
       mode,
     );
-    expect(await axeViolations(el, KNOWN_LIGHT_TITLE(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 });
 
 describe('Accordion behaviour', () => {
-  it.fails('the title (accordion/title → text/heading) passes axe on the rojao light theme', async () => {
+  it('the title (accordion/title → text/heading, navy) passes axe on the rojao light theme', async () => {
     const el = await render(<Accordion>{faq()}</Accordion>, 'light');
     expect(await axeViolations(el)).toEqual([]);
   });

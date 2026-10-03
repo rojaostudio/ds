@@ -386,6 +386,8 @@
   --choice-list-item-trailing-disabled: var(--text-disabled);
   --choice-list-focus-ring: var(--focus-ring);
   --choice-list-item-description-selected: var(--text-on-tint);
+  --heading-default: var(--text-heading);
+  --heading-accent: var(--colors-accent-default);
 
   /* external */
   --google-button-light-background: #ffffff;

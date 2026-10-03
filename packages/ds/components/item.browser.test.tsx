@@ -11,10 +11,6 @@ import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
 afterEach(cleanup);
 
-// [RDS] maps item/title to text/heading, which on the rojao light theme is flare (#ff6a00, 2.9:1 on white): a violation of
-// the Figma itself. Kept out of the light matrix and pinned with it.fails below, as in alert.browser.test.tsx.
-const KNOWN_LIGHT_TITLE = (mode: string) => (mode === 'light' ? ['.rds-item__title'] : []);
-
 const VARIANTS: ItemVariant[] = ['default', 'outline', 'muted'];
 const SIZES: ItemSize[] = ['default', 'sm'];
 
@@ -40,12 +36,12 @@ describe.each(MODES)('Item (%s)', (mode) => {
       </div>,
       mode,
     );
-    expect(await axeViolations(el, KNOWN_LIGHT_TITLE(mode))).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 });
 
 describe('Item behaviour', () => {
-  it.fails('the title (item/title → text/heading) passes axe on the rojao light theme', async () => {
+  it('the title (item/title → text/heading) passes axe on the rojao light theme', async () => {
     const el = await render(<Item title="Pedido #4821" />, 'light');
     expect(await axeViolations(el)).toEqual([]);
   });
@@ -76,7 +72,6 @@ describe('Item behaviour', () => {
     );
     expect(el.querySelector('.rds-item')).not.toBeNull();
     expect(el.querySelector('label[for="email"]')!.textContent).toBe('E-mail');
-    // SettingsList's title is a PageHeader (h2): pageheader/title is text/heading too (#16, wave 3).
-    expect(await axeViolations(el, [...KNOWN_LIGHT_TITLE('light'), '.rds-page-header__title'])).toEqual([]);
+    expect(await axeViolations(el)).toEqual([]);
   });
 });
