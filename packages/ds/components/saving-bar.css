@@ -1,10 +1,14 @@
 /* @tokens savingbar */
 /*
  * SavingBar (Actions collection, savingbar/*): full width (at least 320), 12 24 padding, 16 between the
- * message (label, medium, at most 2 lines with an ellipsis) and the actions (8 apart). The bar is the brand plate
- * (.ds-plate on the element, set by the component): savingbar/background is surface/page and savingbar/text is text/body,
- * read in the brand mode, so it comes out the same over a light or a dark page. The Buttons are tone action (Salvar)
- * and tone neutral ghost (Descartar), read on the plate too.
+ * message (label, medium, at most 2 lines with an ellipsis) and the actions (8 apart). The bar is the brand's
+ * primary colour: savingbar/background is colors/primary/default and savingbar/text is text/on/primary (the text,
+ * the error alert, the chevron and the loader), so it follows the theme, light or dark, and every brand.
+ * The Buttons stay the Button: Salvar tone action fill and Descartar tone neutral ghost, with the bar's colours.
+ * The bar redeclares the Button tokens those two read: the Salvar fill is savingbar/button/fill/background with
+ * savingbar/button/fill/label, its hover the fill at 85% over the bar (active 70%); the Descartar label is
+ * savingbar/button/ghost/label, its hover the label colour at 15% (active 25%); the focus ring is savingbar/focus/ring;
+ * disabled (saving) is each Button at 40% over the bar, as the Figma layer opacity.
  * Two arrangements, by the screen width, as the Figma viewport mode (layout/compact below lg 1024): expanded from 1024,
  * the message grows (at least 160) beside the actions; compact below it, the message on top and Descartar and
  * Salvar under it, sharing the width.
@@ -21,6 +25,23 @@
   background: var(--savingbar-background);
   color: var(--savingbar-text);
   font-family: var(--type-font-stack);
+
+  /* The Button tokens Salvar (action fill) and Descartar (neutral ghost) read, in the bar's colours. */
+  --button-focus-ring: var(--savingbar-focus-ring);
+  --button-action-fill-background-default: var(--savingbar-button-fill-background);
+  --button-action-fill-background-hover: color-mix(in srgb, var(--savingbar-button-fill-background) 85%, var(--savingbar-background));
+  --button-action-fill-background-active: color-mix(in srgb, var(--savingbar-button-fill-background) 70%, var(--savingbar-background));
+  --button-action-fill-label: var(--savingbar-button-fill-label);
+  --button-action-fill-icon: var(--savingbar-button-fill-label);
+  --button-neutral-ghost-label: var(--savingbar-button-ghost-label);
+  --button-neutral-ghost-icon: var(--savingbar-button-ghost-label);
+  --button-neutral-ghost-background-hover: color-mix(in srgb, var(--savingbar-button-ghost-label) 15%, transparent);
+  --button-neutral-ghost-background-active: color-mix(in srgb, var(--savingbar-button-ghost-label) 25%, transparent);
+  --button-disabled-fill-background: color-mix(in srgb, var(--savingbar-button-fill-background) 40%, var(--savingbar-background));
+  --button-disabled-fill-label: color-mix(in srgb, var(--savingbar-button-fill-label) 40%, var(--savingbar-background));
+  --button-disabled-fill-icon: var(--button-disabled-fill-label);
+  --button-disabled-ghost-label: color-mix(in srgb, var(--savingbar-button-ghost-label) 40%, var(--savingbar-background));
+  --button-disabled-ghost-icon: var(--button-disabled-ghost-label);
 }
 
 .rds-savingbar__row {

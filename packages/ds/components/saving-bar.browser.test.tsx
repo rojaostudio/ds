@@ -137,47 +137,96 @@ function rgb(hex: string) {
   return `rgb(${r}, ${g}, ${b})`;
 }
 
-/** The plate's page colour as the shipped theme draws it, read off a bare .ds-plate. */
-function plateColour() {
-  const probe = document.createElement('div');
-  probe.className = 'ds-plate';
-  document.body.appendChild(probe);
-  const value = getComputedStyle(probe).getPropertyValue('--surface-page').trim();
-  probe.remove();
-  return value;
+/** A theme role as the shipped theme resolves it on the root, in the current mode. */
+function role(name: string) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 }
 
-describe('SavingBar on the plate', () => {
-  it('is the brand plate (.ds-plate): the same colours over a light and a dark page, and passes axe', async () => {
-    const seen: string[] = [];
+/** Mixes two rgb() colours as color-mix(in srgb, a p%, b) does, with no alpha. */
+function mix(a: string, p: number, b: string) {
+  const [x, y] = [channels(a), channels(b)];
+  return x.slice(0, 3).map((v, i) => v * p + y[i] * (1 - p));
+}
+
+/** r, g, b (0-255) and alpha of a computed colour: rgb()/rgba(), or color(srgb …) as color-mix() serializes. */
+function channels(c: string) {
+  const n = c.match(/[\d.]+/g)!.map(Number);
+  if (c.startsWith('color(')) return [...n.slice(0, 3).map((v) => v * 255), n[3] ?? 1];
+  return [...n.slice(0, 3), n[3] ?? 1];
+}
+
+describe('SavingBar in the primary colour', () => {
+  it('paints colors/primary/default with text/on/primary, light and dark, and passes axe (no plate)', async () => {
     for (const mode of MODES) {
       const el = await render(<SavingBar onSave={() => {}} onDiscard={() => {}} />, mode);
       const bar = el.querySelector<HTMLElement>('.rds-savingbar')!;
-      expect(bar.classList.contains('ds-plate')).toBe(true);
+      expect(bar.classList.contains('ds-plate')).toBe(false);
+      expect(bar.hasAttribute('data-rds-plate')).toBe(false);
       const style = getComputedStyle(bar);
-      expect(style.backgroundColor).toBe(rgb(plateColour()));
-      seen.push(`${style.backgroundColor} ${style.color}`);
+      expect(style.backgroundColor).toBe(rgb(role('--colors-primary-default')));
+      expect(style.color).toBe(rgb(role('--text-on-primary')));
       expect(await axeViolations(el)).toEqual([]);
       cleanup();
     }
-    expect(seen[0]).toBe(seen[1]);
   });
 
-  it('Salvar is tone action fill and Descartar tone neutral ghost (no inverse)', async () => {
+  it('Salvar is tone action fill and Descartar tone neutral ghost (no inverse), in the bar colours', async () => {
+    for (const mode of MODES) {
+      const el = await render(<SavingBar onSave={() => {}} onDiscard={() => {}} />, mode);
+      const [discard, save] = [...el.querySelectorAll<HTMLElement>('button')];
+      expect(save.className).toContain('rds-button--action');
+      expect(save.className).toContain('rds-button--fill');
+      expect(discard.className).toContain('rds-button--neutral');
+      expect(discard.className).toContain('rds-button--ghost');
+      expect(el.querySelector('[class*="inverse"]')).toBeNull();
+      // savingbar/button/fill/background = text/on/primary, savingbar/button/fill/label = colors/primary/default.
+      expect(getComputedStyle(save).backgroundColor).toBe(rgb(role('--text-on-primary')));
+      expect(getComputedStyle(save).color).toBe(rgb(role('--colors-primary-default')));
+      expect(getComputedStyle(discard).backgroundColor).toBe('rgba(0, 0, 0, 0)');
+      expect(getComputedStyle(discard).color).toBe(rgb(role('--text-on-primary')));
+      cleanup();
+    }
+  });
+
+  it('hover: Salvar is its fill at 85% over the bar; Descartar the label colour at 15%; focus draws savingbar/focus/ring', async () => {
+    await page.viewport(1280, 800);
     const el = await render(<SavingBar onSave={() => {}} onDiscard={() => {}} />);
     const [discard, save] = [...el.querySelectorAll<HTMLElement>('button')];
-    expect(el.querySelector('[class*="inverse"]')).toBeNull();
-    // Inside the plate the action fill is colors/secondary/default with its ink, read on the bar.
-    const bar = el.querySelector<HTMLElement>('.rds-savingbar')!;
-    const role = (name: string) => getComputedStyle(bar).getPropertyValue(name).trim();
-    expect(getComputedStyle(save).backgroundColor).toBe(rgb(role('--colors-secondary-default')));
-    expect(getComputedStyle(save).color).toBe(rgb(role('--text-on-secondary')));
-    expect(getComputedStyle(discard).backgroundColor).toBe('rgba(0, 0, 0, 0)');
-    expect(getComputedStyle(discard).color).toBe(rgb(role('--text-heading')));
+    const fill = rgb(role('--text-on-primary'));
+    const bar = rgb(role('--colors-primary-default'));
+    await userEvent.hover(save);
+    const got = channels(getComputedStyle(save).backgroundColor);
+    mix(fill, 0.85, bar).forEach((v, i) => expect(Math.abs(got[i] - v)).toBeLessThanOrEqual(1));
+    await userEvent.hover(discard);
+    const ghost = getComputedStyle(discard).backgroundColor;
+    const [r, g, b, alpha] = channels(ghost);
+    channels(fill).slice(0, 3).forEach((v, i) => expect(Math.abs([r, g, b][i] - v)).toBeLessThanOrEqual(1));
+    expect(alpha).toBeCloseTo(0.15, 2);
+    await userEvent.unhover(discard);
+    await userEvent.tab();
+    expect(document.activeElement).toBe(discard);
+    expect(getComputedStyle(discard).outlineColor).toBe(fill);
   });
 
-  it('a light brand (cyan #00aeef from generateRdsTheme): the plate repaints and the buttons keep their contrast, light and dark', async () => {
+  it('saving: each Button is at 40% over the bar', async () => {
+    const el = await render(<SavingBar status="saving" onSave={() => {}} onDiscard={() => {}} />);
+    const [discard, save] = [...el.querySelectorAll<HTMLElement>('button')];
+    const fill = rgb(role('--text-on-primary'));
+    const bar = rgb(role('--colors-primary-default'));
+    const near = (c: string, want: number[]) =>
+      channels(c).slice(0, 3).forEach((v, i) => expect(Math.abs(v - want[i])).toBeLessThanOrEqual(1));
+    near(getComputedStyle(save).backgroundColor, mix(fill, 0.4, bar));
+    near(getComputedStyle(save).color, channels(bar).slice(0, 3));
+    near(getComputedStyle(discard).color, mix(fill, 0.4, bar));
+  });
+
+  it('a light brand (cyan #00aeef from generateRdsTheme): the bar repaints, Salvar takes text/on/primary, the 3 statuses pass axe, light and dark', async () => {
     const theme = generateRdsTheme({ name: 'ciano', brand: { primary: '#00aeef' }, fonts: { body: 'inter' } } as BrandDef);
+    const house = { light: '', dark: '' };
+    for (const mode of MODES) {
+      await render(<span />, mode);
+      house[mode] = role('--colors-primary-default');
+    }
     brandStyle = document.createElement('style');
     brandStyle.textContent = emitRdsCss(theme);
     document.head.appendChild(brandStyle);
@@ -199,8 +248,17 @@ describe('SavingBar on the plate', () => {
           </div>,
           mode,
         );
+        const table = mode === 'dark' ? theme.dark : theme.light;
+        const primary = table['--colors-primary-default'] ?? role('--colors-primary-default');
+        const onPrimary = table['--text-on-primary'] ?? role('--text-on-primary');
+        expect(rgb(role('--colors-primary-default'))).toBe(rgb(primary));
+        expect(role('--colors-primary-default')).not.toBe(house[mode]);
         const bar = el.querySelector<HTMLElement>('.rds-savingbar')!;
-        expect(getComputedStyle(bar).backgroundColor).toBe(rgb(theme.brand['--surface-page']));
+        expect(getComputedStyle(bar).backgroundColor).toBe(rgb(primary));
+        const [discard, save] = [...bar.querySelectorAll<HTMLElement>('.rds-button')];
+        expect(getComputedStyle(save).backgroundColor).toBe(rgb(onPrimary));
+        expect(getComputedStyle(save).color).toBe(rgb(primary));
+        expect(getComputedStyle(discard).color).toBe(rgb(onPrimary));
         expect(await axeViolations(el)).toEqual([]);
         cleanup();
       }
@@ -279,7 +337,7 @@ describe('SavingBar details (showDetails)', () => {
     const bar = el.querySelector<HTMLElement>('.rds-savingbar')!;
     expect(style.outlineStyle).toBe('solid');
     expect(style.outlineWidth).toBe('2px');
-    expect(style.outlineColor).toBe(rgb(getComputedStyle(bar).getPropertyValue('--focus-ring').trim()));
+    expect(style.outlineColor).toBe(rgb(getComputedStyle(bar).getPropertyValue('--text-on-primary').trim()));
     expect(style.borderRadius).toBe('12px');
   });
 
