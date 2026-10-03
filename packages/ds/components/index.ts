@@ -149,6 +149,9 @@ export type { QRDisplayProps } from './qr-display';
 
 export { ChoiceCard, ChoiceCardGroup } from './choice-card';
 export type { ChoiceCardProps, ChoiceCardGroupProps, ChoiceCardLayout } from './choice-card';
+// #4: the dense list to choose one from (client search, catalog, side panel). Rows with a line only at the bottom.
+export { ChoiceList, ChoiceListItem } from './choice-list';
+export type { ChoiceListProps, ChoiceListItemProps } from './choice-list';
 // Deprecated (#18): thin wrappers over the ChoiceCard (layout tile, row and preview).
 export { OptionTile, OptionTileGrid } from './option-tile';
 export type { OptionTileProps, OptionTileItem, OptionTileGridProps } from './option-tile';
