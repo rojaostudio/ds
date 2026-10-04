@@ -7,7 +7,7 @@
  */
 
 import { existsSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { win32 } from "node:path";
 
 /** Set at build time from packages/codemod/package.json (tsup and vitest `define`). */
 declare const __CODEMOD_VERSION__: string;
@@ -50,9 +50,9 @@ export function npxInvocation(
   const exists = env.exists ?? existsSync;
   const candidates = [
     // Run through npx/npm, npm_execpath is npm's own npm-cli.js (or npx-cli.js): its sibling is the one.
-    ...(env.npmExecPath && /\.c?js$/i.test(env.npmExecPath) ? [join(dirname(env.npmExecPath), "npx-cli.js")] : []),
+    ...(env.npmExecPath && /\.c?js$/i.test(env.npmExecPath) ? [win32.join(win32.dirname(env.npmExecPath), "npx-cli.js")] : []),
     // The npm that ships with Node.
-    join(dirname(env.execPath), "node_modules", "npm", "bin", "npx-cli.js"),
+    win32.join(win32.dirname(env.execPath), "node_modules", "npm", "bin", "npx-cli.js"),
   ];
   const cli = candidates.find((c) => exists(c));
   return cli ? { command: env.execPath, args: [cli, ...args] } : null;

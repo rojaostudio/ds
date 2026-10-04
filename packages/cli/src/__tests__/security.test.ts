@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, win32 } from "node:path";
 import { RDS_ROLES as ROLES } from "@rojaostudio/ds-core/generate";
 import { BLOCK_END, BLOCK_START, mergeRulesBlock, RulesBlockError, run, type Io } from "../init";
 import { CODEMOD_PACKAGE, npxInvocation } from "../migrate";
@@ -232,15 +232,15 @@ describe("migrate — codemod fixado e sem shell", () => {
 
   it("Windows: roda o npx-cli.js do npm pelo próprio Node, com os argumentos intactos", () => {
     const execPath = "C:\\node\\node.exe";
-    const cli = join("C:\\node", "node_modules", "npm", "bin", "npx-cli.js");
+    const cli = win32.join("C:\\node", "node_modules", "npm", "bin", "npx-cli.js");
     const hostile = 'pasta "com" & calc';
     const inv = npxInvocation(["--yes", "pkg", hostile], { platform: "win32", execPath, exists: (p) => p === cli });
     expect(inv).toEqual({ command: execPath, args: [cli, "--yes", "pkg", hostile] });
   });
 
   it("Windows: prefere o npx ao lado do npm que está rodando", () => {
-    const npm = join("D:\\npm", "bin", "npm-cli.js");
-    const cli = join("D:\\npm", "bin", "npx-cli.js");
+    const npm = win32.join("D:\\npm", "bin", "npm-cli.js");
+    const cli = win32.join("D:\\npm", "bin", "npx-cli.js");
     const inv = npxInvocation(["x"], { platform: "win32", execPath: "C:\\node.exe", npmExecPath: npm, exists: (p) => p === cli });
     expect(inv?.args[0]).toBe(cli);
   });
