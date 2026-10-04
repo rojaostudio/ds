@@ -134,7 +134,7 @@ renders itself (the × of Alert, Dialog and Toast, the Calendar and Carousel arr
 ## Requirements
 
 React 19. Tailwind CSS is an **optional** peer: only the legacy `base.css` needs it. A few components bring an
-optional peer of their own, installed only if you use them: `react-image-crop` (ImageCropDialog, ImageUpload) and
+optional peer of their own, installed only if you use them: `react-image-crop` (ImageCropDialog) and
 `react-international-phone` (PhoneInput).
 
 ## Icons

@@ -2,7 +2,11 @@
 import { useEffect, type MouseEvent, type MouseEventHandler } from 'react';
 import { announce } from './announce';
 
-export type ButtonTone = 'action' | 'neutral' | 'danger' | 'inverse';
+/**
+ * The role (Figma: `tone`): action, neutral or danger. Over the brand colour, apply the theme's brand mode to the
+ * band (`.ds-plate`) and use neutral.
+ */
+export type ButtonTone = 'action' | 'neutral' | 'danger';
 /** The emphasis (Figma: `variant`): fill, outline or ghost. */
 export type ButtonVariant = 'fill' | 'outline' | 'ghost';
 /**

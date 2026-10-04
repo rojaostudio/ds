@@ -66,8 +66,4 @@ describe('SummaryBar behaviour', () => {
     expect(c.width).toBe(360);
   });
 
-  it('the deprecated items still render as Stats', async () => {
-    const el = await render(<SummaryBar items={[{ label: 'Pedidos', value: '12', tone: 'warning' }]} />);
-    expect(el.querySelector('.rds-stat--warning .rds-stat__value')!.textContent).toBe('12');
-  });
 });

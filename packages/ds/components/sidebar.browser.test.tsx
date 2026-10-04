@@ -151,15 +151,3 @@ describe('Sidebar behaviour', () => {
   });
 });
 
-describe('Sidebar vocabulary', () => {
-  it('the deprecated active is current', async () => {
-    const el = await render(
-      <Sidebar>
-        <SidebarItem icon={<InfoIcon />} href="#/a" active>
-          Painel
-        </SidebarItem>
-      </Sidebar>,
-    );
-    expect(el.querySelector('a')!.getAttribute('aria-current')).toBe('page');
-  });
-});

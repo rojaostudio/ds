@@ -133,21 +133,3 @@ describe('FilterChip behaviour', () => {
   });
 });
 
-describe('FilterChip vocabulary', () => {
-  it('the deprecated active, defaultActive and onActiveChange still work', async () => {
-    const onActiveChange = vi.fn();
-    const el = await render(
-      <>
-        <FilterChip active>Todos</FilterChip>
-        <FilterChip defaultActive onActiveChange={onActiveChange}>
-          Entradas
-        </FilterChip>
-      </>,
-    );
-    const [a, b] = el.querySelectorAll('button');
-    expect(a.getAttribute('aria-pressed')).toBe('true');
-    expect(b.getAttribute('aria-pressed')).toBe('true');
-    await userEvent.click(b);
-    expect(onActiveChange).toHaveBeenLastCalledWith(false);
-  });
-});

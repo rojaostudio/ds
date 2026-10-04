@@ -49,15 +49,6 @@ describe('Spinner behaviour', () => {
   });
 });
 
-describe('Spinner vocabulary', () => {
-  it('the deprecated size="default" and tone="default" are md and neutral', async () => {
-    const el = await render(<Spinner size="default" tone="default" />);
-    const cls = el.querySelector('.rds-spinner')!.className;
-    expect(cls).toContain('rds-spinner--md');
-    expect(cls).toContain('rds-spinner--neutral');
-    expect(el.querySelector<HTMLElement>('.rds-spinner__ring')!.getBoundingClientRect().width).toBe(24);
-  });
-});
 
 /** WCAG relative luminance of a computed rgb()/rgba() colour. */
 function luminance(c: string) {

@@ -1,10 +1,9 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { page } from 'vitest/browser';
 import { Pricing, PricingPlan } from './pricing';
-import { PricingCard } from './pricing-card';
 import { Button } from './button';
 import { InContainer, WIDTHS } from './__tests__/blocks';
-import { MODES, axeViolations, cleanup, render } from './__tests__/render';
+import { SCHEMES, axeViolations, cleanup, render, renderIn } from './__tests__/render';
 
 afterEach(cleanup);
 
@@ -20,7 +19,7 @@ const block = (
       description="Para quem vende todo dia."
       features={FEATURES}
       recommended
-      cta={<Button tone="inverse">Assinar</Button>}
+      cta={<Button tone="neutral">Assinar</Button>}
     />
     <PricingPlan name="Pro" price="R$ 99,90" period="/mês" description="Para equipes." features={FEATURES} cta={<Button variant="outline">Assinar</Button>} />
   </Pricing>
@@ -28,9 +27,9 @@ const block = (
 
 const tops = (el: HTMLElement) => [...el.querySelectorAll('.rds-pricing-plan')].map((p) => Math.round(p.getBoundingClientRect().top));
 
-describe.each(MODES)('Pricing (%s)', (mode) => {
+describe.each(SCHEMES)('Pricing (%s)', (mode) => {
   it.each(WIDTHS)('in a %i container passes axe', async (width) => {
-    const el = await render(<InContainer width={width}>{block}</InContainer>, mode);
+    const el = await renderIn(<InContainer width={width}>{block}</InContainer>, mode);
     expect(await axeViolations(el)).toEqual([]);
   });
 });
@@ -80,12 +79,26 @@ describe('Pricing behaviour', () => {
     expect(Math.round(b.left + b.width / 2)).toBe(Math.round(r.left + r.width / 2));
   });
 
-  it('the deprecated PricingCard is a PricingPlan', async () => {
-    const el = await render(
-      <PricingCard name="Essencial" price="R$ 49,90" period="/mês" features={['Produtos ilimitados']} recommended recommendedLabel="Mais vendido" cta={<a href="#assinar">Assinar</a>} />,
-    );
-    const plan = el.querySelector('.rds-pricing-plan--recommended')!;
-    expect(plan.querySelector('.rds-badge')!.textContent).toBe('Mais vendido');
-    expect(plan.querySelector('h3')!.textContent).toBe('Essencial');
+  // Figma .pricing/plan: on the recommended plan the CTA is a neutral fill Button in pricing/plan/recommended/cta/*.
+  it('the recommended CTA is neutral fill, painted in pricing/plan/recommended/cta (background and label)', async () => {
+    const el = await render(<InContainer width={1024}>{block}</InContainer>);
+    const cta = el.querySelector<HTMLElement>('.rds-pricing-plan--recommended .rds-button')!;
+    expect(cta.className).toContain('rds-button--neutral');
+    expect(cta.className).toContain('rds-button--fill');
+    const probe = document.createElement('span');
+    el.appendChild(probe);
+    const colour = (v: string) => {
+      probe.style.color = `var(${v})`;
+      return getComputedStyle(probe).color;
+    };
+    expect(getComputedStyle(cta).backgroundColor).toBe(colour('--pricing-plan-recommended-cta-background'));
+    expect(getComputedStyle(cta).color).toBe(colour('--pricing-plan-recommended-cta-label'));
+    // A plain plan's neutral Button keeps the regular neutral fill.
+    const plain = await render(<PricingPlan name="Pro" price="R$ 1" cta={<Button tone="neutral">Assinar</Button>} />);
+    const plainCta = plain.querySelector<HTMLElement>('.rds-button')!;
+    const probe2 = document.createElement('span');
+    plain.appendChild(probe2);
+    probe2.style.color = 'var(--button-neutral-fill-background-default)';
+    expect(getComputedStyle(plainCta).backgroundColor).toBe(getComputedStyle(probe2).color);
   });
 });

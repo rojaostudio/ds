@@ -226,9 +226,9 @@ export function NumberInput({
             {presets.map((preset) => (
               <FilterChip
                 key={preset.value}
-                active={current === preset.value}
+                pressed={current === preset.value}
                 disabled={disabled}
-                onActiveChange={() => {
+                onPressedChange={() => {
                   setEditing(false);
                   if (current !== preset.value) emit(clamp(preset.value));
                 }}

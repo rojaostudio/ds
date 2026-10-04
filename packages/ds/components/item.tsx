@@ -6,9 +6,6 @@ import { createContext, useContext, type HTMLAttributes, type ReactNode } from '
 export type ItemVariant = 'ghost' | 'outline' | 'soft';
 export type ItemSize = 'md' | 'sm';
 
-/** 2.0.0-next names, deprecated: default → ghost, muted → soft. */
-const LEGACY_VARIANT: Record<string, ItemVariant> = { default: 'ghost', muted: 'soft' };
-
 export interface ItemProps extends Omit<HTMLAttributes<HTMLElement>, 'title'> {
   /** The thing's name (Figma: `title`). */
   title: ReactNode;
@@ -20,14 +17,11 @@ export interface ItemProps extends Omit<HTMLAttributes<HTMLElement>, 'title'> {
   action?: ReactNode;
   /**
    * ghost (default): loose in the list, a line between rows; outline: each row a block; soft: a background, no
-   * border (Figma: `variant`). `'default'` and `'muted'` are deprecated (2.0.0-next): they are ghost and soft.
+   * border (Figma: `variant`).
    */
-  variant?: ItemVariant | 'default' | 'muted';
-  /**
-   * md (default) or sm for dense lists: 14 and 12 text, 8 12 padding (Figma: `size`). `'default'` is deprecated
-   * (2.0.0-next): it is `'md'`.
-   */
-  size?: ItemSize | 'default';
+  variant?: ItemVariant;
+  /** md (default) or sm for dense lists: 14 and 12 text, 8 12 padding (Figma: `size`). */
+  size?: ItemSize;
 }
 
 const InGroup = createContext(false);
@@ -38,11 +32,10 @@ const InGroup = createContext(false);
  */
 export function Item({ title, description, media, action, variant = 'ghost', size = 'md', className, ...rest }: ItemProps) {
   const Root = useContext(InGroup) ? 'li' : 'div';
-  const look = LEGACY_VARIANT[variant] ?? variant;
   return (
     <Root
       {...rest}
-      className={['rds-item', `rds-item--${look}`, size === 'sm' && 'rds-item--sm', className].filter(Boolean).join(' ')}
+      className={['rds-item', `rds-item--${variant}`, size === 'sm' && 'rds-item--sm', className].filter(Boolean).join(' ')}
     >
       {media && <span className="rds-item__media">{media}</span>}
       <span className="rds-item__content">

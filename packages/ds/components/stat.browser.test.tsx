@@ -88,13 +88,13 @@ describe('Stat behaviour', () => {
 });
 
 describe('Stat vocabulary', () => {
-  it('muted greys the number; the deprecated positive, negative and default map to success, danger and neutral', async () => {
+  it('muted greys the number; success, danger and neutral paint it', async () => {
     const el = await render(
       <div>
         <Stat label="Zero" value="0" muted />
-        <Stat label="Entrou" value="R$ 10" tone="positive" />
-        <Stat label="Faltou" value="2" tone="negative" />
-        <Stat label="Pedidos" value="3" tone="default" />
+        <Stat label="Entrou" value="R$ 10" tone="success" />
+        <Stat label="Faltou" value="2" tone="danger" />
+        <Stat label="Pedidos" value="3" />
       </div>,
     );
     const [zero, pos, neg, plain] = [...el.querySelectorAll('.rds-stat__value')].map((n) => getComputedStyle(n).color);

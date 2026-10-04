@@ -384,7 +384,7 @@ export function generateRdsTheme(def: BrandDef, opts: RdsThemeOptions = {}): Rds
     ["surface/tint/default", "text/on/tint"],
   ] as const) l[text] = on(l[fill]);
   // Hover and active carry the same text as the default fill (see stateFills). colors/primary/dark is the hover of
-  // the neutral Button, colors/primary/light the hover of the inverse outline and ghost: both under that label.
+  // the neutral Button, colors/primary/light the lighter step of the same ink: both under that label.
   for (const role of ["colors/primary/dark", "colors/primary/light"])
     l[role] = carry(K, l["colors/primary/default"], l["text/on/primary-strong"], l[role]);
   [l["colors/primary/active"]] = stateFills(K, l["colors/primary/default"], l["text/on/primary"], [l["colors/primary/active"]]);
@@ -536,7 +536,7 @@ export function generateRdsTheme(def: BrandDef, opts: RdsThemeOptions = {}): Rds
   };
   // On the plate the fills are the ink and their text is the plate: hover and active have to carry the plate colour
   // (a light plate has a black ink, so the template's near-white steps would hide its text). colors/primary/dark is
-  // the hover of the neutral Button, colors/primary/light that of the inverse outline and ghost.
+  // the hover of the neutral Button, colors/primary/light the lighter step of the same ink.
   for (const role of ["colors/primary/dark", "colors/primary/light"])
     br[role] = carry(P.scale, br["colors/primary/default"], br["text/on/primary-strong"], br[role]);
   // colors/primary/dark is also the Spinner's indicator: a mark, 3:1 on the plate's card.
@@ -709,7 +709,7 @@ export const RDS_CONTRAST_PAIRS: ReadonlyArray<readonly [string, string]> = [
   ["text/on/warning", "colors/state/warning"], ["text/on/neutral", "colors/state/neutral"],
   ["text/error", "surface/error"],
   // The pairs the components join (packages/ds, styles/rds/components.css): the label of the neutral Button and
-  // Badge on its fill and hovers, the inverse label (colors/primary/default) on the card, the pressed outline Button,
+  // Badge on its fill and hovers, the brand ink as text (colors/primary/default) on the card, the pressed outline Button,
   // the Badge highlight, the selected entry, quiet text and state text where they are placed.
   ["text/on/primary-strong", "colors/primary/default"], ["text/on/primary-strong", "colors/primary/light"],
   ["text/on/primary-strong", "colors/primary/active"], ["colors/primary/default", "surface/card"],

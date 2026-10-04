@@ -1,15 +1,16 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { Button } from './button';
+import { PageHeader } from './page-header';
 import { PageShell, type PageShellWidth } from './page-shell';
 import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
 afterEach(cleanup);
 
 describe.each(MODES)('PageShell (%s)', (mode) => {
-  it('with Header and Body passes axe', async () => {
+  it('with a PageHeader and the Body passes axe', async () => {
     const el = await render(
       <PageShell>
-        <PageShell.Header title="Pedidos" eyebrow="Mercado Azul" actions={<Button>Novo pedido</Button>} />
+        <PageHeader title="Pedidos" description="Mercado Azul" actions={<Button>Novo pedido</Button>} />
         <PageShell.Body>
           <p>Seção um</p>
           <p>Seção dois</p>

@@ -214,49 +214,20 @@
   --_icon: var(--button-danger-ghost-icon);
 }
 
-/* Disabled shared by the three tones used on light surfaces. */
-.rds-button--fill:not(.rds-button--inverse) {
+/* Disabled shared by the three tones. */
+.rds-button--fill {
   --_disabled-background: var(--button-disabled-fill-background);
   --_disabled-label: var(--button-disabled-fill-label);
   --_disabled-icon: var(--button-disabled-fill-icon);
 }
-.rds-button--outline:not(.rds-button--inverse) {
+.rds-button--outline {
   --_disabled-border: var(--button-disabled-outline-border);
   --_disabled-label: var(--button-disabled-outline-label);
   --_disabled-icon: var(--button-disabled-outline-icon);
 }
-.rds-button--ghost:not(.rds-button--inverse) {
+.rds-button--ghost {
   --_disabled-label: var(--button-disabled-ghost-label);
   --_disabled-icon: var(--button-disabled-ghost-icon);
-}
-
-/* ---------- inverse: only on the dark brand band (colors/primary) ---------- */
-.rds-button--inverse {
-  --_ring: var(--button-inverse-focus-ring);
-  --_disabled-label: var(--button-inverse-disabled-label);
-  --_disabled-icon: var(--button-inverse-disabled-label);
-}
-.rds-button--inverse.rds-button--fill {
-  --_background: var(--button-inverse-fill-background-default);
-  --_background-hover: var(--button-inverse-fill-background-hover);
-  --_background-active: var(--button-inverse-fill-background-active);
-  --_label: var(--button-inverse-fill-label);
-  --_icon: var(--button-inverse-fill-icon);
-  --_disabled-background: var(--button-inverse-disabled-fill-background);
-}
-.rds-button--inverse.rds-button--outline {
-  --_border: var(--button-inverse-outline-border);
-  --_background-hover: var(--button-inverse-outline-background-hover);
-  --_background-active: var(--button-inverse-outline-background-active);
-  --_label: var(--button-inverse-outline-label);
-  --_icon: var(--button-inverse-outline-icon);
-  --_disabled-border: var(--button-inverse-disabled-label);
-}
-.rds-button--inverse.rds-button--ghost {
-  --_background-hover: var(--button-inverse-ghost-background-hover);
-  --_background-active: var(--button-inverse-ghost-background-active);
-  --_label: var(--button-inverse-ghost-label);
-  --_icon: var(--button-inverse-ghost-icon);
 }
 
 /*

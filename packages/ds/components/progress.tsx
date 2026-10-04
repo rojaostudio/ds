@@ -20,8 +20,8 @@ export interface ProgressProps extends Omit<HTMLAttributes<HTMLDivElement>, 'chi
   valueText?: ReactNode;
   /** task → role="progressbar"; measure → role="meter". */
   kind?: ProgressKind;
-  /** md: 8px bar (default); sm: 4px, for dense lists (Figma: `size`). `'default'` is deprecated (2.0.0-next): it is `'md'`. */
-  size?: ProgressSize | 'default';
+  /** md: 8px bar (default); sm: 4px, for dense lists (Figma: `size`). */
+  size?: ProgressSize;
 }
 
 /**
@@ -45,7 +45,7 @@ export function Progress({
   const percent = max > 0 ? (clamped / max) * 100 : 0;
   const text = valueText ?? `${Math.round(percent)}%`;
   return (
-    <div {...rest} className={['rds-progress', `rds-progress--${size === 'default' ? 'md' : size}`, className].filter(Boolean).join(' ')}>
+    <div {...rest} className={['rds-progress', `rds-progress--${size}`, className].filter(Boolean).join(' ')}>
       {(showLabel || showValue) && (
         <div className="rds-progress__row">
           {showLabel && (

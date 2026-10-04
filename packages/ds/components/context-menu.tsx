@@ -68,10 +68,9 @@ export interface ContextMenuItemProps extends MenuItemContentProps {
   /** Runs when the item is chosen; the menu then closes. */
   onSelect?: () => void;
   /**
-   * neutral (default), or danger for what destroys: last, after a separator (Figma: `tone`). `'default'` is
-   * deprecated (2.0.0-next): it is `'neutral'`.
+   * neutral (default), or danger for what destroys: last, after a separator (Figma: `tone`).
    */
-  tone?: ContextMenuItemTone | 'default';
+  tone?: ContextMenuItemTone;
   disabled?: boolean;
   textValue?: string;
 }

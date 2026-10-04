@@ -1,7 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { userEvent } from 'vitest/browser';
 import { ImageCropDialog } from './image-crop-dialog';
-import { ImageCropModal } from './image-crop-modal';
 import { MODES, axeViolations, cleanup, render, settle } from './__tests__/render';
 
 afterEach(cleanup);
@@ -122,8 +121,3 @@ describe('ImageCropDialog behaviour', () => {
   });
 });
 
-describe('ImageCropDialog: the old name', () => {
-  it('ImageCropModal (deprecated, components/image-crop-modal) is the ImageCropDialog', () => {
-    expect(ImageCropModal).toBe(ImageCropDialog);
-  });
-});

@@ -108,8 +108,6 @@ export interface SidebarItemProps {
   onClick?: MouseEventHandler<HTMLElement>;
   /** The current page (Figma: `current`): aria-current="page". Only one at a time. */
   current?: boolean;
-  /** @deprecated Use `current` (2.0.0-next). */
-  active?: boolean;
   /** A number on the right, such as pending items (Figma: `showCount` + `count`). Hidden when collapsed. */
   count?: number | string;
   /** Render the single child element (a framework `Link`) as the entry, with the entry's classes and content. */
@@ -117,8 +115,8 @@ export interface SidebarItemProps {
 }
 
 /** One entry (Figma: .sidebar/item): 44 tall, icon of 20. */
-export function SidebarItem({ children, icon, href, onClick, current, active, count, asChild }: SidebarItemProps) {
-  const isCurrent = current ?? active;
+export function SidebarItem({ children, icon, href, onClick, current, count, asChild }: SidebarItemProps) {
+  const isCurrent = current;
   const { collapsed } = useContext(SidebarContext);
   const link = asChild && isValidElement(children) ? (children as ReactElement<{ className?: string; children?: ReactNode }>) : null;
   const label = link ? link.props.children : children;

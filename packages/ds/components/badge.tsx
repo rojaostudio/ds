@@ -1,6 +1,7 @@
 import type { HTMLAttributes, ReactNode } from 'react';
 
-export type BadgeTone = 'neutral' | 'action' | 'accent' | 'inverse';
+/** The role (Figma: `tone`). Over the brand colour, apply the theme's brand mode to the band (`.ds-plate`) with neutral. */
+export type BadgeTone = 'neutral' | 'action' | 'accent';
 /** The emphasis (Figma: `variant`): fill (solid) or soft (a light plate; on accent, the brand's highlighter). */
 export type BadgeVariant = 'fill' | 'soft';
 
@@ -12,7 +13,7 @@ interface BadgeBase extends Omit<HTMLAttributes<HTMLSpanElement>, 'children'> {
 }
 
 /**
- * Not every tone has every variant (as in Figma): inverse is only fill. On accent, soft is the brand's highlighter
+ * Every tone has fill and soft (as in Figma). On accent, soft is the brand's highlighter
  * (the old `highlight`). The types allow only those.
  */
 export type BadgeProps = BadgeBase &
@@ -23,7 +24,6 @@ export type BadgeProps = BadgeBase &
         /** `'highlight'` is deprecated (2.0.0-next): it is `variant="soft"` on `tone="accent"`. */
         variant?: BadgeVariant | 'highlight';
       }
-    | { tone: 'inverse'; variant?: 'fill' }
   );
 
 export function formatBadgeValue(value: number) {

@@ -151,25 +151,3 @@ describe('Card behaviour', () => {
   });
 });
 
-describe('Card vocabulary', () => {
-  it('the deprecated surface and size="default" still map to variant and md', async () => {
-    const el = await render(
-      <>
-        <Card surface="tint" size="default">
-          <CardContent>a</CardContent>
-        </Card>
-        <Card surface="default">
-          <CardContent>b</CardContent>
-        </Card>
-        <Card variant="outline" surface="tint">
-          <CardContent>c</CardContent>
-        </Card>
-      </>,
-    );
-    const [a, b, c] = [...el.querySelectorAll<HTMLElement>('.rds-card')].map((x) => x.className);
-    expect(a).toContain('rds-card--soft');
-    expect(a).not.toContain('rds-card--sm');
-    expect(b).toContain('rds-card--surface');
-    expect(c).toContain('rds-card--outline');
-  });
-});

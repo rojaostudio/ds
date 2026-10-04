@@ -1,5 +1,4 @@
 import type { ReactNode } from 'react';
-import { PageHeader } from './page-header';
 
 export type PageShellWidth = 'narrow' | 'default' | 'wide';
 
@@ -15,8 +14,8 @@ export interface PageShellProps {
 }
 
 /**
- * PageShell — the page container: centred, at most `maxWidth` wide, with the page's gutters. PageShell.Header is
- * the PageHeader (deprecated wrapper) and PageShell.Body stacks the sections 24 apart. Styles: page-shell.css.
+ * PageShell — the page container: centred, at most `maxWidth` wide, with the page's gutters. The page's title is a
+ * PageHeader inside it; PageShell.Body stacks the sections 24 apart. Styles: page-shell.css.
  */
 export function PageShell({ maxWidth = 'default', padded = true, children, className }: PageShellProps) {
   return (
@@ -24,23 +23,6 @@ export function PageShell({ maxWidth = 'default', padded = true, children, class
       {children}
     </div>
   );
-}
-
-// ── Header ────────────────────────────────────────────────────────────────────
-
-export interface PageShellHeaderProps {
-  title: ReactNode;
-  eyebrow?: ReactNode;
-  actions?: ReactNode;
-  className?: string;
-}
-
-/**
- * @deprecated Use PageHeader (Figma [RDS] Navigation/PageHeader). A thin wrapper over it: title and actions pass
- * through; eyebrow (not in the Figma) becomes the description line.
- */
-function PageShellHeader({ title, eyebrow, actions, className }: PageShellHeaderProps) {
-  return <PageHeader title={title} description={eyebrow} actions={actions} className={['rds-page-shell__header', className].filter(Boolean).join(' ')} />;
 }
 
 // ── Body ──────────────────────────────────────────────────────────────────────
@@ -56,5 +38,4 @@ function PageShellBody({ children, className }: PageShellBodyProps) {
 
 // ── Compose ───────────────────────────────────────────────────────────────────
 
-PageShell.Header = PageShellHeader;
 PageShell.Body   = PageShellBody;

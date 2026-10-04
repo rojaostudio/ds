@@ -1,6 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { Item } from './item';
-import { SettingRow } from './setting-row';
 import { SettingsList } from './settings-list';
 import { Switch } from './switch';
 import { MODES, axeViolations, cleanup, render } from './__tests__/render';
@@ -10,7 +9,7 @@ afterEach(cleanup);
 function Example({ framed }: { framed?: boolean }) {
   return (
     <SettingsList title="Notificações" description="Como avisamos você" framed={framed}>
-      <SettingRow label="E-mail" description="Novos pedidos" htmlFor={`email-${framed}`} control={<Switch id={`email-${framed}`} />} />
+      <Item title="E-mail" description="Novos pedidos" action={<Switch aria-label="E-mail" />} />
       <Item title="WhatsApp" action={<Switch aria-label="WhatsApp" />} />
     </SettingsList>
   );

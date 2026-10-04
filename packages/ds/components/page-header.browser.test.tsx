@@ -2,8 +2,6 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { Breadcrumb } from './breadcrumb';
 import { Button } from './button';
 import { PageHeader } from './page-header';
-import { PageShell } from './page-shell';
-import { SectionHeader } from './section-header';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './tabs';
 import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
@@ -66,18 +64,4 @@ describe('PageHeader behaviour', () => {
     expect(el.querySelector('div.rds-page-header > .rds-page-header__row h2')!.textContent).toBe('Zonas');
   });
 
-  it('SectionHeader and PageShell.Header (deprecated) are PageHeaders', async () => {
-    const el = await render(
-      <PageShell>
-        <PageShell.Header title="Pedidos" actions={<Button>Novo pedido</Button>} />
-        <PageShell.Body>
-          <SectionHeader eyebrow="Conteúdo" number="02" title="Seções da vitrine" description="Ative e edite" />
-        </PageShell.Body>
-      </PageShell>,
-      'dark',
-    );
-    expect(el.querySelector('header.rds-page-header h1')!.textContent).toBe('Pedidos');
-    expect(el.querySelector('div.rds-page-header h2')!.textContent).toBe('Seções da vitrine');
-    expect(el.textContent).toContain('02 · Conteúdo');
-  });
 });

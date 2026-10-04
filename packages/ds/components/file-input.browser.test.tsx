@@ -1,9 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act } from 'react';
 import { userEvent } from 'vitest/browser';
-import { Dropzone } from './dropzone';
 import { FileInput, formatFileSize } from './file-input';
-import { ImageUpload } from './image-upload';
 import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
 afterEach(cleanup);
@@ -205,50 +203,5 @@ describe('FileInput layouts', () => {
     const el = await render(<FileInput layout="tile" label="Logo" preview={PNG_URL} previewAlt="Logo da loja" />);
     expect(el.querySelector('img')!.alt).toBe('Logo da loja');
     expect(el.querySelector('[aria-label="Trocar imagem"]')).not.toBeNull();
-  });
-});
-
-describe('deprecated wrappers', () => {
-  it('Dropzone hands the files over and stays empty for the next ones', async () => {
-    const onFiles = vi.fn();
-    const el = await render(<Dropzone onFiles={onFiles}>Solte a planilha aqui</Dropzone>);
-    expect(await axeViolations(el)).toEqual([]);
-    const input = el.querySelector('input')!;
-    expect(input.getAttribute('aria-label')).toBe('Enviar arquivo');
-    await userEvent.upload(input, pdf());
-    await vi.waitFor(() => expect(onFiles).toHaveBeenCalledOnce());
-    expect(onFiles.mock.calls[0][0][0].name).toBe('comprovante.pdf');
-    expect(el.textContent).toContain('Solte a planilha aqui');
-    expect(el.querySelector('[aria-label="Remover arquivo"]')).toBeNull();
-  });
-
-  it('ImageUpload uploads the chosen image and shows the URL it returns; remove empties it', async () => {
-    const onUpload = vi.fn(async () => PNG_URL);
-    const onChange = vi.fn();
-    const el = await render(<ImageUpload name="logo" value="" onChange={onChange} onUpload={onUpload} />);
-    await userEvent.upload(el.querySelector<HTMLInputElement>('input[type="file"]')!, png());
-    await vi.waitFor(() => expect(onChange).toHaveBeenCalledWith(PNG_URL));
-    expect(onUpload).toHaveBeenCalledOnce();
-
-    const filled = await render(<ImageUpload name="logo" value={PNG_URL} onChange={onChange} onUpload={onUpload} />);
-    expect(filled.querySelector<HTMLInputElement>('input[type="hidden"]')!.value).toBe(PNG_URL);
-    await act(async () => filled.querySelector<HTMLButtonElement>('[aria-label="Remover imagem"]')!.click());
-    expect(onChange).toHaveBeenLastCalledWith('');
-  });
-
-  it('ImageUpload shows a failed upload as the error', async () => {
-    const el = await render(
-      <ImageUpload name="logo" value="" onChange={() => {}} onUpload={async () => Promise.reject(new Error('A imagem passa de 2 MB.'))} />,
-    );
-    await userEvent.upload(el.querySelector<HTMLInputElement>('input[type="file"]')!, png());
-    await vi.waitFor(() => expect(el.textContent).toContain('A imagem passa de 2 MB.'));
-    expect(el.querySelector('input[type="file"]')!.getAttribute('aria-invalid')).toBe('true');
-  });
-});
-
-describe('FileInput vocabulary', () => {
-  it('the deprecated variant is the layout', async () => {
-    const el = await render(<FileInput variant="dropzone" label="Comprovante" />);
-    expect(el.querySelector('.rds-file-input--dropzone')).not.toBeNull();
   });
 });

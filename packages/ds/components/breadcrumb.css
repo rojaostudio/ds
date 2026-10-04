@@ -1,8 +1,7 @@
 /* @tokens breadcrumb */
 /*
  * Breadcrumb (Navigation collection, breadcrumb/*): steps of 32, 14/20, 4 between a step and its arrow (16).
- * The current step is medium and not a link. inverse (deprecated in the Figma) reads the breadcrumb/inverse/*
- * tokens, for a path over colors/primary.
+ * The current step is medium and not a link. Over colors/primary, the brand mode of the theme (`.ds-plate`).
  */
 .rds-breadcrumb {
   --_label: var(--breadcrumb-label-default);
@@ -14,15 +13,6 @@
   font-family: var(--type-font-stack);
   font-size: var(--type-small-size);
   line-height: var(--type-small-line);
-}
-
-.rds-breadcrumb--inverse {
-  --_label: var(--breadcrumb-inverse-label-default);
-  --_hover: var(--breadcrumb-inverse-label-hover);
-  --_current: var(--breadcrumb-inverse-label-current);
-  --_separator: var(--breadcrumb-inverse-separator);
-  /* No inverse ring token: the strongest text over the brand, which is what the ring needs to show there. */
-  --_ring: var(--breadcrumb-inverse-label-current);
 }
 
 .rds-breadcrumb__list {

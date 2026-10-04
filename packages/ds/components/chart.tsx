@@ -43,8 +43,6 @@ export interface ChartProps extends Omit<HTMLAttributes<HTMLElement>, 'children'
   dates?: 'edges' | 'all';
   /** line and column: one label every N points, with a tick on every point (Figma: `dates=every`). Wins over `dates`. */
   dateEvery?: number;
-  /** @deprecated Use `dates="all"` (true) or `dates="edges"` (false). */
-  showAllDates?: boolean;
   /**
    * bar and column: where each item leads, in the order of `labels`. In bar each bar becomes a link named
    * "<label>: <value>"; in column a click or Enter on the plot follows the item's link. Only http(s) URLs, relative
@@ -129,7 +127,6 @@ export function Chart({
   showTooltip = true,
   dates,
   dateEvery,
-  showAllDates,
   hrefs: hrefsProp,
   onSelect,
   showTable = false,
@@ -162,7 +159,7 @@ export function Chart({
   const describe = (index: number) => `${labels[index]}: ` + shown.map((s) => `${s.name} ${formatFor(s)(s.data[index] ?? 0)}`).join(', ');
   const legendName = (s: ChartSeries) => (dual ? `${s.name} (${onRight(s) ? 'direita' : 'esquerda'})` : s.name);
   const every = dateEvery && dateEvery > 1 ? Math.floor(dateEvery) : null;
-  const allDates = (dates ?? (showAllDates === undefined ? 'edges' : showAllDates ? 'all' : 'edges')) === 'all';
+  const allDates = dates === 'all';
   const labelIndexes = every
     ? labels.map((_, i) => i).filter((i) => i % every === 0)
     : allDates || count <= 3

@@ -14,8 +14,6 @@ import { CloseIcon, ImagePlusIcon, PaperclipIcon, UploadIcon } from './internal/
 
 /** The field's arrangement (Figma: `layout`). */
 export type FileInputLayout = 'field' | 'dropzone' | 'tile';
-/** @deprecated Use FileInputLayout (2.0.0-next: `variant` is `layout`). */
-export type FileInputVariant = FileInputLayout;
 
 export interface FileInputProps
   extends Omit<FieldTextProps, 'labelPosition'>,
@@ -26,8 +24,6 @@ export interface FileInputProps
    * the image's preview, for a photo or a logo.
    */
   layout?: FileInputLayout;
-  /** @deprecated Use `layout` (2.0.0-next): the same three values. */
-  variant?: FileInputLayout;
   /** Controlled: the name shown (Figma: `fileName`). By default, the chosen file's name. */
   fileName?: string;
   /** Controlled: the size beside the name in the dropzone (Figma: `fileSize`). By default, the chosen file's, as "1,2 MB". */
@@ -84,8 +80,7 @@ export function formatFileSize(bytes: number): string {
  * internal/field.css.
  */
 export function FileInput({
-  layout: layoutProp,
-  variant,
+  layout = 'field',
   label,
   hint,
   error,
@@ -112,7 +107,6 @@ export function FileInput({
   ref,
   ...input
 }: FileInputProps) {
-  const layout: FileInputLayout = layoutProp ?? variant ?? 'field';
   warnIfUnlabelled('FileInput', label, input['aria-label'], input['aria-labelledby']);
   // The dropzone keeps its hint inside the area, also in error: the hint is not the shell's.
   const inside = layout === 'dropzone';

@@ -103,8 +103,9 @@
 /* @tokens actionbar */
 /*
  * ActionBar (Actions collection, actionbar/*): a bar in colors/primary, container radius, 8 8 8 20
- * padding, 12 between the count, the divider (1 × 24) and the actions (4 apart). Its Buttons use the
- * inverse tone, drawn for this band in both modes, so the bar needs no theme switch of its own.
+ * padding, 12 between the count, the divider (1 × 24) and the actions (4 apart). Its Buttons are neutral ghost with
+ * the label and icon in actionbar/text: the bar redeclares the neutral ghost's tokens in its colours (hover the text
+ * colour at 15%, active 25%, disabled at 40% over the bar, the focus ring in actionbar/text), as the bottom-bar does.
  */
 .rds-actionbar {
   box-sizing: border-box;
@@ -118,6 +119,15 @@
   background: var(--actionbar-background);
   color: var(--actionbar-text);
   font-family: var(--type-font-stack);
+
+  /* The neutral ghost Button (the actions and the X), in the bar's colours. */
+  --button-focus-ring: var(--actionbar-text);
+  --button-neutral-ghost-label: var(--actionbar-text);
+  --button-neutral-ghost-icon: var(--actionbar-text);
+  --button-neutral-ghost-background-hover: color-mix(in srgb, var(--actionbar-text) 15%, transparent);
+  --button-neutral-ghost-background-active: color-mix(in srgb, var(--actionbar-text) 25%, transparent);
+  --button-disabled-ghost-label: color-mix(in srgb, var(--actionbar-text) 40%, var(--actionbar-background));
+  --button-disabled-ghost-icon: var(--button-disabled-ghost-label);
 }
 
 .rds-actionbar__count {
@@ -670,12 +680,6 @@
   --_background: var(--badge-accent-highlight-background);
   --_label: var(--badge-accent-highlight-label);
 }
-/* Only on the dark brand band (colors/primary). */
-.rds-badge--inverse-fill {
-  --_background: var(--badge-inverse-fill-background);
-  --_label: var(--badge-inverse-fill-label);
-}
-
 /* Windows high contrast drops backgrounds: keep the pill visible with a border. */
 @media (forced-colors: active) {
   .rds-badge {
@@ -864,8 +868,7 @@
 /* @tokens breadcrumb */
 /*
  * Breadcrumb (Navigation collection, breadcrumb/*): steps of 32, 14/20, 4 between a step and its arrow (16).
- * The current step is medium and not a link. inverse (deprecated in the Figma) reads the breadcrumb/inverse/*
- * tokens, for a path over colors/primary.
+ * The current step is medium and not a link. Over colors/primary, the brand mode of the theme (`.ds-plate`).
  */
 .rds-breadcrumb {
   --_label: var(--breadcrumb-label-default);
@@ -877,15 +880,6 @@
   font-family: var(--type-font-stack);
   font-size: var(--type-small-size);
   line-height: var(--type-small-line);
-}
-
-.rds-breadcrumb--inverse {
-  --_label: var(--breadcrumb-inverse-label-default);
-  --_hover: var(--breadcrumb-inverse-label-hover);
-  --_current: var(--breadcrumb-inverse-label-current);
-  --_separator: var(--breadcrumb-inverse-separator);
-  /* No inverse ring token: the strongest text over the brand, which is what the ring needs to show there. */
-  --_ring: var(--breadcrumb-inverse-label-current);
 }
 
 .rds-breadcrumb__list {
@@ -1522,49 +1516,20 @@ button.rds-breadcrumb__link:focus-visible {
   --_icon: var(--button-danger-ghost-icon);
 }
 
-/* Disabled shared by the three tones used on light surfaces. */
-.rds-button--fill:not(.rds-button--inverse) {
+/* Disabled shared by the three tones. */
+.rds-button--fill {
   --_disabled-background: var(--button-disabled-fill-background);
   --_disabled-label: var(--button-disabled-fill-label);
   --_disabled-icon: var(--button-disabled-fill-icon);
 }
-.rds-button--outline:not(.rds-button--inverse) {
+.rds-button--outline {
   --_disabled-border: var(--button-disabled-outline-border);
   --_disabled-label: var(--button-disabled-outline-label);
   --_disabled-icon: var(--button-disabled-outline-icon);
 }
-.rds-button--ghost:not(.rds-button--inverse) {
+.rds-button--ghost {
   --_disabled-label: var(--button-disabled-ghost-label);
   --_disabled-icon: var(--button-disabled-ghost-icon);
-}
-
-/* ---------- inverse: only on the dark brand band (colors/primary) ---------- */
-.rds-button--inverse {
-  --_ring: var(--button-inverse-focus-ring);
-  --_disabled-label: var(--button-inverse-disabled-label);
-  --_disabled-icon: var(--button-inverse-disabled-label);
-}
-.rds-button--inverse.rds-button--fill {
-  --_background: var(--button-inverse-fill-background-default);
-  --_background-hover: var(--button-inverse-fill-background-hover);
-  --_background-active: var(--button-inverse-fill-background-active);
-  --_label: var(--button-inverse-fill-label);
-  --_icon: var(--button-inverse-fill-icon);
-  --_disabled-background: var(--button-inverse-disabled-fill-background);
-}
-.rds-button--inverse.rds-button--outline {
-  --_border: var(--button-inverse-outline-border);
-  --_background-hover: var(--button-inverse-outline-background-hover);
-  --_background-active: var(--button-inverse-outline-background-active);
-  --_label: var(--button-inverse-outline-label);
-  --_icon: var(--button-inverse-outline-icon);
-  --_disabled-border: var(--button-inverse-disabled-label);
-}
-.rds-button--inverse.rds-button--ghost {
-  --_background-hover: var(--button-inverse-ghost-background-hover);
-  --_background-active: var(--button-inverse-ghost-background-active);
-  --_label: var(--button-inverse-ghost-label);
-  --_icon: var(--button-inverse-ghost-icon);
 }
 
 /*
@@ -7551,8 +7516,7 @@ body:has(.rds-modal) {
 /* @tokens page-shell */
 /*
  * PageShell: no tokens of its own. Centred, full width up to narrow 768, default 1280 or wide 1536. Padded: 24 on
- * top and bottom, 16 on the sides, 24 from 640, 32 from 1024. The header sits 24 above the body; the body's
- * sections are 24 apart.
+ * top and bottom, 16 on the sides, 24 from 640, 32 from 1024. The body's sections are 24 apart.
  */
 .rds-page-shell {
   box-sizing: border-box;
@@ -7586,10 +7550,6 @@ body:has(.rds-modal) {
   .rds-page-shell--padded {
     padding-inline: var(--space-32);
   }
-}
-
-.rds-page-shell__header {
-  margin-bottom: var(--space-24);
 }
 
 .rds-page-shell__body {
@@ -8152,6 +8112,15 @@ body:has(.rds-modal) {
   --_description: var(--pricing-plan-recommended-text);
   --_feature: var(--pricing-plan-recommended-text);
   --_check: var(--pricing-plan-recommended-check);
+
+  /* The CTA is a neutral fill Button (Figma), in the plan's colours: pricing/plan/recommended/cta/*. Hover at 85%
+     over the plan (active 70%), the focus ring in the plan's text colour. */
+  --button-focus-ring: var(--pricing-plan-recommended-text);
+  --button-neutral-fill-background-default: var(--pricing-plan-recommended-cta-background);
+  --button-neutral-fill-background-hover: color-mix(in srgb, var(--pricing-plan-recommended-cta-background) 85%, var(--pricing-plan-recommended-background));
+  --button-neutral-fill-background-active: color-mix(in srgb, var(--pricing-plan-recommended-cta-background) 70%, var(--pricing-plan-recommended-background));
+  --button-neutral-fill-label: var(--pricing-plan-recommended-cta-label);
+  --button-neutral-fill-icon: var(--pricing-plan-recommended-cta-label);
 }
 
 .rds-pricing-plan__badge {
@@ -8831,27 +8800,6 @@ input:focus-visible + .rds-radio__circle {
   .rds-section-card__header:focus-visible {
     outline-color: Highlight;
   }
-}
-
-/* components/section-header.css */
-/* @tokens section-header */
-/*
- * SectionHeader (deprecated): no tokens of its own; the PageHeader brings its own. 24 under it. The eyebrow is a
- * caption line in capitals, in the PageHeader's description colour, 4 above the title.
- */
-.rds-section-header {
-  margin-bottom: var(--space-24);
-}
-
-.rds-section-header__eyebrow {
-  margin: 0 0 var(--space-4);
-  color: var(--pageheader-description);
-  font-family: var(--type-font-stack);
-  font-size: var(--type-caption-size);
-  font-weight: var(--type-caption-weight);
-  line-height: var(--type-caption-line);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
 }
 
 /* components/select.css */

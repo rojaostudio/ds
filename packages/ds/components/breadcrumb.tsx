@@ -9,18 +9,11 @@ export interface BreadcrumbItem {
   href?: string;
 }
 
-export type BreadcrumbTone = 'neutral' | 'inverse';
-
 export type BreadcrumbLinkComponent = ComponentType<{ href: string; className?: string; children: ReactNode }>;
 
 export interface BreadcrumbProps extends Omit<HTMLAttributes<HTMLElement>, 'children'> {
   /** The path, from the most general to the current page, the last one (Figma: the `items` slot). */
   items: BreadcrumbItem[];
-  /**
-   * neutral (default) on a light surface; inverse over colors/primary (Figma: `tone`). For the brand colour prefer a
-   * brand-mode scope (`.ds-plate`) with the neutral tone. `'default'` is deprecated (2.0.0-next): it is `'neutral'`.
-   */
-  tone?: BreadcrumbTone | 'default';
   /** More steps than this: the middle ones hide behind "…", a button that shows the whole path. */
   maxItems?: number;
   /** The link element (default `<a>`). Pass a framework Link (Next's `Link`) to navigate on the client. */
@@ -37,10 +30,10 @@ function Anchor({ href, className, children }: { href: string; className?: strin
 
 /**
  * Breadcrumb — Figma [RDS] Navigation/Breadcrumb. The path to the current page: a <nav aria-label="Caminho"> with an
- * <ol>; the current step has aria-current="page" and no link; the arrows are hidden from screen readers.
- * Styles: breadcrumb.css.
+ * <ol>; the current step has aria-current="page" and no link; the arrows are hidden from screen readers. Over the
+ * brand colour, put it in a brand-mode scope (`.ds-plate`). Styles: breadcrumb.css.
  */
-export function Breadcrumb({ items, tone = 'neutral', maxItems = 4, linkAs: Link = Anchor, className, ...rest }: BreadcrumbProps) {
+export function Breadcrumb({ items, maxItems = 4, linkAs: Link = Anchor, className, ...rest }: BreadcrumbProps) {
   const [expanded, setExpanded] = useState(false);
   const list = useRef<HTMLOListElement>(null);
   const collapse = !expanded && items.length > maxItems;
@@ -56,7 +49,7 @@ export function Breadcrumb({ items, tone = 'neutral', maxItems = 4, linkAs: Link
     <nav
       aria-label="Caminho"
       {...rest}
-      className={['rds-breadcrumb', tone === 'inverse' && 'rds-breadcrumb--inverse', className].filter(Boolean).join(' ')}
+      className={['rds-breadcrumb', className].filter(Boolean).join(' ')}
     >
       <ol ref={list} className="rds-breadcrumb__list">
         {shown.map((step, index) => {

@@ -21,7 +21,7 @@ export type Kind = keyof typeof MIN;
 /**
  * A pair: the foreground token, what it sits on, and the kind. The background is a component token, a theme role
  * (`role:<var>`), `@ctx` (the surfaces a component is placed on: surface/page and surface/card of the mode) or
- * `@inverse` (the brand band the inverse tone is drawn for: colors/primary/default). `<token>@<n>` is the token
+ * `@inverse` (the brand band the inverse Spinner is drawn for: colors/primary/default). `<token>@<n>` is the token
  * mixed at n% over what is below (`color-mix(... n%, transparent)` in the component CSS). A background is itself
  * composited over the contexts when it has alpha.
  */
@@ -42,8 +42,8 @@ export const componentTokens: Record<string, string> = Object.fromEntries(
 
 const button: Pair[] = (() => {
   const out: Pair[] = [];
-  for (const tone of ['action', 'neutral', 'danger', 'inverse']) {
-    const ctx = tone === 'inverse' ? INV : CTX;
+  for (const tone of ['action', 'neutral', 'danger']) {
+    const ctx = CTX;
     const p = `--button-${tone}`;
     for (const part of ['label', 'icon'] as const) {
       const kind: Kind = part === 'label' ? 't' : 'u';
@@ -55,7 +55,7 @@ const button: Pair[] = (() => {
     }
     out.push([`${p}-outline-border`, ctx, 'u']);
   }
-  out.push(['--button-focus-ring', CTX, 'u'], ['--button-inverse-focus-ring', INV, 'u']);
+  out.push(['--button-focus-ring', CTX, 'u']);
   return out;
 })();
 
@@ -126,11 +126,12 @@ export const PAIRS: Pair[] = [
   ['--pricing-plan-check', '--pricing-plan-background', 'u'],
   ['--pricing-plan-recommended-text', '--pricing-plan-recommended-background', 't'],
   ['--pricing-plan-recommended-check', '--pricing-plan-recommended-background', 'u'],
+  ['--pricing-plan-recommended-cta-label', '--pricing-plan-recommended-cta-background', 't'],
   ['--heading-default', CTX, 't'], ['--pageheader-title', CTX, 't'], ['--pageheader-description', CTX, 't'],
   ['--empty-title', CTX, 't'], ['--empty-description', CTX, 't'], ['--item-title', CTX, 't'], ['--item-description', CTX, 't'],
   ['--item-description', '--item-muted-background', 't'],
   // Badge, Status, Tile, Toast, Alert.
-  ...['neutral-fill', 'neutral-soft', 'action-fill', 'action-soft', 'accent-fill', 'accent-highlight', 'inverse-fill'].map(
+  ...['neutral-fill', 'neutral-soft', 'action-fill', 'action-soft', 'accent-fill', 'accent-highlight'].map(
     (v): Pair => [`--badge-${v}-label`, `--badge-${v}-background`, 't'],
   ),
   ...states.flatMap((s): Pair[] => [
@@ -159,8 +160,6 @@ export const PAIRS: Pair[] = [
   ['--tabs-label-default', CTX, 't'], ['--tabs-label-hover', CTX, 't'], ['--tabs-label-selected', CTX, 't'],
   ['--tabs-count-default', CTX, 't'], ['--tabs-indicator', CTX, 'u'], ['--tabs-soon-text', '--tabs-soon-background', 't'],
   ['--breadcrumb-label-default', CTX, 't'], ['--breadcrumb-label-hover', CTX, 't'], ['--breadcrumb-label-current', CTX, 't'],
-  ['--breadcrumb-inverse-label-default', INV, 't'], ['--breadcrumb-inverse-label-hover', INV, 't'],
-  ['--breadcrumb-inverse-label-current', INV, 't'],
   ['--pagination-item-label-default', CTX, 't'], ['--pagination-item-label-default', '--pagination-item-background-hover', 't'],
   ['--pagination-item-label-current', '--pagination-item-background-current', 't'], ['--pagination-summary', CTX, 't'],
   ['--navmenu-trigger-label', CTX, 't'], ['--navmenu-trigger-label', '--navmenu-trigger-background-hover', 't'],

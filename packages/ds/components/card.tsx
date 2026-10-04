@@ -4,11 +4,8 @@ import { createContext, useContext, useId, type HTMLAttributes, type ReactNode }
 
 /** The surface (Figma: `variant`). */
 export type CardVariant = 'surface' | 'soft' | 'outline';
-/** @deprecated Use CardVariant (2.0.0-next): default → surface, tint → soft, outline stays. */
-export type CardSurface = 'default' | 'outline' | 'tint';
 export type CardSize = 'md' | 'sm';
 
-const SURFACE_TO_VARIANT: Record<CardSurface, CardVariant> = { default: 'surface', tint: 'soft', outline: 'outline' };
 type Heading = 'h2' | 'h3' | 'h4';
 
 export interface CardProps extends HTMLAttributes<HTMLElement> {
@@ -19,13 +16,11 @@ export interface CardProps extends HTMLAttributes<HTMLElement> {
    * one per screen.
    */
   variant?: CardVariant;
-  /** @deprecated Use `variant` (2.0.0-next): default → surface, tint → soft, outline → outline. */
-  surface?: CardSurface;
   /**
    * md (default) pads 24; sm pads 16 and makes the header text smaller, for dense lists and indicators (Figma:
-   * `size`). `'default'` is deprecated (2.0.0-next): it is `'md'`.
+   * `size`).
    */
-  size?: CardSize | 'default';
+  size?: CardSize;
   /** article (default) for a topic that reads on its own; section or div when it is part of something larger. */
   as?: 'article' | 'section' | 'div';
   /**
@@ -41,8 +36,7 @@ const TitleId = createContext<string | undefined>(undefined);
  * Card — Figma [RDS] Content/Card. A topic that reads on its own: a plan, a summary with an action. Never a card
  * inside a card. When it has a CardHeader, the title names the card. Styles: card.css.
  */
-export function Card({ variant, surface, size = 'md', as: Root = 'article', className, children, ...rest }: CardProps) {
-  const look = variant ?? (surface ? SURFACE_TO_VARIANT[surface] : 'surface');
+export function Card({ variant = 'surface', size = 'md', as: Root = 'article', className, children, ...rest }: CardProps) {
   const titleId = useId();
   const labelled = Root !== 'div' && !rest['aria-label'] && !rest['aria-labelledby'];
   return (
@@ -50,7 +44,7 @@ export function Card({ variant, surface, size = 'md', as: Root = 'article', clas
       <Root
         aria-labelledby={labelled ? titleId : undefined}
         {...rest}
-        className={['rds-card', `rds-card--${look}`, size === 'sm' && 'rds-card--sm', className].filter(Boolean).join(' ')}
+        className={['rds-card', `rds-card--${variant}`, size === 'sm' && 'rds-card--sm', className].filter(Boolean).join(' ')}
       >
         {children}
       </Root>

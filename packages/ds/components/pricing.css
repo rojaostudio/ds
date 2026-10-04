@@ -80,6 +80,15 @@
   --_description: var(--pricing-plan-recommended-text);
   --_feature: var(--pricing-plan-recommended-text);
   --_check: var(--pricing-plan-recommended-check);
+
+  /* The CTA is a neutral fill Button (Figma), in the plan's colours: pricing/plan/recommended/cta/*. Hover at 85%
+     over the plan (active 70%), the focus ring in the plan's text colour. */
+  --button-focus-ring: var(--pricing-plan-recommended-text);
+  --button-neutral-fill-background-default: var(--pricing-plan-recommended-cta-background);
+  --button-neutral-fill-background-hover: color-mix(in srgb, var(--pricing-plan-recommended-cta-background) 85%, var(--pricing-plan-recommended-background));
+  --button-neutral-fill-background-active: color-mix(in srgb, var(--pricing-plan-recommended-cta-background) 70%, var(--pricing-plan-recommended-background));
+  --button-neutral-fill-label: var(--pricing-plan-recommended-cta-label);
+  --button-neutral-fill-icon: var(--pricing-plan-recommended-cta-label);
 }
 
 .rds-pricing-plan__badge {
