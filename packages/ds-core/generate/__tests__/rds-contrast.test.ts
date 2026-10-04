@@ -83,8 +83,9 @@ describe("[RDS] contrast of the generated theme, for any brand colour", () => {
   it("text/heading keeps the brand colour when it already passes, and darkens the yellow", () => {
     expect(generateRdsTheme(brand("#1b2a4a")).light["--text-heading"]).toBe("#1b2a4a");
     const t = generateRdsTheme(brand("#ffd200"));
-    // An ochre of the same hue, not the black fallback.
-    expect(t.light["--text-heading"]).toBe("#8f5f00");
+    // An ochre of the same hue, not the black fallback. Dark enough to also read on the pressed outline Button
+    // (surface/muted-strong) and on the accent highlight of the Badge, where it is a label too.
+    expect(t.light["--text-heading"]).toBe("#855800");
     expect(rdsContrastReport(t).filter((f) => f.fg === "text/heading")).toEqual([]);
   });
 
@@ -110,12 +111,13 @@ describe("[RDS] contrast of the generated theme, for any brand colour", () => {
   });
 
   it("the report measures a short, explicit list of pairs", () => {
-    expect(RDS_CONTRAST_PAIRS.length).toBeLessThan(30);
+    expect(RDS_CONTRAST_PAIRS.length).toBeLessThan(60);
     const t = generateRdsTheme(brand("#1b2a4a"));
     t.light["--text-body"] = "#cccccc";
     expect(rdsContrastReport(t)).toEqual([
-      { mode: "light", fg: "text/body", bg: "surface/page", ratio: expect.any(Number) },
-      { mode: "light", fg: "text/body", bg: "surface/card", ratio: expect.any(Number) },
+      { mode: "light", fg: "text/body", bg: "surface/page", ratio: expect.any(Number), min: 4.5 },
+      { mode: "light", fg: "text/body", bg: "surface/card", ratio: expect.any(Number), min: 4.5 },
+      { mode: "light", fg: "text/body", bg: "surface/tint/default", ratio: expect.any(Number), min: 4.5 },
     ]);
   });
 

@@ -203,6 +203,28 @@ function stateFills(scale: Scale, fill: string, text: string, preferred: string[
   return preferred.map((p, i) => ok[i] ?? p);
 }
 
+/** A state fill kept when it already carries the text at AA, otherwise moved along the ramp (stateFills). */
+const carry = (scale: Scale, fill: string, text: string, value: string): string =>
+  contrastRatio(text, value) >= AA ? value : stateFills(scale, fill, text, [value])[0];
+
+/** `top` (#rrggbb or #rrggbbaa) composited over an opaque `below`: the colour the eye gets. */
+function over(top: string, below: string): string {
+  const ch = (h: string, i: number) => parseInt(h.slice(1 + 2 * i, 3 + 2 * i), 16);
+  const a = top.length === 9 ? ch(top, 3) / 255 : 1;
+  return `#${[0, 1, 2].map((i) => Math.round(ch(top, i) * a + ch(below, i) * (1 - a)).toString(16).padStart(2, "0")).join("")}`;
+}
+
+/** Contrast between the plate (and its card) and its ink: AA with room for the ink's overlays under ink text. */
+const PLATE_MIN = 6;
+
+/**
+ * Two fills told apart at a glance: 1.5:1 between them, or a colour beside a grey (40 points of HSL saturation
+ * apart: a yellow and a light grey are as light as each other and still two different buttons).
+ */
+export function distinct(a: string, b: string): boolean {
+  return contrastRatio(a, b) >= 1.5 || Math.abs(hexToHsl(a)[1] - hexToHsl(b)[1]) >= 40;
+}
+
 export type RdsThemeOptions = {
   /** Where the warnings go (an explicit BrandDef.heading that fails AA). Default console.warn. */
   warn?: (message: string) => void;
@@ -282,14 +304,16 @@ export function generateRdsTheme(def: BrandDef, opts: RdsThemeOptions = {}): Rds
   const red = palette("red"), green = palette("green"), orange = palette("orange");
   const teal = palette("teal"), purple = palette("purple");
   // text/heading on light: an explicit BrandDef.heading is kept as given (a warning when it fails AA); without one,
-  // the primary, or the step of its ramp closest to it that clears AA on surface/card and surface/page.
-  const lightBgs = [WHITE, N[100]];
+  // the primary, or the step of its ramp closest to it that clears AA on surface/card and surface/page, and on what it
+  // is drawn over as a label: the pressed neutral outline and ghost Buttons (surface/muted-strong) and the accent
+  // highlight of the Badge.
+  const lightBgs = [WHITE, N[100], N[200], A.scale[200]];
   let heading: string;
   if (b.heading) {
     heading = ramp(b.heading, own).base;
     if (!readsOn(heading, lightBgs)) {
       const worst = Math.min(...lightBgs.map((bg) => contrastRatio(heading, bg)));
-      warn(`generateRdsTheme(${def.name}): heading ${heading} is ${worst.toFixed(2)}:1 on surface/card or surface/page (AA asks 4.5:1). Kept as given.`);
+      warn(`generateRdsTheme(${def.name}): heading ${heading} is ${worst.toFixed(2)}:1 on surface/card, surface/page, surface/muted-strong or colors/accent/highlight (AA asks 4.5:1). Kept as given.`);
     }
   } else heading = readableFrom(P.base, P.scale, lightBgs, "darker", BLACK);
   const invert = b.invert ? ramp(b.invert, own).base : WHITE;
@@ -332,18 +356,37 @@ export function generateRdsTheme(def: BrandDef, opts: RdsThemeOptions = {}): Rds
     "type/font/mono": "Roboto Mono",
     "logo/mono": BLACK, "logo/inverse": WHITE, "logo/inverse-signature": WHITE, "social/ink": BLACK,
   };
-  // Text on fills: by contrast, never copied.
+  // The neutral ink: colors/primary/* is the fill of the neutral Button and Badge, the bars, the Tooltip, the selected
+  // day. A recipe with a secondary drew its own primary (Rojão: navy, an ink already) and it is kept. With one colour
+  // only (the showroom's "your colour"), that colour is the action (colors/secondary/*) and the accent; the neutral
+  // roles take a neutral ink from the text ramp instead, never the brand colour, far enough from the action fill to
+  // tell the two Buttons apart (a near-black brand gets a lighter ink).
+  const single = !b.secondary;
+  const K: Scale = single ? N : P.scale;
+  if (single) {
+    const steps = [900, 800, 700, 600, 500] as const;
+    const k = Math.max(0, steps.findIndex((s) => distinct(N[s], l["colors/secondary/default"])));
+    l["colors/primary/default"] = N[steps[Math.min(k, 2)]];
+    l["colors/primary/dark"] = N[steps[Math.min(k, 2) + 1]];
+    l["colors/primary/active"] = N[steps[Math.min(k, 2) + 2]];
+    l["colors/primary/light"] = N[500];
+  }
+  // Text on fills: by contrast, never copied. text/on/primary-strong is the label of the neutral Button and Badge
+  // (on colors/primary/default, then colors/primary/dark on hover): picked on the default fill.
   for (const [fill, text] of [
     ["colors/primary/default", "text/on/primary"], ["colors/secondary/default", "text/on/secondary"],
     ["colors/accent/default", "text/on/accent"], ["colors/accent/mark", "text/on/accent-mark"],
     ["colors/state/error", "text/on/error"], ["colors/state/success", "text/on/success"],
     ["colors/state/info", "text/on/info"], ["colors/state/warning", "text/on/warning"],
     ["colors/state/neutral", "text/on/neutral"], ["surface/cover", "text/on/cover"],
-    ["surface/lift/action", "text/on/lift-action"], ["colors/primary/dark", "text/on/primary-strong"],
+    ["surface/lift/action", "text/on/lift-action"], ["colors/primary/default", "text/on/primary-strong"],
     ["surface/tint/default", "text/on/tint"],
   ] as const) l[text] = on(l[fill]);
-  // Hover and active carry the same text as the default fill (see stateFills).
-  [l["colors/primary/active"]] = stateFills(P.scale, l["colors/primary/default"], l["text/on/primary"], [l["colors/primary/active"]]);
+  // Hover and active carry the same text as the default fill (see stateFills). colors/primary/dark is the hover of
+  // the neutral Button, colors/primary/light the hover of the inverse outline and ghost: both under that label.
+  for (const role of ["colors/primary/dark", "colors/primary/light"])
+    l[role] = carry(K, l["colors/primary/default"], l["text/on/primary-strong"], l[role]);
+  [l["colors/primary/active"]] = stateFills(K, l["colors/primary/default"], l["text/on/primary"], [l["colors/primary/active"]]);
   [l["colors/secondary/hover"], l["colors/secondary/active"]] = stateFills(
     S.scale, l["colors/secondary/default"], l["text/on/secondary"], [l["colors/secondary/hover"], l["colors/secondary/active"]],
   );
@@ -352,9 +395,11 @@ export function generateRdsTheme(def: BrandDef, opts: RdsThemeOptions = {}): Rds
   // 1.4.11) on surface/card, which is also the field background (input/background/default → surface/card).
   // border/error starts from the state red, series 1 from the primary's 600; each walks its ramp until it clears.
   l["border/error"] = readableFrom(l["colors/state/error"], red, [l["surface/card"]], awayFrom(l["surface/card"]), BLACK, NON_TEXT);
-  l["chart/series/1"] = readableFrom(P.scale[600], P.scale, [l["surface/card"]], awayFrom(l["surface/card"]), BLACK, NON_TEXT);
-  l["logo/primary"] = l["colors/primary/default"];
-  l["logo/signature"] = l["colors/primary/default"];
+  l["chart/series/1"] = readableFrom(P.scale[600], P.scale, [l["surface/card"], l["surface/page"]], awayFrom(l["surface/card"]), BLACK, NON_TEXT);
+  // The logo is the brand colour (not the neutral ink), and the mark has to be seen: 3:1 on the light surfaces it is
+  // placed on (the Sidebar's panel, the card, the page), darker along its ramp when it is too light.
+  l["logo/primary"] = readableFrom(P.base, P.scale, [l["surface/card"], l["surface/page"], l["surface/panel"]], "darker", BLACK, NON_TEXT);
+  l["logo/signature"] = l["logo/primary"];
   l["logo/accent"] = l["colors/accent/logo"];
   l["logo/accent-2"] = l["colors/secondary/default"];
   l["logo/accent-3"] = l["colors/accent/default"];
@@ -391,42 +436,85 @@ export function generateRdsTheme(def: BrandDef, opts: RdsThemeOptions = {}): Rds
     "colors/state/info-strong": L[300], "colors/state/neutral-strong": N[400],
     "text/on/primary-subtle": black(30),
   };
+  // The neutral ink in dark: a light neutral (one colour only), the one of the neutral steps far enough from the
+  // action fill. See the light mode.
+  if (single) {
+    const steps = [200, 300, 100, 400] as const;
+    const s = steps.find((st) => distinct(N[st], d["colors/secondary/default"])) ?? 200;
+    d["colors/primary/default"] = N[s];
+    d["colors/primary/dark"] = N[s === 100 ? 50 : ((s - 100) as ScaleStep)];
+    d["colors/primary/active"] = N[(s + 100) as ScaleStep];
+    d["colors/primary/light"] = N[(s + 200) as ScaleStep];
+  }
+  // The selection tint carries the text that sits on it (the selected entry of a Sidebar, a Listbox, a Toggle: body,
+  // muted and the brand ink), and the accent highlight the heading of its Badge: a light ramp (a yellow, whose 900 is
+  // still a gold) goes on darker along its hue.
+  d["surface/tint/default"] = readableFrom(d["surface/tint/default"], A.scale, [d["text/body"], d["text/muted"], d["colors/primary/default"]], "darker", N[900]);
+  d["surface/tint/subtle"] = d["surface/tint/default"];
+  d["colors/accent/highlight"] = readableFrom(d["colors/accent/highlight"], A.scale, [d["text/heading"]], "darker", N[900]);
   for (const [fill, text] of [
     ["colors/primary/default", "text/on/primary"], ["colors/secondary/default", "text/on/secondary"],
     ["colors/accent/default", "text/on/accent"], ["colors/accent/mark", "text/on/accent-mark"],
-    ["colors/primary/dark", "text/on/primary-strong"], ["surface/tint/default", "text/on/tint"],
+    ["colors/primary/default", "text/on/primary-strong"], ["surface/tint/default", "text/on/tint"],
     ["surface/lift/action", "text/on/lift-action"],
   ] as const) d[text] = on(d[fill]);
-  [d["colors/primary/active"]] = stateFills(P.scale, d["colors/primary/default"], d["text/on/primary"], [d["colors/primary/active"]]);
+  for (const role of ["colors/primary/dark", "colors/primary/light"])
+    d[role] = carry(K, d["colors/primary/default"], d["text/on/primary-strong"], d[role]);
+  [d["colors/primary/active"]] = stateFills(K, d["colors/primary/default"], d["text/on/primary"], [d["colors/primary/active"]]);
   [d["colors/secondary/hover"], d["colors/secondary/active"]] = stateFills(
     S.scale, d["colors/secondary/default"], d["text/on/secondary"], [d["colors/secondary/hover"], d["colors/secondary/active"]],
   );
   [d["colors/accent/hover"]] = stateFills(A.scale, d["colors/accent/default"], d["text/on/accent"], [d["colors/accent/hover"]]);
   // In dark, border/error starts from error-strong (red/400) and series 1 from the primary's 400.
-  d["border/error"] = readableFrom(d["colors/state/error-strong"], red, [d["surface/card"]], awayFrom(d["surface/card"]), WHITE, NON_TEXT);
+  d["border/error"] = readableFrom(red[400], red, [d["surface/card"]], awayFrom(d["surface/card"]), WHITE, NON_TEXT);
   d["chart/series/1"] = readableFrom(P.scale[400], P.scale, [d["surface/card"]], awayFrom(d["surface/card"]), WHITE, NON_TEXT);
+  // error-strong is the hover of the danger Button, under text/on/error (the light one, white on red/600 for every
+  // mode): red/400 would drop that label to 2.8:1. It moves along the red ramp until it carries it.
+  d["colors/state/error-strong"] = carry(red, l["colors/state/error"], l["text/on/error"], d["colors/state/error-strong"]);
 
-  // base — brand/… tokens: the "plate" of the brand, a section painted with the primary colour.
-  // Figma draws it for dark brands (white ink over the plate). The ink is picked by contrast
-  // instead, so a light brand colour gets a dark plate ink and stays legible.
-  const plate = l["colors/primary/default"];
+  // base — brand/… tokens: the "plate" of the brand, a section painted with the brand colour itself (the primary as
+  // given, not the neutral ink). Figma draws it for dark brands (white ink over the plate). The ink is picked by
+  // contrast instead, so a light brand colour gets a dark plate ink and stays legible.
+  // The plate leaves room for what is drawn over it: the ink 12–20% over it under ink text (a hover, an active filter
+  // chip). A brand colour already PLATE_MIN from its ink is the plate as is (Rojão's navy, an orange under black); a
+  // mid one (a crimson, a violet, a grey, 4.5–6:1 under white) is taken along its ramp, away from the ink, until it is.
+  const ink0 = on(P.base);
+  const plate = contrastRatio(ink0, P.base) >= PLATE_MIN
+    ? P.base
+    : readableFrom(P.base, P.scale, [ink0], ink0 === WHITE ? "darker" : "lighter", ink0 === WHITE ? BLACK : WHITE, PLATE_MIN);
   const ink = on(plate);
   const inkA = ink === WHITE ? white : black;
   const antiInk = ink === WHITE ? black : white;
   // The card on the plate: the primary's 800, as Figma draws it (navy/800 on a navy/900 plate), when it is not the
-  // plate itself and carries the ink at AA. Otherwise (a light plate, where 800 is dark under a dark ink) the step
-  // of the primary ramp nearest to the plate that does; the plate itself when no step does.
+  // plate itself and carries the ink with the plate's own room (PLATE_MIN). Otherwise (a light plate, where 800 is
+  // dark under a dark ink) the step of the primary ramp nearest to the plate that does; the plate itself when none does.
   const lp = relativeLuminance(plate);
   const isPlate = (c: string) => c.toLowerCase() === plate.toLowerCase();
   const plateCard =
-    P.scale[800] && !isPlate(P.scale[800]) && contrastRatio(ink, P.scale[800]) >= AA
+    P.scale[800] && !isPlate(P.scale[800]) && contrastRatio(ink, P.scale[800]) >= PLATE_MIN
       ? P.scale[800]
       : SCALE_STEPS.map((st) => P.scale[st])
           .filter((c): c is string => !!c && isHex(c) && !isPlate(c))
           .sort((a, b2) => Math.abs(relativeLuminance(a) - lp) - Math.abs(relativeLuminance(b2) - lp))
-          .find((c) => contrastRatio(ink, c) >= AA) ?? plate;
-  // Text on colors/primary/dark (P[100]) on the plate: the plate colour when it reads there, else black or white.
-  const onPrimaryStrong = contrastRatio(plate, P.scale[100]) >= AA ? plate : on(P.scale[100]);
+          .find((c) => contrastRatio(ink, c) >= PLATE_MIN) ?? plate;
+  const plateBgs = [plate, plateCard];
+  // The overlays of the plate (hover, pressed, the selected entry): the ink at 5–20%, as Figma draws them, while the
+  // ink still reads AA on them. On a plate too close to its ink for that (a violet under white text), the other ink
+  // shades it instead, which only adds contrast to the text above.
+  const ov =
+    plateBgs.every((bg) => contrastRatio(ink, over(inkA(20), bg)) >= AA) ? inkA : ink === WHITE ? black : white;
+  // What quiet and state text sits on in the plate: the plate, its card, and the 10% overlay over either (a hovered
+  // menu entry, the current entry of a Sidebar).
+  const under = [...plateBgs, ...plateBgs.map((bg) => over(ov(10), bg))];
+  // Quiet text (text/muted, text/subtle: hints, the header of a Table, the labels of a Sidebar): the ink at 70% and
+  // 60% as Figma draws them, more opaque, 5% at a time, until it reads AA on the plate, its card and the overlays.
+  const quiet = (pct: number, min = AA, bgs = under) => {
+    for (let p = pct; p < 100; p += 5) if (bgs.every((bg) => contrastRatio(over(inkA(p), bg), bg) >= min)) return inkA(p);
+    return ink;
+  };
+  // border/strong, the border of a field: 3:1 (WCAG 1.4.11) the same way, from Figma's 60%; its hover 20% over it.
+  const fieldBorder = quiet(60, NON_TEXT, plateBgs);
+  const fieldAlpha = fieldBorder.length === 9 ? Math.round((parseInt(fieldBorder.slice(7), 16) / 255) * 100) : 100;
   const br: Record<string, string> = {
     "colors/primary/light": P.scale[300], "colors/primary/default": ink, "colors/primary/dark": P.scale[100],
     "colors/primary/active": P.scale[200],
@@ -435,26 +523,51 @@ export function generateRdsTheme(def: BrandDef, opts: RdsThemeOptions = {}): Rds
     "text/heading": ink, "text/body": ink,
     "text/link": contrastRatio(l["colors/accent/invert"], plate) >= 4.5 ? l["colors/accent/invert"] : ink,
     "surface/page": plate, "surface/card": plateCard, "surface/panel": plate,
-    "border/default": inkA(20), "surface/tint/default": inkA(10), "surface/tint/strong": inkA(20),
-    "surface/tint/subtle": inkA(5),
+    "border/default": inkA(20), "surface/tint/default": ov(10), "surface/tint/strong": ov(20),
+    "surface/tint/subtle": ov(5),
     "text/on/action-tonal": ink, "text/on/primary": plate, "text/on/secondary": plate, "text/on/tint": ink,
-    "surface/action/default": inkA(10), "surface/action/strong": inkA(20),
+    "surface/action/default": ov(10), "surface/action/strong": ov(20),
     "focus/ring": ink, "focus/ring-inset": plate, "surface/disabled": inkA(10),
-    "text/disabled": inkA(40), "text/muted": inkA(70), "text/disabled-invert": antiInk(40), "text/action": ink,
-    "surface/lift/action": inkA(10), "text/on/lift-action": ink, "surface/lift/action-strong": inkA(20),
-    "text/on/primary-strong": onPrimaryStrong, "text/subtle": inkA(60), "surface/muted": inkA(10),
-    "surface/muted-strong": inkA(20), "border/strong": inkA(60), "border/strong-hover": inkA(80),
+    "text/disabled": inkA(40), "text/muted": quiet(70), "text/disabled-invert": antiInk(40), "text/action": ink,
+    "surface/lift/action": ov(10), "text/on/lift-action": ink, "surface/lift/action-strong": ov(20),
+    // The label of the neutral Button on the plate, whose fill is the ink: the plate colour.
+    "text/on/primary-strong": plate, "text/subtle": quiet(60), "surface/muted": ov(10),
+    "surface/muted-strong": ov(20), "border/strong": fieldBorder,
+    "border/strong-hover": fieldAlpha + 20 < 100 ? inkA(fieldAlpha + 20) : ink,
     "text/on/primary-subtle": inkA(30),
   };
   // On the plate the fills are the ink and their text is the plate: hover and active have to carry the plate colour
-  // (a light plate has a black ink, so the template's near-white steps would hide its text).
+  // (a light plate has a black ink, so the template's near-white steps would hide its text). colors/primary/dark is
+  // the hover of the neutral Button, colors/primary/light that of the inverse outline and ghost.
+  for (const role of ["colors/primary/dark", "colors/primary/light"])
+    br[role] = carry(P.scale, br["colors/primary/default"], br["text/on/primary-strong"], br[role]);
+  // colors/primary/dark is also the Spinner's indicator: a mark, 3:1 on the plate's card.
+  br["colors/primary/dark"] = readableFrom(br["colors/primary/dark"], P.scale, [plateCard], awayFrom(plateCard), ink, NON_TEXT);
   [br["colors/primary/active"]] = stateFills(P.scale, br["colors/primary/default"], br["text/on/primary"], [br["colors/primary/active"]]);
   [br["colors/secondary/hover"], br["colors/secondary/active"]] = stateFills(
     S.scale, br["colors/secondary/default"], br["text/on/secondary"], [br["colors/secondary/hover"], br["colors/secondary/active"]],
   );
   // border/error on the plate starts from the light red Figma uses there (red/300, the dark text/error) and keeps
   // 3:1 on the plate's card, the field background.
-  const brandError = readableFrom(red[300], red, [plateCard], awayFrom(plateCard), ink, NON_TEXT);
+  const brandError = readableFrom(red[300], red, plateBgs.slice().reverse(), awayFrom(plateCard), ink, NON_TEXT);
+
+  // The rest of the plate Figma points at the dark tokens (state texts and their soft surfaces, the accent highlight,
+  // the logos, series 1): right on a dark plate, not on a light one (red/300 on a yellow plate). A light plate (dark
+  // ink) takes the light tokens instead, and every state text is then walked along its ramp until it reads AA on the
+  // plate, its card, the overlays and its own soft surface (the danger Button's hover, the soft Badge).
+  const lightPlate = ink === BLACK;
+  const plateOwn: Record<string, string> = {};
+  for (const [st, rampOf] of [["error", red], ["success", green], ["info", L], ["warning", orange], ["neutral", N]] as const) {
+    const from = lightPlate ? l : d;
+    const soft = [`surface/${st}`, ...(st === "error" ? ["surface/error-strong"] : [])];
+    for (const s of soft) plateOwn[s] = from[s];
+    plateOwn[`text/${st}`] = readableFrom(from[`text/${st}`], rampOf, [...under, ...soft.map((s) => from[s])], awayFrom(plate), ink);
+  }
+  plateOwn["colors/accent/highlight"] =
+    [d["colors/accent/highlight"], l["colors/accent/highlight"]].find((c) => contrastRatio(ink, c) >= AA) ??
+    readableFrom(l["colors/accent/highlight"], A.scale, [ink], lightPlate ? "lighter" : "darker", ink === WHITE ? BLACK : WHITE);
+  plateOwn["chart/series/1"] = readableFrom(d["chart/series/1"], P.scale, plateBgs, awayFrom(plate), ink, NON_TEXT);
+  for (const logo of ["logo/primary", "logo/signature", "logo/accent", "logo/mono", "social/ink"]) plateOwn[logo] = ink;
 
   const out: RdsTheme = { light: {}, dark: {}, brand: {} };
   const pick = (src: "l" | "d" | "b", role: string) => {
@@ -470,6 +583,7 @@ export function generateRdsTheme(def: BrandDef, opts: RdsThemeOptions = {}): Rds
   }
   // Figma points the plate's border/error at a dark token (base dark/text/error), not at dark/border/error.
   out.brand[roleVar("border/error")] = brandError;
+  for (const [role, v] of Object.entries(plateOwn)) out.brand[roleVar(role)] = v;
   // Whatever the inputs resolved to, only allow-listed values leave the generator.
   assertSafeTheme(out, where);
   return out;
@@ -593,18 +707,46 @@ export const RDS_CONTRAST_PAIRS: ReadonlyArray<readonly [string, string]> = [
   ["text/on/success", "colors/state/success"], ["text/on/info", "colors/state/info"],
   ["text/on/warning", "colors/state/warning"], ["text/on/neutral", "colors/state/neutral"],
   ["text/error", "surface/error"],
+  // The pairs the components join (packages/ds, styles/rds/components.css): the label of the neutral Button and
+  // Badge on its fill and hovers, the inverse label (colors/primary/default) on the card, the pressed outline Button,
+  // the Badge highlight, the selected entry, quiet text and state text where they are placed.
+  ["text/on/primary-strong", "colors/primary/default"], ["text/on/primary-strong", "colors/primary/light"],
+  ["text/on/primary-strong", "colors/primary/active"], ["colors/primary/default", "surface/card"],
+  ["colors/primary/default", "surface/tint/default"], ["text/heading", "surface/muted-strong"],
+  ["text/heading", "colors/accent/highlight"], ["text/body", "surface/tint/default"], ["text/muted", "surface/tint/default"],
+  ["text/on/tint", "surface/tint/subtle"], ["text/action", "surface/action/strong"],
+  ["text/muted", "surface/page"], ["text/muted", "surface/panel"], ["text/subtle", "surface/card"], ["text/subtle", "surface/panel"],
+  ["text/error", "surface/card"], ["text/error", "surface/page"], ["text/error", "surface/error-strong"],
+  ["text/success", "surface/success"], ["text/success", "surface/card"], ["text/info", "surface/info"],
+  ["text/warning", "surface/warning"], ["text/neutral", "surface/neutral"],
 ];
 
-export type RdsContrastFailure = { mode: RdsMode; fg: string; bg: string; ratio: number };
+/**
+ * What is not text but has to be seen (WCAG 1.4.11, 3:1): the border of a field and of a field in error, the focus
+ * ring, the brand's logo and its chart series, on the surfaces they are placed on.
+ */
+export const RDS_NON_TEXT_PAIRS: ReadonlyArray<readonly [string, string]> = [
+  ["border/strong", "surface/card"], ["border/strong", "surface/page"], ["border/error", "surface/card"],
+  ["focus/ring", "surface/page"], ["focus/ring", "surface/card"],
+  ["logo/primary", "surface/card"], ["logo/primary", "surface/page"], ["logo/primary", "surface/panel"],
+  ["chart/series/1", "surface/card"], ["chart/series/1", "surface/page"],
+];
 
-/** The pairs of RDS_CONTRAST_PAIRS that fail WCAG AA (4.5:1), mode by mode. Empty means every pair passes. */
+/** A pair below its minimum: 4.5:1 for text (RDS_CONTRAST_PAIRS), 3:1 for the rest (RDS_NON_TEXT_PAIRS). */
+export type RdsContrastFailure = { mode: RdsMode; fg: string; bg: string; ratio: number; min: number };
+
+/**
+ * The pairs of RDS_CONTRAST_PAIRS below WCAG AA (4.5:1) and of RDS_NON_TEXT_PAIRS below 3:1, mode by mode. Empty
+ * means every pair passes. A pair with an alpha colour is skipped (rdsContrast).
+ */
 export function rdsContrastReport(theme: RdsTheme): RdsContrastFailure[] {
   const out: RdsContrastFailure[] = [];
   for (const mode of ["light", "dark", "brand"] as RdsMode[])
-    for (const [fg, bg] of RDS_CONTRAST_PAIRS) {
-      const ratio = rdsContrast(theme, mode, fg, bg);
-      if (ratio !== null && ratio < AA) out.push({ mode, fg, bg, ratio: Math.round(ratio * 100) / 100 });
-    }
+    for (const [pairs, min] of [[RDS_CONTRAST_PAIRS, AA], [RDS_NON_TEXT_PAIRS, NON_TEXT]] as const)
+      for (const [fg, bg] of pairs) {
+        const ratio = rdsContrast(theme, mode, fg, bg);
+        if (ratio !== null && ratio < min) out.push({ mode, fg, bg, ratio: Math.round(ratio * 100) / 100, min });
+      }
   return out;
 }
 
@@ -712,8 +854,8 @@ export function rdsThemeFromTable(table: RdsBrandTable, opts: RdsThemeOptions = 
   const fails = rdsContrastReport(out);
   if (fails.length)
     warn(
-      `${where}: ${fails.length} text pair(s) below 4.5:1\n  ` +
-        fails.map((f) => `${f.mode}: ${f.fg} on ${f.bg} ${f.ratio}:1`).join("\n  "),
+      `${where}: ${fails.length} pair(s) below WCAG (4.5:1 text, 3:1 non-text)\n  ` +
+        fails.map((f) => `${f.mode}: ${f.fg} on ${f.bg} ${f.ratio}:1 (min ${f.min}:1)`).join("\n  "),
     );
   return out;
 }

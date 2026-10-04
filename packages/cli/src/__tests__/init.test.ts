@@ -92,7 +92,8 @@ describe("rojao-ds init — modos de entrada", () => {
     expect(await run(["init", "--color", "#7C3AED", "--name", "Acme"], t.io)).toBe(0);
     const css = read("rds-theme.css");
     expect(css).toMatch(/^:root, \.ds-scope, \[data-rds-scope\] \{/);
-    expect(css).toContain("--colors-primary-default: #7C3AED");
+    // Uma cor só: ela é a ação (colors/secondary); o neutro (colors/primary) é uma tinta neutra.
+    expect(css).toContain("--colors-secondary-default: #7C3AED");
     expect(css).toContain(".ds-plate, [data-rds-plate] {");
     const md = read("CLAUDE.md");
     expect(md).toContain("# Design System — Acme");
@@ -107,7 +108,7 @@ describe("rojao-ds init — modos de entrada", () => {
     expect(await run(["init"], t.io)).toBe(0);
     expect(t.asked).toHaveLength(2);
     expect(t.errText()).toContain("Não é uma cor hex");
-    expect(read("rds-theme.css")).toContain("--colors-primary-default: #7C3AED");
+    expect(read("rds-theme.css")).toContain("--colors-secondary-default: #7C3AED");
   });
 
   it("sem cor e sem terminal: falha sem escrever nada", async () => {
@@ -137,7 +138,7 @@ describe("rojao-ds init — modos de entrada", () => {
     );
     const t = io();
     expect(await run(["init", "--recipe", "marca.recipe.json"], t.io)).toBe(0);
-    expect(read("rds-theme.css")).toContain("--colors-primary-default: #D4476A");
+    expect(read("rds-theme.css")).toContain("--colors-secondary-default: #D4476A");
     expect(read("rds-theme.css")).toContain("--colors-accent-default: #0ea5e9");
     expect(read("CLAUDE.md")).toContain("# Design System — Demo");
   });

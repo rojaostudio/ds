@@ -42,7 +42,7 @@ describe("emitClaudeMd — 2.0 ([RDS])", () => {
   it("shows the theme's own colours, light and dark", () => {
     const theme = generateRdsTheme(def);
     const v = roleVar("colors/primary/default");
-    expect(md).toContain(`| \`${v}\` | primary action, brand fills | \`${theme.light[v]}\` | \`${theme.dark[v]}\` |`);
+    expect(md).toContain(`| \`${v}\` | neutral ink fill: neutral Button and Badge, bars, Tooltip | \`${theme.light[v]}\` | \`${theme.dark[v]}\` |`);
   });
 
   it("every theme var it names is a real [RDS] role", () => {
