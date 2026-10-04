@@ -85,8 +85,7 @@ if (!cols.some((c) => c.name === "theme")) {
     const mode = c.defaultModeId;
     for (const v of await vars(c)) {
       const web = v.codeSyntax.WEB ?? "";
-      // `var(--path)` is the same custom property as `--path`: both are the path rule.
-      const cs = web === pathVar(v.name) || web === `var(${pathVar(v.name)})` ? "=" : web;
+      const cs = web === pathVar(v.name) ? "=" : web;
       const obsolete = /^obsolet/i.test(v.description.trim()) ? "|obsolete" : "";
       lines.push(`${v.name}|${TYPE[v.resolvedType]}|${await cell(v, v.valuesByMode[mode])}|${cs}${obsolete}`);
     }
