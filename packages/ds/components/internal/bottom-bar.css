@@ -6,10 +6,17 @@
  * container, bottom-bar/padding-x (24) at the sides, bottom-bar/gap (16) between the parts.
  * Height, by the screen width as the Figma viewport mode (layout/compact below lg 1024): compact, bottom-bar/padding-y
  * (10) above and below, 64 = 10 + 44 + 10, plus the safe area at the bottom; expanded, 2 more inside each side, 68.
- * The leading slot reserves bottom-bar/leading/min-width (44, the md Button height).
- * floating, from 1024 only: bottom-bar/floating/margin off the foot and the sides, at most
- * bottom-bar/floating/max-width, centred, bottom-bar/floating/radius and elevation/overlay. Below 1024 it is docked:
- * no radius, no shadow, no margin, the full width.
+ * The leading slot, only when there is one, reserves bottom-bar/leading/min-width (44, the md Button height) and no
+ * height of its own.
+ * floating, from 1024 only: in the bottom right corner of the scrolling container, bottom-bar/floating/margin (24) off
+ * the foot and the right; it hugs its content (width: fit-content, never wider than the container minus the margins),
+ * with bottom-bar/floating/padding-y (8) and padding-x (12) plus the 2 of the expanded arrangement above and below:
+ * 64 = 10 + 44 + 10; bottom-bar/floating/radius and elevation/overlay. Still sticky, not fixed: it stays inside the
+ * scrolling container (a page beside a sidebar never has the sidebar covered, a panel keeps its bar), and the room it
+ * takes at the end of the content is the room the content needs below. Below 1024 it is docked: no radius, no
+ * shadow, no margin, the full width.
+ * While it is on screen, BottomBar fills --toast-offset-bottom on the root (its height, plus the margin when
+ * floating, plus 16): the Toaster's stack rises above it (toast.css).
  * The Buttons on it stay the Button: the action fill and the neutral ghost read their tokens, redeclared here in the
  * bar's colours (bottom-bar/button/*): the fill's hover at 85% over the bar (active 70%), the ghost's hover the label
  * colour at 15% (active 25%), disabled at 40% over the bar (the Figma layer opacity), the focus ring
@@ -68,10 +75,12 @@
 @media (min-width: 1024px) {
   .rds-bottom-bar--floating {
     bottom: var(--bottom-bar-floating-margin);
-    width: calc(100% - 2 * var(--bottom-bar-floating-margin));
-    max-width: var(--bottom-bar-floating-max-width);
-    margin-inline: auto;
+    width: fit-content;
+    min-width: 0;
+    max-width: calc(100% - 2 * var(--bottom-bar-floating-margin));
+    margin-inline: auto var(--bottom-bar-floating-margin);
     margin-bottom: var(--bottom-bar-floating-margin);
+    padding: calc(var(--bottom-bar-floating-padding-y) + 2px) var(--bottom-bar-floating-padding-x);
     border-radius: var(--bottom-bar-floating-radius);
     box-shadow: var(--elevation-overlay);
   }

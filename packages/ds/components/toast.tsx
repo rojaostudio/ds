@@ -160,10 +160,12 @@ export const toastDuration = (duration: number | undefined, hasAction: boolean):
   duration ?? (hasAction ? Infinity : 5000);
 
 /**
- * Toaster — the region where the toasts of the Figma [RDS] Feedback/Toast appear (Radix Toast): the bottom-right
- * corner, up to three at a time (a fourth pushes the oldest out), each one announced in a live region (danger
- * assertively, the others politely). F8 takes the focus to the region; swiping right dismisses. A toast closes by
- * itself after 5 s; one with an action stays until the action or the × (WCAG 2.2.1). Styles: toast.css.
+ * Toaster — the region where the toasts of the Figma [RDS] Feedback/Toast appear (Radix Toast): bottom-center on
+ * every screen width (no switch by breakpoint; on the phone, the width minus 16 on each side), up to three at a time
+ * (a fourth pushes the oldest out). With a bar at the foot on screen (FormActions, SavingBar) the stack rises above
+ * it (--toast-offset-bottom, filled by the bar) and goes back to 16 when the bar leaves. Each one is announced in a
+ * live region (danger assertively, the others politely). F8 takes the focus to the region; swiping right dismisses.
+ * A toast closes by itself after 5 s; one with an action stays until the action or the × (WCAG 2.2.1). Styles: toast.css.
  */
 export function Toaster({ label = 'Notificações', closeLabel = 'Fechar', children }: ToasterProps) {
   const [items, setItems] = useState<Item[]>([]);

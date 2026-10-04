@@ -4653,8 +4653,10 @@ input:focus-visible + .rds-checkbox__box {
 /* @tokens bottom-bar */
 /*
  * FormActions: no tokens of its own; the shell (internal/bottom-bar.css, bottom-bar/*) brings the colour, the height,
- * the padding, the place and the Buttons' colours. Here only the actions: on the right, 8 apart, Cancelar then the
- * primary. Compact (below lg 1024, by the screen width as the Figma viewport mode), only the last one, the primary.
+ * the padding, the place and the Buttons' colours (the X too: the neutral ghost reads bottom-bar/button/ghost/label,
+ * its hover that colour at 15%, its ring bottom-bar/focus/ring). Here only the actions: on the right, 8 apart,
+ * Cancelar then the primary. Compact (below lg 1024, by the screen width as the Figma viewport mode), Cancelar is the
+ * X (an IconButton) and the primary; the actions between them are not shown.
  */
 .rds-form-actions__actions {
   display: flex;
@@ -4663,10 +4665,19 @@ input:focus-visible + .rds-checkbox__box {
   margin-inline-start: auto;
 }
 
+/* Expanded: the labelled Cancelar; the X is the compact one. */
+.rds-form-actions__actions > .rds-form-actions__cancel-icon {
+  display: none;
+}
+
 @media (max-width: 1023px) {
-  /* Only the primary (the last action): Cancelar is the topbar's X. */
+  /* The X and the primary (the last action): every other action leaves. */
   .rds-form-actions__actions > :not(:last-child) {
     display: none;
+  }
+
+  .rds-form-actions__actions > .rds-form-actions__cancel-icon {
+    display: inline-flex;
   }
 }
 
@@ -5399,10 +5410,17 @@ input:focus-visible + .rds-checkbox__box {
  * container, bottom-bar/padding-x (24) at the sides, bottom-bar/gap (16) between the parts.
  * Height, by the screen width as the Figma viewport mode (layout/compact below lg 1024): compact, bottom-bar/padding-y
  * (10) above and below, 64 = 10 + 44 + 10, plus the safe area at the bottom; expanded, 2 more inside each side, 68.
- * The leading slot reserves bottom-bar/leading/min-width (44, the md Button height).
- * floating, from 1024 only: bottom-bar/floating/margin off the foot and the sides, at most
- * bottom-bar/floating/max-width, centred, bottom-bar/floating/radius and elevation/overlay. Below 1024 it is docked:
- * no radius, no shadow, no margin, the full width.
+ * The leading slot, only when there is one, reserves bottom-bar/leading/min-width (44, the md Button height) and no
+ * height of its own.
+ * floating, from 1024 only: in the bottom right corner of the scrolling container, bottom-bar/floating/margin (24) off
+ * the foot and the right; it hugs its content (width: fit-content, never wider than the container minus the margins),
+ * with bottom-bar/floating/padding-y (8) and padding-x (12) plus the 2 of the expanded arrangement above and below:
+ * 64 = 10 + 44 + 10; bottom-bar/floating/radius and elevation/overlay. Still sticky, not fixed: it stays inside the
+ * scrolling container (a page beside a sidebar never has the sidebar covered, a panel keeps its bar), and the room it
+ * takes at the end of the content is the room the content needs below. Below 1024 it is docked: no radius, no
+ * shadow, no margin, the full width.
+ * While it is on screen, BottomBar fills --toast-offset-bottom on the root (its height, plus the margin when
+ * floating, plus 16): the Toaster's stack rises above it (toast.css).
  * The Buttons on it stay the Button: the action fill and the neutral ghost read their tokens, redeclared here in the
  * bar's colours (bottom-bar/button/*): the fill's hover at 85% over the bar (active 70%), the ghost's hover the label
  * colour at 15% (active 25%), disabled at 40% over the bar (the Figma layer opacity), the focus ring
@@ -5461,10 +5479,12 @@ input:focus-visible + .rds-checkbox__box {
 @media (min-width: 1024px) {
   .rds-bottom-bar--floating {
     bottom: var(--bottom-bar-floating-margin);
-    width: calc(100% - 2 * var(--bottom-bar-floating-margin));
-    max-width: var(--bottom-bar-floating-max-width);
-    margin-inline: auto;
+    width: fit-content;
+    min-width: 0;
+    max-width: calc(100% - 2 * var(--bottom-bar-floating-margin));
+    margin-inline: auto var(--bottom-bar-floating-margin);
     margin-bottom: var(--bottom-bar-floating-margin);
+    padding: calc(var(--bottom-bar-floating-padding-y) + 2px) var(--bottom-bar-floating-padding-x);
     border-radius: var(--bottom-bar-floating-radius);
     box-shadow: var(--elevation-overlay);
   }
@@ -8614,9 +8634,10 @@ input:focus-visible + .rds-radio__circle {
  * SavingBar: no tokens of its own; the shell (internal/bottom-bar.css, bottom-bar/*) brings the colour, the height,
  * the padding, the place and the Buttons' colours. Here the message (label, medium, in bottom-bar/text, at most 2
  * lines with an ellipsis; on error the alert 20 before it, 12 apart) and the actions (8 apart, Descartar then Salvar).
- * Expanded (from lg 1024) the message grows (at least 160) beside Descartar and Salvar; compact (below 1024, by the
- * screen width as the Figma viewport mode) one row, the message (flex 1) on the left and only Salvar on the right:
- * Descartar is not shown (it lives in the confirmation when leaving).
+ * Expanded (from lg 1024) the message grows (at least 160) beside Descartar and Salvar; floating there, the bar hugs
+ * them but stays at least 320 wide. Compact (below 1024, by the screen width as the Figma viewport mode) one row, the
+ * message (flex 1) on the left, Descartar as the undo IconButton (its colours and ring from the shell's neutral ghost)
+ * and Salvar on the right.
  */
 .rds-savingbar__message {
   display: flex;
@@ -8658,14 +8679,29 @@ input:focus-visible + .rds-radio__circle {
   gap: var(--space-8);
 }
 
+/* Expanded: the labelled Descartar; the undo icon is the compact one. */
+.rds-savingbar__actions > .rds-savingbar__discard-icon {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .rds-savingbar.rds-bottom-bar--floating {
+    min-width: 320px;
+  }
+}
+
 @media (max-width: 1023px) {
   .rds-savingbar__message {
     flex: 1 1 0;
     min-width: 0;
   }
 
-  .rds-savingbar .rds-savingbar__discard {
+  .rds-savingbar__actions > .rds-savingbar__discard {
     display: none;
+  }
+
+  .rds-savingbar__actions > .rds-savingbar__discard-icon {
+    display: inline-flex;
   }
 }
 
@@ -10704,13 +10740,23 @@ tbody > tr:last-child > .rds-table__status {
 /*
  * Toast (Feedback collection, toast/*): 460 wide, 8 8 8 16 inside, 12 between icon, text, action and ×,
  * elevation/overlay. outline: white with a border, the icon in the tone; soft and fill: the tone's plate, and
- * everything on it (icon, text, action, ×) in the plate's text colour. Stacked in the bottom-right corner,
- * 16 from the edges and 8 apart.
+ * everything on it (icon, text, action, ×) in the plate's text colour. Stacked at the bottom centre on every screen
+ * width (bottom-center, no switch by breakpoint: the bottom right corner belongs to the floating bar at the foot),
+ * 16 from the foot and 8 apart; on the phone, the screen width minus 16 on each side (calc(100% - 32px)).
+ * With a bar at the foot on screen (FormActions, SavingBar), the stack rises above it: --toast-offset-bottom, filled
+ * on the root by the bar while it is mounted and visible (its height, plus its margin when floating, plus 16), and
+ * back to 16 when it leaves or the on-screen keyboard hides it. The default lives on the root; the bar sets it inline
+ * on the root (so it wins) and removes it.
  */
+:root {
+  --toast-offset-bottom: var(--space-16);
+}
+
 .rds-toast-viewport {
   position: fixed;
   right: 0;
   bottom: 0;
+  left: 0;
   z-index: var(--z-toast);
   box-sizing: border-box;
   display: flex;
@@ -10718,8 +10764,9 @@ tbody > tr:last-child > .rds-table__status {
   gap: var(--space-8);
   width: min(calc(460px + var(--space-16) * 2), 100vw);
   max-width: 100vw;
-  margin: 0;
+  margin: 0 auto;
   padding: var(--space-16);
+  padding-bottom: var(--toast-offset-bottom);
   list-style: none;
   outline: none;
 }

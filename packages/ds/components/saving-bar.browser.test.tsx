@@ -15,6 +15,9 @@ afterEach(async () => {
 });
 
 const STATUSES: SavingBarStatus[] = ['unsaved', 'saving', 'error'];
+
+/** The buttons on screen (the labelled Descartar expanded, the undo IconButton compact; the other is display: none). */
+const visible = (root: Element) => [...root.querySelectorAll<HTMLElement>('button')].filter((b) => b.getClientRects().length > 0);
 const PLACEMENTS: SavingBarPlacement[] = ['docked', 'floating'];
 
 describe.each(MODES)('SavingBar (%s)', (mode) => {
@@ -72,7 +75,7 @@ describe('SavingBar behaviour', () => {
     const onDiscard = vi.fn();
     const el = await render(<SavingBar onSave={onSave} onDiscard={onDiscard} />);
     expect(el.querySelector('[role="status"]')!.textContent).toBe('Alterações não salvas');
-    const [discard, save] = el.querySelectorAll('button');
+    const [discard, save] = visible(el);
     expect([discard.textContent, save.textContent]).toEqual(['Descartar', 'Salvar']);
     discard.click();
     save.click();
@@ -82,7 +85,7 @@ describe('SavingBar behaviour', () => {
 
   it('without onDiscard there is no Descartar (showDiscard off)', async () => {
     const el = await render(<SavingBar onSave={() => {}} />);
-    expect([...el.querySelectorAll('button')].map((b) => b.textContent)).toEqual(['Salvar']);
+    expect(visible(el).map((b) => b.textContent)).toEqual(['Salvar']);
   });
 
   it('saving: says Salvando…; Salvar is in loading (savingLabel, aria-busy) and Descartar disabled; both ignore clicks', async () => {
@@ -91,7 +94,7 @@ describe('SavingBar behaviour', () => {
     const onDiscard = vi.fn();
     const el = await render(<SavingBar status="saving" onSave={onSave} onDiscard={onDiscard} />);
     expect(el.querySelector('[role="status"]')!.textContent).toBe('Salvando…');
-    const [discard, save] = [...el.querySelectorAll('button')];
+    const [discard, save] = visible(el);
     expect(discard.getAttribute('aria-disabled')).toBe('true');
     expect(save.getAttribute('aria-busy')).toBe('true');
     expect(save.textContent).toBe('Salvando…');
@@ -115,7 +118,10 @@ describe('SavingBar behaviour', () => {
       const el = await render(<SavingBar status="saving" onSave={() => {}} onDiscard={() => {}} />);
       const bar = el.querySelector<HTMLElement>('.rds-savingbar')!;
       expect(bar.querySelector('.rds-savingbar__message svg')).toBeNull();
-      const shown = [...bar.querySelectorAll<SVGElement>('svg')].filter((x) => x.getClientRects().length > 0);
+      // Compact, the undo IconButton draws its icon too: that is not an indicator.
+      const shown = [...bar.querySelectorAll<SVGElement>('svg')].filter(
+        (x) => x.getClientRects().length > 0 && !x.closest('.rds-savingbar__discard-icon'),
+      );
       expect(shown).toHaveLength(1);
       expect(shown[0].closest('.rds-button__loader')).not.toBeNull();
       expect(bar.querySelectorAll('[role="progressbar"], .rds-spinner')).toHaveLength(0);
@@ -133,7 +139,7 @@ describe('SavingBar behaviour', () => {
     expect(onSave).toHaveBeenCalledOnce();
   });
 
-  it('at 390 (compact): one row, 64 tall, the message on the left and only Salvar on the right; no Descartar', async () => {
+  it('at 390 (compact): one row, 64 tall, the message on the left, Descartar as the undo IconButton and Salvar on the right', async () => {
     await page.viewport(390, 800);
     const el = await render(
       <div style={{ width: 390 }}>
@@ -148,13 +154,16 @@ describe('SavingBar behaviour', () => {
     expect(getComputedStyle(bar).paddingBottom).toBe('10px');
     const discard = bar.querySelector<HTMLElement>('.rds-savingbar__discard')!;
     expect(getComputedStyle(discard).display).toBe('none');
-    const shown = [...bar.querySelectorAll<HTMLElement>('button')].filter((b) => b.getClientRects().length > 0);
-    expect(shown.map((b) => b.textContent)).toEqual(['Salvar']);
-    const msg = bar.querySelector<HTMLElement>('.rds-savingbar__message')!.getBoundingClientRect();
-    const save = shown[0].getBoundingClientRect();
+    const shown = visible(bar);
+    expect(shown.map((b) => b.getAttribute('aria-label') ?? b.textContent)).toEqual(['Descartar', 'Salvar']);
+    const [undo, save] = shown.map((b) => b.getBoundingClientRect());
+    expect([undo.width, undo.height]).toEqual([44, 44]);
+    expect(save.left - undo.right).toBe(8);
+    expect(undo.top).toBe(save.top);
     expect(save.height).toBe(44);
-    // One line: the message beside Salvar, on its left, centred with it.
-    expect(msg.right).toBeLessThanOrEqual(save.left);
+    const msg = bar.querySelector<HTMLElement>('.rds-savingbar__message')!.getBoundingClientRect();
+    // One line: the message beside the actions, on their left, centred with them.
+    expect(msg.right).toBeLessThanOrEqual(undo.left);
     expect(Math.abs(msg.top + msg.height / 2 - (save.top + save.height / 2))).toBeLessThanOrEqual(1);
     expect(bar.scrollWidth).toBeLessThanOrEqual(bar.clientWidth);
   });
@@ -175,9 +184,9 @@ describe('SavingBar behaviour', () => {
     expect(text.getBoundingClientRect().height).toBeLessThanOrEqual(2 * parseFloat(style.lineHeight) + 0.5);
     expect(['normal', 'keep-all']).toContain(style.wordBreak);
     expect(style.overflowWrap).toBe('normal');
-    const save = [...bar.querySelectorAll<HTMLElement>('button')].find((b) => b.getClientRects().length > 0)!;
+    const [undo, save] = visible(bar);
     expect(save.getBoundingClientRect().height).toBe(44);
-    expect(text.getBoundingClientRect().right).toBeLessThanOrEqual(save.getBoundingClientRect().left);
+    expect(text.getBoundingClientRect().right).toBeLessThanOrEqual(undo.getBoundingClientRect().left);
     expect(bar.scrollWidth).toBeLessThanOrEqual(bar.clientWidth);
   });
 
@@ -212,6 +221,53 @@ describe('SavingBar behaviour', () => {
     expect(getComputedStyle(msg).flexBasis).toBe('160px');
     const actions = el.querySelector<HTMLElement>('.rds-savingbar__actions')!.getBoundingClientRect();
     expect(actions.top).toBeLessThan(msg.getBoundingClientRect().bottom);
+  });
+
+  it('at 390 (compact): the undo IconButton is Descartar: named discardLabel, calls onDiscard, takes the focus with the bar ring, its hover the label colour at 15%', async () => {
+    await page.viewport(390, 800);
+    const onDiscard = vi.fn();
+    const el = await render(<SavingBar discardLabel="Desfazer tudo" onSave={() => {}} onDiscard={onDiscard} />);
+    const [undo, save] = visible(el);
+    expect(undo.classList.contains('rds-savingbar__discard-icon')).toBe(true);
+    expect(undo.className).toContain('rds-button--neutral');
+    expect(undo.className).toContain('rds-button--ghost');
+    expect(undo.className).toContain('rds-button--md');
+    expect(undo.getAttribute('aria-label')).toBe('Desfazer tudo');
+    expect(undo.textContent).toBe('');
+    expect(undo.querySelector('svg')).not.toBeNull();
+    // The labelled Descartar is display: none: out of the tab order and the accessibility tree.
+    expect(getComputedStyle(el.querySelector('.rds-savingbar__discard')!).display).toBe('none');
+    undo.click();
+    expect(onDiscard).toHaveBeenCalledOnce();
+    const fill = rgb(role('--text-on-primary'));
+    expect(getComputedStyle(undo).color).toBe(fill);
+    await userEvent.hover(undo);
+    const [, , , alpha] = channels(getComputedStyle(undo).backgroundColor);
+    expect(alpha).toBeCloseTo(0.15, 2);
+    await userEvent.unhover(undo);
+    await userEvent.tab();
+    expect(document.activeElement).toBe(undo);
+    expect(getComputedStyle(undo).outlineColor).toBe(fill);
+    await userEvent.tab();
+    expect(document.activeElement).toBe(save);
+  });
+
+  it('at 390 (compact) while saving: the undo IconButton is disabled and ignores clicks', async () => {
+    await page.viewport(390, 800);
+    const onDiscard = vi.fn();
+    const el = await render(<SavingBar status="saving" onSave={() => {}} onDiscard={onDiscard} />);
+    const [undo] = visible(el);
+    expect(undo.getAttribute('aria-label')).toBe('Descartar');
+    expect(undo.getAttribute('aria-disabled')).toBe('true');
+    undo.click();
+    expect(onDiscard).not.toHaveBeenCalled();
+  });
+
+  it('at 390 (compact) without onDiscard there is no undo IconButton', async () => {
+    await page.viewport(390, 800);
+    const el = await render(<SavingBar onSave={() => {}} />);
+    expect(el.querySelector('.rds-savingbar__discard-icon')).toBeNull();
+    expect(visible(el).map((b) => b.textContent)).toEqual(['Salvar']);
   });
 
   it('compact passes axe in both modes', async () => {
@@ -273,7 +329,7 @@ describe('SavingBar in the primary colour', () => {
   it('Salvar is tone action fill and Descartar tone neutral ghost (no inverse), in the bar colours', async () => {
     for (const mode of MODES) {
       const el = await render(<SavingBar onSave={() => {}} onDiscard={() => {}} />, mode);
-      const [discard, save] = [...el.querySelectorAll<HTMLElement>('button')];
+      const [discard, save] = visible(el);
       expect(save.className).toContain('rds-button--action');
       expect(save.className).toContain('rds-button--fill');
       expect(discard.className).toContain('rds-button--neutral');
@@ -291,7 +347,7 @@ describe('SavingBar in the primary colour', () => {
   it('hover: Salvar is its fill at 85% over the bar; Descartar the label colour at 15%; focus draws bottom-bar/focus/ring', async () => {
     await page.viewport(1280, 800);
     const el = await render(<SavingBar onSave={() => {}} onDiscard={() => {}} />);
-    const [discard, save] = [...el.querySelectorAll<HTMLElement>('button')];
+    const [discard, save] = visible(el);
     const fill = rgb(role('--text-on-primary'));
     const bar = rgb(role('--colors-primary-default'));
     await userEvent.hover(save);
@@ -311,7 +367,7 @@ describe('SavingBar in the primary colour', () => {
   it('saving: Salvar keeps its fill with the loader in the bar colour; Descartar is at 40% over the bar', async () => {
     await page.viewport(1280, 800);
     const el = await render(<SavingBar status="saving" onSave={() => {}} onDiscard={() => {}} />);
-    const [discard, save] = [...el.querySelectorAll<HTMLElement>('button')];
+    const [discard, save] = visible(el);
     const fill = rgb(role('--text-on-primary'));
     const bar = rgb(role('--colors-primary-default'));
     const near = (c: string, want: number[]) =>
@@ -355,7 +411,7 @@ describe('SavingBar in the primary colour', () => {
         expect(role('--colors-primary-default')).not.toBe(house[mode]);
         const bar = el.querySelector<HTMLElement>('.rds-savingbar')!;
         expect(getComputedStyle(bar).backgroundColor).toBe(rgb(primary));
-        const [discard, save] = [...bar.querySelectorAll<HTMLElement>('.rds-button')];
+        const [discard, save] = visible(bar);
         expect(getComputedStyle(save).backgroundColor).toBe(rgb(onPrimary));
         expect(getComputedStyle(save).color).toBe(rgb(primary));
         expect(getComputedStyle(discard).color).toBe(rgb(onPrimary));
@@ -407,21 +463,37 @@ describe('SavingBar on the shell (.bottom-bar)', () => {
     }
   });
 
-  it('floating at 1280: 768 wide, centred, 24 off the foot, radius/container, elevation/overlay, 68 tall', async () => {
+  it('floating at 1280: hugs the message and the actions, in the bottom right corner (24 off), 64 tall, 10 12 padding, radius/container, elevation/overlay', async () => {
     await page.viewport(1280, 800);
     const el = await render(edge(<SavingBar placement="floating" onSave={() => {}} onDiscard={() => {}} />));
     const bar = el.querySelector<HTMLElement>('.rds-savingbar')!;
     const box = bar.getBoundingClientRect();
     const style = getComputedStyle(bar);
-    expect(box.width).toBe(768);
-    expect(box.left).toBe((1280 - 768) / 2);
-    expect(box.height).toBe(68);
+    // Its content's width: 12 + the message + 16 + Descartar + 8 + Salvar + 12, far less than the 1280 of the page.
+    const msg = bar.querySelector<HTMLElement>('.rds-savingbar__message')!.getBoundingClientRect();
+    const actions = bar.querySelector<HTMLElement>('.rds-savingbar__actions')!.getBoundingClientRect();
+    expect(box.width).toBeCloseTo(12 + msg.width + 16 + actions.width + 12, 0);
+    expect(box.width).toBeLessThan(600);
+    expect(box.right).toBe(1280 - 24);
+    expect(box.height).toBe(64);
+    expect(style.padding).toBe('10px 12px');
+    expect(style.width).not.toBe('768px');
+    expect(style.maxWidth).toBe('calc(100% - 48px)');
     expect(style.bottom).toBe('24px');
     expect(style.marginBottom).toBe('24px');
     expect(style.borderTopLeftRadius).toBe('12px');
+    expect(style.borderBottomRightRadius).toBe('12px');
     expect(style.boxShadow).not.toBe('none');
-    const shown = [...bar.querySelectorAll<HTMLElement>('button')].filter((b) => b.getClientRects().length > 0);
-    expect(shown.map((b) => b.textContent)).toEqual(['Descartar', 'Salvar']);
+    expect(visible(bar).map((b) => b.textContent)).toEqual(['Descartar', 'Salvar']);
+  });
+
+  it('floating at 1280 keeps at least 320 wide (Figma: mínimo 320), with only Salvar and a short message', async () => {
+    await page.viewport(1280, 800);
+    const el = await render(edge(<SavingBar placement="floating" message="Pendente" onSave={() => {}} />));
+    const bar = el.querySelector<HTMLElement>('.rds-savingbar')!;
+    expect(getComputedStyle(bar).minWidth).toBe('320px');
+    expect(bar.getBoundingClientRect().width).toBe(320);
+    expect(bar.getBoundingClientRect().right).toBe(1280 - 24);
   });
 
   it('floating at 390 is exactly docked: no radius, no shadow, no margin, the full width, 64 tall', async () => {
@@ -471,7 +543,12 @@ describe('SavingBar on the shell (.bottom-bar)', () => {
       expect(message(filled).left).toBe(message(empty).left);
       const save = (bar: HTMLElement) => [...bar.querySelectorAll<HTMLElement>('.rds-button')].pop()!.getBoundingClientRect().left;
       expect(save(filled)).toBe(save(empty));
-      expect(empty.getBoundingClientRect().height).toBe(width === 1280 ? 68 : 64);
+      // 10 (12 expanded) above and below the taller of the 44 controls and the message: at 390, with the slot and the
+      // undo IconButton, the default message takes its 2 lines (48), so 68, as the Figma compact frame (HUG).
+      const lines = message(empty).height;
+      expect(empty.getBoundingClientRect().height).toBe(width === 1280 ? 68 : 20 + Math.max(44, lines));
+      expect(filled.getBoundingClientRect().height).toBe(empty.getBoundingClientRect().height);
+      expect(lines).toBeLessThanOrEqual(48);
     }
   });
 });

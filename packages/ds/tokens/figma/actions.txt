@@ -127,4 +127,5 @@ bottom-bar/gap|F|@scale:space/16|=
 bottom-bar/leading/min-width|F|@Actions:button/size/md/height|=
 bottom-bar/floating/radius|F|@base:radius/container|=
 bottom-bar/floating/margin|F|@scale:space/24|=
-bottom-bar/floating/max-width|F|768|=
+bottom-bar/floating/padding-y|F|@scale:space/8|=
+bottom-bar/floating/padding-x|F|@scale:space/12|=

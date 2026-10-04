@@ -2,13 +2,23 @@
 /*
  * Toast (Feedback collection, toast/*): 460 wide, 8 8 8 16 inside, 12 between icon, text, action and ×,
  * elevation/overlay. outline: white with a border, the icon in the tone; soft and fill: the tone's plate, and
- * everything on it (icon, text, action, ×) in the plate's text colour. Stacked in the bottom-right corner,
- * 16 from the edges and 8 apart.
+ * everything on it (icon, text, action, ×) in the plate's text colour. Stacked at the bottom centre on every screen
+ * width (bottom-center, no switch by breakpoint: the bottom right corner belongs to the floating bar at the foot),
+ * 16 from the foot and 8 apart; on the phone, the screen width minus 16 on each side (calc(100% - 32px)).
+ * With a bar at the foot on screen (FormActions, SavingBar), the stack rises above it: --toast-offset-bottom, filled
+ * on the root by the bar while it is mounted and visible (its height, plus its margin when floating, plus 16), and
+ * back to 16 when it leaves or the on-screen keyboard hides it. The default lives on the root; the bar sets it inline
+ * on the root (so it wins) and removes it.
  */
+:root {
+  --toast-offset-bottom: var(--space-16);
+}
+
 .rds-toast-viewport {
   position: fixed;
   right: 0;
   bottom: 0;
+  left: 0;
   z-index: var(--z-toast);
   box-sizing: border-box;
   display: flex;
@@ -16,8 +26,9 @@
   gap: var(--space-8);
   width: min(calc(460px + var(--space-16) * 2), 100vw);
   max-width: 100vw;
-  margin: 0;
+  margin: 0 auto;
   padding: var(--space-16);
+  padding-bottom: var(--toast-offset-bottom);
   list-style: none;
   outline: none;
 }

@@ -3,9 +3,10 @@
  * SavingBar: no tokens of its own; the shell (internal/bottom-bar.css, bottom-bar/*) brings the colour, the height,
  * the padding, the place and the Buttons' colours. Here the message (label, medium, in bottom-bar/text, at most 2
  * lines with an ellipsis; on error the alert 20 before it, 12 apart) and the actions (8 apart, Descartar then Salvar).
- * Expanded (from lg 1024) the message grows (at least 160) beside Descartar and Salvar; compact (below 1024, by the
- * screen width as the Figma viewport mode) one row, the message (flex 1) on the left and only Salvar on the right:
- * Descartar is not shown (it lives in the confirmation when leaving).
+ * Expanded (from lg 1024) the message grows (at least 160) beside Descartar and Salvar; floating there, the bar hugs
+ * them but stays at least 320 wide. Compact (below 1024, by the screen width as the Figma viewport mode) one row, the
+ * message (flex 1) on the left, Descartar as the undo IconButton (its colours and ring from the shell's neutral ghost)
+ * and Salvar on the right.
  */
 .rds-savingbar__message {
   display: flex;
@@ -47,13 +48,28 @@
   gap: var(--space-8);
 }
 
+/* Expanded: the labelled Descartar; the undo icon is the compact one. */
+.rds-savingbar__actions > .rds-savingbar__discard-icon {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .rds-savingbar.rds-bottom-bar--floating {
+    min-width: 320px;
+  }
+}
+
 @media (max-width: 1023px) {
   .rds-savingbar__message {
     flex: 1 1 0;
     min-width: 0;
   }
 
-  .rds-savingbar .rds-savingbar__discard {
+  .rds-savingbar__actions > .rds-savingbar__discard {
     display: none;
+  }
+
+  .rds-savingbar__actions > .rds-savingbar__discard-icon {
+    display: inline-flex;
   }
 }

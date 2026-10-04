@@ -1,8 +1,10 @@
 /* @tokens bottom-bar */
 /*
  * FormActions: no tokens of its own; the shell (internal/bottom-bar.css, bottom-bar/*) brings the colour, the height,
- * the padding, the place and the Buttons' colours. Here only the actions: on the right, 8 apart, Cancelar then the
- * primary. Compact (below lg 1024, by the screen width as the Figma viewport mode), only the last one, the primary.
+ * the padding, the place and the Buttons' colours (the X too: the neutral ghost reads bottom-bar/button/ghost/label,
+ * its hover that colour at 15%, its ring bottom-bar/focus/ring). Here only the actions: on the right, 8 apart,
+ * Cancelar then the primary. Compact (below lg 1024, by the screen width as the Figma viewport mode), Cancelar is the
+ * X (an IconButton) and the primary; the actions between them are not shown.
  */
 .rds-form-actions__actions {
   display: flex;
@@ -11,9 +13,18 @@
   margin-inline-start: auto;
 }
 
+/* Expanded: the labelled Cancelar; the X is the compact one. */
+.rds-form-actions__actions > .rds-form-actions__cancel-icon {
+  display: none;
+}
+
 @media (max-width: 1023px) {
-  /* Only the primary (the last action): Cancelar is the topbar's X. */
+  /* The X and the primary (the last action): every other action leaves. */
   .rds-form-actions__actions > :not(:last-child) {
     display: none;
+  }
+
+  .rds-form-actions__actions > .rds-form-actions__cancel-icon {
+    display: inline-flex;
   }
 }

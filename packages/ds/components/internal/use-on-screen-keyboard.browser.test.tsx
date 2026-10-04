@@ -1,9 +1,10 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act } from 'react';
 import { page, userEvent } from 'vitest/browser';
 import { Button } from '../button';
 import { FormActions, type FormActionsPlacement } from '../form-actions';
 import { SavingBar } from '../saving-bar';
+import { Toaster, toast } from '../toast';
 import { cleanup, render } from '../__tests__/render';
 
 /*
@@ -183,5 +184,33 @@ describe('the slide respects prefers-reduced-motion', () => {
     const found = transitions(selector);
     expect(found.length).toBeGreaterThan(0);
     for (const media of found) expect(media.join(' and ')).toMatch(/max-width: 1023px\)? and \(prefers-reduced-motion: no-preference/);
+  });
+});
+
+describe('the Toaster while the keyboard hides the bar', () => {
+  it('at 390 the stack sits above the bar (its height + 16), drops to 16 while the keyboard is open, and rises again when it closes', async () => {
+    await page.viewport(390, 800);
+    const el = await render(
+      <Toaster>
+        <Edit />
+      </Toaster>,
+    );
+    const bar = el.querySelector<HTMLElement>('.rds-savingbar')!;
+    act(() => {
+      toast({ id: 'kb', title: 'Rascunho salvo', duration: 60000 });
+    });
+    const stack = () => document.querySelector<HTMLElement>('.rds-toast-viewport')!;
+    const offset = () => getComputedStyle(stack()).paddingBottom;
+    const above = `${bar.getBoundingClientRect().height + 16}px`;
+    await vi.waitFor(() => expect(offset()).toBe(above));
+    await userEvent.click(el.querySelector('input')!);
+    await keyboard(420);
+    await settled(bar);
+    expect(hidden(bar)).toBe(true);
+    await vi.waitFor(() => expect(offset()).toBe('16px'));
+    await keyboard(800);
+    await settled(bar);
+    await vi.waitFor(() => expect(offset()).toBe(above));
+    act(() => toast.dismiss());
   });
 });
