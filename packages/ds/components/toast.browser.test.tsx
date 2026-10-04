@@ -1,5 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { act } from 'react';
+import { act, useState } from 'react';
+import { page } from 'vitest/browser';
+import { SavingBar, type SavingBarPlacement } from './saving-bar';
 import { Toaster, ToastView, toast, toastDuration, useToast, type ToastTone, type ToastVariant } from './toast';
 import { MODES, axeViolations, cleanup, render, settle } from './__tests__/render';
 
@@ -156,5 +158,82 @@ describe('Toast timing (WCAG 2.2.1)', () => {
     const close = toasts()[0].querySelector<HTMLButtonElement>('.rds-toast__close')!;
     expect(close.getAttribute('aria-label')).toBe('Dispensar');
     expect(toasts()[0].querySelector('[aria-label="Fechar"]')).toBeNull();
+  });
+});
+
+describe('Toaster position: bottom-center, above the bar at the foot', () => {
+  afterEach(async () => {
+    await page.viewport(1280, 800);
+  });
+
+  let showBar: (placement: SavingBarPlacement | null) => void = () => {};
+  function Page({ initial }: { initial: SavingBarPlacement | null }) {
+    const [bar, setBar] = useState(initial);
+    showBar = setBar;
+    return <Toaster>{bar && <SavingBar placement={bar} message="Pendente" onSave={() => {}} onDiscard={() => {}} />}</Toaster>;
+  }
+
+  /** The newest toast on screen, once its entry has settled. */
+  async function shown() {
+    act(() => {
+      toast({ id: 'pos', title: 'Disparo agendado', duration: 60000 });
+    });
+    await vi.waitFor(() => expect(toasts()).toHaveLength(1));
+    await settle();
+    return toasts()[0].getBoundingClientRect();
+  }
+
+  it.each([1280, 390])('at %i: centred, 16 off the foot; on the phone the width minus 16 on each side', async (width) => {
+    await page.viewport(width, 800);
+    await render(<Page initial={null} />);
+    const box = await shown();
+    expect(box.left + box.width / 2).toBeCloseTo(width / 2, 0);
+    expect(window.innerHeight - box.bottom).toBe(16);
+    expect(box.width).toBe(width === 390 ? 390 - 32 : 460);
+    expect(document.documentElement.style.getPropertyValue('--toast-offset-bottom')).toBe('');
+  });
+
+  it.each([
+    [1280, 'docked', 68 + 16],
+    [1280, 'floating', 64 + 24 + 16],
+    [390, 'docked', 64 + 16],
+    [390, 'floating', 64 + 16],
+  ] as const)('at %i with the %s bar: the stack rises above it (%i), and goes back to 16 when the bar leaves', async (width, placement, offset) => {
+    await page.viewport(width, 800);
+    await render(<Page initial={placement} />);
+    let box = await shown();
+    expect(window.innerHeight - box.bottom).toBe(offset);
+    expect(box.left + box.width / 2).toBeCloseTo(width / 2, 0);
+    const bar = document.querySelector<HTMLElement>('.rds-savingbar')!;
+    const footprint = bar.getBoundingClientRect().height + Number.parseFloat(getComputedStyle(bar).bottom);
+    expect(offset).toBe(footprint + 16);
+    await act(async () => showBar(null));
+    box = toasts()[0].getBoundingClientRect();
+    expect(window.innerHeight - box.bottom).toBe(16);
+    await act(async () => showBar(placement));
+    box = toasts()[0].getBoundingClientRect();
+    expect(window.innerHeight - box.bottom).toBe(offset);
+  });
+
+  it('follows the breakpoint: floating at 1280 (64 + 24), docked below 1024 (64)', async () => {
+    await page.viewport(1280, 800);
+    await render(<Page initial="floating" />);
+    expect(window.innerHeight - (await shown()).bottom).toBe(104);
+    await page.viewport(390, 800);
+    await vi.waitFor(() => expect(window.innerHeight - toasts()[0].getBoundingClientRect().bottom).toBe(80));
+  });
+
+  it('a toast with the bar on screen passes axe, light and dark', async () => {
+    await page.viewport(1280, 800);
+    for (const mode of MODES) {
+      await render(<Page initial="docked" />, mode);
+      const box = await shown();
+      const bar = document.querySelector<HTMLElement>('.rds-savingbar')!;
+      // The bar is in the page flow here (sticky); what matters is the room the stack keeps: its height plus 16.
+      expect(window.innerHeight - box.bottom).toBe(bar.getBoundingClientRect().height + 16);
+      expect(await axeViolations(document.body)).toEqual([]);
+      act(() => toast.dismiss());
+      cleanup();
+    }
   });
 });

@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { emitRdsCss, generateRdsTheme, type BrandDef } from '@rojaostudio/ds-core/generate';
 import { Button } from './button';
@@ -16,10 +16,11 @@ afterEach(async () => {
 
 const PLACEMENTS: FormActionsPlacement[] = ['docked', 'floating'];
 
-function Foot(props: { placement?: FormActionsPlacement; leading?: ReactNode }) {
+function Foot(props: { placement?: FormActionsPlacement; leading?: ReactNode; onCancel?: () => void }) {
+  const { onCancel, ...rest } = props;
   return (
-    <FormActions {...props}>
-      <Button tone="neutral" variant="ghost">Cancelar</Button>
+    <FormActions {...rest}>
+      <Button tone="neutral" variant="ghost" onClick={onCancel}>Cancelar</Button>
       <Button tone="action">Criar produto</Button>
     </FormActions>
   );
@@ -30,6 +31,9 @@ const edge = (ui: ReactNode) => <div style={{ margin: '0 -16px' }}>{ui}</div>;
 
 const shown = (el: Element) =>
   [...el.querySelectorAll<HTMLElement>('.rds-form-actions__actions > *')].filter((b) => getComputedStyle(b).display !== 'none');
+
+/** What a shown action is called: its text, or the aria-label of the X. */
+const names = (el: Element) => shown(el).map((b) => b.getAttribute('aria-label') ?? b.textContent);
 
 /** A theme role as the shipped theme resolves it on the root, in the current mode. */
 const role = (name: string) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
@@ -106,7 +110,7 @@ describe('FormActions behaviour', () => {
     expect(primary.right).toBe(bar.getBoundingClientRect().right - 24);
   });
 
-  it('compact at 390: one row 64 tall (10 + 44 + 10, plus the safe area), only the primary, on the right', async () => {
+  it('compact at 390: one row 64 tall (10 + 44 + 10, plus the safe area), the X (Cancelar) and the primary on the right, 8 apart', async () => {
     await page.viewport(390, 800);
     const el = await render(edge(<Foot />));
     const bar = el.querySelector<HTMLElement>('.rds-form-actions')!;
@@ -114,18 +118,20 @@ describe('FormActions behaviour', () => {
     expect(getComputedStyle(bar).paddingTop).toBe('10px');
     // env(safe-area-inset-bottom) is 0 here: 10 + 0.
     expect(getComputedStyle(bar).paddingBottom).toBe('10px');
-    const actions = shown(bar);
-    expect(actions.map((b) => b.textContent)).toEqual(['Criar produto']);
-    // Cancelar is display: none (out of the tab order and the accessibility tree): the way out is the topbar's X.
+    expect(names(bar)).toEqual(['Cancelar', 'Criar produto']);
+    // The labelled Cancelar is display: none (out of the tab order and the accessibility tree): the X stands for it.
     const cancel = [...bar.querySelectorAll<HTMLElement>('button')].find((b) => b.textContent === 'Cancelar')!;
     expect(getComputedStyle(cancel).display).toBe('none');
-    const primary = actions[0].getBoundingClientRect();
+    const [x, primary] = shown(bar).map((b) => b.getBoundingClientRect());
+    expect([x.width, x.height]).toEqual([44, 44]);
     expect(primary.height).toBe(44);
+    expect(x.top).toBe(primary.top);
+    expect(primary.left - x.right).toBe(8);
     expect(primary.right).toBe(bar.getBoundingClientRect().right - 24);
     expect(bar.scrollWidth).toBeLessThanOrEqual(bar.clientWidth);
   });
 
-  it('compact keeps only the last child, however many actions there are', async () => {
+  it('compact keeps the X (the first child) and the primary (the last); the actions between them leave', async () => {
     await page.viewport(390, 800);
     const el = await render(
       <FormActions>
@@ -134,15 +140,28 @@ describe('FormActions behaviour', () => {
         <Button tone="action">Publicar</Button>
       </FormActions>,
     );
-    expect(shown(el).map((b) => b.textContent)).toEqual(['Publicar']);
+    expect(names(el)).toEqual(['Cancelar', 'Publicar']);
     await page.viewport(1280, 800);
-    expect(shown(el).map((b) => b.textContent)).toEqual(['Cancelar', 'Salvar rascunho', 'Publicar']);
+    expect(names(el)).toEqual(['Cancelar', 'Salvar rascunho', 'Publicar']);
+  });
+
+  it('with one child there is no Cancelar and no X, expanded or compact', async () => {
+    for (const width of [1280, 390]) {
+      await page.viewport(width, 800);
+      const el = await render(
+        <FormActions>
+          <Button tone="action">Concluir</Button>
+        </FormActions>,
+      );
+      expect(el.querySelector('.rds-form-actions__cancel-icon')).toBeNull();
+      expect(names(el)).toEqual(['Concluir']);
+    }
   });
 
   it('keeps reading order: Cancelar first, the primary last, in the page and in the focus order', async () => {
     await page.viewport(1280, 800);
     const el = await render(<Foot />);
-    expect([...el.querySelectorAll('button')].map((b) => b.textContent)).toEqual(['Cancelar', 'Criar produto']);
+    expect(names(el)).toEqual(['Cancelar', 'Criar produto']);
     await userEvent.tab();
     expect(document.activeElement!.textContent).toBe('Cancelar');
     await userEvent.tab();
@@ -164,33 +183,120 @@ describe('FormActions behaviour', () => {
     }
   });
 
-  it('floating at 1280: off the foot by 24, at most 768, centred, radius/container and elevation/overlay', async () => {
+  it('floating at 1280: hugs the actions (12 + Cancelar + 8 + primary + 12), in the bottom right corner 24 off, 64 tall, radius/container and elevation/overlay', async () => {
     await page.viewport(1280, 800);
     const el = await render(edge(<Foot placement="floating" />));
     const bar = el.querySelector<HTMLElement>('.rds-form-actions')!;
     const style = getComputedStyle(bar);
     const box = bar.getBoundingClientRect();
-    expect(box.width).toBe(768);
-    expect(box.left).toBe((1280 - 768) / 2);
+    const [cancel, primary] = shown(bar).map((b) => b.getBoundingClientRect());
+    expect(box.width).toBeCloseTo(12 + cancel.width + 8 + primary.width + 12, 0);
+    expect(cancel.left - box.left).toBe(12);
+    expect(box.right - primary.right).toBe(12);
+    expect(box.right).toBe(1280 - 24);
+    expect(box.height).toBe(64);
+    expect(style.padding).toBe('10px 12px');
     expect(style.marginBottom).toBe('24px');
     expect(style.bottom).toBe('24px');
     expect(style.borderTopLeftRadius).toBe('12px');
     expect(style.borderBottomRightRadius).toBe('12px');
     expect(style.boxShadow).not.toBe('none');
-    expect(box.height).toBe(68);
   });
 
-  it('floating in a container narrower than 768 + 48 keeps 24 at each side', async () => {
+  it('floating sits in the bottom right corner of its own scrolling container: beside a sidebar it never covers it', async () => {
+    await page.viewport(1280, 600);
+    const el = await render(
+      edge(
+        <div style={{ display: 'flex', height: 500 }}>
+          <nav aria-label="Menu" style={{ width: 260, flex: 'none' }} />
+          <div data-testid="scroller" style={{ flex: 1, minWidth: 0, overflow: 'auto' }}>
+            <div style={{ height: 1200 }} />
+            <Foot placement="floating" />
+          </div>
+        </div>,
+      ),
+    );
+    const scroller = el.querySelector<HTMLElement>('[data-testid="scroller"]')!;
+    const nav = el.querySelector('nav')!.getBoundingClientRect();
+    const bar = el.querySelector<HTMLElement>('.rds-form-actions')!;
+    const frame = scroller.getBoundingClientRect();
+    const inner = frame.left + scroller.clientLeft + scroller.clientWidth;
+    // Sticky at the bottom of the scrolling container while the end of its content is still far below.
+    for (const top of [0, scroller.scrollHeight]) {
+      scroller.scrollTop = top;
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+      const box = bar.getBoundingClientRect();
+      expect(frame.top + scroller.clientHeight - box.bottom, `scrollTop ${top}`).toBe(24);
+      expect(inner - box.right, `scrollTop ${top}`).toBe(24);
+      expect(box.left).toBeGreaterThan(nav.right);
+    }
+  });
+
+  it('floating in a narrow container never overflows it: at most its width minus 24 at each side', async () => {
     await page.viewport(1280, 800);
     const el = await render(
-      <div style={{ width: 700 }}>
-        <Foot placement="floating" />
+      <div style={{ width: 300 }}>
+        <Foot placement="floating" leading={<Button tone="neutral" variant="ghost">Pré-visualizar</Button>} />
       </div>,
     );
     const host = el.firstElementChild!.getBoundingClientRect();
     const bar = el.querySelector<HTMLElement>('.rds-form-actions')!.getBoundingClientRect();
-    expect(bar.width).toBe(700 - 48);
-    expect(bar.left - host.left).toBe(24);
+    expect(bar.width).toBeLessThanOrEqual(300 - 48);
+    expect(host.right - bar.right).toBe(24);
+  });
+
+  it('compact at 390: the X is Cancelar, named by its label, calls its onClick, takes the focus with the bar ring, hover at 15%', async () => {
+    await page.viewport(390, 800);
+    const onCancel = vi.fn();
+    const el = await render(<Foot onCancel={onCancel} />);
+    const [x, primary] = shown(el);
+    expect(x.classList.contains('rds-form-actions__cancel-icon')).toBe(true);
+    expect(x.className).toContain('rds-button--neutral');
+    expect(x.className).toContain('rds-button--ghost');
+    expect(x.className).toContain('rds-button--md');
+    expect(x.getAttribute('aria-label')).toBe('Cancelar');
+    expect(x.textContent).toBe('');
+    x.click();
+    expect(onCancel).toHaveBeenCalledOnce();
+    const label = computed(role('--text-on-primary'));
+    expect(getComputedStyle(x).color).toBe(label);
+    await userEvent.hover(x);
+    const alpha = Number(getComputedStyle(x).backgroundColor.match(/[\d.]+/g)!.at(-1));
+    expect(alpha).toBeCloseTo(0.15, 2);
+    await userEvent.unhover(x);
+    await userEvent.tab();
+    expect(document.activeElement).toBe(x);
+    expect(getComputedStyle(x).outlineColor).toBe(label);
+    await userEvent.tab();
+    expect(document.activeElement).toBe(primary);
+  });
+
+  it('compact: the X takes aria-label and disabled from the Cancelar child', async () => {
+    await page.viewport(390, 800);
+    const onClick = vi.fn();
+    const el = await render(
+      <FormActions>
+        <Button tone="neutral" variant="ghost" aria-label="Voltar sem criar" disabled onClick={onClick}>
+          <span>Voltar</span>
+        </Button>
+        <Button tone="action">Criar</Button>
+      </FormActions>,
+    );
+    const [x] = shown(el);
+    expect(x.getAttribute('aria-label')).toBe('Voltar sem criar');
+    expect(x.getAttribute('aria-disabled')).toBe('true');
+    x.click();
+    expect(onClick).not.toHaveBeenCalled();
+    cleanup();
+    const nested = await render(
+      <FormActions>
+        <Button tone="neutral" variant="ghost">
+          <span>Sair</span> agora
+        </Button>
+        <Button tone="action">Criar</Button>
+      </FormActions>,
+    );
+    expect(shown(nested)[0].getAttribute('aria-label')).toBe('Sair agora');
   });
 
   it('floating at 390 is exactly docked: no radius, no shadow, no margin, the full width, 64 tall', async () => {
@@ -230,6 +336,8 @@ describe('FormActions behaviour', () => {
       const [empty, filled, none] = [...el.querySelectorAll<HTMLElement>('.rds-form-actions')];
       const slot = empty.querySelector<HTMLElement>('.rds-bottom-bar__leading')!;
       expect(slot.getBoundingClientRect().width).toBe(44);
+      // No height of its own: empty, it is 44 wide and 0 tall (the Figma slot with showLeading on and nothing in it).
+      expect(slot.getBoundingClientRect().height).toBe(0);
       expect(slot.getBoundingClientRect().left).toBe(empty.getBoundingClientRect().left + 24);
       expect(filled.querySelector<HTMLElement>('.rds-bottom-bar__leading')!.getBoundingClientRect().width).toBe(44);
       // Without leading there is no slot at all.
@@ -255,7 +363,7 @@ describe('FormActions behaviour', () => {
     await page.viewport(1280, 800);
     for (const mode of MODES) {
       const el = await render(<Foot />, mode);
-      const [cancel, primary] = [...el.querySelectorAll<HTMLElement>('button')];
+      const [cancel, primary] = shown(el);
       expect(getComputedStyle(primary).backgroundColor).toBe(computed(role('--text-on-primary')));
       expect(getComputedStyle(primary).color).toBe(computed(role('--colors-primary-default')));
       expect(getComputedStyle(cancel).color).toBe(computed(role('--text-on-primary')));

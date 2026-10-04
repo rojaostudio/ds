@@ -2,8 +2,10 @@
 
 import type { HTMLAttributes, ReactNode } from 'react';
 import { Button } from './button';
+import { IconButton } from './icon-button';
 import { BottomBar, type BottomBarPlacement } from './internal/bottom-bar';
-import { AlertIcon } from './internal/icons';
+import { AlertIcon, Undo2Icon } from './internal/icons';
+import { Tooltip } from './tooltip';
 
 export type SavingBarStatus = 'unsaved' | 'saving' | 'error';
 
@@ -27,17 +29,18 @@ export interface SavingBarProps extends HTMLAttributes<HTMLDivElement> {
   /** Called by Salvar (and by Tentar de novo, on error). */
   onSave: () => void;
   /**
-   * Shows Descartar and is called when it is pressed (Figma: `showDiscard`). Expanded only: in the compact
-   * arrangement (the phone) the bar has only the main button, and Descartar belongs to the way out, in the
-   * confirmation when leaving with changes (AlertDialog).
+   * Shows Descartar and is called when it is pressed (Figma: `showDiscard`). Expanded, a Button (tone neutral,
+   * ghost); compact (the phone), an IconButton with the undo icon (undo-2), named `discardLabel`. Disabled while
+   * saving, in both.
    */
   onDiscard?: () => void;
   saveLabel?: string;
   retryLabel?: string;
   discardLabel?: string;
   /**
-   * docked (default: the container's width, against the foot) or floating (from 1024 up: off the foot, rounded, the
-   * overlay shadow, 24 of margin, at most 768, centred). Below 1024 floating is docked (Figma: `placement`).
+   * docked (default: the container's width, against the foot) or floating (from 1024 up: in the bottom right corner,
+   * 24 off the foot and the right, hugging its content but at least 320 wide, rounded, the overlay shadow). Below 1024
+   * floating is docked (Figma: `placement`).
    */
   placement?: SavingBarPlacement;
   /**
@@ -54,7 +57,8 @@ export interface SavingBarProps extends HTMLAttributes<HTMLDivElement> {
  * primary colour (bottom-bar/background) in light, dark and every brand, 64 plus the safe area compact, 68 expanded,
  * 24 at the sides, sticky at the bottom of the scrolling container. Its Buttons are Salvar in tone action fill and
  * Descartar in tone neutral ghost, with the bar's colours (bottom-bar/button/*). Below 1024 (compact, the phone) it is
- * one row: the message on the left and only Salvar on the right; Descartar is in the confirmation when leaving. While
+ * one row: the message on the left, Descartar as an IconButton with the undo icon (aria-label `discardLabel`) and
+ * Salvar on the right. While
  * saving, the indicator is Salvar in loading, alone (with the LoadingOverlay too). On the phone it leaves while the
  * on-screen keyboard is open and comes back on blur, never taking the focus. The content needs room below as tall as
  * the bar (`scroll-padding-bottom`, plus `env(safe-area-inset-bottom)`). Styles: saving-bar.css,
@@ -104,6 +108,20 @@ export function SavingBar({
           <Button className="rds-savingbar__discard" tone="neutral" variant="ghost" disabled={saving} onClick={onDiscard}>
             {discardLabel}
           </Button>
+        )}
+        {onDiscard && (
+          <Tooltip text={discardLabel}>
+            <IconButton
+              className="rds-savingbar__discard-icon"
+              icon={<Undo2Icon />}
+              label={discardLabel}
+              tone="neutral"
+              variant="ghost"
+              size="md"
+              disabled={saving}
+              onClick={onDiscard}
+            />
+          </Tooltip>
         )}
         <Button tone="action" variant="fill" loading={saving} loadingLabel={savingLabel} onClick={onSave}>
           {saving ? savingLabel : error ? retryLabel : saveLabel}

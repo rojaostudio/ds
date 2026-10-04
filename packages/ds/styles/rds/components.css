@@ -127,7 +127,8 @@
   --bottom-bar-leading-min-width: var(--button-size-md-height);
   --bottom-bar-floating-radius: var(--radius-container);
   --bottom-bar-floating-margin: var(--space-24);
-  --bottom-bar-floating-max-width: 768px;
+  --bottom-bar-floating-padding-y: var(--space-8);
+  --bottom-bar-floating-padding-x: var(--space-12);
 
   /* blocks */
   --topnav-background: var(--surface-card);
