@@ -92,10 +92,12 @@ for (const { pacote, dir, tetoKB, dependencias } of REGRAS) {
   const proibidos = lista.filter((f) => PROIBIDOS.some((re) => re.test(f)));
   const workspace = /"workspace:/.test(manifesto);
   const lifecycle = /"(pre|post)install"\s*:/.test(manifesto);
-  // O `pnpm audit` do workspace acusa 27 vulnerabilidades, TODAS na cadeia de dev (Expo,
-  // Metro, PostCSS). Nenhuma alcanca quem instala, porque o que e publicado nao carrega
-  // dependencia de terceiro nenhuma — e ISSO e o que vale travar. E uma afirmacao mais forte
-  // que um nivel de severidade tolerado, e nao envelhece com o feed de avisos.
+  // O `pnpm audit` do workspace acusa vulnerabilidades quase todas na cadeia de dev (Expo,
+  // Metro, PostCSS, ESLint), que nao alcancam quem instala. O que e publicado so carrega as
+  // dependencias permitidas abaixo — e ISSO e o que vale travar, em vez de um nivel de severidade.
+  // Mas "nenhuma alcanca" nao vale para todo pacote: o codemod depende do ts-morph, e um aviso na
+  // cadeia dele (ex.: brace-expansion via @ts-morph/common > minimatch) chega a quem roda o codemod.
+  // Confira com `pnpm audit --prod` em packages/codemod.
   const deps = Object.keys((JSON.parse(manifesto).dependencies ?? {}) as Record<string, string>);
   // 2.0 (#13): Radix primitives are the one runtime dependency allowed. Rewriting Dialog,
   // Select, DropdownMenu and Toast by hand is where accessibility breaks; the primitives are

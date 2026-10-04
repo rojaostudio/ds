@@ -19,3 +19,12 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+Arquivos gerados
+
+As alterações que este software faz nos arquivos do projeto em que é executado
+(código migrado, comentários TODO(ds-2.0), package.json, CSS, .npmrc,
+next.config) pertencem a quem o executa. Elas não são cópias nem partes
+substanciais do Software, e não carregam a obrigação de manter o aviso de
+copyright ou esta licença. O tema copiado para ds-theme.css vem do pacote
+@rojaostudio/ds instalado no projeto e segue a licença daquele pacote.

@@ -315,3 +315,67 @@ describe('codemod: the vocabulary on a 2.0.0-next project (from: next)', () => {
     expect(r.output).not.toContain('surface=');
   });
 });
+
+// ── idempotency: a second run changes nothing ──────────────────────────────────────────────────────
+
+describe('codemod: transform(transform(x)) === transform(x), for every fixture, in both modes', () => {
+  const all = readdirSync(FIXTURES).filter((f) => f.endsWith('.tsx'));
+  const cases = all.flatMap((f) => (['1.x', 'next'] as const).flatMap((from) => [false, true].map((annotate) => [f, from, annotate] as const)));
+
+  it('covers every fixture', () => {
+    expect(all.length).toBeGreaterThanOrEqual(60);
+  });
+
+  it.each(cases)('%s (from %s, annotate %s)', (name, from, annotate) => {
+    const once = transformSource(read(name), name, { from, annotate }).output;
+    expect(transformSource(once, name, { from, annotate }).output).toBe(once);
+  });
+});
+
+describe('codemod: the 1.x mode skips a file already on 2.0', () => {
+  it('a file that imports a name only 2.0 has is left whole, and the names are reported', () => {
+    const src =
+      "import { Avatar, Dialog } from '@rojaostudio/ds/components';\n\n" +
+      'export const A = () => <Dialog title="x"><Avatar name="Ana" /></Dialog>;\n';
+    const r = transformSource(src, 'a.tsx');
+    expect(r).toMatchObject({ output: src, changed: false, auto: [], manual: [], skipped: ['Dialog'] });
+  });
+
+  it('the same file in the next mode gets the vocabulary', () => {
+    const src = "import { Dialog } from '@rojaostudio/ds/components';\n\nexport const A = () => <Dialog size=\"default\" />;\n";
+    const r = transformSource(src, 'a.tsx', { from: 'next' });
+    expect(r.skipped).toBeUndefined();
+    expect(r.output).toContain('<Dialog size="md" />');
+  });
+
+  it('the 1.x Avatar alone is still migrated (Avatar exists in both)', () => {
+    const r = transformSource("import { Avatar } from '@rojaostudio/ds/components';\n\nexport const A = () => <Avatar name=\"Ana\" />;\n", 'a.tsx');
+    expect(r.skipped).toBeUndefined();
+    expect(r.output).toContain('size="lg"');
+  });
+});
+
+describe('codemod: line endings and file kinds', () => {
+  const crlf = (s: string) => s.replace(/\n/g, '\r\n');
+
+  it('a CRLF file gets CRLF TODOs and stays CRLF', () => {
+    const r = transformSource(crlf(read('annotate.input.tsx')), 'annotate.tsx', { annotate: true });
+    expect(r.output).toBe(crlf(read('annotate.output.tsx')));
+    expect(r.output.replace(/\r\n/g, '')).not.toContain('\n');
+  });
+
+  it('a CRLF file with an added import stays CRLF', () => {
+    const r = transformSource(crlf(read('figma-sync.input.tsx')), 'figma-sync.tsx');
+    expect(r.output).toBe(crlf(read('figma-sync.output.tsx')));
+  });
+
+  it.each(['a.js', 'a.jsx', 'a.mjs', 'a.cjs'])('%s: JavaScript with JSX is migrated', (file) => {
+    const src = "import { Modal } from '@rojaostudio/ds/components';\n\nexport const A = () => <Modal title=\"x\" onClose={() => {}} />;\n";
+    expect(transformSource(src, file).output).toContain('<Dialog title="x" onOpenChange={() => {}} />');
+  });
+
+  it.each(['a.mts', 'a.cts'])('%s: TypeScript without JSX is migrated', (file) => {
+    const src = "import { toast } from '@rojaostudio/ds/components';\n\nconst n = <number>1;\ntoast.error('x');\n";
+    expect(transformSource(src, file).output).toContain("toast({ title: 'x', tone: 'danger' });");
+  });
+});
