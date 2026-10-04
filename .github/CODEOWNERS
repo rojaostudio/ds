@@ -1,0 +1,8 @@
+# Revisão obrigatória de quem é dono. Vale quando a proteção da main liga
+# "Require review from Code Owners". A última regra que casa vence: as específicas ficam depois.
+* @artista87
+
+# Workflows e scripts rodam no CI com acesso a token de publicação: mudança aqui é mudança
+# na cadeia de suprimentos.
+/.github/ @artista87
+/scripts/ @artista87
