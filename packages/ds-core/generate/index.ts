@@ -6,7 +6,7 @@ export { generateTheme, resolveTheme } from "./generateTheme";
 // 2.0 (#13): the theme roles of the Figma [RDS], from the same BrandDef.
 export {
   generateRdsTheme, rdsThemeFromTable, emitRdsCss, rdsContrast, rdsContrastReport, roleVar, ROLES as RDS_ROLES,
-  RDS_CONTRAST_PAIRS, RDS_SCOPE_SELECTORS, RDS_TOKEN_SCOPE,
+  RDS_CONTRAST_PAIRS, RDS_NON_TEXT_PAIRS, RDS_SCOPE_SELECTORS, RDS_TOKEN_SCOPE,
 } from "./rdsTheme";
 export type { RdsTheme, RdsMode, RdsCssOptions, RdsBrandTable, RdsThemeOptions, RdsContrastFailure } from "./rdsTheme";
 export type { TokenMap, GenResult, ResolvedTheme } from "./generateTheme";

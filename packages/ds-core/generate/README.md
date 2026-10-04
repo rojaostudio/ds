@@ -69,11 +69,19 @@ O tema da Rojão publicado em `@rojaostudio/ds/styles/rds/theme.css` sai assim, 
 
 ### Contraste
 
-`rdsContrastReport(theme)` mede os pares de texto principais (`RDS_CONTRAST_PAIRS`: heading e body sobre page e card, muted e link sobre card, cada `text/on/*` sobre o seu fundo, `text/error` sobre `surface/error`) nos três modos e devolve os que ficam abaixo de 4,5:1. Cor com alfa não é medida. `rdsThemeFromTable` roda o relatório e só avisa (`opts.warn`, padrão `console.warn`): a tabela é o Figma um para um.
+`rdsContrastReport(theme)` mede os pares de texto (`RDS_CONTRAST_PAIRS`, 4,5:1) e os que não são texto (`RDS_NON_TEXT_PAIRS`, 3:1: borda do campo, borda de erro, anel de foco, logo, série 1 do gráfico) nos três modos e devolve os que ficam abaixo, cada um com o seu `min`. Os pares de texto cobrem o que os componentes juntam: o rótulo do Button e do Badge neutros sobre o preenchimento e os hovers, o rótulo inverse sobre o card, o Button outline pressionado, o destaque do Badge, a entrada selecionada, texto discreto e texto de estado onde ficam. Cor com alfa não é medida. `rdsThemeFromTable` roda o relatório e só avisa (`opts.warn`, padrão `console.warn`): a tabela é o Figma um para um.
+
+O pacote `@rojaostudio/ds` mede o mesmo nos tokens de componente: `components/__tests__/rds-generated-contrast.test.ts` gera o tema de uma cor para nove cores difíceis, emite o CSS, resolve cada token de componente até a cor final (alfa composto sobre o fundo) e falha abaixo de 4,5:1 (texto) ou 3:1 (borda, ícone, logo), em claro, escuro e chapa.
+
+### Uma cor só
+
+Com só `brand.primary` (o "Sua cor" do showroom), essa cor é a ação (`colors/secondary/*`) e o acento. Os papéis neutros (`colors/primary/*`: o Button e o Badge neutros, as barras, o Tooltip, o dia selecionado) ficam numa tinta neutra da rampa de texto, nunca na cor da marca, e longe o bastante do preenchimento de ação para os dois Buttons não saírem iguais (uma marca quase preta ganha uma tinta mais clara). Com `secondary` na receita, a primária fica como foi dada (a Rojão: navy já é tinta). O logo (`logo/primary`) continua na cor da marca, escurecido na rampa até 3:1 sobre as superfícies claras.
+
+A chapa é pintada com a cor da marca. Quando ela não deixa folga para a tinta (menos de 6:1, um carmim ou um violeta sob branco), anda na própria rampa até deixar, para que os hovers e o chip de filtro ativo (tinta a 10–20% sobre a chapa) ainda carreguem o texto. Na chapa, texto discreto (`text/muted`, `text/subtle`) parte de 70% e 60% de tinta e fica mais opaco até 4,5:1; a borda do campo, até 3:1. Texto de estado (`text/error` e os demais) e as superfícies suaves vêm do escuro numa chapa escura e do claro numa chapa clara, e o texto anda na rampa até 4,5:1. `colors/state/error-strong`, o hover do Button danger, carrega o rótulo branco no escuro e na chapa.
 
 Marcas que não são texto pedem 3:1 (WCAG 1.4.11). No gerador, `border/error` (a borda do campo com erro) parte do vermelho de estado no claro, de `error-strong` no escuro e do vermelho claro na chapa, e anda na rampa vermelha até passar 3:1 sobre `surface/card`, que é o fundo do campo. `chart/series/1` parte do 600 da primária (400 no escuro) e anda na rampa da primária até passar 3:1 sobre o card. Na chapa, `surface/card` é o 800 da primária quando ele carrega a tinta da chapa em 4,5:1; senão, o degrau mais perto da chapa que carrega.
 
-No gerador, `text/heading` é a cor da marca quando ela passa sobre `surface/card` e `surface/page`; quando não passa (um amarelo), é o degrau da própria rampa mais perto dela, escurecendo, que passa. No escuro, o mesmo clareando. Um `BrandDef.brand.heading` explícito que reprova fica como foi dado, com aviso. Os `text/on/*` são escolhidos por contraste.
+No gerador, `text/heading` é a cor da marca quando ela passa sobre `surface/card`, `surface/page`, `surface/muted-strong` (o Button outline pressionado) e `colors/accent/highlight` (o destaque do Badge); quando não passa (um amarelo), é o degrau da própria rampa mais perto dela, escurecendo, que passa. No escuro, o mesmo clareando. Um `BrandDef.brand.heading` explícito que reprova fica como foi dado, com aviso. Os `text/on/*` são escolhidos por contraste.
 
 ### Escopo próprio
 

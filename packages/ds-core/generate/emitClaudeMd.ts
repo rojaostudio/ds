@@ -47,10 +47,10 @@ const INSTALL = /^(?:pnpm add|yarn add|bun add|npm install|npm i) @rojaostudio\/
 
 /** Main theme roles, with what each one is for. */
 const ROLE_DOCS: { role: string; use: string }[] = [
-  { role: "colors/primary/default", use: "primary action, brand fills" },
-  { role: "text/on/primary", use: "text/icon on the primary fill" },
-  { role: "colors/primary/active", use: "pressed primary" },
-  { role: "colors/secondary/default", use: "secondary brand fill (with `--text-on-secondary`)" },
+  { role: "colors/primary/default", use: "neutral ink fill: neutral Button and Badge, bars, Tooltip" },
+  { role: "text/on/primary", use: "text/icon on the neutral ink fill" },
+  { role: "colors/primary/active", use: "pressed neutral ink fill" },
+  { role: "colors/secondary/default", use: "action fill: the default Button, checkbox, switch (with `--text-on-secondary`)" },
   { role: "colors/accent/default", use: "highlight — sparingly (with `--text-on-accent`)" },
   { role: "surface/page", use: "page background" },
   { role: "surface/card", use: "cards" },
@@ -154,7 +154,7 @@ ${themeImport}
 - ${opts.cssUrl ? `The theme is served from \`${opts.cssUrl}\`.` : `\`${cssFile}\` is the brand theme, generated — a file **you own**; commit it. Regenerate it
   with \`npx rojao-ds init\` instead of editing it by hand.`}
 - Dark mode: \`class="dark"\` on \`<html>\` (or any element). Light AND dark are first-class.
-- Brand plate: \`class="ds-plate"\` on a section paints it with the primary color; the roles inside
+- Brand plate: \`class="ds-plate"\` on a section paints it with the brand color; the roles inside
   flip so text and components stay legible.
 
 ## Components first
@@ -189,7 +189,7 @@ Brand's own variables (same value in every mode): ${own.map((v) => `\`${v}\``).j
 - **Font:** \`font-family: var(${f.font})\` — never substitute.
 
 ## Rules (do / don't)
-- ✅ Primary action = \`Button\` (it already paints \`--colors-primary-default\` + \`--text-on-primary\`).
+- ✅ Primary action = \`Button\` (tone action paints \`--colors-secondary-default\` + \`--text-on-secondary\`).
 - ✅ Page uses \`--surface-page\`; cards \`--surface-card\`; body text \`--text-body\`.
 - ✅ \`--colors-accent-default\` is the highlight — use it sparingly.
 - ✅ Spacing, radius and type come ONLY from the foundation tokens above.
