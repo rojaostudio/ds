@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 
 /**
  * True while this CLI is a prerelease (0.1.0-next.x). Its DS is on the `next` tag then: a bare name
- * would install the 1.x `latest` of the DS. (The codemod is pinned at build time instead: see migrate.ts.)
+ * would install the 1.x `latest` of the DS.
  */
 export function isPrerelease(): boolean {
   try {

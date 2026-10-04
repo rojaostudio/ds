@@ -20,6 +20,7 @@
     "cli-init",
     "cli-seguranca",
     "cli-tag-next",
+    "codemod-interno",
     "codemod-pacote",
     "codemod-seguranca",
     "compacto-pela-tela",

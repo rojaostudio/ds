@@ -1,5 +1,11 @@
 # rojao-ds
 
+## 0.1.0-next.8
+
+### Minor Changes
+
+- Sai o comando `rojao-ds migrate`. O codemod passou a ser ferramenta interna do repositório (não é mais publicado no npm); a CLI fica só com o `init`.
+
 ## 0.1.0-next.7
 
 ### Minor Changes
