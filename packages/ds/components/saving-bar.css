@@ -8,10 +8,13 @@
  * The bar redeclares the Button tokens those two read: the Salvar fill is savingbar/button/fill/background with
  * savingbar/button/fill/label, its hover the fill at 85% over the bar (active 70%); the Descartar label is
  * savingbar/button/ghost/label, its hover the label colour at 15% (active 25%); the focus ring is savingbar/focus/ring;
- * disabled (saving) is each Button at 40% over the bar, as the Figma layer opacity.
+ * disabled (Descartar while saving) is the Button at 40% over the bar, as the Figma layer opacity. While saving, Salvar
+ * is in loading (its loader in the label colour): the only indicator, none in the message.
  * Two arrangements, by the screen width, as the Figma viewport mode (layout/compact below lg 1024): expanded from 1024,
- * the message grows (at least 160) beside the actions; compact below it, the message on top and Descartar and
- * Salvar under it, sharing the width.
+ * 12 24 padding (68 tall), the message grows (at least 160) beside Descartar and Salvar; compact below it, one row,
+ * 10 24 padding (64 = 10 + 44 + 10) plus the safe area at the bottom, the message (flex 1, at most 2 lines) on the
+ * left and only the main button on the right: Descartar is not shown (it lives in the details Drawer's footer or in
+ * the confirmation when leaving).
  * Details (showDetails, onDetails in code): in compact, the unsaved message becomes a text button with chevron-up 20 at
  * the right (12 apart) that opens the Drawer with what is missing; hover underlines, focus draws the ring
  * savingbar/focus/ring (focus/ring-width, radius/focus) 4 around the message box, inside stroke, as the Figma
@@ -84,22 +87,6 @@
   height: 100%;
 }
 
-.rds-savingbar__loader > svg {
-  animation: rds-savingbar-turn 1s linear infinite;
-}
-
-@keyframes rds-savingbar-turn {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .rds-savingbar__loader > svg {
-    animation-duration: 3s;
-  }
-}
-
 .rds-savingbar__actions {
   display: flex;
   flex: none;
@@ -146,19 +133,18 @@
 }
 
 @media (max-width: 1023px) {
-  .rds-savingbar__row {
-    flex-direction: column;
-    align-items: stretch;
+  .rds-savingbar {
+    padding-block: 10px;
+    padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
   }
 
   .rds-savingbar__message {
-    flex: none;
+    flex: 1 1 0;
     min-width: 0;
   }
 
-  .rds-savingbar__actions > * {
-    flex: 1 1 0;
-    min-width: 0;
+  .rds-savingbar .rds-savingbar__discard {
+    display: none;
   }
 
   .rds-savingbar__message--details > .rds-savingbar__text {

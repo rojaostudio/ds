@@ -908,11 +908,11 @@
   --progress-fill: var(--chart-series-1);
   --progress-label: var(--text-body);
   --progress-value: var(--text-muted);
-  --spinner-indicator: var(--colors-primary-default);
+  --spinner-indicator: var(--colors-primary-dark);
   --spinner-track: var(--surface-tint-strong);
   --spinner-label: var(--text-muted);
-  --spinner-inverse-indicator: var(--text-on-primary-strong);
-  --spinner-inverse-label: var(--text-on-primary-strong);
+  --spinner-inverse-indicator: var(--text-on-primary);
+  --spinner-inverse-label: var(--text-on-primary);
   --rating-empty: var(--border-strong);
   --rating-label: var(--text-muted);
   --rating-star: var(--colors-state-warning);
@@ -1007,5 +1007,8 @@
   --image-crop-dialog-selection: var(--text-on-cover);
   --image-crop-dialog-handle: var(--text-on-cover);
   --image-crop-dialog-stage-background: var(--surface-muted);
+  --loading-overlay-scrim: var(--surface-scrim);
+  --loading-overlay-background: var(--surface-card);
+  --loading-overlay-text: var(--text-body);
 }
 }

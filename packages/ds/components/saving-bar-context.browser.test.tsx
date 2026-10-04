@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { userEvent } from 'vitest/browser';
+import { page, userEvent } from 'vitest/browser';
 import { SavingBarProvider, SavingBarRoot, usePageSavingBar } from './saving-bar-context';
 import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
@@ -70,7 +70,8 @@ describe('SavingBarRoot behaviour', () => {
     await vi.waitFor(() => expect(el.querySelector('.rds-saving-bar-root')).toBeNull());
   });
 
-  it('two registrations add up: "2 alterações pendentes", Descartar tudo discards both', async () => {
+  it('two registrations add up: "2 alterações pendentes", Descartar tudo discards both (expanded: Descartar is not in the compact bar)', async () => {
+    await page.viewport(1280, 800);
     const a = vi.fn();
     const b = vi.fn();
     const el = await render(

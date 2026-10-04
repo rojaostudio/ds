@@ -1,0 +1,62 @@
+/* @tokens loading-overlay */
+/*
+ * LoadingOverlay (Overlays collection, loading-overlay/*): a veil over the whole screen (loading-overlay/scrim,
+ * surface/scrim) in the overlay layer (z/overlay), and a panel in the middle (loading-overlay/background,
+ * surface/card; radius/container, 24 padding, 16 between the Spinner lg and the label, at most 320 wide,
+ * elevation/modal). The label is type/label Medium in loading-overlay/text (text/body), centred. The panel gives the
+ * text its own surface, so it reads over any screen, light, dark or in the brand. It fades in; with reduced motion,
+ * no fade (and the Spinner turns slowly, spinner.css).
+ */
+.rds-loading-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-16);
+  background: var(--loading-overlay-scrim);
+  animation: rds-loading-overlay-in 150ms ease-out;
+}
+
+.rds-loading-overlay__panel {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-16);
+  max-width: min(320px, 100%);
+  padding: var(--space-24);
+  border-radius: var(--radius-container);
+  background: var(--loading-overlay-background);
+  box-shadow: var(--elevation-modal);
+  color: var(--loading-overlay-text);
+  font-family: var(--type-font-stack);
+  outline: none;
+}
+
+.rds-loading-overlay__label {
+  margin: 0;
+  font-size: var(--type-label-size);
+  font-weight: 500;
+  line-height: var(--type-label-line);
+  text-align: center;
+}
+
+@keyframes rds-loading-overlay-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rds-loading-overlay {
+    animation: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .rds-loading-overlay__panel {
+    border: var(--border-width) solid CanvasText;
+  }
+}

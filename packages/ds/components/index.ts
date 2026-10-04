@@ -14,6 +14,9 @@ export { Sheet, SheetClose } from './sheet';
 export type { SheetProps, SheetSide } from './sheet';
 export { Drawer, DrawerClose } from './drawer';
 export type { DrawerProps } from './drawer';
+
+export { LoadingOverlay } from './loading-overlay';
+export type { LoadingOverlayProps } from './loading-overlay';
 export {
   DropdownMenu,
   DropdownMenuItem,

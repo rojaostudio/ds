@@ -48,16 +48,42 @@ describe('SavingBar behaviour', () => {
     expect([...el.querySelectorAll('button')].map((b) => b.textContent)).toEqual(['Salvar']);
   });
 
-  it('saving: says Salvando… and the buttons stay focusable but ignore clicks', async () => {
+  it('saving: says Salvando…; Salvar is in loading (savingLabel, aria-busy) and Descartar disabled; both ignore clicks', async () => {
+    await page.viewport(1280, 800);
     const onSave = vi.fn();
-    const el = await render(<SavingBar status="saving" onSave={onSave} onDiscard={() => {}} />);
+    const onDiscard = vi.fn();
+    const el = await render(<SavingBar status="saving" onSave={onSave} onDiscard={onDiscard} />);
     expect(el.querySelector('[role="status"]')!.textContent).toBe('Salvando…');
-    for (const b of el.querySelectorAll('button')) expect(b.getAttribute('aria-disabled')).toBe('true');
-    const save = [...el.querySelectorAll('button')].at(-1)!;
+    const [discard, save] = [...el.querySelectorAll('button')];
+    expect(discard.getAttribute('aria-disabled')).toBe('true');
+    expect(save.getAttribute('aria-busy')).toBe('true');
+    expect(save.textContent).toBe('Salvando…');
+    expect(save.querySelector('.rds-button__loader')).not.toBeNull();
     save.focus();
     expect(document.activeElement).toBe(save);
     save.click();
+    discard.click();
     expect(onSave).not.toHaveBeenCalled();
+    expect(onDiscard).not.toHaveBeenCalled();
+  });
+
+  it('saving: savingLabel renames Salvar in loading', async () => {
+    const el = await render(<SavingBar status="saving" savingLabel="Gravando…" onSave={() => {}} />);
+    expect(el.querySelector('button')!.textContent).toBe('Gravando…');
+  });
+
+  it('saving has one indicator only: the loader of Salvar, none in the message (expanded and compact)', async () => {
+    for (const width of [1280, 390]) {
+      await page.viewport(width, 800);
+      const el = await render(<SavingBar status="saving" onSave={() => {}} onDiscard={() => {}} />);
+      const bar = el.querySelector<HTMLElement>('.rds-savingbar')!;
+      expect(bar.querySelector('.rds-savingbar__message svg')).toBeNull();
+      const shown = [...bar.querySelectorAll<SVGElement>('svg')].filter((x) => x.getClientRects().length > 0);
+      expect(shown).toHaveLength(1);
+      expect(shown[0].closest('.rds-button__loader')).not.toBeNull();
+      expect(bar.querySelectorAll('[role="progressbar"], .rds-spinner')).toHaveLength(0);
+      cleanup();
+    }
   });
 
   it('error: the error text and Tentar de novo', async () => {
@@ -70,7 +96,34 @@ describe('SavingBar behaviour', () => {
     expect(onSave).toHaveBeenCalledOnce();
   });
 
-  it('at 390 (compact): the message on top, at most 2 lines, no word broken; Descartar and Salvar share the width', async () => {
+  it('at 390 (compact): one row, 64 tall, the message on the left and only Salvar on the right; no Descartar', async () => {
+    await page.viewport(390, 800);
+    const el = await render(
+      <div style={{ width: 390 }}>
+        <SavingBar onSave={() => {}} onDiscard={() => {}} />
+      </div>,
+    );
+    const bar = el.querySelector<HTMLElement>('.rds-savingbar')!;
+    const row = bar.querySelector<HTMLElement>('.rds-savingbar__row')!;
+    expect(getComputedStyle(row).flexDirection).toBe('row');
+    expect(bar.getBoundingClientRect().height).toBe(64);
+    expect(getComputedStyle(bar).paddingTop).toBe('10px');
+    // env(safe-area-inset-bottom) is 0 here: 10 + 0.
+    expect(getComputedStyle(bar).paddingBottom).toBe('10px');
+    const discard = bar.querySelector<HTMLElement>('.rds-savingbar__discard')!;
+    expect(getComputedStyle(discard).display).toBe('none');
+    const shown = [...bar.querySelectorAll<HTMLElement>('button')].filter((b) => b.getClientRects().length > 0);
+    expect(shown.map((b) => b.textContent)).toEqual(['Salvar']);
+    const msg = bar.querySelector<HTMLElement>('.rds-savingbar__message')!.getBoundingClientRect();
+    const save = shown[0].getBoundingClientRect();
+    expect(save.height).toBe(44);
+    // One line: the message beside Salvar, on its left, centred with it.
+    expect(msg.right).toBeLessThanOrEqual(save.left);
+    expect(Math.abs(msg.top + msg.height / 2 - (save.top + save.height / 2))).toBeLessThanOrEqual(1);
+    expect(bar.scrollWidth).toBeLessThanOrEqual(bar.clientWidth);
+  });
+
+  it('at 390 (compact): a long message grows (flex 1) and clamps at 2 lines, no word broken', async () => {
     await page.viewport(390, 800);
     const message = 'Você alterou o preço, o estoque e a descrição de três produtos e ainda não salvou nenhuma dessas alterações';
     const el = await render(
@@ -79,23 +132,49 @@ describe('SavingBar behaviour', () => {
       </div>,
     );
     const bar = el.querySelector<HTMLElement>('.rds-savingbar')!;
-    const row = bar.querySelector<HTMLElement>('.rds-savingbar__row')!;
-    expect(getComputedStyle(row).flexDirection).toBe('column');
+    expect(getComputedStyle(bar.querySelector('.rds-savingbar__message')!).flexGrow).toBe('1');
     const text = bar.querySelector<HTMLElement>('.rds-savingbar__text')!;
     const style = getComputedStyle(text);
     expect(style.webkitLineClamp).toBe('2');
     expect(text.getBoundingClientRect().height).toBeLessThanOrEqual(2 * parseFloat(style.lineHeight) + 0.5);
     expect(['normal', 'keep-all']).toContain(style.wordBreak);
     expect(style.overflowWrap).toBe('normal');
-    const [discard, save] = [...bar.querySelectorAll<HTMLElement>('button')];
-    const a = discard.getBoundingClientRect();
-    const b = save.getBoundingClientRect();
-    expect(a.top).toBeGreaterThan(text.getBoundingClientRect().bottom);
-    expect(a.top).toBe(b.top);
-    expect(Math.abs(a.width - b.width)).toBeLessThan(1);
-    // Each label on one line: a button keeps its 44.
-    for (const r of [a, b]) expect(r.height).toBe(44);
+    const save = [...bar.querySelectorAll<HTMLElement>('button')].find((b) => b.getClientRects().length > 0)!;
+    expect(save.getBoundingClientRect().height).toBe(44);
+    expect(text.getBoundingClientRect().right).toBeLessThanOrEqual(save.getBoundingClientRect().left);
     expect(bar.scrollWidth).toBeLessThanOrEqual(bar.clientWidth);
+  });
+
+  it('at 390 (compact) with onDetails: the details button on the left, Salvar on the right, one row of 64', async () => {
+    await page.viewport(390, 800);
+    const el = await render(
+      <div style={{ width: 390 }}>
+        <SavingBar message="Falta o preço" onSave={() => {}} onDiscard={() => {}} onDetails={() => {}} />
+      </div>,
+    );
+    const bar = el.querySelector<HTMLElement>('.rds-savingbar')!;
+    const shown = [...bar.querySelectorAll<HTMLElement>('button')].filter((b) => b.getClientRects().length > 0);
+    expect(shown.map((b) => (b.classList.contains('rds-savingbar__details') ? 'details' : b.textContent))).toEqual(['details', 'Salvar']);
+    const [details, save] = shown.map((b) => b.getBoundingClientRect());
+    expect(details.right).toBeLessThanOrEqual(save.left);
+    expect(bar.getBoundingClientRect().height).toBe(64);
+  });
+
+  it('at 1280 (expanded) unchanged: 12 24 padding (68 tall), the message, Descartar and Salvar in one row', async () => {
+    await page.viewport(1280, 800);
+    const el = await render(
+      <div style={{ width: 1100 }}>
+        <SavingBar onSave={() => {}} onDiscard={() => {}} />
+      </div>,
+    );
+    const bar = el.querySelector<HTMLElement>('.rds-savingbar')!;
+    expect(getComputedStyle(bar).padding).toBe('12px 24px');
+    expect(bar.getBoundingClientRect().height).toBe(68);
+    const shown = [...bar.querySelectorAll<HTMLElement>('button')].filter((b) => b.getClientRects().length > 0);
+    expect(shown.map((b) => b.textContent)).toEqual(['Descartar', 'Salvar']);
+    const [a, b] = shown.map((x) => x.getBoundingClientRect());
+    expect(a.top).toBe(b.top);
+    expect(a.right).toBeLessThanOrEqual(b.left);
   });
 
   it('from 1024 (expanded): one row, the message grows (at least 160) beside the actions', async () => {
@@ -208,15 +287,16 @@ describe('SavingBar in the primary colour', () => {
     expect(getComputedStyle(discard).outlineColor).toBe(fill);
   });
 
-  it('saving: each Button is at 40% over the bar', async () => {
+  it('saving: Salvar keeps its fill with the loader in the bar colour; Descartar is at 40% over the bar', async () => {
+    await page.viewport(1280, 800);
     const el = await render(<SavingBar status="saving" onSave={() => {}} onDiscard={() => {}} />);
     const [discard, save] = [...el.querySelectorAll<HTMLElement>('button')];
     const fill = rgb(role('--text-on-primary'));
     const bar = rgb(role('--colors-primary-default'));
     const near = (c: string, want: number[]) =>
       channels(c).slice(0, 3).forEach((v, i) => expect(Math.abs(v - want[i])).toBeLessThanOrEqual(1));
-    near(getComputedStyle(save).backgroundColor, mix(fill, 0.4, bar));
-    near(getComputedStyle(save).color, channels(bar).slice(0, 3));
+    near(getComputedStyle(save).backgroundColor, channels(fill).slice(0, 3));
+    near(getComputedStyle(save.querySelector('.rds-button__loader')!).color, channels(bar).slice(0, 3));
     near(getComputedStyle(discard).color, mix(fill, 0.4, bar));
   });
 
@@ -311,7 +391,8 @@ describe('SavingBar details (showDetails)', () => {
     expect(button.getAttribute('aria-controls')).toBe('o-que-falta');
     // The touch area is 44 tall; the drawing is not.
     expect(parseFloat(getComputedStyle(button, '::after').height)).toBeGreaterThanOrEqual(44);
-    expect(button.getBoundingClientRect().height).toBeLessThan(44);
+    // The drawing is the message (here two lines, 48: Salvar shares the row), not stretched to the touch area.
+    expect(button.getBoundingClientRect().height).toBe(button.querySelector('.rds-savingbar__text')!.getBoundingClientRect().height);
     expect(await axeViolations(el)).toEqual([]);
 
     await userEvent.click(button);
