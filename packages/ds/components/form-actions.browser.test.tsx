@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { page } from 'vitest/browser';
+import { page, userEvent } from 'vitest/browser';
 import { emitRdsCss, generateRdsTheme, type BrandDef } from '@rojaostudio/ds-core/generate';
 import { Button } from './button';
 import { FormActions } from './form-actions';
@@ -231,6 +231,14 @@ describe('FormActions behaviour', () => {
           mode,
         );
         expect(await axeViolations(el)).toEqual([]);
+        // The pointer over each filled action button, as it sits in CI: the hover fill keeps the label at AA
+        // (it was #005679 under a black label, 2.6:1).
+        for (const name of ['Criar produto', 'Publicar']) {
+          const button = [...el.querySelectorAll('button')].find((b) => b.textContent === name)!;
+          await userEvent.hover(button);
+          expect(await axeViolations(el), `${mode} ${width} hover ${name}`).toEqual([]);
+        }
+        await userEvent.unhover(el);
       }
     }
   });
