@@ -12,7 +12,8 @@
  * only the last action (the primary) on the right.
  * Details (showDetails, onDetails in code): compact, the helper becomes a text button with chevron-up 20 at
  * the right (12 apart); hover underlines, focus draws form-actions/focus/ring (focus/ring-width, radius/focus);
- * the touch area is 44 tall without changing the drawing. Expanded, the helper stays text.
+ * the touch area is 44 tall without changing the drawing, and it shows the helper even with showHelper off.
+ * Expanded, the helper stays text, shown only with showHelper (off, a visually hidden copy keeps the status).
  */
 .rds-form-actions {
   box-sizing: border-box;
@@ -170,7 +171,9 @@
     display: none;
   }
 
-  .rds-form-actions__helper--details > .rds-form-actions__text {
+  /* With details the button is the helper: the static text and the hidden copy step aside. */
+  .rds-form-actions__helper--details > .rds-form-actions__text,
+  .rds-form-actions__helper--details > .rds-form-actions__quiet {
     display: none;
   }
 
