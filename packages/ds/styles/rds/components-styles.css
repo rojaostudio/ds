@@ -4844,6 +4844,34 @@ input:focus-visible + .rds-checkbox__box {
   }
 }
 
+/*
+ * The on-screen keyboard (compact only, the class comes from useOnScreenKeyboard): the foot (bar, stacked) slides
+ * down out of the way while a field is being typed in, and comes back when the keyboard closes. visibility takes it
+ * out of the tab order and the accessibility tree meanwhile; it waits for the slide to end before hiding.
+ */
+@media (max-width: 1023px) {
+  .rds-form-actions--keyboard {
+    visibility: hidden;
+    transform: translateY(100%);
+  }
+}
+
+@media (max-width: 1023px) and (prefers-reduced-motion: no-preference) {
+  .rds-form-actions--bar,
+  .rds-form-actions--stacked {
+    transition:
+      transform var(--motion-duration-base) var(--motion-easing-enter),
+      visibility 0s;
+  }
+
+  .rds-form-actions--keyboard.rds-form-actions--bar,
+  .rds-form-actions--keyboard.rds-form-actions--stacked {
+    transition:
+      transform var(--motion-duration-base) var(--motion-easing-exit),
+      visibility 0s var(--motion-duration-base);
+  }
+}
+
 /* components/google-account-chooser.css */
 /* @tokens google */
 /*
@@ -8829,6 +8857,32 @@ input:focus-visible + .rds-radio__circle {
   }
 }
 
+/*
+ * The on-screen keyboard (compact only, the class comes from useOnScreenKeyboard): the bar slides down out of the
+ * way while a field is being typed in, and comes back when the keyboard closes. visibility takes it out of the tab
+ * order and the accessibility tree meanwhile; it waits for the slide to end before hiding.
+ */
+@media (max-width: 1023px) {
+  .rds-savingbar--keyboard {
+    visibility: hidden;
+    transform: translateY(100%);
+  }
+}
+
+@media (max-width: 1023px) and (prefers-reduced-motion: no-preference) {
+  .rds-savingbar {
+    transition:
+      transform var(--motion-duration-base) var(--motion-easing-enter),
+      visibility 0s;
+  }
+
+  .rds-savingbar--keyboard {
+    transition:
+      transform var(--motion-duration-base) var(--motion-easing-exit),
+      visibility 0s var(--motion-duration-base);
+  }
+}
+
 /* components/section-card.css */
 /* @tokens section-card */
 /*
@@ -10292,8 +10346,18 @@ input:focus-visible + .rds-switch__track {
  * A line under every row but the last: the Table's border closes it. Corners in radius/container; the sort button in
  * radius/xs. The status rows hold an Empty, 32 24 around it.
  */
+/*
+ * The scroll region is a one-column grid, minmax(0, 1fr), so it does not hand the table's min-content up to the page:
+ * as a plain block it did, and any ancestor sized by its content (a flex item without min-width: 0, a grid item in an
+ * auto track, a start-aligned stack, an inline-block) grew to the table's width, so a Card holding a wide table went
+ * past the screen and was cut instead of the table scrolling. Under a min-content constraint the fr track is 0; under
+ * max-content it is the table's max-content (a hugging parent still hugs the table); with a definite width it fills,
+ * and the table, never narrower than its min-content, scrolls inside.
+ */
 .rds-table {
   box-sizing: border-box;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
   max-width: 100%;
   overflow-x: auto;
   border: var(--border-width) solid var(--table-border);

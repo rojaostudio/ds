@@ -1,11 +1,16 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { act } from 'react';
+import { act, type ReactNode } from 'react';
+import { page } from 'vitest/browser';
+import { Card, CardContent, CardHeader } from './card';
 import { Button } from './button';
 import { Status } from './status';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableStatus, type TableStatus as TableStatusValue } from './table';
 import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
-afterEach(cleanup);
+afterEach(async () => {
+  cleanup();
+  await page.viewport(1280, 800);
+});
 
 const STATUSES: Exclude<TableStatusValue, 'default'>[] = ['loading', 'empty', 'noResults', 'error'];
 
@@ -124,5 +129,91 @@ describe('Table behaviour', () => {
     expect(noResults.querySelector('h3')!.textContent).toBe('Nada encontrado');
     expect(error.querySelector('[role="alert"] h3')!.textContent).toBe('Não deu para carregar');
     expect(error.querySelector('.rds-tile')!.className).toContain('rds-tile--danger-soft');
+  });
+});
+
+describe('Table inside a Card at 390', () => {
+  const COLUMNS = ['Pedido', 'Cliente', 'Status', 'Data', 'Itens', 'Total'];
+  const wide = (
+    <Card>
+      <CardHeader title="Pedidos" />
+      <CardContent>
+        <Table caption="Pedidos abertos">
+          <TableHeader>
+            <TableRow>
+              {COLUMNS.map((c, i) => (
+                <TableHead key={c} align={i >= 4 ? 'end' : 'start'}>
+                  {c}
+                </TableHead>
+              ))}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {[4821, 4822].map((n) => (
+              <TableRow key={n}>
+                <TableCell>#{n}</TableCell>
+                <TableCell>Marina Albuquerque</TableCell>
+                <TableCell>Aguardando envio</TableCell>
+                <TableCell>04/10/2026</TableCell>
+                <TableCell align="end">12</TableCell>
+                <TableCell align="end">R$ 1.249,90</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
+  );
+
+  // Where the Card sits: the page's flow, and every ancestor sized by its content that used to take the table's
+  // min-content and grow past the screen (the app's main as a flex item without min-width: 0, a grid item in an
+  // auto track, a start-aligned stack, an inline-block).
+  const PLACES = {
+    'the page flow': (c: ReactNode) => c,
+    'a flex item without min-width: 0': (c: ReactNode) => (
+      <div style={{ display: 'flex' }}>
+        <div style={{ flex: 1 }}>{c}</div>
+      </div>
+    ),
+    'a grid item': (c: ReactNode) => (
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr' }}>
+        <div>{c}</div>
+      </div>
+    ),
+    'a start-aligned stack': (c: ReactNode) => <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>{c}</div>,
+    'an inline-block': (c: ReactNode) => <div style={{ display: 'inline-block' }}>{c}</div>,
+  };
+
+  it.each(Object.keys(PLACES) as (keyof typeof PLACES)[])('in %s: the 6 columns scroll inside the table, the Card stays within the screen', async (place) => {
+    await page.viewport(390, 800);
+    const el = await render(PLACES[place](wide));
+    const region = el.querySelector<HTMLElement>('.rds-table')!;
+    const card = el.querySelector<HTMLElement>('.rds-card')!;
+    expect(region.scrollWidth).toBeGreaterThan(region.clientWidth);
+    expect(card.getBoundingClientRect().right).toBeLessThanOrEqual(window.innerWidth);
+    expect(card.getBoundingClientRect().width).toBeLessThanOrEqual(window.innerWidth - 32);
+    expect(document.documentElement.scrollWidth).toBeLessThanOrEqual(window.innerWidth);
+    // It really scrolls: the last column comes into view.
+    region.scrollLeft = region.scrollWidth;
+    expect(region.scrollLeft).toBeGreaterThan(0);
+  });
+
+  it('at 1280 a hugging parent still hugs the whole table (no squeeze), and in the page flow it fills the Card', async () => {
+    await page.viewport(1280, 800);
+    const el = await render(PLACES['a start-aligned stack'](wide));
+    const region = el.querySelector<HTMLElement>('.rds-table')!;
+    expect(region.scrollWidth).toBe(region.clientWidth);
+    expect(region.querySelector('table')!.getBoundingClientRect().width).toBeCloseTo(region.clientWidth, 0);
+    cleanup();
+    const flow = await render(wide);
+    const card = flow.querySelector<HTMLElement>('.rds-card__content')!;
+    const table = flow.querySelector<HTMLElement>('.rds-table')!;
+    expect(table.getBoundingClientRect().width).toBeCloseTo(card.clientWidth - 48, 0);
+  });
+
+  it('passes axe at 390', async () => {
+    await page.viewport(390, 800);
+    const el = await render(wide);
+    expect(await axeViolations(el)).toEqual([]);
   });
 });

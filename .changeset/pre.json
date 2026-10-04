@@ -10,6 +10,7 @@
   },
   "changesets": [
     "avisos-terceiros",
+    "barras-somem-com-teclado",
     "barril-sem-peers",
     "button-size",
     "chart-dates-links",
@@ -50,6 +51,7 @@
     "savingbar-detalhes",
     "savingbar-primaria",
     "sidebar-section-label",
+    "table-rola-dentro-do-card",
     "toast-acao-sem-prazo",
     "vocabulario-props"
   ]
