@@ -1,6 +1,6 @@
 'use client';
 
-import { useId, useState, type CSSProperties, type HTMLAttributes, type KeyboardEvent, type PointerEvent } from 'react';
+import { useId, useMemo, useState, type CSSProperties, type HTMLAttributes, type KeyboardEvent, type PointerEvent } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './table';
 
 export type ChartType = 'line' | 'bar' | 'column';
@@ -47,7 +47,8 @@ export interface ChartProps extends Omit<HTMLAttributes<HTMLElement>, 'children'
   showAllDates?: boolean;
   /**
    * bar and column: where each item leads, in the order of `labels`. In bar each bar becomes a link named
-   * "<label>: <value>"; in column a click or Enter on the plot follows the item's link.
+   * "<label>: <value>"; in column a click or Enter on the plot follows the item's link. Only http(s) URLs, relative
+   * paths and #fragments are followed; any other scheme (javascript:, data:…) is ignored, with a warning in dev.
    */
   hrefs?: Array<string | undefined>;
   /** bar and column: called with the item's index when it is chosen (click, Enter). In bar each bar becomes a button. */
@@ -92,6 +93,30 @@ function scaleOf(values: number[]) {
  * data (visually hidden unless `showTable`). In line and column the plot is a slider for screen readers and the
  * keyboard: the arrows move from point to point, and each point is read with its label and values. Styles: chart.css.
  */
+/** Protocols the chart follows. A relative path or a #fragment resolves to one of them. */
+const SAFE_PROTOCOLS = new Set(['http:', 'https:']);
+
+/**
+ * A destination the chart may follow: http(s), a relative path or a #fragment. Anything else (javascript:, data:,
+ * vbscript:…) is dropped, with a warning in dev. Parsed with URL, so the tricks the browser itself forgives (leading
+ * spaces, tabs or line breaks inside the scheme) are seen as the browser sees them.
+ */
+function safeHref(href: string | undefined): string | undefined {
+  if (!href) return undefined;
+  if (href.startsWith('#')) return href;
+  try {
+    const base =
+      typeof window !== 'undefined' && SAFE_PROTOCOLS.has(window.location.protocol) ? window.location.href : 'https://example.invalid/';
+    if (SAFE_PROTOCOLS.has(new URL(href, base).protocol)) return href;
+  } catch {
+    // Not a URL at all: dropped below.
+  }
+  if (process.env.NODE_ENV !== 'production') {
+    console.warn(`Chart: href "${href}" ignored. Only http(s) URLs, relative paths and #fragments are followed.`);
+  }
+  return undefined;
+}
+
 export function Chart({
   label,
   type = 'line',
@@ -105,7 +130,7 @@ export function Chart({
   dates,
   dateEvery,
   showAllDates,
-  hrefs,
+  hrefs: hrefsProp,
   onSelect,
   showTable = false,
   height = 200,
@@ -113,6 +138,8 @@ export function Chart({
   ...rest
 }: ChartProps) {
   const [active, setActive] = useState<number | null>(null);
+  // Every destination goes through the allow list once, before it reaches an <a href> or location.assign.
+  const hrefs = useMemo(() => hrefsProp?.map(safeHref), [hrefsProp]);
   const tooltipId = useId();
   const count = labels.length;
   const shown = (type === 'bar' ? series.slice(0, 1) : series.slice(0, 5));
@@ -146,7 +173,11 @@ export function Chart({
   const linked = type !== 'line' && Boolean(onSelect || hrefs?.some(Boolean));
   const choose = (index: number) => {
     if (onSelect) onSelect(index);
-    else if (hrefs?.[index]) window.location.assign(hrefs[index]!);
+    else {
+      // Checked again right where it is followed (defence in depth).
+      const href = safeHref(hrefs?.[index]);
+      if (href) window.location.assign(href);
+    }
   };
 
   const onPointerMove = (event: PointerEvent<HTMLDivElement>) => {

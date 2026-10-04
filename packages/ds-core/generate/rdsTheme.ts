@@ -18,6 +18,7 @@ import {
   buildScale, contrastRatio, hexToHsl, hslToHex, isHex, onColor, refToHex, relativeLuminance, SCALE_STEPS,
   type Scale, type ScaleStep,
 } from "./scale";
+import { assertSafeTheme, collector, isSafeSelectorList, preview } from "./validate";
 
 export type RdsMode = "light" | "dark" | "brand";
 export type RdsTheme = Record<RdsMode, Record<string, string>> & {
@@ -36,6 +37,37 @@ const white = (pct: number) => WHITE + Math.round((pct / 100) * 255).toString(16
 
 /** The recipe's own palettes (BrandDef.palettes): a hex (a ramp is derived) or a full 50–900 scale. */
 type CustomPalettes = BrandDef["palettes"];
+
+/** Steps a full palette scale may carry. */
+const PALETTE_STEPS = new Set([...SCALE_STEPS.map(String), "950"]);
+
+/**
+ * The recipe's own palettes, checked before anything is derived from them: a name of letters and digits, and a
+ * value that is a hex or a scale of steps 50–900 (950 tolerated) whose every value is a colour of the allow list.
+ */
+function checkPalettes(custom: unknown, where: string): void {
+  if (custom === undefined) return;
+  const c = collector(where);
+  if (!custom || typeof custom !== "object" || Array.isArray(custom)) {
+    c.problems.push("palettes: not an object");
+    c.done();
+  }
+  for (const [name, value] of Object.entries(custom as Record<string, unknown>)) {
+    if (!/^[a-z][a-z0-9]*$/i.test(name)) {
+      c.problems.push(`palettes: ${preview(name)} is not a valid palette name (letters and digits)`);
+      continue;
+    }
+    if (typeof value === "string") {
+      if (!isHex(value)) c.problems.push(`palettes.${name}: ${preview(value)} is not a hex colour`);
+    } else if (value && typeof value === "object" && !Array.isArray(value)) {
+      for (const [step, v] of Object.entries(value as Record<string, unknown>)) {
+        if (!PALETTE_STEPS.has(step)) c.problems.push(`palettes.${name}: ${preview(step)} is not a scale step (50–900)`);
+        else c.color(`palettes.${name}.${step}`, v);
+      }
+    } else c.problems.push(`palettes.${name}: expected a hex or a scale of steps 50–900`);
+  }
+  c.done();
+}
 
 function palette(name: string, custom?: CustomPalettes): Scale {
   const own = custom?.[name];
@@ -165,6 +197,9 @@ export const roleVar = (role: string) => `--${role.replaceAll("/", "-")}`;
 
 export function generateRdsTheme(def: BrandDef, opts: RdsThemeOptions = {}): RdsTheme {
   const warn = opts.warn ?? defaultWarn;
+  const where = `generateRdsTheme(${preview(def?.name)})`;
+  if (!def?.brand || typeof def.brand !== "object") throw new Error(`${where}: brand is missing`);
+  checkPalettes(def.palettes, where);
   const b = def.brand;
   const own = def.palettes;
   const P = ramp(b.primary, own);
@@ -348,6 +383,8 @@ export function generateRdsTheme(def: BrandDef, opts: RdsThemeOptions = {}): Rds
   }
   // Figma points the plate's border/error at a dark token (base dark/text/error), not at dark/border/error.
   out.brand[roleVar("border/error")] = brandError;
+  // Whatever the inputs resolved to, only allow-listed values leave the generator.
+  assertSafeTheme(out, where);
   return out;
 }
 
@@ -400,6 +437,15 @@ const covered = (sel: string) => {
  * RDS_SCOPE_SELECTORS), unless `allowUncovered`.
  */
 export function emitRdsCss(theme: RdsTheme, opts: RdsCssOptions = {}): string {
+  // Defence in depth: the theme may have been built by hand, not by the generators. Nothing reaches the stylesheet
+  // without passing the allow list again.
+  assertSafeTheme(theme, "emitRdsCss");
+  const badSel = (["scope", "dark", "plate"] as const).filter((k) => opts[k] !== undefined && !isSafeSelectorList(opts[k]));
+  if (badSel.length)
+    throw new Error(
+      `emitRdsCss: invalid selector in ${badSel.map((k) => `${k} ${preview(opts[k])}`).join(", ")} ` +
+        `(no braces, ";", comments, backslash, "@", "<" or line breaks).`,
+    );
   const scopes = split(opts.scope ?? ":root, .ds-scope, [data-rds-scope]");
   const darks = split(opts.dark ?? '.dark, [data-rds-mode="dark"]');
   const plates = split(opts.plate ?? ".ds-plate, [data-rds-plate]");
@@ -505,6 +551,26 @@ const ADDED_ROLES: Record<string, Record<RdsMode, string>> = {
  * reported, through `opts.warn`: the table is the brand as drawn in Figma, kept one to one even where a pair fails.
  */
 export function rdsThemeFromTable(table: RdsBrandTable, opts: RdsThemeOptions = {}): RdsTheme {
+  const where = `rdsThemeFromTable(${preview(table?.name)})`;
+  if (!table || typeof table !== "object") throw new Error(`${where}: the table is not an object`);
+  // The primitives and the brand variables come from a file: names and colours go through the allow list first.
+  const check = collector(where);
+  if (!table.primitives || typeof table.primitives !== "object" || Array.isArray(table.primitives))
+    check.problems.push("primitives: not an object");
+  else
+    for (const [name, value] of Object.entries(table.primitives)) {
+      check.name(`primitives ${preview(name)}`, name);
+      check.color(`primitives.${name}`, value);
+    }
+  if (table.vars !== undefined) {
+    if (!table.vars || typeof table.vars !== "object" || Array.isArray(table.vars)) check.problems.push("vars: not an object");
+    else
+      for (const [name, value] of Object.entries(table.vars)) {
+        check.name(`vars ${preview(name)}`, name);
+        if (typeof value !== "string") check.problems.push(`vars.${name}: not a string`);
+      }
+  }
+  check.done();
   const out: RdsTheme = { light: {}, dark: {}, brand: {} };
   const problems: string[] = [];
   const derived = new Set<string>();
@@ -529,10 +595,10 @@ export function rdsThemeFromTable(table: RdsBrandTable, opts: RdsThemeOptions = 
       } else out[mode][roleVar(role)] = ref;
     }
   }
-  const valueOf = (where: string, ref: string) => {
+  const valueOf = (field: string, ref: string) => {
     if (!isColourRef(ref)) return ref;
     const value = table.primitives[ref];
-    if (value === undefined) problems.push(`${where} points to unknown primitive "${ref}"`);
+    if (value === undefined) problems.push(`${field} points to unknown primitive "${ref}"`);
     return value?.toLowerCase();
   };
   if (table.vars) {
@@ -542,11 +608,13 @@ export function rdsThemeFromTable(table: RdsBrandTable, opts: RdsThemeOptions = 
       if (value !== undefined) out.vars[roleVar(name)] = value;
     }
   }
-  if (problems.length) throw new Error(`rdsThemeFromTable(${table.name}):\n  ${problems.join("\n  ")}`);
+  if (problems.length) throw new Error(`${where}:\n  ${problems.join("\n  ")}`);
+  // A role written as a literal (not a primitive ref) is checked here, with the rest of the output.
+  assertSafeTheme(out, where);
   const warn = opts.warn ?? defaultWarn;
   if (derived.size)
     warn(
-      `rdsThemeFromTable(${table.name}): the table was exported before ${[...derived].map((r) => `"${r}"`).join(", ")} ` +
+      `${where}: the table was exported before ${[...derived].map((r) => `"${r}"`).join(", ")} ` +
         `existed in the [RDS] theme. Taken from the tokens Figma aliases it to (` +
         [...derived].map((r) => Object.entries(ADDED_ROLES[r]).map(([m, src]) => `${m}: ${src}`).join(", ")).join("; ") +
         `). Export the table again with figma/export-brand.js.`,
@@ -554,7 +622,7 @@ export function rdsThemeFromTable(table: RdsBrandTable, opts: RdsThemeOptions = 
   const fails = rdsContrastReport(out);
   if (fails.length)
     warn(
-      `rdsThemeFromTable(${table.name}): ${fails.length} text pair(s) below 4.5:1\n  ` +
+      `${where}: ${fails.length} text pair(s) below 4.5:1\n  ` +
         fails.map((f) => `${f.mode}: ${f.fg} on ${f.bg} ${f.ratio}:1`).join("\n  "),
     );
   return out;

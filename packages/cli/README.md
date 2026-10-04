@@ -24,6 +24,19 @@ pnpm add @rojaostudio/ds@next
 @import "./rds-theme.css";
 ```
 
+## Antes de rodar
+
+- Rode na raiz do projeto, com o trabalho commitado: assim o `git diff` mostra exatamente o que a CLI
+  escreveu, e desfazer é um `git checkout`.
+- A CLI escreve só dois arquivos: o tema (`rds-theme.css`, ou o de `--out`) e o bloco entre os
+  marcadores no arquivo de regras. Nada mais é tocado.
+- Ela não escreve através de link simbólico, nem fora da pasta do projeto (salvo `--allow-outside`,
+  e só para o tema). Se o arquivo de regras tiver um marcador órfão ou mais de um bloco, ela para sem
+  escrever e diz o que corrigir.
+- `--recipe` e `--table` são lidos como entrada de terceiro: campos desconhecidos, `$version`/`$schema`
+  fora do formato e cores fora da lista branca (hex, `rgb()`, `rgba()`, `oklch()`) são recusados.
+  Use arquivos que você mesmo baixou de ds.rojao.ai ou exportou do Figma.
+
 ## De onde vem a marca
 
 | Opção | Entrada |
@@ -42,6 +55,7 @@ Sem nenhuma delas, a cor é perguntada no terminal.
 | `--target <alvo>` | `claude`, `cursor` ou `agents` (padrão: o arquivo de regras que já existir, senão `claude`) |
 | `-o, --out <arquivo>` | onde escrever o tema (padrão: `rds-theme.css`) |
 | `-y, --yes` | sobrescreve o tema sem perguntar |
+| `--allow-outside` | deixa escrever o tema fora da pasta do projeto |
 | `-h, --help` | ajuda |
 
 O arquivo de regras nunca é sobrescrito: a CLI escreve só o bloco entre `<!-- rojao-ds:start -->` e
@@ -58,8 +72,9 @@ npx rojao-ds@next migrate ./meu-app       # dry-run
 npx rojao-ds@next migrate ./meu-app --apply  # escreve
 ```
 
-É um atalho para `npx @rojaostudio/ds-codemod@next` (sem o `@next` depois da 2.0.0), com os mesmos argumentos: o codemod é baixado na
-hora pelo npx, e por isso o `ts-morph` (que traz o compilador do TypeScript) não entra na CLI.
+É um atalho para `npx @rojaostudio/ds-codemod@<versão>`, com os mesmos argumentos: o codemod é baixado na
+hora pelo npx, e por isso o `ts-morph` (que traz o compilador do TypeScript) não entra na CLI. A versão é
+fixada no build da CLI (a lançada junto com ela), não uma tag que anda. O npx roda sem shell, também no Windows.
 
 ## Sem dependência
 
@@ -69,5 +84,15 @@ Quem prefere script usa o motor direto.
 
 ## Licença
 
-MIT — veja [LICENSE](./LICENSE). O nome e a marca não: veja
+MIT — veja [LICENSE](./LICENSE). Os arquivos que a CLI gera no seu projeto (o tema CSS e o bloco entre
+os marcadores no CLAUDE.md, AGENTS.md ou .cursorrules) são seus: não precisam de aviso de licença nem de
+atribuição.
+
+O nome e a marca (Rojão, `rojao-ds`, `@rojaostudio/*`) não estão na licença: veja
 [TRADEMARK.md](https://github.com/rojaostudio/ds/blob/main/TRADEMARK.md).
+
+## Privacidade
+
+Nada é coletado nem enviado. A CLI não tem telemetria e não acessa a rede: lê os arquivos que você
+aponta e escreve na pasta do projeto. A única exceção é o `migrate`, que pede ao npx para baixar o
+codemod do registro do npm, como qualquer `npx`.

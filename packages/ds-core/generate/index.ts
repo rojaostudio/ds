@@ -10,6 +10,8 @@ export {
 } from "./rdsTheme";
 export type { RdsTheme, RdsMode, RdsCssOptions, RdsBrandTable, RdsThemeOptions, RdsContrastFailure } from "./rdsTheme";
 export type { TokenMap, GenResult, ResolvedTheme } from "./generateTheme";
+// The allow lists every emitter checks its input against (a colour, a variable name, a font family).
+export { isSafeColor, isSafeVarName, isSafeFont, RdsValidationError } from "./validate";
 export { emitCss } from "./emitCss";
 export { emitClaudeMd } from "./emitClaudeMd";
 export type { ClaudeMdTarget, ClaudeMdOptions } from "./emitClaudeMd";

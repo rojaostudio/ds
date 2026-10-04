@@ -19,3 +19,14 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+---
+
+Arquivos gerados
+
+Os arquivos que esta ferramenta escreve no seu projeto (o tema CSS e o bloco
+entre os marcadores <!-- rojao-ds:start --> e <!-- rojao-ds:end --> em
+CLAUDE.md, AGENTS.md ou .cursorrules) são de quem usa a ferramenta. Você pode
+usá-los, alterá-los e distribuí-los como quiser, sem obrigação de manter aviso
+de licença ou atribuição. A licença MIT acima vale para o código da ferramenta,
+não para o que ela gera.
