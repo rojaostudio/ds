@@ -45,12 +45,23 @@ async function collectionName(v) {
   return collectionNames.get(v.variableCollectionId);
 }
 
-/** A value as the .txt writes it: `@<collection>:<name>` for an alias, the literal otherwise. */
+/**
+ * A value as the .txt writes it: `@<collection>:<name>` for an alias, the literal otherwise. An alias into
+ * `viewport` (the screen modes: media queries, not custom properties) is written as its value when that is
+ * the same in every mode (layout/form/max-width…); one that varies by mode has no single CSS value and fails.
+ */
 async function cell(v, val) {
   if (!isAlias(val)) return literal(v, val);
   const target = await figma.variables.getVariableByIdAsync(val.id);
   if (!target) throw new Error(`${v.name}: alias to a variable that cannot be read (${val.id})`);
-  return `@${await collectionName(target)}:${target.name}`;
+  const collection = await collectionName(target);
+  if (collection === "viewport") {
+    const values = [...new Set(Object.values(target.valuesByMode).map((x) => JSON.stringify(x)))];
+    if (values.length !== 1 || isAlias(JSON.parse(values[0])))
+      throw new Error(`${v.name}: alias to viewport ${target.name}, which varies by mode`);
+    return literal(v, JSON.parse(values[0]));
+  }
+  return `@${collection}:${target.name}`;
 }
 
 const vars = async (c) => {
@@ -74,7 +85,8 @@ if (!cols.some((c) => c.name === "theme")) {
     const mode = c.defaultModeId;
     for (const v of await vars(c)) {
       const web = v.codeSyntax.WEB ?? "";
-      const cs = web === pathVar(v.name) ? "=" : web;
+      // `var(--path)` is the same custom property as `--path`: both are the path rule.
+      const cs = web === pathVar(v.name) || web === `var(${pathVar(v.name)})` ? "=" : web;
       const obsolete = /^obsolet/i.test(v.description.trim()) ? "|obsolete" : "";
       lines.push(`${v.name}|${TYPE[v.resolvedType]}|${await cell(v, v.valuesByMode[mode])}|${cs}${obsolete}`);
     }

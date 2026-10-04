@@ -219,7 +219,7 @@ export { NavigationMenu } from './navigation-menu';
 export type { NavigationMenuProps, NavigationMenuEntry, NavigationMenuLink, NavigationMenuLinkComponent } from './navigation-menu';
 
 export { SavingBar } from './saving-bar';
-export type { SavingBarProps, SavingBarStatus } from './saving-bar';
+export type { SavingBarProps, SavingBarStatus, SavingBarPlacement } from './saving-bar';
 
 export { SavingBarProvider, SavingBarRoot, usePageSavingBar } from './saving-bar-context';
 export type { SavingBarRegistration } from './saving-bar-context';
@@ -276,7 +276,7 @@ export { ActionBar } from './action-bar';
 export type { ActionBarProps } from './action-bar';
 
 export { FormActions } from './form-actions';
-export type { FormActionsProps, FormActionsLayout } from './form-actions';
+export type { FormActionsProps, FormActionsPlacement } from './form-actions';
 
 export { Breadcrumb } from './breadcrumb';
 export type { BreadcrumbProps, BreadcrumbItem, BreadcrumbTone, BreadcrumbLinkComponent } from './breadcrumb';

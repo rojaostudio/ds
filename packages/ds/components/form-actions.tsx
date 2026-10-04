@@ -1,144 +1,57 @@
 'use client';
 
-import { Children, type HTMLAttributes, type ReactNode } from 'react';
-import { ChevronUpIcon } from './internal/icons';
-import { useOnScreenKeyboard } from './internal/use-on-screen-keyboard';
+import type { HTMLAttributes, ReactNode } from 'react';
+import { BottomBar, type BottomBarPlacement } from './internal/bottom-bar';
 
-export type FormActionsLayout = 'inline' | 'stacked' | 'bar';
+export type FormActionsPlacement = BottomBarPlacement;
 
 export interface FormActionsProps extends HTMLAttributes<HTMLDivElement> {
   /**
-   * The buttons (Figma: slot `actions`, up to 3), always in reading order: Cancelar first, the primary
-   * last. In `stacked` the primary goes on top, and it is moved first in the page too, so the focus
-   * order follows what is seen. In `bar`, compact (below 1024), only the last one (the primary) is shown.
+   * The actions (Figma: the exposed `cancel` and `primary` Buttons), in reading order: Cancelar (tone neutral, ghost)
+   * first, the primary (tone action, fill) last. Expanded (from 1024) they all show, on the right; compact (below
+   * 1024) only the last one, the primary: the others are `display: none`, and the way out is the topbar's X.
    */
   children: ReactNode;
   /**
-   * A short supporting sentence beside the actions (Figma: `helper`). It is a live region
-   * (`role="status"`): when it changes (say, "Falta preço e prazo"), it is said without moving focus.
-   * In `bar` with `onDetails`, it is also the text of the details button (compact), even when
-   * `showHelper` is false.
+   * docked (default: the container's width, against the foot) or floating (from 1024 up: off the foot, rounded, the
+   * overlay shadow, 24 of margin, at most 768, centred). Below 1024 floating is docked (Figma: `placement`).
    */
-  helper?: ReactNode;
+  placement?: FormActionsPlacement;
   /**
-   * Whether the `helper` is shown as static text (Figma: `showHelper`; default `true`). It governs only the
-   * static text: expanded when `showHelper && helper`, compact when `showHelper && helper && !onDetails`. In
-   * `bar` with `onDetails`, the compact details button always shows the `helper`, whatever this says; with
-   * `showHelper={false}` the expanded bar shows no sentence (the create form's checklist is in the right
-   * column on the desktop), and the `role="status"` keeps saying its changes from a visually hidden copy.
-   * Without `onDetails`, `false` leaves the helper out entirely.
+   * One ~44 control on the left, never running text (Figma: slot `leading`, `showLeading`). Present, even `null`
+   * while its control is hidden, it reserves 44 so the actions do not jump. Whoever fills it says its own changes
+   * (its own aria-live); the bar says nothing.
    */
-  showHelper?: boolean;
-  /**
-   * inline (desktop: floats and hugs its content, sentence left, actions right), stacked (phone, a task
-   * with no way out in the topbar: edge to edge at the foot, primary full width on top) or bar (the foot of
-   * a create form: the SavingBar's skeleton, neutral; expanded from 1024, compact in one row below it)
-   * (Figma: `layout`).
-   */
-  layout?: FormActionsLayout;
-  /**
-   * `bar` only, with a `helper`: in the compact arrangement the helper is always a button (its text and a
-   * chevron) that opens what is missing (a Drawer with the checklist), even with `showHelper={false}`;
-   * expanded, the helper stays text, shown only with `showHelper` (Figma: `showDetails`).
-   */
-  onDetails?: () => void;
-  /** Said after the helper in the details button's accessible name, hidden on screen. */
-  detailsLabel?: string;
-  /** Whether the panel the details button opens is open (aria-expanded). */
-  detailsExpanded?: boolean;
-  /** The id of that panel (aria-controls). */
-  detailsControls?: string;
+  leading?: ReactNode;
 }
 
 /**
- * FormActions — Figma [RDS] Actions/FormActions. The actions at the end of a create form or a task,
- * there from the first second. Where it sticks is the page's job: `position: sticky` at the bottom of
- * the scrolling container. Styles: form-actions.css.
+ * FormActions — Figma [RDS] Actions/FormActions. The actions at the end of a create form or of a long task (Cancelar
+ * and the primary), at the foot of the screen from the first second. Only actions: what is missing is the project's
+ * (if it needs a control, it goes in `leading`). Built on the private BottomBar (.rds-bottom-bar), the SavingBar's
+ * shell: a band in the brand's primary colour (bottom-bar/background), 64 plus the safe area compact, 68 expanded,
+ * 24 at the sides, sticky at the bottom of the scrolling container. Styles: form-actions.css, internal/bottom-bar.css.
  *
- * `layout="bar"` is the foot of a create form: the SavingBar's skeleton (68 expanded, 64 plus the safe area
- * compact, 24 at the sides, the primary in the same place), but neutral: form-actions/bar/background
- * (surface/page) with the hairline form-actions/border on top, never the brand's colour (that is the
- * SavingBar's signal, for a pending edit). Below 1024 (the screen width, as the SavingBar) it is one row:
- * the helper on the left (at most 2 lines; with `onDetails`, the button that opens what is missing) and only
- * the primary on the right.
- *
- * The create form's foot: `<FormActions layout="bar" helper="Falta preço e prazo" showHelper={false}
- * onDetails={…}>`. Expanded it is Cancelar + the primary, no sentence (the checklist is in the right column);
- * compact it is "Falta preço e prazo ˄" (the details button) + the primary.
+ * `<FormActions placement="docked" leading={…}><Button tone="neutral" variant="ghost">Cancelar</Button><Button
+ * tone="action">Criar produto</Button></FormActions>`: the last child is the primary; compact, the others leave.
  *
  * The app's rules around it:
- * - The primary is never disabled: validate on click, show the error on the field and move the focus to the
- *   first pending one.
- * - The scrolling container takes `scroll-padding-bottom` equal to the bar's height plus
- *   `env(safe-area-inset-bottom)`, so a focused field is never hidden behind it (WCAG 2.4.11).
- * - On the phone (below 1024) the bar, and stacked too, leaves while the on-screen keyboard is open (a field is
- *   focused and the visible area shrinks): it would cover the field being typed in. It slides down (no motion with
- *   prefers-reduced-motion) and comes back when the keyboard closes; it never takes the focus.
- * - Compact has no Cancelar: the way out is back or X in the topbar, with an AlertDialog "Sair sem criar?"
- *   ([Continuar editando] [Sair sem criar]) when something was typed. Cancelar can also go in the footer of
- *   the details Drawer.
+ * - The primary is never disabled: validate on click, show the error on the field and move the focus to the first
+ *   pending one.
+ * - The scrolling container takes `scroll-padding-bottom` (and the content `padding-bottom`) equal to the bar's height
+ *   (plus the margin when floating) plus `env(safe-area-inset-bottom)`, so a focused field is never hidden behind it
+ *   (WCAG 2.4.11).
+ * - On the phone (below 1024) the bar leaves while the on-screen keyboard is open (a field is focused and the visible
+ *   area shrinks): it slides down (no motion with prefers-reduced-motion) and comes back on blur; it never takes the
+ *   focus.
+ * - Compact has no Cancelar: the way out is the X in the topbar, with an AlertDialog "Sair sem criar?" ([Continuar
+ *   editando] [Sair sem criar]) when something was typed.
+ * - Buttons at the end of a card or a dialog are loose Buttons or a ButtonGroup, not this.
  */
-export function FormActions({
-  children,
-  helper,
-  showHelper = true,
-  layout = 'inline',
-  onDetails,
-  detailsLabel = 'Ver o que falta',
-  detailsExpanded,
-  detailsControls,
-  className,
-  ...rest
-}: FormActionsProps) {
-  const actions = Children.toArray(children);
-  const bar = layout === 'bar';
-  // The foot of the screen (bar, stacked) steps aside for the on-screen keyboard; inline floats where the page puts it.
-  const keyboard = useOnScreenKeyboard(layout !== 'inline');
-  const hasHelper = helper != null && helper !== false && helper !== '';
-  const details = bar && hasHelper && onDetails !== undefined;
-  // The static text: shown when showHelper (compact with details, CSS swaps it for the button).
-  const text = hasHelper && showHelper;
+export function FormActions({ children, placement = 'docked', leading, className, ...rest }: FormActionsProps) {
   return (
-    <div
-      {...rest}
-      className={['rds-form-actions', `rds-form-actions--${layout}`, keyboard && 'rds-form-actions--keyboard', className].filter(Boolean).join(' ')}
-    >
-      {(text || details) && (
-        <p
-          className={['rds-form-actions__helper', details && 'rds-form-actions__helper--details'].filter(Boolean).join(' ')}
-          role="status"
-        >
-          {bar ? (
-            <>
-              {/* Up to three renderings of the helper inside the one status, exactly one rendered at a time
-                  (display: none takes the others out of the accessibility tree too, so a change is said once):
-                  the text (showHelper; compact with details it gives way to the button), the details button
-                  (compact) and, with showHelper off, a visually hidden copy where the button is not shown
-                  (expanded), so the status keeps saying the changes. */}
-              {text && <span className="rds-form-actions__text">{helper}</span>}
-              {details && !showHelper && <span className="rds-visually-hidden rds-form-actions__quiet">{helper}</span>}
-              {details && (
-                <button
-                  type="button"
-                  className="rds-form-actions__details"
-                  aria-expanded={detailsExpanded ?? false}
-                  aria-controls={detailsControls}
-                  onClick={onDetails}
-                >
-                  <span className="rds-form-actions__text">{helper}</span>
-                  <span className="rds-visually-hidden">, {detailsLabel}</span>
-                  <span className="rds-form-actions__icon" aria-hidden="true">
-                    <ChevronUpIcon />
-                  </span>
-                </button>
-              )}
-            </>
-          ) : (
-            helper
-          )}
-        </p>
-      )}
-      <div className="rds-form-actions__actions">{layout === 'stacked' ? actions.reverse() : actions}</div>
-    </div>
+    <BottomBar {...rest} placement={placement} leading={leading} className={['rds-form-actions', className].filter(Boolean).join(' ')}>
+      <div className="rds-form-actions__actions">{children}</div>
+    </BottomBar>
   );
 }

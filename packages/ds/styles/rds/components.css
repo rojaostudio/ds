@@ -73,7 +73,7 @@
   --button-inverse-focus-ring: var(--text-on-primary-strong);
   --button-inverse-disabled-fill-background: var(--colors-primary-light);
   --button-inverse-disabled-label: var(--text-disabled-invert);
-  --savingbar-background: var(--colors-primary-default);
+  --bottom-bar-background: var(--colors-primary-default);
   --toggle-label: var(--text-body);
   --toggle-border: var(--border-strong);
   --toggle-background-hover: var(--surface-muted);
@@ -83,7 +83,7 @@
   --toggle-label-disabled: var(--text-disabled);
   --toggle-border-pressed: var(--colors-primary-default);
   --toggle-border-disabled: var(--border-default);
-  --savingbar-text: var(--text-on-primary);
+  --bottom-bar-text: var(--text-on-primary);
   --fab-cta-background-default: var(--colors-primary-default);
   --fab-cta-background-hover: var(--colors-primary-active);
   --fab-cta-text: var(--text-on-primary);
@@ -93,9 +93,6 @@
   --chip-label: var(--text-body);
   --chip-icon: var(--text-muted);
   --chip-label-disabled: var(--text-disabled);
-  --form-actions-background: var(--surface-card);
-  --form-actions-border: var(--border-default);
-  --form-actions-text: var(--text-subtle);
   --button-size-sm-height: 36px;
   --button-size-sm-padding-x: var(--space-16);
   --button-size-sm-padding-y: var(--space-8);
@@ -120,12 +117,17 @@
   --button-size-lg-icon-only: var(--size-24);
   --button-size-lg-text-size: var(--type-body-size);
   --button-size-lg-text-line: var(--type-body-line);
-  --savingbar-focus-ring: var(--text-on-primary);
-  --savingbar-button-fill-background: var(--text-on-primary);
-  --savingbar-button-fill-label: var(--colors-primary-default);
-  --savingbar-button-ghost-label: var(--text-on-primary);
-  --form-actions-bar-background: var(--surface-page);
-  --form-actions-focus-ring: var(--focus-ring);
+  --bottom-bar-focus-ring: var(--text-on-primary);
+  --bottom-bar-button-fill-background: var(--text-on-primary);
+  --bottom-bar-button-fill-label: var(--colors-primary-default);
+  --bottom-bar-button-ghost-label: var(--text-on-primary);
+  --bottom-bar-padding-x: var(--space-24);
+  --bottom-bar-padding-y: 10px;
+  --bottom-bar-gap: var(--space-16);
+  --bottom-bar-leading-min-width: var(--button-size-md-height);
+  --bottom-bar-floating-radius: var(--radius-container);
+  --bottom-bar-floating-margin: var(--space-24);
+  --bottom-bar-floating-max-width: 768px;
 
   /* blocks */
   --topnav-background: var(--surface-card);

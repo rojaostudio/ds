@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { act } from 'react';
 import { page, userEvent } from 'vitest/browser';
 import { Button } from '../button';
-import { FormActions, type FormActionsLayout } from '../form-actions';
+import { FormActions, type FormActionsPlacement } from '../form-actions';
 import { SavingBar } from '../saving-bar';
 import { cleanup, render } from '../__tests__/render';
 
@@ -38,13 +38,13 @@ afterEach(async () => {
   await page.viewport(1280, 800);
 });
 
-function Form({ layout = 'bar', field = 'text' }: { layout?: FormActionsLayout; field?: string }) {
+function Form({ placement = 'docked', field = 'text' }: { placement?: FormActionsPlacement; field?: string }) {
   return (
     <form>
       <label>
         Nome <input type={field} />
       </label>
-      <FormActions layout={layout} helper="Falta preço e prazo">
+      <FormActions placement={placement}>
         <Button tone="neutral" variant="ghost">Cancelar</Button>
         <Button tone="action">Criar produto</Button>
       </FormActions>
@@ -68,9 +68,9 @@ const hidden = (bar: HTMLElement) => getComputedStyle(bar).visibility === 'hidde
 const shift = (bar: HTMLElement) => new DOMMatrix(getComputedStyle(bar).transform === 'none' ? '' : getComputedStyle(bar).transform).f;
 
 describe.each([
-  ['FormActions bar', () => <Form />, '.rds-form-actions', 'rds-form-actions--keyboard'],
-  ['FormActions stacked', () => <Form layout="stacked" />, '.rds-form-actions', 'rds-form-actions--keyboard'],
-  ['SavingBar', () => <Edit />, '.rds-savingbar', 'rds-savingbar--keyboard'],
+  ['FormActions docked', () => <Form />, '.rds-form-actions', 'rds-bottom-bar--keyboard'],
+  ['FormActions floating', () => <Form placement="floating" />, '.rds-form-actions', 'rds-bottom-bar--keyboard'],
+  ['SavingBar', () => <Edit />, '.rds-savingbar', 'rds-bottom-bar--keyboard'],
 ] as const)('%s and the on-screen keyboard', (_, ui, selector, keyboardClass) => {
   it('at 390, a field focused and the visible area shrunk: the bar slides down and hides, the focus stays in the field', async () => {
     await page.viewport(390, 800);
@@ -149,7 +149,7 @@ describe.each([
   });
 });
 
-describe('FormActions and the on-screen keyboard: what does not count', () => {
+describe('the bars and the on-screen keyboard: what does not count', () => {
   it('a checkbox focused brings up no keyboard: the bar stays', async () => {
     await page.viewport(390, 800);
     const el = await render(<Form field="checkbox" />);
@@ -157,17 +157,6 @@ describe('FormActions and the on-screen keyboard: what does not count', () => {
     await userEvent.click(el.querySelector('input')!);
     await keyboard(420);
     await settled(bar);
-    expect(hidden(bar)).toBe(false);
-  });
-
-  it('inline floats where the page puts it: it stays', async () => {
-    await page.viewport(390, 800);
-    const el = await render(<Form layout="inline" />);
-    const bar = el.querySelector<HTMLElement>('.rds-form-actions')!;
-    await userEvent.click(el.querySelector('input')!);
-    await keyboard(420);
-    await settled(bar);
-    expect(bar.classList.contains('rds-form-actions--keyboard')).toBe(false);
     expect(hidden(bar)).toBe(false);
   });
 });
@@ -189,8 +178,7 @@ describe('the slide respects prefers-reduced-motion', () => {
   }
 
   it.each([
-    ['FormActions', /rds-form-actions--(bar|stacked|keyboard)/],
-    ['SavingBar', /^\.rds-savingbar(--keyboard)?$/],
+    ['the shell (FormActions and SavingBar)', /^\.rds-bottom-bar(--keyboard)?$/],
   ])('%s: the transitions live only under no-preference, in compact', (_, selector) => {
     const found = transitions(selector);
     expect(found.length).toBeGreaterThan(0);

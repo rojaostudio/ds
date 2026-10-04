@@ -5,21 +5,23 @@ import { SavingBar } from '../saving-bar';
 
 // On the server there is no window nor visualViewport: the bars render as they are, never hidden.
 describe('the on-screen keyboard on the server', () => {
-  it('FormActions bar and stacked render without the keyboard class', () => {
-    for (const layout of ['bar', 'stacked'] as const) {
+  it('FormActions renders on the shell, docked and floating, without the keyboard class', () => {
+    for (const placement of ['docked', 'floating'] as const) {
       const html = renderToString(
-        <FormActions layout={layout} helper="Falta preço">
+        <FormActions placement={placement}>
           <button type="button">Criar</button>
         </FormActions>,
       );
-      expect(html).toContain(`rds-form-actions--${layout}`);
+      expect(html).toContain('rds-bottom-bar');
+      expect(html).toContain(`rds-bottom-bar--${placement}`);
       expect(html).not.toContain('--keyboard');
     }
   });
 
-  it('SavingBar renders without the keyboard class', () => {
+  it('SavingBar renders on the shell without the keyboard class', () => {
     const html = renderToString(<SavingBar onSave={() => {}} />);
     expect(html).toContain('rds-savingbar');
+    expect(html).toContain('rds-bottom-bar');
     expect(html).not.toContain('--keyboard');
   });
 });

@@ -105,11 +105,17 @@ export function check(
   extraDefined: Set<string> = new Set(),
 ): Problems {
   const base = new Set(foundation.map((f) => f.name));
+  // A component token may point to another component token (bottom-bar/leading/min-width → Actions
+  // button/size/md/height): the collection is the .txt name, in any case.
+  const component = new Set(tokens.map((t) => `${t.collection.toLowerCase()}:${t.name}`));
   const missingAlias: string[] = [];
   for (const t of tokens) {
     const a = t.value.match(/^@(\w+):(.+)$/);
     if (!a) continue;
-    const ok = a[1] === "theme" ? roles.has(a[2]) : FOUNDATION_COLLECTIONS.has(a[1]) ? base.has(a[2]) : false;
+    const ok =
+      a[1] === "theme" ? roles.has(a[2])
+      : FOUNDATION_COLLECTIONS.has(a[1]) ? base.has(a[2])
+      : component.has(`${a[1].toLowerCase()}:${a[2]}`);
     if (!ok) missingAlias.push(`${t.collection}: ${t.name} → ${t.value}`);
   }
 

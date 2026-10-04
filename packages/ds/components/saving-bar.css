@@ -1,58 +1,12 @@
-/* @tokens savingbar */
+/* @tokens bottom-bar */
 /*
- * SavingBar (Actions collection, savingbar/*): full width (at least 320), 12 24 padding, 16 between the
- * message (label, medium, at most 2 lines with an ellipsis) and the actions (8 apart). The bar is the brand's
- * primary colour: savingbar/background is colors/primary/default and savingbar/text is text/on/primary (the text,
- * the error alert, the chevron and the loader), so it follows the theme, light or dark, and every brand.
- * The Buttons stay the Button: Salvar tone action fill and Descartar tone neutral ghost, with the bar's colours.
- * The bar redeclares the Button tokens those two read: the Salvar fill is savingbar/button/fill/background with
- * savingbar/button/fill/label, its hover the fill at 85% over the bar (active 70%); the Descartar label is
- * savingbar/button/ghost/label, its hover the label colour at 15% (active 25%); the focus ring is savingbar/focus/ring;
- * disabled (Descartar while saving) is the Button at 40% over the bar, as the Figma layer opacity. While saving, Salvar
- * is in loading (its loader in the label colour): the only indicator, none in the message.
- * Two arrangements, by the screen width, as the Figma viewport mode (layout/compact below lg 1024): expanded from 1024,
- * 12 24 padding (68 tall), the message grows (at least 160) beside Descartar and Salvar; compact below it, one row,
- * 10 24 padding (64 = 10 + 44 + 10) plus the safe area at the bottom, the message (flex 1, at most 2 lines) on the
- * left and only the main button on the right: Descartar is not shown (it lives in the details Drawer's footer or in
- * the confirmation when leaving).
- * Details (showDetails, onDetails in code): in compact, the unsaved message becomes a text button with chevron-up 20 at
- * the right (12 apart) that opens the Drawer with what is missing; hover underlines, focus draws the ring
- * savingbar/focus/ring (focus/ring-width, radius/focus) 4 around the message box, inside stroke, as the Figma
- * focus-ring frame. The touch area is 44 tall without changing the drawing. Expanded, the message stays text.
+ * SavingBar: no tokens of its own; the shell (internal/bottom-bar.css, bottom-bar/*) brings the colour, the height,
+ * the padding, the place and the Buttons' colours. Here the message (label, medium, in bottom-bar/text, at most 2
+ * lines with an ellipsis; on error the alert 20 before it, 12 apart) and the actions (8 apart, Descartar then Salvar).
+ * Expanded (from lg 1024) the message grows (at least 160) beside Descartar and Salvar; compact (below 1024, by the
+ * screen width as the Figma viewport mode) one row, the message (flex 1) on the left and only Salvar on the right:
+ * Descartar is not shown (it lives in the confirmation when leaving).
  */
-.rds-savingbar {
-  box-sizing: border-box;
-  width: 100%;
-  min-width: min(320px, 100%);
-  padding: var(--space-12) var(--space-24);
-  background: var(--savingbar-background);
-  color: var(--savingbar-text);
-  font-family: var(--type-font-stack);
-
-  /* The Button tokens Salvar (action fill) and Descartar (neutral ghost) read, in the bar's colours. */
-  --button-focus-ring: var(--savingbar-focus-ring);
-  --button-action-fill-background-default: var(--savingbar-button-fill-background);
-  --button-action-fill-background-hover: color-mix(in srgb, var(--savingbar-button-fill-background) 85%, var(--savingbar-background));
-  --button-action-fill-background-active: color-mix(in srgb, var(--savingbar-button-fill-background) 70%, var(--savingbar-background));
-  --button-action-fill-label: var(--savingbar-button-fill-label);
-  --button-action-fill-icon: var(--savingbar-button-fill-label);
-  --button-neutral-ghost-label: var(--savingbar-button-ghost-label);
-  --button-neutral-ghost-icon: var(--savingbar-button-ghost-label);
-  --button-neutral-ghost-background-hover: color-mix(in srgb, var(--savingbar-button-ghost-label) 15%, transparent);
-  --button-neutral-ghost-background-active: color-mix(in srgb, var(--savingbar-button-ghost-label) 25%, transparent);
-  --button-disabled-fill-background: color-mix(in srgb, var(--savingbar-button-fill-background) 40%, var(--savingbar-background));
-  --button-disabled-fill-label: color-mix(in srgb, var(--savingbar-button-fill-label) 40%, var(--savingbar-background));
-  --button-disabled-fill-icon: var(--button-disabled-fill-label);
-  --button-disabled-ghost-label: color-mix(in srgb, var(--savingbar-button-ghost-label) 40%, var(--savingbar-background));
-  --button-disabled-ghost-icon: var(--button-disabled-ghost-label);
-}
-
-.rds-savingbar__row {
-  display: flex;
-  align-items: center;
-  gap: var(--space-16);
-}
-
 .rds-savingbar__message {
   display: flex;
   flex: 1 1 160px;
@@ -93,51 +47,7 @@
   gap: var(--space-8);
 }
 
-.rds-savingbar__details {
-  position: relative;
-  display: none;
-  flex: 1;
-  align-items: center;
-  gap: var(--space-12);
-  min-width: 0;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  border-radius: var(--radius-focus);
-  background: none;
-  color: inherit;
-  font: inherit;
-  text-align: start;
-  cursor: pointer;
-}
-
-/* The touch area: 44 tall around the message, invisible. */
-.rds-savingbar__details::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  right: 0;
-  left: 0;
-  min-height: 44px;
-  height: 100%;
-  transform: translateY(-50%);
-}
-
-.rds-savingbar__details:hover .rds-savingbar__text {
-  text-decoration: underline;
-}
-
-.rds-savingbar__details:focus-visible {
-  outline: var(--focus-ring-width) solid var(--savingbar-focus-ring);
-  outline-offset: var(--focus-ring-width);
-}
-
 @media (max-width: 1023px) {
-  .rds-savingbar {
-    padding-block: 10px;
-    padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
-  }
-
   .rds-savingbar__message {
     flex: 1 1 0;
     min-width: 0;
@@ -145,45 +55,5 @@
 
   .rds-savingbar .rds-savingbar__discard {
     display: none;
-  }
-
-  .rds-savingbar__message--details > .rds-savingbar__text {
-    display: none;
-  }
-
-  .rds-savingbar__details {
-    display: flex;
-  }
-}
-
-@media (forced-colors: active) {
-  .rds-savingbar {
-    border-top: var(--border-width) solid CanvasText;
-  }
-}
-
-/*
- * The on-screen keyboard (compact only, the class comes from useOnScreenKeyboard): the bar slides down out of the
- * way while a field is being typed in, and comes back when the keyboard closes. visibility takes it out of the tab
- * order and the accessibility tree meanwhile; it waits for the slide to end before hiding.
- */
-@media (max-width: 1023px) {
-  .rds-savingbar--keyboard {
-    visibility: hidden;
-    transform: translateY(100%);
-  }
-}
-
-@media (max-width: 1023px) and (prefers-reduced-motion: no-preference) {
-  .rds-savingbar {
-    transition:
-      transform var(--motion-duration-base) var(--motion-easing-enter),
-      visibility 0s;
-  }
-
-  .rds-savingbar--keyboard {
-    transition:
-      transform var(--motion-duration-base) var(--motion-easing-exit),
-      visibility 0s var(--motion-duration-base);
   }
 }

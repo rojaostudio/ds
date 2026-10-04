@@ -1,0 +1,116 @@
+/* @tokens bottom-bar */
+/*
+ * The shell at the foot of the screen (Actions collection, bottom-bar/*), private, under the FormActions and the
+ * SavingBar. The brand's primary colour: bottom-bar/background (colors/primary/default) with bottom-bar/text
+ * (text/on/primary), in light, dark and every brand. Full width (at least 320), sticky at the bottom of the scrolling
+ * container, bottom-bar/padding-x (24) at the sides, bottom-bar/gap (16) between the parts.
+ * Height, by the screen width as the Figma viewport mode (layout/compact below lg 1024): compact, bottom-bar/padding-y
+ * (10) above and below, 64 = 10 + 44 + 10, plus the safe area at the bottom; expanded, 2 more inside each side, 68.
+ * The leading slot reserves bottom-bar/leading/min-width (44, the md Button height).
+ * floating, from 1024 only: bottom-bar/floating/margin off the foot and the sides, at most
+ * bottom-bar/floating/max-width, centred, bottom-bar/floating/radius and elevation/overlay. Below 1024 it is docked:
+ * no radius, no shadow, no margin, the full width.
+ * The Buttons on it stay the Button: the action fill and the neutral ghost read their tokens, redeclared here in the
+ * bar's colours (bottom-bar/button/*): the fill's hover at 85% over the bar (active 70%), the ghost's hover the label
+ * colour at 15% (active 25%), disabled at 40% over the bar (the Figma layer opacity), the focus ring
+ * bottom-bar/focus/ring (the default focus/ring would vanish on the band).
+ */
+.rds-bottom-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: var(--z-sticky);
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: var(--bottom-bar-gap);
+  width: 100%;
+  min-width: min(320px, 100%);
+  padding: calc(var(--bottom-bar-padding-y) + 2px) var(--bottom-bar-padding-x);
+  background: var(--bottom-bar-background);
+  color: var(--bottom-bar-text);
+  font-family: var(--type-font-stack);
+
+  /* The Button tokens the action fill and the neutral ghost read, in the bar's colours. */
+  --button-focus-ring: var(--bottom-bar-focus-ring);
+  --button-action-fill-background-default: var(--bottom-bar-button-fill-background);
+  --button-action-fill-background-hover: color-mix(in srgb, var(--bottom-bar-button-fill-background) 85%, var(--bottom-bar-background));
+  --button-action-fill-background-active: color-mix(in srgb, var(--bottom-bar-button-fill-background) 70%, var(--bottom-bar-background));
+  --button-action-fill-label: var(--bottom-bar-button-fill-label);
+  --button-action-fill-icon: var(--bottom-bar-button-fill-label);
+  --button-neutral-ghost-label: var(--bottom-bar-button-ghost-label);
+  --button-neutral-ghost-icon: var(--bottom-bar-button-ghost-label);
+  --button-neutral-ghost-background-hover: color-mix(in srgb, var(--bottom-bar-button-ghost-label) 15%, transparent);
+  --button-neutral-ghost-background-active: color-mix(in srgb, var(--bottom-bar-button-ghost-label) 25%, transparent);
+  --button-disabled-fill-background: color-mix(in srgb, var(--bottom-bar-button-fill-background) 40%, var(--bottom-bar-background));
+  --button-disabled-fill-label: color-mix(in srgb, var(--bottom-bar-button-fill-label) 40%, var(--bottom-bar-background));
+  --button-disabled-fill-icon: var(--button-disabled-fill-label);
+  --button-disabled-ghost-label: color-mix(in srgb, var(--bottom-bar-button-ghost-label) 40%, var(--bottom-bar-background));
+  --button-disabled-ghost-icon: var(--button-disabled-ghost-label);
+}
+
+/* The leading slot: one ~44 control; its width stays reserved while the control comes and goes. */
+.rds-bottom-bar__leading {
+  display: flex;
+  flex: none;
+  align-items: center;
+  min-width: var(--bottom-bar-leading-min-width);
+}
+
+/* Compact: by the screen width (the Figma viewport mode), not a container query. */
+@media (max-width: 1023px) {
+  .rds-bottom-bar {
+    padding-block: var(--bottom-bar-padding-y);
+    padding-bottom: calc(var(--bottom-bar-padding-y) + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* floating: only from lg 1024; below it the bar is docked, square, edge to edge. */
+@media (min-width: 1024px) {
+  .rds-bottom-bar--floating {
+    bottom: var(--bottom-bar-floating-margin);
+    width: calc(100% - 2 * var(--bottom-bar-floating-margin));
+    max-width: var(--bottom-bar-floating-max-width);
+    margin-inline: auto;
+    margin-bottom: var(--bottom-bar-floating-margin);
+    border-radius: var(--bottom-bar-floating-radius);
+    box-shadow: var(--elevation-overlay);
+  }
+}
+
+@media (forced-colors: active) {
+  .rds-bottom-bar {
+    border-top: var(--border-width) solid CanvasText;
+  }
+}
+
+@media (forced-colors: active) and (min-width: 1024px) {
+  .rds-bottom-bar--floating {
+    border: var(--border-width) solid CanvasText;
+  }
+}
+
+/*
+ * The on-screen keyboard (compact only, the class comes from useOnScreenKeyboard): the bar slides down out of the way
+ * while a field is being typed in, and comes back when the keyboard closes. visibility takes it out of the tab order
+ * and the accessibility tree meanwhile; it waits for the slide to end before hiding.
+ */
+@media (max-width: 1023px) {
+  .rds-bottom-bar--keyboard {
+    visibility: hidden;
+    transform: translateY(100%);
+  }
+}
+
+@media (max-width: 1023px) and (prefers-reduced-motion: no-preference) {
+  .rds-bottom-bar {
+    transition:
+      transform var(--motion-duration-base) var(--motion-easing-enter),
+      visibility 0s;
+  }
+
+  .rds-bottom-bar--keyboard {
+    transition:
+      transform var(--motion-duration-base) var(--motion-easing-exit),
+      visibility 0s var(--motion-duration-base);
+  }
+}
