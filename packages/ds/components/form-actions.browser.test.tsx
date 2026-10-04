@@ -17,7 +17,7 @@ const HELPER = 'Falta preço e prazo';
 
 const SHORT = 'Falta o preço';
 
-function Bar(props: { onDetails?: () => void; detailsExpanded?: boolean; helper?: string }) {
+function Bar(props: { onDetails?: () => void; detailsExpanded?: boolean; helper?: string; showHelper?: boolean }) {
   return (
     <FormActions layout="bar" helper={HELPER} detailsControls="o-que-falta" {...props}>
       <Button tone="neutral" variant="ghost">Cancelar</Button>
@@ -45,6 +45,18 @@ describe.each(MODES)('FormActions (%s)', (mode) => {
       mode,
     );
     expect(await axeViolations(el)).toEqual([]);
+  });
+
+  it('bar passes axe in the 4 cases (showHelper × onDetails), expanded (1280) and compact (390)', async () => {
+    for (const width of [1280, 390]) {
+      await page.viewport(width, 800);
+      for (const showHelper of [true, false]) {
+        for (const details of [false, true]) {
+          const el = await render(<Bar showHelper={showHelper} onDetails={details ? () => {} : undefined} />, mode);
+          expect(await axeViolations(el), `${width} showHelper=${showHelper} details=${details}`).toEqual([]);
+        }
+      }
+    }
   });
 
   it('bar passes axe expanded (1280) and compact (390), with and without details', async () => {
@@ -194,6 +206,93 @@ describe('FormActions behaviour', () => {
 
     const open = await render(<Bar onDetails={() => {}} detailsExpanded />);
     expect(open.querySelector('.rds-form-actions__details')!.getAttribute('aria-expanded')).toBe('true');
+  });
+
+  // What is on screen as the helper, and what the status says (its rendered, accessible content).
+  const visible = (el: Element) =>
+    [...el.querySelectorAll<HTMLElement>('.rds-form-actions__helper > *')]
+      .filter((n) => getComputedStyle(n).display !== 'none' && !n.classList.contains('rds-visually-hidden'))
+      .map((n) => (n.tagName === 'BUTTON' ? 'button' : 'text'));
+  const said = (el: Element) => {
+    const status = el.querySelector<HTMLElement>('[role="status"]');
+    if (!status) return null;
+    const out = [...status.children].filter((n) => getComputedStyle(n).display !== 'none');
+    return out.map((n) => (n.tagName === 'BUTTON' ? n.querySelector('.rds-form-actions__text')!.textContent : n.textContent));
+  };
+
+  it.each([
+    // showHelper, onDetails, width → what shows beside the actions, the actions, what the status holds
+    [true, false, 1280, ['text'], ['Cancelar', 'Criar produto'], [HELPER]],
+    [true, false, 390, ['text'], ['Criar produto'], [HELPER]],
+    [true, true, 1280, ['text'], ['Cancelar', 'Criar produto'], [HELPER]],
+    [true, true, 390, ['button'], ['Criar produto'], [HELPER]],
+    [false, false, 1280, [], ['Cancelar', 'Criar produto'], null],
+    [false, false, 390, [], ['Criar produto'], null],
+    [false, true, 1280, [], ['Cancelar', 'Criar produto'], [HELPER]],
+    [false, true, 390, ['button'], ['Criar produto'], [HELPER]],
+  ] as const)('bar showHelper=%s onDetails=%s at %i: helper %j, actions %j, status says %j once', async (showHelper, details, width, helper, actions, status) => {
+    await page.viewport(width, 800);
+    // Edge to edge, as at the foot of the screen (the test host has 16 of padding).
+    const el = await render(
+      <div style={{ margin: '0 -16px' }}>
+        <Bar showHelper={showHelper} onDetails={details ? () => {} : undefined} />
+      </div>,
+    );
+    const bar = el.querySelector<HTMLElement>('.rds-form-actions--bar')!;
+    expect(bar.getBoundingClientRect().width).toBe(width);
+    expect(visible(bar)).toEqual(helper);
+    expect(shown(bar).map((b) => b.textContent)).toEqual(actions);
+    expect(said(bar)).toEqual(status);
+    expect(bar.getBoundingClientRect().height).toBe(width === 1280 ? 68 : 64);
+    expect(bar.scrollWidth).toBeLessThanOrEqual(bar.clientWidth);
+  });
+
+  it('the create form foot (showHelper off, onDetails): 1280 no sentence, 390 the button with chevron; the status says a change once', async () => {
+    await page.viewport(1280, 800);
+    const onDetails = vi.fn();
+    const el = await render(<Bar showHelper={false} onDetails={onDetails} />);
+    const bar = el.querySelector<HTMLElement>('.rds-form-actions--bar')!;
+    const status = bar.querySelector<HTMLElement>('[role="status"]')!;
+    // Expanded: nothing on screen, the hidden copy holds the status.
+    const quiet = status.querySelector<HTMLElement>('.rds-form-actions__quiet')!;
+    expect(getComputedStyle(quiet).display).not.toBe('none');
+    expect(quiet.getBoundingClientRect().width).toBeLessThanOrEqual(1);
+    expect(status.querySelector('.rds-form-actions__helper > .rds-form-actions__text')).toBeNull();
+    expect(getComputedStyle(bar.querySelector('.rds-form-actions__details')!).display).toBe('none');
+    // Compact: the button, named by the helper and Ver o que falta, with the chevron; the copy steps aside.
+    await page.viewport(390, 800);
+    const button = bar.querySelector<HTMLButtonElement>('.rds-form-actions__details')!;
+    expect(getComputedStyle(button).display).toBe('flex');
+    expect(getComputedStyle(quiet).display).toBe('none');
+    expect(button.textContent).toBe(`${HELPER}, Ver o que falta`);
+    expect(button.querySelector('svg')).not.toBeNull();
+    expect(button.getBoundingClientRect().width).toBeGreaterThan(0);
+    button.click();
+    expect(onDetails).toHaveBeenCalledOnce();
+    // A new text reaches every rendering at once, inside the one status.
+    const next = await render(<Bar showHelper={false} onDetails={() => {}} helper={SHORT} />);
+    expect(said(next)).toEqual([SHORT]);
+    await page.viewport(1280, 800);
+    expect(said(next)).toEqual([SHORT]);
+    expect(next.querySelectorAll('[role="status"]')).toHaveLength(1);
+  });
+
+  it('showHelper={false} without details leaves the helper out, in inline and stacked too', async () => {
+    const el = await render(
+      <div>
+        <FormActions helper={HELPER} showHelper={false}>
+          <Button>Criar</Button>
+        </FormActions>
+        <FormActions layout="stacked" helper={HELPER} showHelper={false}>
+          <Button>Criar</Button>
+        </FormActions>
+        <FormActions layout="bar" helper={HELPER} showHelper={false}>
+          <Button>Criar</Button>
+        </FormActions>
+      </div>,
+    );
+    expect(el.querySelector('.rds-form-actions__helper')).toBeNull();
+    expect(el.textContent).not.toContain(HELPER);
   });
 
   it('detailsLabel renames the hidden part of the name; details only in bar', async () => {
