@@ -161,3 +161,29 @@
     border-top: var(--border-width) solid CanvasText;
   }
 }
+
+/*
+ * The on-screen keyboard (compact only, the class comes from useOnScreenKeyboard): the bar slides down out of the
+ * way while a field is being typed in, and comes back when the keyboard closes. visibility takes it out of the tab
+ * order and the accessibility tree meanwhile; it waits for the slide to end before hiding.
+ */
+@media (max-width: 1023px) {
+  .rds-savingbar--keyboard {
+    visibility: hidden;
+    transform: translateY(100%);
+  }
+}
+
+@media (max-width: 1023px) and (prefers-reduced-motion: no-preference) {
+  .rds-savingbar {
+    transition:
+      transform var(--motion-duration-base) var(--motion-easing-enter),
+      visibility 0s;
+  }
+
+  .rds-savingbar--keyboard {
+    transition:
+      transform var(--motion-duration-base) var(--motion-easing-exit),
+      visibility 0s var(--motion-duration-base);
+  }
+}

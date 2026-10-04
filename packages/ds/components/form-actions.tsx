@@ -1,5 +1,8 @@
+'use client';
+
 import { Children, type HTMLAttributes, type ReactNode } from 'react';
 import { ChevronUpIcon } from './internal/icons';
+import { useOnScreenKeyboard } from './internal/use-on-screen-keyboard';
 
 export type FormActionsLayout = 'inline' | 'stacked' | 'bar';
 
@@ -68,7 +71,9 @@ export interface FormActionsProps extends HTMLAttributes<HTMLDivElement> {
  *   first pending one.
  * - The scrolling container takes `scroll-padding-bottom` equal to the bar's height plus
  *   `env(safe-area-inset-bottom)`, so a focused field is never hidden behind it (WCAG 2.4.11).
- * - On the phone the bar leaves while the on-screen keyboard is open (it would cover the field being typed).
+ * - On the phone (below 1024) the bar, and stacked too, leaves while the on-screen keyboard is open (a field is
+ *   focused and the visible area shrinks): it would cover the field being typed in. It slides down (no motion with
+ *   prefers-reduced-motion) and comes back when the keyboard closes; it never takes the focus.
  * - Compact has no Cancelar: the way out is back or X in the topbar, with an AlertDialog "Sair sem criar?"
  *   ([Continuar editando] [Sair sem criar]) when something was typed. Cancelar can also go in the footer of
  *   the details Drawer.
@@ -87,6 +92,8 @@ export function FormActions({
 }: FormActionsProps) {
   const actions = Children.toArray(children);
   const bar = layout === 'bar';
+  // The foot of the screen (bar, stacked) steps aside for the on-screen keyboard; inline floats where the page puts it.
+  const keyboard = useOnScreenKeyboard(layout !== 'inline');
   const hasHelper = helper != null && helper !== false && helper !== '';
   const details = bar && hasHelper && onDetails !== undefined;
   // The static text: shown when showHelper (compact with details, CSS swaps it for the button).
@@ -94,7 +101,7 @@ export function FormActions({
   return (
     <div
       {...rest}
-      className={['rds-form-actions', `rds-form-actions--${layout}`, className].filter(Boolean).join(' ')}
+      className={['rds-form-actions', `rds-form-actions--${layout}`, keyboard && 'rds-form-actions--keyboard', className].filter(Boolean).join(' ')}
     >
       {(text || details) && (
         <p

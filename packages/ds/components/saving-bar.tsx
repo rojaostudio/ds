@@ -3,6 +3,7 @@
 import type { HTMLAttributes, ReactNode } from 'react';
 import { Button } from './button';
 import { AlertIcon, ChevronUpIcon } from './internal/icons';
+import { useOnScreenKeyboard } from './internal/use-on-screen-keyboard';
 
 export type SavingBarStatus = 'unsaved' | 'saving' | 'error';
 
@@ -53,7 +54,10 @@ export interface SavingBarProps extends HTMLAttributes<HTMLDivElement> {
  * with the bar's colours (savingbar/button/*). Below 1024 (compact, the phone) it is one row, 64 tall plus the
  * safe area: the message (or the details button) on the left and only Salvar on the right; Descartar is the app's
  * there, in the footer of the details Drawer or in the confirmation when leaving. While saving, the indicator is
- * Salvar in loading, alone (with the LoadingOverlay too). Styles: saving-bar.css.
+ * Salvar in loading, alone (with the LoadingOverlay too). On the phone it leaves while the on-screen keyboard is open (a
+ * field is focused and the visible area shrinks), so it does not cover the field being typed in: it slides down (no
+ * motion with prefers-reduced-motion) and comes back when the keyboard closes, never taking the focus. Styles:
+ * saving-bar.css.
  */
 export function SavingBar({
   status = 'unsaved',
@@ -73,6 +77,7 @@ export function SavingBar({
   className,
   ...rest
 }: SavingBarProps) {
+  const keyboard = useOnScreenKeyboard();
   const saving = status === 'saving';
   const error = status === 'error';
   const text = saving ? savingMessage : error ? errorMessage : message;
@@ -83,7 +88,7 @@ export function SavingBar({
       role="region"
       aria-label="Salvar alterações"
       {...rest}
-      className={['rds-savingbar', className].filter(Boolean).join(' ')}
+      className={['rds-savingbar', keyboard && 'rds-savingbar--keyboard', className].filter(Boolean).join(' ')}
     >
       {/* This row is what changes arrangement (expanded or compact), by the screen width as the Figma viewport mode. */}
       <div className="rds-savingbar__row">
