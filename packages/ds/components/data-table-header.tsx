@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, type ComponentPropsWithRef, type ReactElement, type ReactNode } from 'react';
-import { Badge } from './badge';
+import { useRef, useState, type ComponentPropsWithRef, type ReactElement, type ReactNode } from 'react';
 import { Button } from './button';
 import { Chip } from './chip';
 import { Drawer } from './drawer';
@@ -9,16 +8,17 @@ import { DropdownMenu, DropdownMenuRadioGroup, DropdownMenuRadioItem } from './d
 import { FilterChip, FilterChipGroup } from './filter-chip';
 import { IconButton } from './icon-button';
 import { Input } from './input';
-import { ChevronDownIcon, CloseIcon, SearchIcon, SlidersIcon } from './internal/icons';
+import { SearchIcon, SlidersIcon } from './internal/icons';
 import { Popover } from './popover';
-import { Separator } from './separator';
 import { Tooltip } from './tooltip';
 
 export type DataTableHeaderSearch = {
   value: string;
   onChange: (v: string) => void;
-  /** Also the field's accessible name. Default "Buscar…". */
+  /** What the field shows while empty, saying what is searched ("Buscar produtos…"). Default "Buscar…". */
   placeholder?: string;
+  /** The field's accessible name, apart from the placeholder ("Buscar produtos"). Default "Buscar". */
+  label?: string;
 };
 
 export type DataTableFilterOption = {
@@ -42,15 +42,24 @@ export type DataTableHeaderProps = {
   /**
    * Quick filters, always in view (Figma: `showQuickFilters` + the `quickFilters` slot): up to three, a
    * FilterChipGroup with its FilterChips; four or more, one Button with a menu (DropdownMenu), "Categoria: Todas".
+   * No quick filters: do not pass the slot (Figma: `showQuickFilters` false). Wrapped in a group "Filtros rápidos".
    */
   quickFilters?: ReactNode;
-  /** Clears the `filters` (the quick filters are cleared where they are, in view). */
+  /**
+   * Clears the `filters` (Figma: `clear`, "Limpar filtros" at the end of the active filters line, shown while a
+   * filter is on). The focus goes back to the search.
+   */
   onClear?: () => void;
   /**
-   * A view control after the filters and before the actions (Figma: `showView` + the `view` slot), such as a
-   * Checkbox "Agrupar por produto". In view in the compact arrangement too.
+   * A view control after the filters (Figma: `showView` + the `view` slot), such as a Checkbox "Agrupar por
+   * produto". In view in the compact arrangement too.
    */
   view?: ReactNode;
+  /**
+   * How many results (Figma: `showCount` + `count`), at the end of the tools: "128 resultados". A live region
+   * (aria-live polite), so the total is announced as the list is filtered.
+   */
+  count?: ReactNode;
   /**
    * The list's action (Figma: `showActions`, off by default, + the `actions` instance): an IconButton, neutral outline
    * md, with its Tooltip, such as a gear "Organizar categorias" or exporting. It sits outside the tools, always at the
@@ -68,11 +77,28 @@ function optionLabel(filter: DataTableFilterDef) {
   return filter.options.find((o) => o.value === filter.value)?.label ?? filter.label;
 }
 
-/** The trigger of one filter: an outline Button with the chosen option (filled while a value is chosen). */
+/** "Status: Abertos": the text of an active filter's Chip. */
+function chipLabel(filter: DataTableFilterDef) {
+  return `${filter.label}: ${optionLabel(filter)}`;
+}
+
+/**
+ * The trigger of one filter, expanded (Figma `.filter-trigger`, expanded): a Button with the sliders before its
+ * label, outline, filled while a value is chosen; then its name says the value too ("Status, Abertos").
+ */
 function FilterTrigger({ filter, ...rest }: { filter: DataTableFilterDef } & Omit<ComponentPropsWithRef<'button'>, 'children'>) {
+  const on = filter.value !== '';
   return (
-    <Button {...rest} tone="neutral" variant={filter.value !== '' ? 'fill' : 'outline'} icon={<ChevronDownIcon />}>
-      {optionLabel(filter)}
+    <Button
+      {...rest}
+      tone="neutral"
+      variant={on ? 'fill' : 'outline'}
+      icon={<SlidersIcon />}
+      iconPosition="start"
+      aria-label={on ? `${filter.label}, ${optionLabel(filter)}` : undefined}
+      data-filter-toggle=""
+    >
+      {filter.label}
     </Button>
   );
 }
@@ -93,7 +119,7 @@ export function FilterDropdown({ f, placement = 'bottom-start' }: { f: DataTable
 }
 
 /**
- * "Filtros" with how many are on, in the label ("Filtros · 3", as in the Figma: the Button has no Badge): an outline
+ * "Filtros" with how many are on, in the label ("Filtros · 3", as the Figma `.filter-trigger` expanded): an outline
  * Button with the sliders before the text (filled while any is on). Forwards its ref for the Popover.
  */
 function FiltersButton({ count, ...rest }: { count: number } & Omit<ComponentPropsWithRef<'button'>, 'children'>) {
@@ -112,17 +138,7 @@ function FiltersButton({ count, ...rest }: { count: number } & Omit<ComponentPro
 }
 
 /** The filters stacked: each one a labelled FilterChipGroup, one chip per option. */
-function FilterGroups({
-  filters,
-  onPick,
-  onClear,
-  showClear,
-}: {
-  filters: DataTableFilterDef[];
-  onPick: (f: DataTableFilterDef, value: string) => void;
-  onClear?: () => void;
-  showClear: boolean;
-}) {
+function FilterGroups({ filters, onPick }: { filters: DataTableFilterDef[]; onPick: (f: DataTableFilterDef, value: string) => void }) {
   return (
     <div className="rds-data-table-header__groups">
       {filters.map((f) => (
@@ -139,27 +155,12 @@ function FilterGroups({
           </FilterChipGroup>
         </div>
       ))}
-      {onClear && showClear && (
-        <Button tone="neutral" variant="ghost" onClick={onClear}>
-          Limpar filtros
-        </Button>
-      )}
     </div>
   );
 }
 
-/** The stacked filters in a Popover. Picking closes it. */
-function FiltersPopover({
-  filters,
-  onClear,
-  showClear,
-  trigger,
-}: {
-  filters: DataTableFilterDef[];
-  onClear?: () => void;
-  showClear: boolean;
-  trigger: ReactElement;
-}) {
+/** The stacked filters in a Popover. Picking closes it; Escape closes it and gives the focus back to the trigger. */
+function FiltersPopover({ filters, trigger }: { filters: DataTableFilterDef[]; trigger: ReactElement }) {
   const [open, setOpen] = useState(false);
   return (
     <Popover trigger={trigger} aria-label="Filtros" side="bottom" align="end" open={open} onOpenChange={setOpen}>
@@ -170,15 +171,6 @@ function FiltersPopover({
             f.onChange(v);
             setOpen(false);
           }}
-          onClear={
-            onClear
-              ? () => {
-                  onClear();
-                  setOpen(false);
-                }
-              : undefined
-          }
-          showClear={showClear}
         />
       </div>
     </Popover>
@@ -186,42 +178,35 @@ function FiltersPopover({
 }
 
 /**
- * The filter in the compact arrangement (Figma: `filter trigger`): an outline IconButton of 44 with the sliders, with
- * its Tooltip (the label). While a filter is on, a dot (one filter) or a neutral Badge with how many (several) sits on
- * its corner, aria-hidden: the state goes in the accessible name ("Categoria, Pago", "Filtros, 3 ativos"). Any other
- * prop and the ref go to the IconButton, so it can be the trigger of the Popover.
+ * The filter in the compact arrangement (Figma `.filter-trigger`, compact), with its Tooltip (the label): inactive,
+ * an outline IconButton of 44 with the sliders; active, a fill Button with the sliders before how many are on ("2"),
+ * no Badge over it. The name says the state ("Categoria, Pago", "Filtros, 2 ativos"). Any other prop and the ref go
+ * to the button, so it can be the trigger of the Popover.
  */
 function CompactFilterTrigger({
   label,
   state,
-  indicator,
+  active,
   ...rest
 }: {
   /** The filter's name, also the Tooltip ("Categoria", "Filtros"). */
   label: string;
   /** What is on, appended to the name; nothing when no filter is on. */
   state?: string;
-  /** `'dot'` (one filter on), a number (several filters, how many are on) or nothing. */
-  indicator?: 'dot' | number;
+  /** How many filters are on (0: inactive). */
+  active: number;
 } & Omit<ComponentPropsWithRef<'button'>, 'children'>) {
+  const name = state ? `${label}, ${state}` : label;
   return (
-    <span className="rds-data-table-header__trigger">
-      <Tooltip text={label}>
-        <IconButton
-          {...rest}
-          icon={<SlidersIcon />}
-          label={state ? `${label}, ${state}` : label}
-          variant="outline"
-          tone="neutral"
-          size="md"
-          data-filter-toggle=""
-        />
-      </Tooltip>
-      {indicator === 'dot' && <span className="rds-data-table-header__dot" aria-hidden="true" />}
-      {typeof indicator === 'number' && (
-        <Badge className="rds-data-table-header__count" tone="neutral" value={indicator} aria-hidden="true" />
+    <Tooltip text={label}>
+      {active > 0 ? (
+        <Button {...rest} tone="neutral" variant="fill" icon={<SlidersIcon />} iconPosition="start" aria-label={name} data-filter-toggle="">
+          {String(active)}
+        </Button>
+      ) : (
+        <IconButton {...rest} icon={<SlidersIcon />} label={name} variant="outline" tone="neutral" size="md" data-filter-toggle="" />
       )}
-    </span>
+    </Tooltip>
   );
 }
 
@@ -231,18 +216,30 @@ function activeState(count: number) {
   return count === 1 ? '1 ativo' : `${count} ativos`;
 }
 
-/** One filter in the compact arrangement: its IconButton opens a Drawer with the options (never a popover on a phone). */
+/** A Drawer opened by a button (not a Radix trigger): it says so (aria-haspopup, aria-expanded) and closing gives the focus back to it. */
+function useDrawer() {
+  const [open, setOpenState] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const setOpen = (next: boolean) => {
+    setOpenState(next);
+    if (!next) requestAnimationFrame(() => triggerRef.current?.focus());
+  };
+  const triggerProps = {
+    ref: triggerRef,
+    'aria-haspopup': 'dialog' as const,
+    'aria-expanded': open,
+    onClick: () => setOpen(true),
+  };
+  return { open, setOpen, triggerProps };
+}
+
+/** One filter in the compact arrangement: its trigger opens a Drawer with the options (never a popover on a phone). */
 function MobileSingleFilter({ f }: { f: DataTableFilterDef }) {
-  const [open, setOpen] = useState(false);
+  const { open, setOpen, triggerProps } = useDrawer();
   const on = f.value !== '';
   return (
     <>
-      <CompactFilterTrigger
-        label={f.label}
-        state={on ? optionLabel(f) : undefined}
-        indicator={on ? 'dot' : undefined}
-        onClick={() => setOpen(true)}
-      />
+      <CompactFilterTrigger {...triggerProps} label={f.label} state={on ? optionLabel(f) : undefined} active={on ? 1 : 0} />
       <Drawer open={open} onOpenChange={setOpen} title={f.label}>
         <FilterGroups
           filters={[f]}
@@ -250,27 +247,64 @@ function MobileSingleFilter({ f }: { f: DataTableFilterDef }) {
             f.onChange(v);
             setOpen(false);
           }}
-          showClear={false}
         />
       </Drawer>
     </>
   );
 }
 
+/** mobileCollapse: the filters and the actions in one Drawer, opened by the compact "Filtros". */
+function MobileCollapsedFilters({
+  filters,
+  actions,
+  activeCount,
+}: {
+  filters: DataTableFilterDef[];
+  actions?: ReactNode;
+  activeCount: number;
+}) {
+  const { open, setOpen, triggerProps } = useDrawer();
+  return (
+    <>
+      <CompactFilterTrigger {...triggerProps} label="Filtros" state={activeState(activeCount)} active={activeCount} />
+      <Drawer open={open} onOpenChange={setOpen} title="Filtros">
+        <div className="rds-data-table-header__groups">
+          <FilterGroups
+            filters={filters}
+            onPick={(f, v) => {
+              f.onChange(v);
+              setOpen(false);
+            }}
+          />
+          {actions && <div className="rds-data-table-header__drawer-actions">{actions}</div>}
+        </div>
+      </Drawer>
+    </>
+  );
+}
+
 /**
- * DataTableHeader — a composition of the Input (search), FilterChips, Buttons, the DropdownMenu, the Popover and
- * the Drawer: the bar above a table. A row that never wraps: the tools (the search, the quick filters, the filters,
- * the view control) wrap inside their own group; the action stays outside it, at the end of the first line, on the
- * right. The search is always on the left and takes the free width (at least 320); the filters are always on the
- * right; what does not fit wraps. Quick filters go in the `quickFilters` slot; one filter
- * is a dropdown, two or more collapse into "Filtros" (the active ones stay in view as removable Chips); the `view`
- * control comes after the filters, before the actions. "Filtros · N" counts the active `filters`, the ones that
- * button opens.
+ * DataTableHeader — a composition of the Input (search), FilterChips, Chips, Buttons, the DropdownMenu, the Popover
+ * and the Drawer: the bar above a table (Figma [RDS] DataTableHeader, no variants). Two lines, 8 apart:
+ *
+ * - `row`, which never wraps: the tools (the search, the quick filters, the filter trigger, the view control and the
+ *   count) wrap inside their own group, packed to the start; the action stays outside it, at the end of the first
+ *   line, on the right. The search is always first and takes the free width, at least `--data-table-header-search-min`
+ *   (320; 200 below 1024); what does not fit wraps.
+ * - `active`, only while a filter is on (one filter too): the active filters as removable Chips ("Status: Abertos"),
+ *   wrapping, and "Limpar filtros" (a ghost sm Button, `onClear`) at the end, which gives the focus back to the search.
+ *
+ * Quick filters go in the `quickFilters` slot; 0 quick filters = do not pass the slot. One filter is a Button with a
+ * menu; two or more collapse into "Filtros" (a Popover), the count in its label ("Filtros · 2"). No Separator between
+ * the groups (it is left orphaned at the start of a wrapped line) and no Badge over the trigger.
  *
  * Two arrangements, by the screen width, as the Figma viewport mode (layout/compact below lg 1024; the SavingBar's cut):
- * expanded from 1024, the Separator and the Buttons with their labels; compact below it, the search accepts 200 and
- * the filter is an outline IconButton (sliders, 44) with a dot (one filter on) or a counter (several), opening the
- * same Drawer or Popover. There is no screen prop.
+ * expanded from 1024, the trigger is a Button with its label; compact below it, an outline IconButton (sliders, 44)
+ * that, while a filter is on, becomes a fill Button with the number ("2"), named "Filtros, 2 ativos" or
+ * "Categoria, Pago"; one filter opens a Drawer (never a popover on a phone). There is no screen prop.
+ *
+ * Tab order is the visual order: search → quick filters → filter trigger → view → action → active Chips → Limpar
+ * filtros. Escape closes the menu, Popover or Drawer and gives the focus back to the trigger.
  * Styles: data-table-header.css.
  */
 export function DataTableHeader({
@@ -279,131 +313,123 @@ export function DataTableHeader({
   quickFilters,
   onClear,
   view,
+  count,
   actions,
   className,
   mobileCollapse = false,
 }: DataTableHeaderProps) {
-  const [sheetOpen, setSheetOpen] = useState(false);
+  const searchRef = useRef<HTMLInputElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
 
-  // The count says how many of the filters behind "Filtros" are on; the quick filters show their own state in view.
-  const activeFilterCount = filters.filter((f) => f.value !== '').length;
-  // Two or more filters collapse into "Filtros" when expanded; the active ones stay in view as Chips.
-  const collapseDesktop = filters.length >= 2;
   const activeFilters = filters.filter((f) => f.value !== '');
+  // How many of the filters behind the trigger are on; the quick filters show their own state in view.
+  const activeFilterCount = activeFilters.length;
+  // Two or more filters collapse into "Filtros" when expanded.
+  const collapseDesktop = filters.length >= 2;
   // One filter has its own trigger in the compact arrangement too (a Drawer with its options).
   const singleFilter = filters.length === 1 ? filters[0] : null;
-  const lead = Boolean(search || quickFilters);
+
+  const clear = () => {
+    onClear?.();
+    // The line of active filters goes away with the focused button: the focus goes back to the search (or the trigger).
+    requestAnimationFrame(() => {
+      if (searchRef.current) {
+        searchRef.current.focus();
+        return;
+      }
+      const toggles = rootRef.current?.querySelectorAll<HTMLElement>('[data-filter-toggle]') ?? [];
+      [...toggles].find((t) => t.offsetParent !== null)?.focus();
+    });
+  };
 
   return (
-    <div className={['rds-data-table-header', className].filter(Boolean).join(' ')}>
-      <div className="rds-data-table-header__tools">
-        {search && (
-          <Input
-            className="rds-data-table-header__search"
-            type="search"
-            aria-label={search.placeholder ?? 'Buscar…'}
-            placeholder={search.placeholder ?? 'Buscar…'}
-            leadingIcon={<SearchIcon />}
-            clearable
-            clearLabel="Limpar busca"
-            value={search.value}
-            onChange={(e) => search.onChange(e.target.value)}
-          />
-        )}
+    <div ref={rootRef} className={['rds-data-table-header', className].filter(Boolean).join(' ')}>
+      <div className="rds-data-table-header__row">
+        <div className="rds-data-table-header__tools">
+          {search && (
+            <div className="rds-data-table-header__search" role="search" aria-label={search.label ?? 'Buscar'}>
+              <Input
+                ref={searchRef}
+                type="search"
+                aria-label={search.label ?? 'Buscar'}
+                placeholder={search.placeholder ?? 'Buscar…'}
+                leadingIcon={<SearchIcon />}
+                clearable
+                clearLabel="Limpar busca"
+                value={search.value}
+                onChange={(e) => search.onChange(e.target.value)}
+              />
+            </div>
+          )}
 
-        {quickFilters && <div className="rds-data-table-header__quick">{quickFilters}</div>}
+          {quickFilters && (
+            <div className="rds-data-table-header__quick" role="group" aria-label="Filtros rápidos">
+              {quickFilters}
+            </div>
+          )}
 
-        {filters.length > 0 && (
-          <div className="rds-data-table-header__wide">
-            {lead && <Separator orientation="vertical" />}
-            {collapseDesktop ? (
-              <>
-                {activeFilters.map((f) => (
-                  <Chip key={f.key} onRemove={() => f.onChange('')} removeLabel={`Remover filtro ${f.label}`}>
-                    {optionLabel(f)}
-                  </Chip>
-                ))}
-                <FiltersPopover
-                  filters={filters}
-                  onClear={onClear}
-                  showClear={activeFilterCount > 0}
-                  trigger={<FiltersButton count={activeFilterCount} />}
-                />
-              </>
-            ) : (
-              filters.map((f) => <FilterDropdown key={f.key} f={f} />)
-            )}
-            {/* Collapsed, clearing lives in the popover. */}
-            {onClear && activeFilterCount > 0 && !collapseDesktop && (
-              <Tooltip text="Limpar filtros">
-                <IconButton icon={<CloseIcon />} label="Limpar filtros" variant="ghost" tone="neutral" onClick={onClear} />
-              </Tooltip>
-            )}
+          {filters.length > 0 && (
+            <div className="rds-data-table-header__wide">
+              {collapseDesktop ? (
+                <FiltersPopover filters={filters} trigger={<FiltersButton count={activeFilterCount} />} />
+              ) : (
+                filters.map((f) => <FilterDropdown key={f.key} f={f} />)
+              )}
+            </div>
+          )}
+
+          {singleFilter && !(mobileCollapse && actions) && (
+            <div className="rds-data-table-header__narrow">
+              <MobileSingleFilter f={singleFilter} />
+            </div>
+          )}
+
+          {!mobileCollapse && filters.length >= 2 && (
+            <div className="rds-data-table-header__narrow">
+              <FiltersPopover
+                filters={filters}
+                trigger={<CompactFilterTrigger label="Filtros" state={activeState(activeFilterCount)} active={activeFilterCount} />}
+              />
+            </div>
+          )}
+
+          {mobileCollapse && (filters.length >= 2 || actions) && (
+            <div className="rds-data-table-header__narrow">
+              <MobileCollapsedFilters filters={filters} actions={actions} activeCount={activeFilterCount} />
+            </div>
+          )}
+
+          {view && <div className="rds-data-table-header__view">{view}</div>}
+
+          {count != null && count !== false && (
+            <span className="rds-data-table-header__count" aria-live="polite">
+              {count}
+            </span>
+          )}
+        </div>
+
+        {/* The action, outside the tools: always when expanded; compact only without mobileCollapse (else in the Drawer). */}
+        {actions && (
+          <div className={['rds-data-table-header__actions', mobileCollapse && 'rds-data-table-header__wide'].filter(Boolean).join(' ')}>
+            {actions}
           </div>
         )}
-
-        {singleFilter && !(mobileCollapse && actions) && (
-          <div className="rds-data-table-header__narrow">
-            <MobileSingleFilter f={singleFilter} />
-          </div>
-        )}
-
-        {!mobileCollapse && filters.length >= 2 && (
-          <div className="rds-data-table-header__narrow">
-            <FiltersPopover
-              filters={filters}
-              onClear={onClear}
-              showClear={activeFilterCount > 0}
-              trigger={
-                <CompactFilterTrigger
-                  label="Filtros"
-                  state={activeState(activeFilterCount)}
-                  indicator={activeFilterCount > 0 ? activeFilterCount : undefined}
-                />
-              }
-            />
-          </div>
-        )}
-
-        {mobileCollapse && (filters.length >= 2 || actions) && (
-          <div className="rds-data-table-header__narrow">
-            <CompactFilterTrigger
-              label="Filtros"
-              state={activeState(activeFilterCount)}
-              indicator={activeFilterCount === 0 ? undefined : filters.length === 1 ? 'dot' : activeFilterCount}
-              onClick={() => setSheetOpen(true)}
-            />
-            <Drawer open={sheetOpen} onOpenChange={setSheetOpen} title="Filtros">
-              <div className="rds-data-table-header__groups">
-                <FilterGroups
-                  filters={filters}
-                  onPick={(f, v) => {
-                    f.onChange(v);
-                    setSheetOpen(false);
-                  }}
-                  onClear={
-                    onClear
-                      ? () => {
-                          onClear();
-                          setSheetOpen(false);
-                        }
-                      : undefined
-                  }
-                  showClear={activeFilterCount > 0}
-                />
-                {actions && <div className="rds-data-table-header__drawer-actions">{actions}</div>}
-              </div>
-            </Drawer>
-          </div>
-        )}
-
-        {view && <div className="rds-data-table-header__view">{view}</div>}
       </div>
 
-      {/* The action, outside the tools: always when expanded; compact only without mobileCollapse (else in the Drawer). */}
-      {actions && (
-        <div className={['rds-data-table-header__actions', mobileCollapse && 'rds-data-table-header__wide'].filter(Boolean).join(' ')}>
-          {actions}
+      {activeFilters.length > 0 && (
+        <div className="rds-data-table-header__active">
+          <div className="rds-data-table-header__chips">
+            {activeFilters.map((f) => (
+              <Chip key={f.key} onRemove={() => f.onChange('')} removeLabel={`Remover filtro ${chipLabel(f)}`}>
+                {chipLabel(f)}
+              </Chip>
+            ))}
+          </div>
+          {onClear && (
+            <Button tone="neutral" variant="ghost" size="sm" onClick={clear}>
+              Limpar filtros
+            </Button>
+          )}
         </div>
       )}
     </div>

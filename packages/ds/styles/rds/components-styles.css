@@ -3582,35 +3582,57 @@ input:focus-visible + .rds-checkbox__box {
 /* components/data-table-header.css */
 /* @tokens data-table-header */
 /*
- * DataTableHeader: no tokens of its own; the Input, FilterChip, Chip, Button, Separator, Checkbox, DropdownMenu,
- * Popover and Drawer bring theirs. The bar is one row that never wraps, aligned to the top, 8 apart, 12 above the
- * table: the `tools` group (the search, the quick filters, the filters, the view control) takes the free width and
- * is what wraps, packed to the right, the search on the left taking the free width, at least 320 (never wider than
- * the group); the action sits outside it, fixed at the end of the FIRST line, on the right, and never goes down.
- * Two arrangements, by the screen width, as the Figma viewport mode (layout/compact below lg 1024; the SavingBar's cut):
- * expanded from 1024 (the __wide parts: Separator, Buttons with labels); compact below it (the __narrow parts: the
- * filter as an IconButton of 44), where the search accepts 200. On the IconButton, while a filter is on, a dot of 8
- * (badge neutral fill, 6 in from the top right corner) or a neutral number Badge over the corner (-6 top, -12 right).
+ * DataTableHeader (Figma [RDS] DataTableHeader, no variants). One component token, local to this stylesheet:
+ * --data-table-header-search-min, the search's minimum width (Figma `data-table-header/search-min`, viewport
+ * collection of the Base Tokens, not published yet): 320 from lg 1024, 200 below it. Everything else comes from the
+ * Input, FilterChip, Chip, Button, IconButton, Checkbox, DropdownMenu, Popover and Drawer; the count borrows the
+ * table's muted label (--table-header-label, text/muted), the bar being the table's.
+ *
+ * The bar is a column, 8 apart, 12 above the table:
+ * - `row`, which never wraps, aligned to the top: the `tools` group (the search, the quick filters, the filter
+ *   trigger, the view control, the count) takes the free width and is what wraps, packed to the start, the search
+ *   first taking the free width, at least search-min (never wider than the group); the action sits outside it,
+ *   fixed at the end of the FIRST line, on the right, and never goes down.
+ * - `active`, only while a filter is on: the `chips` (wrapping, at least 280 before "Limpar filtros" goes down)
+ *   and "Limpar filtros" at the end.
+ * Two arrangements, by the screen width, as the Figma viewport mode (layout/compact below lg 1024; the SavingBar's
+ * cut): expanded from 1024 (the __wide parts: the trigger as a Button with its label); compact below it (the __narrow
+ * parts: the trigger as an IconButton of 44, or a fill Button with the number while a filter is on).
  * In the Popover and the Drawer the filters stack 16 apart, each one a caption-sized label over its chips.
  */
 .rds-data-table-header {
+  --data-table-header-search-min: 320px;
+
   box-sizing: border-box;
   width: 100%;
   display: flex;
-  flex-wrap: nowrap;
-  align-items: flex-start;
+  flex-direction: column;
   gap: var(--space-8);
   margin-bottom: var(--space-12);
 }
 
-/* Figma `tools`: horizontal, wrap, fill. */
+@media (max-width: 1023px) {
+  .rds-data-table-header {
+    --data-table-header-search-min: 200px;
+  }
+}
+
+/* Figma `row`: tools + actions, never wraps. */
+.rds-data-table-header__row {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  gap: var(--space-8);
+}
+
+/* Figma `tools`: horizontal, wrap, fill, packed to the start. */
 .rds-data-table-header__tools {
   flex: 1 1 0;
   min-width: 0;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: flex-start;
   gap: var(--space-8);
 }
 
@@ -3620,10 +3642,15 @@ input:focus-visible + .rds-checkbox__box {
   align-self: flex-start;
 }
 
-/* Scoped to the bar: the field's own `min-width: 0` (internal/field.css) comes later in the bundle. */
-.rds-data-table-header .rds-data-table-header__search {
-  flex: 1 1 calc(var(--space-64) * 5);
-  min-width: min(calc(var(--space-64) * 5), 100%);
+/* The search takes the free width, at least search-min, never wider than the group: it wraps before it squeezes. */
+.rds-data-table-header__search {
+  flex: 1 1 var(--data-table-header-search-min);
+  min-width: min(var(--data-table-header-search-min), 100%);
+  display: flex;
+}
+
+.rds-data-table-header__search > * {
+  flex: 1 1 auto;
 }
 
 .rds-data-table-header__quick,
@@ -3649,44 +3676,33 @@ input:focus-visible + .rds-checkbox__box {
   .rds-data-table-header__narrow {
     display: flex;
   }
-
-  /* Compact: the search accepts 200 (40 × 5), so it sits on one line with the filter and an IconButton at 390. */
-  .rds-data-table-header .rds-data-table-header__search {
-    flex-basis: calc(var(--space-40) * 5);
-    min-width: min(calc(var(--space-40) * 5), 100%);
-  }
 }
 
-/* The compact filter: the IconButton with its indicator on the corner. */
-.rds-data-table-header__trigger {
-  position: relative;
-  display: inline-flex;
-}
-
-.rds-data-table-header__dot,
+/* Figma `count`: "128 resultados", a live region at the end of the tools. */
 .rds-data-table-header__count {
-  position: absolute;
-  pointer-events: none;
+  font-family: var(--type-font-stack);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  color: var(--table-header-label);
+  white-space: nowrap;
 }
 
-.rds-data-table-header__dot {
-  top: calc(var(--space-4) * 1.5);
-  right: calc(var(--space-4) * 1.5);
-  width: var(--space-8);
-  height: var(--space-8);
-  border-radius: var(--radius-full);
-  background: var(--badge-neutral-fill-background);
+/* Figma `activeFilters`: its own line, wrap, 8 apart. */
+.rds-data-table-header__active {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-8);
 }
 
-.rds-data-table-header__count {
-  top: calc(var(--space-4) * -1.5);
-  right: calc(var(--space-12) * -1);
-}
-
-@media (forced-colors: active) {
-  .rds-data-table-header__dot {
-    background: CanvasText;
-  }
+/* Figma `chips`: fill, wrap, at least 280 before "Limpar filtros" goes down. */
+.rds-data-table-header__chips {
+  flex: 1 1 280px;
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-8);
 }
 
 .rds-data-table-header__scroll {
