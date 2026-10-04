@@ -1,4 +1,4 @@
-# [RDS] Base Tokens · collection theme · file 1Xn5IkLiq5Yhas680rJQf6 · extracted 2026-10-03
+# [RDS] Base Tokens · collection theme · file 1Xn5IkLiq5Yhas680rJQf6 · extracted 2026-10-04
 # DO NOT EDIT. Figma is the source: publish in Figma, run the extraction, save the output here.
 # Modes: light|dark|brand. Each role points to a token of the base collection (drawn per brand).
 # Format: name|type (C colour, F number, S string, B boolean)|WEB codeSyntax|light|dark|brand
@@ -26,7 +26,7 @@ text/on/secondary|C|--text-on-secondary|@base:text/on/secondary|@base:dark/text/
 text/on/accent|C|--text-on-accent|@base:text/on/accent|@base:dark/text/on/accent|@base:dark/text/on/accent
 text/on/tint|C|--text-on-tint|@base:text/on/tint|@base:dark/text/on/tint|@base:brand/text/on/tint
 colors/state/error|C|--colors-state-error|@base:colors/state/error|@base:colors/state/error|@base:colors/state/error
-colors/state/error-strong|C|--colors-state-error-strong|@base:colors/state/error-strong|@base:dark/colors/state/error-strong|@base:dark/colors/state/error-strong
+colors/state/error-strong|C|--colors-state-error-strong|@base:colors/state/error-strong|@color:red/700|@color:red/700
 surface/tint/strong|C|--surface-tint-strong|@base:surface/tint/strong|@base:dark/surface/tint/strong|@base:brand/surface/tint/strong
 text/on/error|C|--text-on-error|@base:text/on/error|@base:text/on/error|@base:text/on/error
 surface/action/default|C|--surface-action-default|@base:surface/action/default|@base:dark/surface/action/default|@base:brand/surface/action/default

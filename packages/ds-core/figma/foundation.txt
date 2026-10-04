@@ -1,4 +1,4 @@
-# [RDS] Base Tokens · non-colour tokens (base, scale, breakpoint, motion, layer, effect styles) · file 1Xn5IkLiq5Yhas680rJQf6 · extracted 2026-10-03
+# [RDS] Base Tokens · non-colour tokens (base, scale, breakpoint, motion, layer, effect styles) · file 1Xn5IkLiq5Yhas680rJQf6 · extracted 2026-10-04
 # DO NOT EDIT. Figma is the source: publish in Figma, run the extraction, save the output here.
 # base tokens are resolved in the rojao mode; they do not vary with the brand colour.
 # Format: name|type (F number in px or ms, S string, E effect)|value|WEB codeSyntax

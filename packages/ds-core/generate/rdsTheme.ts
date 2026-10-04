@@ -236,9 +236,10 @@ const defaultWarn = (m: string) => (globalThis as { console?: { warn(m: string):
 /**
  * Roles of the [RDS] theme collection, in Figma order: [name, dark source, brand source].
  * The light mode always reads the plain base token. In dark and brand, Figma points either to the
- * mode's own variant (`d` = base dark/…, `b` = base brand/…) or back to another one (`l` = plain).
+ * mode's own variant (`d` = base dark/…, `b` = base brand/…) or back to another one (`l` = plain), or straight
+ * to a primitive of the [RDS] Primitives library (`p`: the same colour for every brand, see FIXED in the generator).
  */
-export const ROLES: ReadonlyArray<readonly [string, "l" | "d", "l" | "d" | "b"]> = [
+export const ROLES: ReadonlyArray<readonly [string, "l" | "d" | "p", "l" | "d" | "b" | "p"]> = [
   ["colors/primary/light", "d", "b"], ["colors/primary/default", "d", "b"], ["colors/primary/dark", "d", "b"],
   ["colors/secondary/light", "d", "b"], ["colors/secondary/default", "d", "b"], ["colors/secondary/active", "d", "b"],
   ["colors/accent/highlight", "d", "d"], ["colors/accent/default", "d", "d"], ["colors/accent/hover", "d", "d"],
@@ -247,7 +248,7 @@ export const ROLES: ReadonlyArray<readonly [string, "l" | "d", "l" | "d" | "b"]>
   ["surface/page", "d", "b"], ["surface/card", "d", "b"], ["surface/panel", "d", "b"],
   ["border/default", "d", "b"], ["surface/tint/default", "d", "b"], ["text/on/action-tonal", "d", "b"],
   ["text/on/primary", "d", "b"], ["text/on/secondary", "d", "b"], ["text/on/accent", "d", "d"],
-  ["text/on/tint", "d", "b"], ["colors/state/error", "l", "l"], ["colors/state/error-strong", "d", "d"],
+  ["text/on/tint", "d", "b"], ["colors/state/error", "l", "l"], ["colors/state/error-strong", "p", "p"],
   ["surface/tint/strong", "d", "b"], ["text/on/error", "l", "l"],
   ["surface/action/default", "d", "b"], ["surface/action/strong", "d", "b"],
   ["focus/ring", "d", "b"], ["focus/ring-inset", "d", "b"], ["surface/disabled", "d", "b"],
@@ -425,7 +426,7 @@ export function generateRdsTheme(def: BrandDef, opts: RdsThemeOptions = {}): Rds
     "surface/action/default": L[900], "surface/action/strong": L[800],
     "text/on/action-tonal": readableFrom(P.scale[200], P.scale, [L[900]], "lighter", WHITE),
     "surface/lift/action": P.scale[800], "surface/lift/action-strong": P.scale[700],
-    "colors/state/error-strong": red[400], "colors/state/success-strong": green[300],
+    "colors/state/success-strong": green[300],
     "colors/state/warning-strong": orange[400],
     "surface/error": red[900], "surface/error-strong": red[900], "text/error": red[300],
     "surface/success": green[900], "text/success": green[300], "surface/info": L[900], "text/info": L[300],
@@ -468,9 +469,6 @@ export function generateRdsTheme(def: BrandDef, opts: RdsThemeOptions = {}): Rds
   // In dark, border/error starts from error-strong (red/400) and series 1 from the primary's 400.
   d["border/error"] = readableFrom(red[400], red, [d["surface/card"]], awayFrom(d["surface/card"]), WHITE, NON_TEXT);
   d["chart/series/1"] = readableFrom(P.scale[400], P.scale, [d["surface/card"]], awayFrom(d["surface/card"]), WHITE, NON_TEXT);
-  // error-strong is the hover of the danger Button, under text/on/error (the light one, white on red/600 for every
-  // mode): red/400 would drop that label to 2.8:1. It moves along the red ramp until it carries it.
-  d["colors/state/error-strong"] = carry(red, l["colors/state/error"], l["text/on/error"], d["colors/state/error-strong"]);
 
   // base — brand/… tokens: the "plate" of the brand, a section painted with the brand colour itself (the primary as
   // given, not the neutral ink). Figma draws it for dark brands (white ink over the plate). The ink is picked by
@@ -569,9 +567,12 @@ export function generateRdsTheme(def: BrandDef, opts: RdsThemeOptions = {}): Rds
   plateOwn["chart/series/1"] = readableFrom(d["chart/series/1"], P.scale, plateBgs, awayFrom(plate), ink, NON_TEXT);
   for (const logo of ["logo/primary", "logo/signature", "logo/accent", "logo/mono", "social/ink"]) plateOwn[logo] = ink;
 
+  // Roles that point straight at a primitive in dark and on the plate (`p` in ROLES), the same for every brand.
+  // error-strong is the hover of the danger Button under text/on/error (white on red/600): red/700 carries it at AA.
+  const fixed: Record<string, string> = { "colors/state/error-strong": red[700] };
   const out: RdsTheme = { light: {}, dark: {}, brand: {} };
-  const pick = (src: "l" | "d" | "b", role: string) => {
-    const table = src === "l" ? l : src === "d" ? d : br;
+  const pick = (src: "l" | "d" | "b" | "p", role: string) => {
+    const table = src === "l" ? l : src === "d" ? d : src === "p" ? fixed : br;
     const v = table[role] ?? l[role];
     if (v === undefined) throw new Error(`rdsTheme: no value for "${role}"`);
     return v;

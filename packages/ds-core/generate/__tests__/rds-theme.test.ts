@@ -56,7 +56,8 @@ describe("[RDS] theme from a recipe with its own palettes", () => {
 describe("[RDS] theme roles", () => {
   it("ROLES matches figma/theme.txt (names, order and mode sources)", () => {
     const src = (cell: string, mode: "dark" | "brand") =>
-      cell.startsWith(`@base:${mode}/`) ? (mode === "dark" ? "d" : "b") : cell.startsWith("@base:dark/") ? "d" : "l";
+      !cell.startsWith("@base:") ? "p"
+        : cell.startsWith(`@base:${mode}/`) ? (mode === "dark" ? "d" : "b") : cell.startsWith("@base:dark/") ? "d" : "l";
     const fromFigma = themeTxt.map(([name, , , , dark, brand]) => [name, src(dark, "dark"), src(brand, "brand")]);
     expect(ROLES.map((r) => [...r])).toEqual(fromFigma);
   });
