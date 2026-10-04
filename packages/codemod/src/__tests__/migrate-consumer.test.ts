@@ -5,8 +5,9 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
-// The CLI end to end, on a throwaway consumer: dry run writes nothing, --apply writes the code, the version and
-// the TODOs, and the missing 2.0 stylesheet is only reported.
+// The CLI end to end (the bin through tsx), on a throwaway consumer in git: dry run writes nothing, --apply writes the
+// code, the version and the TODOs, and the missing 2.0 stylesheet is only reported. Each --apply runs on a committed
+// tree, as the codemod asks.
 const require = createRequire(import.meta.url);
 const TSX = require.resolve('tsx/cli');
 const CLI = join(__dirname, '..', 'cli.ts');
@@ -24,27 +25,40 @@ export function Page({ open, close }: { open: boolean; close: () => void }) {
 `;
 
 let root: string;
+let outside: string;
 const run = (...args: string[]) => execFileSync(process.execPath, [TSX, CLI, root, ...args], { encoding: 'utf8' });
+const git = (...args: string[]) =>
+  execFileSync('git', ['-c', 'user.name=t', '-c', 'user.email=t@t', '-c', 'commit.gpgsign=false', '-C', root, ...args], { stdio: 'pipe' });
+const commit = () => {
+  git('add', '-A');
+  git('commit', '-q', '-m', 'x', '--allow-empty');
+};
 
 beforeAll(() => {
   root = mkdtempSync(join(tmpdir(), 'ds-migrate-'));
+  outside = mkdtempSync(join(tmpdir(), 'ds-migrate-report-'));
   mkdirSync(join(root, 'app'));
   writeFileSync(join(root, 'package.json'), JSON.stringify({ name: 'consumer', dependencies: { '@rojaostudio/ds': '^1.0.2' } }, null, 2));
   writeFileSync(join(root, 'app', 'globals.css'), '@import "tailwindcss";\n@import "@rojaostudio/ds/styles/base.css";\n');
   writeFileSync(join(root, 'app', 'page.tsx'), PAGE);
+  git('init', '-q');
+  commit();
 });
 
-afterAll(() => rmSync(root, { recursive: true, force: true }));
+afterAll(() => {
+  rmSync(root, { recursive: true, force: true });
+  rmSync(outside, { recursive: true, force: true });
+});
 
 describe('migrate-consumer', () => {
   it('dry run: reports and writes nothing', () => {
-    const out = run('--report', join(root, 'report.json'));
-    expect(out).toContain('dry-run — nada foi escrito');
+    const out = run('--report', join(outside, 'report.json'));
+    expect(out).toContain('dry-run — nada foi escrito no projeto; relatório em');
     expect(out).toContain('@import "@rojaostudio/ds/styles/rds.css";');
     expect(out).toContain('app/page.tsx:6');
     expect(readFileSync(join(root, 'app', 'page.tsx'), 'utf8')).toBe(PAGE);
 
-    const report = JSON.parse(readFileSync(join(root, 'report.json'), 'utf8'));
+    const report = JSON.parse(readFileSync(join(outside, 'report.json'), 'utf8'));
     expect(report.summary).toMatchObject({ filesWithDs: 1, filesChanged: 1, manual: 1 });
     expect(report.summary.auto).toBeGreaterThan(0);
     expect(report.topManual[0].rule).toBe('Select');
@@ -67,6 +81,7 @@ describe('migrate-consumer', () => {
   }, 60_000);
 
   it('a project already on 2.0 only gets the vocabulary step (nothing left to change here)', () => {
+    commit();
     const out = run();
     expect(out).toContain('vocabulário único de props');
     expect(out).toContain('0 transformação(ões) automática(s)');
@@ -92,6 +107,7 @@ describe('migrate-consumer', () => {
         '',
       ].join('\n'),
     );
+    commit();
     run('--apply');
     const next = readFileSync(join(root, 'app', 'next.tsx'), 'utf8');
     expect(next).toContain('<Card variant="soft">');

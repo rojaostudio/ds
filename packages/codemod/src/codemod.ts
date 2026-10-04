@@ -38,6 +38,7 @@ import {
   BUTTON_TONES,
   BUTTON_VARIANTS,
   COMPONENTS,
+  ONLY_IN_2_0,
   DEPRECATED,
   DS_PACKAGE,
   EMPTY_STATE_ICONS,
@@ -74,6 +75,11 @@ export interface TransformResult {
   manual: Finding[];
   /** Left as they are on purpose: deprecated wrappers still in the package, IconButton without a Tooltip. */
   notices: Finding[];
+  /**
+   * The 1.x mode left the whole file alone because it already imports names that only exist in 2.0 (map.ts
+   * ONLY_IN_2_0): the names found. Running the 1.x rules over 2.0 code is not idempotent.
+   */
+  skipped?: string[];
 }
 
 export interface TransformOptions {
@@ -102,7 +108,7 @@ export function transformSource(source: string, fileName: string, options: Trans
   // The parser drops a byte-order mark from its positions: edit without it and put it back.
   const bom = source.charCodeAt(0) === 0xfeff ? source[0] : '';
   const code = bom ? source.slice(1) : source;
-  const ext = fileName.endsWith('.ts') && !fileName.endsWith('.d.ts') ? '.ts' : '.tsx';
+  const ext = virtualExtension(fileName);
   const sf = project.createSourceFile(`/virtual/source${ext}`, code, { overwrite: true });
   try {
     const result = new Migrator(sf, code, options).run();
@@ -110,6 +116,23 @@ export function transformSource(source: string, fileName: string, options: Trans
   } finally {
     project.removeSourceFile(sf);
   }
+}
+
+/**
+ * The extension the parser sees. `.mts`/`.cts` are TypeScript without JSX; `.js`/`.mjs`/`.cjs` are JavaScript, which
+ * the parser reads with JSX allowed (a `.jsx` is the same). Anything else is parsed as `.tsx`, the old default.
+ */
+function virtualExtension(fileName: string): '.ts' | '.tsx' | '.js' | '.jsx' {
+  if (/\.[mc]?ts$/.test(fileName)) return '.ts';
+  if (/\.[mc]?js$/.test(fileName)) return '.js';
+  if (fileName.endsWith('.jsx')) return '.jsx';
+  return '.tsx';
+}
+
+/** The file's line ending: CRLF when its first line break is one, LF otherwise. */
+function lineEnding(code: string): '\r\n' | '\n' {
+  const i = code.indexOf('\n');
+  return i > 0 && code[i - 1] === '\r' ? '\r\n' : '\n';
 }
 
 // ── text edits ─────────────────────────────────────────────────────────────────────────────────────
@@ -123,11 +146,14 @@ interface Edit {
 function applyEdits(code: string, edits: Edit[]): string {
   // Replacements before inserts at the same position, so an insert lands in front of what replaced the range.
   const sorted = [...edits].sort((a, b) => b.start - a.start || b.end - a.end);
+  // Every line break the codemod writes (a TODO, an added import) follows the file's own: a CRLF file stays CRLF.
+  const eol = lineEnding(code);
   let out = code;
   let floor = Infinity;
   for (const e of sorted) {
     if (e.end > floor) throw new Error(`overlapping edits at ${e.start}-${e.end}`);
-    out = out.slice(0, e.start) + e.text + out.slice(e.end);
+    const text = eol === '\n' ? e.text : e.text.replace(/\r?\n/g, eol);
+    out = out.slice(0, e.start) + text + out.slice(e.end);
     floor = e.start;
   }
   return out;
@@ -423,6 +449,13 @@ class Migrator {
   run(): TransformResult {
     this.collectImports();
     if (!this.imports.length) return { output: this.code, changed: false, auto: [], manual: [], notices: [] };
+    if (this.options.from !== 'next') {
+      // A file that imports a name only 2.0 has is already on 2.0: the 1.x rules would run a second time over it.
+      const only2 = [
+        ...new Set(this.imports.flatMap((imp) => imp.decl.getNamedImports().map((s) => s.getName())).filter((n) => ONLY_IN_2_0.has(n))),
+      ];
+      if (only2.length) return { output: this.code, changed: false, auto: [], manual: [], notices: [], skipped: only2 };
+    }
     this.collectNames();
 
     this.collectNotices();
@@ -1180,15 +1213,28 @@ class Migrator {
       const key = `${lineStart}:${message}`;
       if (done.has(key)) continue;
       done.add(key);
-      // Idempotent: a second --apply does not stack the same comment.
-      const prevEnd = lineStart - 1;
-      const prevStart = this.code.lastIndexOf('\n', prevEnd - 1) + 1;
-      if (prevEnd > 0 && this.code.slice(prevStart, prevEnd).includes(`TODO(ds-2.0): ${message}`)) continue;
+      // Idempotent: a second --apply does not stack the same comment. Several manual cases on one line write a
+      // block of TODOs above it, so the whole block is read, not only the line right above.
       const body = `TODO(ds-2.0): ${message}`;
+      if (this.todosAbove(lineStart).some((l) => l.includes(body))) continue;
       const ctx = this.commentContext(lineStart + indent.length);
       const text = ctx === 'jsx-child' ? `{/* ${body} */}` : ctx === 'jsx-attr' ? `/* ${body} */` : `// ${body}`;
       this.edits.push({ start: lineStart, end: lineStart, text: `${indent}${text}\n` });
     }
+  }
+
+  /** The consecutive `TODO(ds-2.0)` lines right above the line that starts at `lineStart`. */
+  private todosAbove(lineStart: number): string[] {
+    const lines: string[] = [];
+    let end = lineStart - 1;
+    while (end > 0) {
+      const start = this.code.lastIndexOf('\n', end - 1) + 1;
+      const line = this.code.slice(start, end);
+      if (!line.includes('TODO(ds-2.0):')) break;
+      lines.push(line);
+      end = start - 1;
+    }
+    return lines;
   }
 
   /** What kind of place a line starts in, to pick a comment that is valid there. */
