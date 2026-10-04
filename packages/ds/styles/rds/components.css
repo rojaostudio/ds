@@ -940,7 +940,7 @@
   --pagination-item-label-current: var(--colors-primary-default);
   --pagination-item-label-disabled: var(--text-disabled);
   --pagination-summary: var(--text-muted);
-  --sidebar-item-count: var(--text-muted);
+  --sidebar-count-neutral: var(--text-muted);
   --pageheader-description: var(--text-muted);
   --pageheader-title: var(--text-heading);
   --navmenu-focus-ring: var(--focus-ring);
@@ -956,8 +956,10 @@
   --tabs-soon-text: var(--text-subtle);
   --tabs-dot-background: var(--colors-state-success);
   --tabs-dot-indicator: var(--colors-state-success);
-  --sidebar-section-label: var(--text-subtle);
-  --sidebar-item-indicator: var(--colors-primary-default);
+  --sidebar-count-danger: var(--text-error);
+  --sidebar-dot-neutral: var(--colors-state-neutral-strong);
+  --sidebar-dot-danger: var(--border-error);
+  --sidebar-item-label-strong: var(--text-heading);
 
   /* overlays */
   --menu-background: var(--surface-card);

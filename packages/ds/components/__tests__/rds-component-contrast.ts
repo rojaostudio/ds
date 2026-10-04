@@ -108,9 +108,13 @@ export const PAIRS: Pair[] = [
   ['--table-header-label', '--table-header-background', 't'], ['--table-cell-label', '--table-background', 't'],
   ['--sidebar-item-label-default', '--sidebar-background', 't'], ['--sidebar-item-label-hover', '--sidebar-item-background-hover', 't'],
   ['--sidebar-item-label-active', '--sidebar-item-background-active', 't'], ['--sidebar-module', '--sidebar-background', 't'],
-  ['--sidebar-user', '--sidebar-background', 't'], ['--sidebar-section-label', '--sidebar-background', 't'],
-  ['--sidebar-item-count', '--sidebar-background', 't'], ['--sidebar-item-count', '--sidebar-item-background-active', 't'],
-  ['--sidebar-item-indicator', '--sidebar-item-background-active', 'u'], ['--sidebar-focus-ring', '--sidebar-background', 'u'],
+  ['--sidebar-user', '--sidebar-background', 't'],
+  ['--sidebar-item-label-strong', '--sidebar-background', 't'], ['--sidebar-item-label-strong', '--sidebar-item-background-hover', 't'],
+  ['--sidebar-item-label-strong', '--sidebar-item-background-active', 'u'], ['--sidebar-item-label-strong', '--menu-background', 't'],
+  ['--sidebar-count-neutral', '--sidebar-background', 't'], ['--sidebar-count-neutral', '--sidebar-item-background-active', 't'],
+  ['--sidebar-count-danger', '--sidebar-background', 't'], ['--sidebar-count-danger', '--sidebar-item-background-active', 't'],
+  ['--sidebar-dot-neutral', '--sidebar-background', 'u'], ['--sidebar-dot-danger', '--sidebar-background', 'u'],
+  ['--sidebar-focus-ring', '--sidebar-background', 'u'],
   // The brand mark of the Sidebar header (a slot painted with the logo roles) and the logos on any surface.
   ...['logo-primary', 'logo-signature', 'logo-mono'].flatMap((l): Pair[] => [
     [`role:--${l}`, '--sidebar-background', 'u'], [`role:--${l}`, CTX, 'u'],

@@ -565,6 +565,9 @@ export function generateRdsTheme(def: BrandDef, opts: RdsThemeOptions = {}): Rds
     [d["colors/accent/highlight"], l["colors/accent/highlight"]].find((c) => contrastRatio(ink, c) >= AA) ??
     readableFrom(l["colors/accent/highlight"], A.scale, [ink], lightPlate ? "lighter" : "darker", ink === WHITE ? BLACK : WHITE);
   plateOwn["chart/series/1"] = readableFrom(d["chart/series/1"], P.scale, plateBgs, awayFrom(plate), ink, NON_TEXT);
+  // colors/state/neutral-strong is a mark on the plate's panel and card (the Sidebar's neutral dot in the rail, the
+  // neutral Toast's icon): 3:1, walking the neutral ramp away from the plate.
+  plateOwn["colors/state/neutral-strong"] = readableFrom(d["colors/state/neutral-strong"], N, plateBgs, awayFrom(plate), ink, NON_TEXT);
   for (const logo of ["logo/primary", "logo/signature", "logo/accent", "logo/mono", "social/ink"]) plateOwn[logo] = ink;
 
   // Roles that point straight at a primitive in dark and on the plate (`p` in ROLES), the same for every brand.
@@ -731,6 +734,7 @@ export const RDS_NON_TEXT_PAIRS: ReadonlyArray<readonly [string, string]> = [
   ["focus/ring", "surface/page"], ["focus/ring", "surface/card"],
   ["logo/primary", "surface/card"], ["logo/primary", "surface/page"], ["logo/primary", "surface/panel"],
   ["chart/series/1", "surface/card"], ["chart/series/1", "surface/page"],
+  ["colors/state/neutral-strong", "surface/panel"], ["colors/state/neutral-strong", "surface/card"],
 ];
 
 /** A pair below its minimum: 4.5:1 for text (RDS_CONTRAST_PAIRS), 3:1 for the rest (RDS_NON_TEXT_PAIRS). */

@@ -177,8 +177,8 @@ export type { TabsProps, TabsListProps, TabsTriggerProps, TabsContentProps } fro
 export { PageHeader } from './page-header';
 export type { PageHeaderProps, PageHeaderHeading } from './page-header';
 
-export { Sidebar, SidebarItem, SidebarSection, SidebarSeparator } from './sidebar';
-export type { SidebarProps, SidebarItemProps, SidebarSectionProps, SidebarHeader } from './sidebar';
+export { Sidebar, SidebarItem, SidebarGroup, SidebarTrigger } from './sidebar';
+export type { SidebarProps, SidebarItemProps, SidebarGroupProps, SidebarTriggerProps, SidebarHeader, SidebarCountTone } from './sidebar';
 
 export { NavigationMenu } from './navigation-menu';
 export type { NavigationMenuProps, NavigationMenuEntry, NavigationMenuLink, NavigationMenuLinkComponent } from './navigation-menu';
