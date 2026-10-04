@@ -5,11 +5,13 @@
  * Casca fina sobre o motor (`@rojaostudio/ds-core/generate`): nada de regra de domínio aqui.
  * Toda E/S de terminal passa por `Io`, para os testes rodarem sem TTY.
  */
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
+import { existsSync, readFileSync } from "node:fs";
+import { isAbsolute, join, relative, resolve, sep } from "node:path";
 import { parseArgs } from "node:util";
 import { runMigrate, type Spawn } from "./migrate";
 import { onTag } from "./prerelease";
+import { BrandFileError, normalizeHex, parseRecipe, parseTable } from "./recipe";
+import { checkDestination, safeWrite, UnsafePathError } from "./safe-write";
 import {
   emitClaudeMd,
   emitRdsCss,
@@ -63,6 +65,7 @@ Opções:
       --target <alvo>    claude | cursor | agents (padrão: o arquivo que já existir, senão claude)
   -o, --out <arquivo>    onde escrever o tema (padrão: ${DEFAULT_OUT})
   -y, --yes              sobrescreve o tema sem perguntar
+      --allow-outside    deixa escrever o tema fora da pasta do projeto
   -h, --help             mostra esta ajuda
   -v, --version          mostra a versão
 
@@ -74,15 +77,7 @@ Exemplos:
 
 class CliError extends Error {}
 
-const HEX = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i;
-
-/** "7c3aed" · "#7C3AED" · "#abc" → "#7C3AED"; inválido → null. */
-export function normalizeHex(v: string): string | null {
-  const m = v.trim().match(HEX);
-  if (!m) return null;
-  const h = m[1].length === 3 ? [...m[1]].map((c) => c + c).join("") : m[1];
-  return `#${h.toUpperCase()}`;
-}
+export { normalizeHex };
 
 /** Nome seguro para título e arquivo: minúsculas, dígitos e hífen. */
 function slug(v: string): string {
@@ -96,12 +91,18 @@ function slug(v: string): string {
     .slice(0, 32);
 }
 
+/** Biggest brand file read (a table exported from Figma is ~30 KB). */
+const MAX_INPUT = 1024 * 1024;
+
 function readJson(cwd: string, file: string, what: string): unknown {
   const path = resolve(cwd, file);
   if (!existsSync(path)) throw new CliError(`${what} não encontrado: ${file}`);
   try {
-    return JSON.parse(readFileSync(path, "utf8"));
+    const text = readFileSync(path, "utf8");
+    if (text.length > MAX_INPUT) throw new CliError(`${what} grande demais (${file}): até 1 MB.`);
+    return JSON.parse(text);
   } catch (e) {
+    if (e instanceof CliError) throw e;
     throw new CliError(`${what} não é um JSON válido (${file}): ${(e as Error).message}`);
   }
 }
@@ -122,37 +123,6 @@ function fromColor(hex: string, name: string): BrandDef {
   return { name, brand: { primary: hex }, surface: "zinc", text: "zinc", fonts: { body: "inter" } };
 }
 
-/** O recipe.json do site é `{ $version, ...BrandDef }`. Arquivo é entrada de terceiro: confere o mínimo. */
-function fromRecipe(raw: unknown, name: string | undefined): BrandDef {
-  if (!raw || typeof raw !== "object") throw new CliError("recipe inválido: esperava um objeto JSON.");
-  const { $version: _v, ...rest } = raw as Record<string, unknown>;
-  const brand = rest.brand as Record<string, unknown> | undefined;
-  if (!brand || typeof brand.primary !== "string" || !brand.primary) {
-    throw new CliError("recipe inválido: falta brand.primary (a cor da marca).");
-  }
-  const primary = normalizeHex(brand.primary) ?? brand.primary;
-  const own = typeof rest.name === "string" ? slug(rest.name) : "";
-  return {
-    surface: "zinc",
-    text: "zinc",
-    fonts: { body: "inter" },
-    ...(rest as Partial<BrandDef>),
-    name: name ?? (own || "marca"),
-    brand: { ...(brand as BrandDef["brand"]), primary },
-  };
-}
-
-function asTable(raw: unknown): RdsBrandTable {
-  const t = raw as Partial<RdsBrandTable> | null;
-  if (!t || typeof t !== "object" || !t.modes || !t.primitives) {
-    throw new CliError("tabela inválida: esperava o formato rds-brand-table/1 (com modes e primitives), exportado por figma/export-brand.js.");
-  }
-  if (t.$schema && t.$schema !== "rds-brand-table/1") {
-    throw new CliError(`tabela em formato desconhecido: ${t.$schema} (esperava rds-brand-table/1).`);
-  }
-  return t as RdsBrandTable;
-}
-
 export const BLOCK_START = "<!-- rojao-ds:start -->";
 export const BLOCK_END = "<!-- rojao-ds:end -->";
 
@@ -161,14 +131,28 @@ function rulesBlock(md: string): string {
   return `${BLOCK_START}\n${md.replace(/\s+$/, "")}\n${BLOCK_END}`;
 }
 
+/** O arquivo de regras tem marcadores que a CLI não sabe juntar: nada é escrito. */
+export class RulesBlockError extends Error {}
+
+const count = (text: string, needle: string) => text.split(needle).length - 1;
+
 /**
  * Põe o bloco no arquivo de regras: substitui o bloco entre os marcadores, se houver; senão,
  * acrescenta no fim, depois de uma linha em branco. O texto de fora do bloco não muda.
+ *
+ * Um marcador órfão (só o início, só o fim, o fim antes do início) ou mais de um par: recusa com
+ * RulesBlockError. Adivinhar qual trecho trocar apagaria texto de quem escreveu o arquivo.
  */
 export function mergeRulesBlock(existing: string, block: string): { text: string; mode: "replaced" | "appended" } {
+  const starts = count(existing, BLOCK_START);
+  const ends = count(existing, BLOCK_END);
   const start = existing.indexOf(BLOCK_START);
-  const end = start === -1 ? -1 : existing.indexOf(BLOCK_END, start);
-  if (start !== -1 && end !== -1) {
+  const end = existing.indexOf(BLOCK_END);
+  if (starts > 1 || ends > 1)
+    throw new RulesBlockError(`há mais de um bloco do Rojão DS (${starts} início, ${ends} fim). Deixe um só par ${BLOCK_START} … ${BLOCK_END} e rode de novo.`);
+  if (starts !== ends || (starts === 1 && end < start))
+    throw new RulesBlockError(`marcador órfão: ${starts ? BLOCK_START : BLOCK_END} sem o par na ordem certa. Corrija ou apague os marcadores e rode de novo.`);
+  if (starts === 1) {
     return { text: existing.slice(0, start) + block + existing.slice(end + BLOCK_END.length), mode: "replaced" };
   }
   const head = existing.replace(/\s+$/, "");
@@ -193,13 +177,14 @@ async function resolveBrand(v: Values, io: Io): Promise<Brand> {
 
   try {
     if (v.table !== undefined) {
-      const table = asTable(readJson(io.cwd, v.table, "tabela"));
+      const table = parseTable(readJson(io.cwd, v.table, "tabela"));
       const n = name ?? (slug(table.name ?? "") || "marca");
       const theme = rdsThemeFromTable(table);
       return { label: `tabela do Figma (${v.table})`, name: n, theme, source: { ...table, name: n } };
     }
     if (v.recipe !== undefined) {
-      const def = fromRecipe(readJson(io.cwd, v.recipe, "recipe"), name);
+      const parsed = parseRecipe(readJson(io.cwd, v.recipe, "recipe"), slug);
+      const def = { ...parsed, name: name ?? parsed.name };
       return { label: `recipe (${v.recipe})`, name: def.name, theme: generateRdsTheme(def), source: def };
     }
     let hex: string;
@@ -216,6 +201,7 @@ async function resolveBrand(v: Values, io: Io): Promise<Brand> {
     return { label: `cor ${hex}`, name: def.name, theme: generateRdsTheme(def), source: def };
   } catch (e) {
     if (e instanceof CliError) throw e;
+    if (e instanceof BrandFileError) throw new CliError(e.message);
     // Erro do motor (papel faltando, primitivo desconhecido, cor que não resolve): a mensagem dele já lista tudo.
     throw new CliError(`não foi possível gerar o tema: ${(e as Error).message}`);
   }
@@ -253,7 +239,7 @@ function importPath(cwd: string, abs: string): string {
   return rel.startsWith(".") ? rel : `./${rel}`;
 }
 
-function installCommand(cwd: string): string {
+export function installCommand(cwd: string): string {
   const ds = onTag("@rojaostudio/ds");
   if (existsSync(join(cwd, "pnpm-lock.yaml"))) return `pnpm add ${ds}`;
   if (existsSync(join(cwd, "yarn.lock"))) return `yarn add ${ds}`;
@@ -270,6 +256,7 @@ const OPTIONS = {
   target: { type: "string" },
   out: { type: "string", short: "o" },
   yes: { type: "boolean", short: "y" },
+  "allow-outside": { type: "boolean" },
   help: { type: "boolean", short: "h" },
   version: { type: "boolean", short: "v" },
 } as const;
@@ -282,6 +269,7 @@ type Values = {
   target?: string;
   out?: string;
   yes?: boolean;
+  "allow-outside"?: boolean;
   help?: boolean;
   version?: boolean;
 };
@@ -323,8 +311,9 @@ export async function run(argv: string[], io: Io, version = "0.0.0"): Promise<nu
   try {
     return await init(values, io);
   } catch (e) {
-    if (e instanceof CliError) {
+    if (e instanceof CliError || e instanceof UnsafePathError || e instanceof RulesBlockError) {
       io.err(`✗ ${e.message}`);
+      if (!(e instanceof CliError)) io.err("  Nada foi escrito.");
       return 1;
     }
     throw e;
@@ -334,22 +323,38 @@ export async function run(argv: string[], io: Io, version = "0.0.0"): Promise<nu
 async function init(v: Values, io: Io): Promise<number> {
   const brand = await resolveBrand(v, io);
   const target = await resolveTarget(v, io);
+  const allowOutside = Boolean(v["allow-outside"]);
 
   const out = v.out ?? DEFAULT_OUT;
   if (!out.endsWith(".css")) throw new CliError(`--out precisa terminar em .css: ${out}`);
   const cssAbs = isAbsolute(out) ? out : resolve(io.cwd, out);
   const rulesAbs = join(io.cwd, TARGETS[target]);
   const cssImport = importPath(io.cwd, cssAbs);
+  const install = installCommand(io.cwd);
 
-  const css = { abs: cssAbs, label: importPath(io.cwd, cssAbs).replace(/^\.\//, ""), content: emitRdsCss(brand.theme) };
-  const rules = {
-    abs: rulesAbs,
-    label: TARGETS[target],
-    block: rulesBlock(emitClaudeMd(brand.source, { theme: brand.theme, cssFile: cssImport.replace(/^\.\//, ""), target })),
-  };
+  let css: { abs: string; label: string; content: string };
+  let block: string;
+  try {
+    css = { abs: cssAbs, label: importPath(io.cwd, cssAbs).replace(/^\.\//, ""), content: emitRdsCss(brand.theme) };
+    block = rulesBlock(
+      emitClaudeMd(brand.source, { theme: brand.theme, cssFile: cssImport.replace(/^\.\//, ""), target, install }),
+    );
+  } catch (e) {
+    // O motor revalida tudo antes de escrever: um valor fora da lista branca para aqui.
+    throw new CliError(`não foi possível gerar os arquivos: ${(e as Error).message}`);
+  }
+  const rules = { abs: rulesAbs, label: TARGETS[target], block };
+
+  // Antes de escrever qualquer coisa: os dois destinos são conferidos (link simbólico, fora do projeto) e o
+  // bloco é juntado ao arquivo de regras (marcador órfão recusa). Uma recusa não deixa nada pela metade.
+  checkDestination(io.cwd, css.abs, css.label, allowOutside);
+  checkDestination(io.cwd, rules.abs, rules.label);
+  const rulesExists = existsSync(rules.abs);
+  const before = rulesExists ? readFileSync(rules.abs, "utf8") : "";
+  const merged = rulesExists ? mergeRulesBlock(before, rules.block) : null;
 
   // Só o tema é sobrescrito; o arquivo de regras recebe um bloco e preserva o resto, então não pede confirmação.
-  // Antes de escrever qualquer coisa: sem --yes e sem terminal, um tema existente recusa tudo.
+  // Sem --yes e sem terminal, um tema existente recusa tudo.
   const cssExists = existsSync(css.abs);
   if (cssExists && !v.yes && !io.interactive) {
     io.err(`✗ ${css.label} já existe.`);
@@ -361,27 +366,22 @@ async function init(v: Values, io: Io): Promise<number> {
   if (cssExists && !v.yes && !(await confirm(io, `${css.label} já existe. Sobrescrever?`))) {
     io.out(`– ${css.label} mantido`);
   } else {
-    mkdirSync(dirname(css.abs), { recursive: true });
-    writeFileSync(css.abs, css.content);
+    safeWrite(io.cwd, css.abs, css.content, css.label, allowOutside);
     io.out(`✓ ${css.label} ${cssExists ? "atualizado" : "criado"}`);
   }
 
-  if (!existsSync(rules.abs)) {
-    writeFileSync(rules.abs, `${rules.block}\n`);
+  if (!merged) {
+    safeWrite(io.cwd, rules.abs, `${rules.block}\n`, rules.label);
     io.out(`✓ ${rules.label} criado`);
-  } else {
-    const before = readFileSync(rules.abs, "utf8");
-    const { text, mode } = mergeRulesBlock(before, rules.block);
-    if (text === before) io.out(`✓ ${rules.label} já está em dia`);
-    else {
-      writeFileSync(rules.abs, text);
-      io.out(`✓ ${rules.label}: bloco do Rojão DS ${mode === "replaced" ? "atualizado" : "acrescentado no fim"} (o resto do arquivo foi mantido)`);
-    }
+  } else if (merged.text === before) io.out(`✓ ${rules.label} já está em dia`);
+  else {
+    safeWrite(io.cwd, rules.abs, merged.text, rules.label);
+    io.out(`✓ ${rules.label}: bloco do Rojão DS ${merged.mode === "replaced" ? "atualizado" : "acrescentado no fim"} (o resto do arquivo foi mantido)`);
   }
 
   io.out("");
   io.out("Próximos passos:");
-  io.out(`  1. ${installCommand(io.cwd)}`);
+  io.out(`  1. ${install}`);
   io.out("  2. No CSS raiz do app (o tema vem DEPOIS):");
   io.out('       @import "@rojaostudio/ds/styles/rds.css";');
   io.out(`       @import "${cssImport}";`);

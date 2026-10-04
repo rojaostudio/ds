@@ -1,5 +1,13 @@
 # @rojaostudio/ds
 
+## 2.0.0-next.23
+
+### Patch Changes
+
+- `Chart`: `hrefs` só são seguidos quando são `http(s):`, caminho relativo ou `#fragmento`. Outro esquema (`javascript:`, `data:`…) é ignorado, no link da barra, na tabela e no Enter da coluna, com aviso no console em desenvolvimento.
+- Updated dependencies
+  - @rojaostudio/ds-core@1.1.0-next.9
+
 ## 2.0.0-next.22
 
 ### Patch Changes

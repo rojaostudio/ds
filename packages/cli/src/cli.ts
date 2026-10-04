@@ -7,6 +7,7 @@ import { spawn } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { createInterface, type Interface } from "node:readline/promises";
 import { run } from "./init";
+import { npxInvocation } from "./migrate";
 
 function version(): string {
   try {
@@ -33,13 +34,19 @@ const code = await run(
       return prompt.rl.question(q);
     },
     interactive,
-    // npx é um .cmd no Windows, e o Node 20+ só roda .cmd com shell. Os argumentos vêm do próprio usuário.
+    // Nunca com shell: os argumentos (uma pasta, vindos de quem roda) não podem virar linha de comando. No Windows o
+    // npx é um .cmd, então roda como o que ele é, o npx-cli.js do npm, por este mesmo Node (npxInvocation).
     spawn: (command, args) =>
       new Promise((done) => {
-        const win = process.platform === "win32";
-        // Com shell, os argumentos viram uma linha só: uma pasta com espaço precisa de aspas.
-        const argv = win ? args.map((a) => (/[\s"]/.test(a) ? `"${a.replace(/"/g, '\\"')}"` : a)) : args;
-        const child = spawn(command, argv, { stdio: "inherit", shell: win });
+        const inv = command === "npx" ? npxInvocation(args) : { command, args };
+        if (!inv) {
+          process.stderr.write(
+            `✗ não achei o npx-cli.js do npm ao lado do Node (${process.execPath}). Rode direto: npx ${args.join(" ")}\n`,
+          );
+          done(1);
+          return;
+        }
+        const child = spawn(inv.command, inv.args, { stdio: "inherit", shell: false });
         child.on("error", (e) => {
           process.stderr.write(`✗ não consegui rodar ${command}: ${e.message}\n`);
           done(1);

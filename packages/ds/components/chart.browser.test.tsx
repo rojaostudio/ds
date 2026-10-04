@@ -246,6 +246,39 @@ describe('Chart with destinations', () => {
     expect(onSelect).toHaveBeenCalledWith(1);
   });
 
+  it('an href with another scheme (javascript:, data:) is never followed, with a dev warning', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    try {
+      const el = await render(
+        <div style={{ width: 640 }}>
+          <Chart
+            type="bar"
+            label="Pedidos por etapa"
+            labels={stages}
+            series={pedidos}
+            hrefs={['javascript:alert(1)', '#/b', ' java\tscript:alert(1)']}
+            showTable
+          />
+        </div>,
+      );
+      const links = [...el.querySelectorAll<HTMLAnchorElement>('a')];
+      expect(links.map((a) => a.getAttribute('href'))).toEqual(['#/b', '#/b']);
+      expect(warn.mock.calls.some(([m]) => /ignored/.test(String(m)))).toBe(true);
+
+      const before = window.location.href;
+      const col = await render(
+        <div style={{ width: 640 }}>
+          <Chart type="column" label="Pedidos por etapa" labels={stages} series={pedidos} hrefs={['data:text/html,x', 'javascript:alert(1)', undefined]} />
+        </div>,
+      );
+      col.querySelector<HTMLElement>('[role="slider"]')!.focus();
+      await userEvent.keyboard('{ArrowRight}{Enter}');
+      expect(window.location.href).toBe(before);
+    } finally {
+      warn.mockRestore();
+    }
+  });
+
   it('without a destination nothing is interactive', async () => {
     const el = await render(<Chart type="bar" label="Pedidos por etapa" labels={stages} series={pedidos} />);
     expect(el.querySelector('a, button')).toBeNull();
