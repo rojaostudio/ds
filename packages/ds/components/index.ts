@@ -175,7 +175,7 @@ export { Tabs, TabsList, TabsTrigger, TabsContent } from './tabs';
 export type { TabsProps, TabsListProps, TabsTriggerProps, TabsContentProps } from './tabs';
 
 export { PageHeader } from './page-header';
-export type { PageHeaderProps, PageHeaderHeading } from './page-header';
+export type { PageHeaderProps, PageHeaderHeading, PageHeaderBack, PageHeaderHelp } from './page-header';
 
 export { Sidebar, SidebarItem, SidebarGroup, SidebarTrigger } from './sidebar';
 export type { SidebarProps, SidebarItemProps, SidebarGroupProps, SidebarTriggerProps, SidebarHeader, SidebarCountTone } from './sidebar';
