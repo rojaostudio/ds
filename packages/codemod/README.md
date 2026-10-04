@@ -3,15 +3,12 @@
 O codemod do [Rojão DS](https://ds.rojao.ai): leva um projeto do `@rojaostudio/ds` 0.x ou 1.x
 direto para a 2.0.
 
-```bash
-npx @rojaostudio/ds-codemod@next ./meu-app       # dry-run: mostra o plano, não escreve nada
-npx @rojaostudio/ds-codemod@next ./meu-app --apply  # escreve
-```
-
-Com a CLI do DS, é o mesmo comando:
+**Uso interno.** Não é publicado no npm: roda de dentro deste repositório, nos projetos do Rojão Studio.
 
 ```bash
-npx rojao-ds@next migrate ./meu-app [--apply]
+cd C:/_ww2/ds
+pnpm migrate:consumer ../meu-app            # dry-run: mostra o plano, não escreve nada
+pnpm migrate:consumer ../meu-app --apply    # escreve
 ```
 
 ## Antes de rodar

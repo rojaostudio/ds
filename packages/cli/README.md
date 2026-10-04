@@ -65,17 +65,6 @@ o bloco é trocado e o resto do arquivo fica como está. Rodar de novo não dupl
 O tema (`rds-theme.css`) é sobrescrito, então pede confirmação. Sem terminal (CI, script) e sem
 `--yes`, a CLI recusa e não escreve nada.
 
-## Migrar um projeto 0.x/1.x para a 2.0
-
-```bash
-npx rojao-ds@next migrate ./meu-app       # dry-run
-npx rojao-ds@next migrate ./meu-app --apply  # escreve
-```
-
-É um atalho para `npx @rojaostudio/ds-codemod@<versão>`, com os mesmos argumentos: o codemod é baixado na
-hora pelo npx, e por isso o `ts-morph` (que traz o compilador do TypeScript) não entra na CLI. A versão é
-fixada no build da CLI (a lançada junto com ela), não uma tag que anda. O npx roda sem shell, também no Windows.
-
 ## Sem dependência
 
 Node 20+. A única dependência é o motor, [`@rojaostudio/ds-core`](https://www.npmjs.com/package/@rojaostudio/ds-core):
@@ -94,5 +83,4 @@ O nome e a marca (Rojão, `rojao-ds`, `@rojaostudio/*`) não estão na licença:
 ## Privacidade
 
 Nada é coletado nem enviado. A CLI não tem telemetria e não acessa a rede: lê os arquivos que você
-aponta e escreve na pasta do projeto. A única exceção é o `migrate`, que pede ao npx para baixar o
-codemod do registro do npm, como qualquer `npx`.
+aponta e escreve na pasta do projeto.
