@@ -1,5 +1,16 @@
 # @rojaostudio/ds
 
+## 2.0.0-next.24
+
+### Minor Changes
+
+- LoadingOverlay novo; SavingBar compacta numa linha e com um só indicador no `saving`; Spinner com as cores novas do Figma [RDS] (03/10).
+
+  - **Novo: `LoadingOverlay`** (`@rojaostudio/ds/components` ou `@rojaostudio/ds/components/loading-overlay`). A espera longa de uma ação que leva a outra página (criar o produto e cair na edição). Props: `open`, `label` (padrão "Carregando…"), `delay` (padrão 400 ms) e `container`. Só aparece se `open` continuar `true` depois do `delay`; antes disso a espera é o botão principal em loading, e se a página nova abrir antes, o overlay nem aparece. No erro, o app fecha (`open={false}`), o foco volta ao botão e o erro vai para a SavingBar em `status="error"`. Véu `loading-overlay/scrim` em `position: fixed` na camada `--z-overlay` (portal no body, ou no `container`); no centro, um painel `loading-overlay/background` (radius/container, elevation/modal, até 320) com o Spinner lg e o `label` numa região `aria-live="polite"`. `role="dialog"` `aria-modal="true"` com o `label` de nome; o foco vai para o painel e fica preso, Esc não fecha, e o resto da página leva `inert` e `aria-busy="true"` enquanto ele está aberto (devolvidos ao fechar). Com `prefers-reduced-motion`, sem fade e o giro lento. Tokens novos: `loading-overlay/scrim`, `loading-overlay/background` e `loading-overlay/text` (Overlays).
+  - **Muda aparência — SavingBar no celular.** Abaixo de 1024 a barra vira uma linha só, 64 de altura (`padding-block: 10px`, mais `env(safe-area-inset-bottom)` embaixo): a mensagem (ou o botão "ver o que falta", com `onDetails`) à esquerda, em até 2 linhas, e só o botão principal à direita. O Descartar não aparece no compacto: no celular ele é do app, no rodapé do Drawer de detalhes ou na confirmação ao sair. O expandido (a partir de 1024) não muda.
+  - **Muda aparência — SavingBar em `status="saving"`.** Sai o loader da mensagem: o indicador é o Salvar em loading (`<Button loading>`), com o rótulo `savingLabel` (novo, padrão "Salvando…"), e o Descartar fica desabilitado. Um só indicador, inclusive com o LoadingOverlay por cima.
+  - **Muda aparência — Spinner.** `spinner/indicator` passou de `colors/primary/default` a `colors/primary/dark` (o arco passa 3:1 também numa marca clara, como um ciano), e `spinner/inverse/indicator` e `spinner/inverse/label` de `text/on/primary-strong` a `text/on/primary`.
+
 ## 2.0.0-next.23
 
 ### Patch Changes

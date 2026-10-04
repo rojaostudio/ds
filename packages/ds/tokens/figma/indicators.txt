@@ -1,4 +1,4 @@
-# [RDS] Components · collection Indicators · file w64JuUL45DO4jGu3WEy9HU · extracted 2026-10-03
+# [RDS] Components · collection Indicators · file w64JuUL45DO4jGu3WEy9HU · extracted 2026-10-04
 # DO NOT EDIT. Figma is the source: publish in Figma, run the extraction, save the output here.
 # Format: name|type (C colour, F number, S string, B boolean)|@collection:target (alias) OR raw value|WEB codeSyntax ("=" when it is the path with hyphens)[|obsolete]
 # obsolete: the Figma description starts with "Obsoleto"; the token stays for old code and no stylesheet has to read it.
@@ -73,11 +73,11 @@ progress/track|C|@theme:surface/tint/strong|=
 progress/fill|C|@theme:chart/series/1|=
 progress/label|C|@theme:text/body|=
 progress/value|C|@theme:text/muted|=
-spinner/indicator|C|@theme:colors/primary/default|=
+spinner/indicator|C|@theme:colors/primary/dark|=
 spinner/track|C|@theme:surface/tint/strong|=
 spinner/label|C|@theme:text/muted|=
-spinner/inverse/indicator|C|@theme:text/on/primary-strong|=
-spinner/inverse/label|C|@theme:text/on/primary-strong|=
+spinner/inverse/indicator|C|@theme:text/on/primary|=
+spinner/inverse/label|C|@theme:text/on/primary|=
 rating/empty|C|@theme:border/strong|=
 rating/label|C|@theme:text/muted|=
 rating/star|C|@theme:colors/state/warning|=
