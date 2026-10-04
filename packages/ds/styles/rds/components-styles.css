@@ -1813,6 +1813,21 @@ button.rds-breadcrumb__link:focus-visible {
   flex: none;
 }
 
+/*
+ * align=start (Figma 04/10: actionSlot): the action sits in a band as tall as the title's line (type/label/line, 24;
+ * type/small/line, 20, on sm), centred in it, with or without a description. A 44 IconButton or a 36 sm Button
+ * overflows the band evenly above and below; nothing clips it. A Switch goes in at size="sm".
+ */
+.rds-card__header--start .rds-card__action {
+  display: flex;
+  align-items: center;
+  height: var(--type-label-line);
+}
+
+.rds-card--sm .rds-card__header--start .rds-card__action {
+  height: var(--type-small-line);
+}
+
 /* The content keeps the colour of where the card sits: the slot holds any component. */
 .rds-card__content {
   flex: 1;

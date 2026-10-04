@@ -61,7 +61,11 @@ export interface CardHeaderProps extends Omit<HTMLAttributes<HTMLElement>, 'titl
   description?: ReactNode;
   /** A Tile before the text (Figma: `showIcon`): variant soft, size md (sm on a small card). */
   icon?: ReactNode;
-  /** Opt-in: one action on the right (Figma: `showAction` + `action`), a ghost Button or an IconButton. None by default. */
+  /**
+   * Opt-in: one action on the right (Figma: `showAction` + `action`): a ghost Button, an IconButton, or a Switch
+   * (`size="sm"`). None by default. With `align="start"` it sits in a band as tall as the title's line, centred in it,
+   * with or without a description.
+   */
   action?: ReactNode;
   /** start: side by side; center: stacked and centred. */
   align?: 'start' | 'center';
