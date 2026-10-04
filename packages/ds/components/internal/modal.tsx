@@ -76,7 +76,7 @@ export function ModalShell({
   container,
   className,
 }: ModalShellProps) {
-  // Controlled without a trigger (opened by a button the shell doesn't own, like the SavingBar's details): Radix
+  // Controlled without a trigger (opened by a button the shell doesn't own, like a control in a bar's leading slot): Radix
   // would give the focus back to its trigger, which there isn't. Keep what had the focus when it opened instead.
   const opener = useRef<HTMLElement | null>(null);
   const cancel = (

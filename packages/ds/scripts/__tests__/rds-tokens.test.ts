@@ -30,6 +30,17 @@ describe("rds-tokens checks", () => {
     expect(check(bad, roles, f, []).missingAlias).toHaveLength(1);
   });
 
+  it("resolves an alias to another component token (bottom-bar/leading/min-width → Actions button/size/md/height)", () => {
+    const t = parseCollection(
+      "actions",
+      "button/size/md/height|F|44|=\nbottom-bar/leading/min-width|F|@Actions:button/size/md/height|=",
+    );
+    expect(check(t, roles, foundation, []).missingAlias).toEqual([]);
+    expect(tokenCss(t[1])).toBe("var(--button-size-md-height)");
+    const bad = parseCollection("actions", "bottom-bar/leading/min-width|F|@Actions:button/size/xl/height|=");
+    expect(check(bad, roles, foundation, []).missingAlias).toHaveLength(1);
+  });
+
   it("fails a var() that no layer defines, but not a local --_x or one declared in the file", () => {
     const t = parseCollection("forms", "input/value|C|@theme:text/body|=");
     const css = ".x { --_bg: red; --own: 1px; color: var(--input-value); background: var(--_bg); width: var(--own); border-color: var(--input-nope); }";
@@ -169,8 +180,8 @@ describe("cascade layers", () => {
 describe("the real [RDS] extraction", () => {
   const all = loadAll(join(__dirname, "..", ".."));
 
-  it("has the 992 component tokens of the 10 collections", () => {
-    expect(all.tokens).toHaveLength(992);
+  it("has the 994 component tokens of the 10 collections", () => {
+    expect(all.tokens).toHaveLength(994);
   });
 
   it("has no obsolete token left: unused tokens are deleted in Figma, not kept", () => {
