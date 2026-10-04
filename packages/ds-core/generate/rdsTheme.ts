@@ -133,6 +133,76 @@ function readableFrom(
   return fallback;
 }
 
+/**
+ * The interaction tones of a fill (hover, active) under the text picked for it. The text is chosen first, by
+ * contrast with the default fill (text/on/*); every tone then has to carry that same text at AA, or the label of a
+ * hovered or pressed button drops below 4.5:1 (a light brand: black text on cyan, then a hover darkened to 2.6:1).
+ *
+ * `preferred` are the template's steps (Figma's drawing). Each is kept when it carries the text and differs from the
+ * fill. Otherwise the tones move along the ramp in the template's direction, as far as they still carry the text
+ * (the darkest step that passes under black text, the lightest under white), keeping their order and staying apart.
+ * When that direction has no room for all of them, they go the other way, away from the text, where every step passes.
+ */
+function stateFills(scale: Scale, fill: string, text: string, preferred: string[]): string[] {
+  const lf = relativeLuminance(fill);
+  const same = (a: string, b: string) => a.toLowerCase() === b.toLowerCase();
+  const ramp = SCALE_STEPS.map((s) => scale[s])
+    .filter((c): c is string => !!c && isHex(c))
+    .map((c) => c.toLowerCase())
+    .sort((a, b) => relativeLuminance(a) - relativeLuminance(b));
+  // Past the ends of the ramp, its hue carried on (3% of HSL lightness at a time): the dark end of a yellow ramp is
+  // not dark enough to carry yellow text on a black ink.
+  const beyond: string[] = [];
+  if (ramp.length) {
+    const [hd, sd, ld] = hexToHsl(ramp[0]);
+    for (let x = ld - 3; x >= 0; x -= 3) beyond.push(hslToHex(hd, sd, x));
+    const [hl, sl, ll] = hexToHsl(ramp[ramp.length - 1]);
+    for (let x = ll + 3; x <= 100; x += 3) beyond.push(hslToHex(hl, sl, x));
+  }
+  const steps = [...new Set([...ramp, ...beyond.map((c) => c.toLowerCase())])].filter(
+    (c) => !same(c, fill) && relativeLuminance(c) !== lf,
+  );
+  // One side of the fill, nearest step first.
+  const side = (dir: 1 | -1) =>
+    steps
+      .filter((c) => Math.sign(relativeLuminance(c) - lf) === dir)
+      .sort((a, b) => Math.abs(relativeLuminance(a) - lf) - Math.abs(relativeLuminance(b) - lf));
+  // The steps of a side that carry the text: a run from the fill outward (contrast with a fixed text is monotone).
+  const carrying = (list: string[]) => {
+    const out: string[] = [];
+    for (const c of list) {
+      if (contrastRatio(text, c) < AA) break;
+      out.push(c);
+    }
+    return out;
+  };
+  const awayFromText: 1 | -1 = relativeLuminance(text) <= lf ? 1 : -1;
+  const lp = relativeLuminance(preferred[0]);
+  const dir: 1 | -1 = lp === lf ? awayFromText : lp > lf ? 1 : -1;
+  const n = preferred.length;
+  for (const d of [dir, -dir as 1 | -1]) {
+    const all = side(d);
+    const ok = carrying(all);
+    if (ok.length < n) continue;
+    // Where each tone sits on this side: the template's own step, or the next ones out from the fill.
+    const wants = preferred.map((p, i) => {
+      const k = d === dir ? all.findIndex((c) => same(c, p)) : -1;
+      return k >= 0 ? k : i;
+    });
+    const order = wants.map((_, i) => i).sort((x, y) => wants[x] - wants[y] || x - y);
+    const idx: number[] = new Array(n);
+    let next = 0;
+    order.forEach((i, rank) => {
+      idx[i] = Math.min(Math.max(wants[i], next), ok.length - (n - rank));
+      next = idx[i] + 1;
+    });
+    return idx.map((k) => ok[k]);
+  }
+  // A ramp too short on both sides (not reached by a 10-step ramp): every step that carries the text, nearest first.
+  const ok = [...carrying(side(dir)), ...carrying(side(-dir as 1 | -1))];
+  return preferred.map((p, i) => ok[i] ?? p);
+}
+
 export type RdsThemeOptions = {
   /** Where the warnings go (an explicit BrandDef.heading that fails AA). Default console.warn. */
   warn?: (message: string) => void;
@@ -272,6 +342,12 @@ export function generateRdsTheme(def: BrandDef, opts: RdsThemeOptions = {}): Rds
     ["surface/lift/action", "text/on/lift-action"], ["colors/primary/dark", "text/on/primary-strong"],
     ["surface/tint/default", "text/on/tint"],
   ] as const) l[text] = on(l[fill]);
+  // Hover and active carry the same text as the default fill (see stateFills).
+  [l["colors/primary/active"]] = stateFills(P.scale, l["colors/primary/default"], l["text/on/primary"], [l["colors/primary/active"]]);
+  [l["colors/secondary/hover"], l["colors/secondary/active"]] = stateFills(
+    S.scale, l["colors/secondary/default"], l["text/on/secondary"], [l["colors/secondary/hover"], l["colors/secondary/active"]],
+  );
+  [l["colors/accent/hover"]] = stateFills(A.scale, l["colors/accent/default"], l["text/on/accent"], [l["colors/accent/hover"]]);
   // border/error (a field in error) and chart/series/1 (the brand's own series) are marks, not text: 3:1 (WCAG
   // 1.4.11) on surface/card, which is also the field background (input/background/default → surface/card).
   // border/error starts from the state red, series 1 from the primary's 600; each walks its ramp until it clears.
@@ -321,6 +397,11 @@ export function generateRdsTheme(def: BrandDef, opts: RdsThemeOptions = {}): Rds
     ["colors/primary/dark", "text/on/primary-strong"], ["surface/tint/default", "text/on/tint"],
     ["surface/lift/action", "text/on/lift-action"],
   ] as const) d[text] = on(d[fill]);
+  [d["colors/primary/active"]] = stateFills(P.scale, d["colors/primary/default"], d["text/on/primary"], [d["colors/primary/active"]]);
+  [d["colors/secondary/hover"], d["colors/secondary/active"]] = stateFills(
+    S.scale, d["colors/secondary/default"], d["text/on/secondary"], [d["colors/secondary/hover"], d["colors/secondary/active"]],
+  );
+  [d["colors/accent/hover"]] = stateFills(A.scale, d["colors/accent/default"], d["text/on/accent"], [d["colors/accent/hover"]]);
   // In dark, border/error starts from error-strong (red/400) and series 1 from the primary's 400.
   d["border/error"] = readableFrom(d["colors/state/error-strong"], red, [d["surface/card"]], awayFrom(d["surface/card"]), WHITE, NON_TEXT);
   d["chart/series/1"] = readableFrom(P.scale[400], P.scale, [d["surface/card"]], awayFrom(d["surface/card"]), WHITE, NON_TEXT);
@@ -365,6 +446,12 @@ export function generateRdsTheme(def: BrandDef, opts: RdsThemeOptions = {}): Rds
     "surface/muted-strong": inkA(20), "border/strong": inkA(60), "border/strong-hover": inkA(80),
     "text/on/primary-subtle": inkA(30),
   };
+  // On the plate the fills are the ink and their text is the plate: hover and active have to carry the plate colour
+  // (a light plate has a black ink, so the template's near-white steps would hide its text).
+  [br["colors/primary/active"]] = stateFills(P.scale, br["colors/primary/default"], br["text/on/primary"], [br["colors/primary/active"]]);
+  [br["colors/secondary/hover"], br["colors/secondary/active"]] = stateFills(
+    S.scale, br["colors/secondary/default"], br["text/on/secondary"], [br["colors/secondary/hover"], br["colors/secondary/active"]],
+  );
   // border/error on the plate starts from the light red Figma uses there (red/300, the dark text/error) and keeps
   // 3:1 on the plate's card, the field background.
   const brandError = readableFrom(red[300], red, [plateCard], awayFrom(plateCard), ink, NON_TEXT);
@@ -495,8 +582,11 @@ export const RDS_CONTRAST_PAIRS: ReadonlyArray<readonly [string, string]> = [
   ["text/heading", "surface/page"], ["text/heading", "surface/card"],
   ["text/body", "surface/page"], ["text/body", "surface/card"],
   ["text/muted", "surface/card"], ["text/link", "surface/card"],
-  ["text/on/primary", "colors/primary/default"], ["text/on/secondary", "colors/secondary/default"],
-  ["text/on/accent", "colors/accent/default"], ["text/on/accent-mark", "colors/accent/mark"],
+  ["text/on/primary", "colors/primary/default"], ["text/on/primary", "colors/primary/active"],
+  ["text/on/secondary", "colors/secondary/default"], ["text/on/secondary", "colors/secondary/hover"],
+  ["text/on/secondary", "colors/secondary/active"],
+  ["text/on/accent", "colors/accent/default"], ["text/on/accent", "colors/accent/hover"],
+  ["text/on/accent-mark", "colors/accent/mark"],
   ["text/on/tint", "surface/tint/default"], ["text/on/action-tonal", "surface/action/default"],
   ["text/on/lift-action", "surface/lift/action"], ["text/on/primary-strong", "colors/primary/dark"],
   ["text/on/cover", "surface/cover"], ["text/on/error", "colors/state/error"],

@@ -42,6 +42,44 @@ describe("[RDS] contrast of the generated theme, for any brand colour", () => {
     }
   });
 
+  // A hovered or pressed fill keeps the label of the default one: the text/on/* is picked against the default, so
+  // hover and active have to carry it too. The report measures those pairs (the cases above run them); here, each
+  // state also stays a visible change, never the default fill itself.
+  const STATES = [
+    ["text/on/primary", "colors/primary/default", ["colors/primary/active"]],
+    ["text/on/secondary", "colors/secondary/default", ["colors/secondary/hover", "colors/secondary/active"]],
+    ["text/on/accent", "colors/accent/default", ["colors/accent/hover"]],
+  ] as const;
+  it("the report measures hover and active against the text of the default fill", () => {
+    for (const [text, , states] of STATES)
+      for (const s of states) expect(RDS_CONTRAST_PAIRS, `${text} on ${s}`).toContainEqual([text, s]);
+  });
+
+  it.each(COLOURS)("%s: hover and active carry text/on/* at AA and differ from the default fill", (hex) => {
+    for (const t of [generateRdsTheme(brand(hex)), generateRdsTheme(brand("#1b2a4a", { secondary: hex, accent: hex }))])
+      for (const mode of ["light", "dark", "brand"] as const)
+        for (const [text, fill, states] of STATES) {
+          const on = t[mode][`--${text.replaceAll("/", "-")}`];
+          const def = t[mode][`--${fill.replaceAll("/", "-")}`];
+          const seen = new Set([def.toLowerCase()]);
+          for (const s of states) {
+            const v = t[mode][`--${s.replaceAll("/", "-")}`];
+            expect(contrastRatio(on, v), `${mode} ${text} on ${s} (${on} on ${v})`).toBeGreaterThanOrEqual(4.5);
+            expect(seen.has(v.toLowerCase()), `${mode} ${s} ${v} repeats the default or another state`).toBe(false);
+            seen.add(v.toLowerCase());
+          }
+        }
+  });
+
+  it("cyan #00aeef (the PR #33 case): the action fill hover no longer darkens under black text", () => {
+    const t = generateRdsTheme(brand("#00aeef"));
+    expect(t.light["--text-on-secondary"]).toBe("#000000");
+    // Was #005679 (2.6:1 with the black label) and #003d58 (1.8:1).
+    expect(t.light["--colors-secondary-hover"]).not.toBe("#005679");
+    expect(contrastRatio("#000000", t.light["--colors-secondary-hover"])).toBeGreaterThanOrEqual(4.5);
+    expect(contrastRatio("#000000", t.light["--colors-secondary-active"])).toBeGreaterThanOrEqual(4.5);
+  });
+
   it("text/heading keeps the brand colour when it already passes, and darkens the yellow", () => {
     expect(generateRdsTheme(brand("#1b2a4a")).light["--text-heading"]).toBe("#1b2a4a");
     const t = generateRdsTheme(brand("#ffd200"));

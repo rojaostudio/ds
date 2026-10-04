@@ -124,6 +124,8 @@
   --savingbar-button-fill-background: var(--text-on-primary);
   --savingbar-button-fill-label: var(--colors-primary-default);
   --savingbar-button-ghost-label: var(--text-on-primary);
+  --form-actions-bar-background: var(--surface-page);
+  --form-actions-focus-ring: var(--focus-ring);
 
   /* blocks */
   --topnav-background: var(--surface-card);

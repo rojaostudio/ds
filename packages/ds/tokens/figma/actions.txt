@@ -1,4 +1,4 @@
-# [RDS] Components · collection Actions · file w64JuUL45DO4jGu3WEy9HU · extracted 2026-10-03
+# [RDS] Components · collection Actions · file w64JuUL45DO4jGu3WEy9HU · extracted 2026-10-04
 # DO NOT EDIT. Figma is the source: publish in Figma, run the extraction, save the output here.
 # Format: name|type (C colour, F number, S string, B boolean)|@collection:target (alias) OR raw value|WEB codeSyntax ("=" when it is the path with hyphens)[|obsolete]
 # obsolete: the Figma description starts with "Obsoleto"; the token stays for old code and no stylesheet has to read it.
@@ -124,3 +124,5 @@ savingbar/focus/ring|C|@theme:text/on/primary|=
 savingbar/button/fill/background|C|@theme:text/on/primary|=
 savingbar/button/fill/label|C|@theme:colors/primary/default|=
 savingbar/button/ghost/label|C|@theme:text/on/primary|=
+form-actions/bar/background|C|@theme:surface/page|=
+form-actions/focus/ring|C|@theme:focus/ring|=

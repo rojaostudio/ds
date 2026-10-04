@@ -169,8 +169,8 @@ describe("cascade layers", () => {
 describe("the real [RDS] extraction", () => {
   const all = loadAll(join(__dirname, "..", ".."));
 
-  it("has the 990 component tokens of the 10 collections", () => {
-    expect(all.tokens).toHaveLength(990);
+  it("has the 992 component tokens of the 10 collections", () => {
+    expect(all.tokens).toHaveLength(992);
   });
 
   it("has no obsolete token left: unused tokens are deleted in Figma, not kept", () => {
