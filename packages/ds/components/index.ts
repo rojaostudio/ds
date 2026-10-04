@@ -211,7 +211,7 @@ export type { TextareaProps } from './textarea';
 export { Toggle } from './toggle';
 export type { ToggleProps, ToggleVariant } from './toggle';
 export { Switch } from './switch';
-export type { SwitchProps } from './switch';
+export type { SwitchProps, SwitchSize, SwitchLabelPosition } from './switch';
 
 export { Tooltip } from './tooltip';
 export type { TooltipProps, TooltipSide } from './tooltip';

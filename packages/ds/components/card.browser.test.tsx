@@ -196,7 +196,7 @@ describe.each(SCHEMES)('Card header action (%s)', (scheme) => {
       <div style={{ display: 'grid', gap: 16, maxWidth: 400 }}>
         {SIZES.map((size) => (
           <Card key={size} size={size}>
-            <CardHeader title="Avisos" description="Pedidos novos" action={<Switch>Ativar avisos</Switch>} />
+            <CardHeader title="Avisos" description="Pedidos novos" action={<Switch size="sm">Ativar avisos</Switch>} />
             <CardContent>Texto</CardContent>
           </Card>
         ))}
