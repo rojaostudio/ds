@@ -7484,7 +7484,8 @@ body:has(.rds-modal) {
  * The heading is a row (Figma 04/10/2026): the way back, in a band as tall as the title's line (type/heading/line)
  * with the 44 IconButton centred on it, 8 before the text (the title's row and the description). The title's row is
  * as tall as the title's line, with the help IconButton centred on it in a band of the same height: neither button
- * adds height (the 44 overflows the 30 line evenly).
+ * adds height (the 44 overflows the 30 line evenly). The title addon (Figma 06/10/2026) follows in a band of the
+ * same height; when the row gets narrow it wraps under the title, 4 below.
  */
 .rds-page-header {
   display: flex;
@@ -7510,7 +7511,8 @@ body:has(.rds-modal) {
 }
 
 .rds-page-header__back,
-.rds-page-header__help {
+.rds-page-header__help,
+.rds-page-header__addon {
   display: flex;
   flex: none;
   align-items: center;
@@ -7527,12 +7529,16 @@ body:has(.rds-modal) {
 
 .rds-page-header__title-row {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-8);
+  gap: var(--space-4) var(--space-8);
   min-height: var(--type-heading-line);
 }
 
 .rds-page-header__title {
+  /* It keeps its width and wraps its own text only past the row: the addon goes under it first. */
+  flex: none;
+  max-width: 100%;
   min-width: 0;
   margin: 0;
   color: var(--pageheader-title);

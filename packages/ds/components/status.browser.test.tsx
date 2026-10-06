@@ -46,4 +46,20 @@ describe('Status behaviour', () => {
     expect(el.querySelector('.rds-status__dot')!.getAttribute('aria-hidden')).toBe('true');
     expect(pills[0].textContent).toBe('Pendente');
   });
+
+  it('dotColor paints only the dot; the plate and the word stay neutral', async () => {
+    const el = await render(
+      <div style={{ display: 'flex', gap: 8 }}>
+        <Status>Em produção</Status>
+        <Status dotColor="rgb(1, 2, 3)" style={{ marginLeft: 4 }}>Em produção</Status>
+      </div>,
+    );
+    const [plain, custom] = [...el.querySelectorAll<HTMLElement>('.rds-status')];
+    const dot = (p: HTMLElement) => getComputedStyle(p.querySelector('.rds-status__dot')!).backgroundColor;
+    expect(dot(custom)).toBe('rgb(1, 2, 3)');
+    expect(dot(plain)).not.toBe('rgb(1, 2, 3)');
+    expect(getComputedStyle(custom).color).toBe(getComputedStyle(plain).color);
+    expect(getComputedStyle(custom).backgroundColor).toBe(getComputedStyle(plain).backgroundColor);
+    expect(custom.style.marginLeft).toBe('4px');
+  });
 });

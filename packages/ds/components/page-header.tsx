@@ -53,6 +53,12 @@ export interface PageHeaderProps extends Omit<HTMLAttributes<HTMLElement>, 'titl
    * the title, centred on the title's line.
    */
   help?: PageHeaderHelp;
+  /**
+   * A tag right after the title (and its help), centred on the title's line (Figma: `showTitleAddon` + the
+   * `titleAddon` slot): a Status md with the record's state ("Pedido 1042" · "Em produção"). When it does not fit,
+   * it wraps under the title, 4 below.
+   */
+  titleAddon?: ReactNode;
 }
 
 /** The title as plain text, for the help's accessible name. */
@@ -77,6 +83,7 @@ export function PageHeader({
   titleAs = 'h1',
   back,
   help,
+  titleAddon,
   className,
   ...rest
 }: PageHeaderProps) {
@@ -114,6 +121,7 @@ export function PageHeader({
                   </Tooltip>
                 </div>
               )}
+              {titleAddon && <div className="rds-page-header__addon">{titleAddon}</div>}
             </div>
             {description && <p className="rds-page-header__description">{description}</p>}
           </div>

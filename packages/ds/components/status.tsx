@@ -1,4 +1,4 @@
-import type { HTMLAttributes, ReactNode } from 'react';
+import type { CSSProperties, HTMLAttributes, ReactNode } from 'react';
 
 export type StatusTone = 'neutral' | 'info' | 'success' | 'warning' | 'danger';
 /**
@@ -16,6 +16,12 @@ export interface StatusProps extends Omit<HTMLAttributes<HTMLSpanElement>, 'chil
   variant?: StatusVariant;
   /** md 32 tall (default); sm 24 (dot 6), for narrow cards and table rows. */
   size?: StatusSize;
+  /**
+   * The dot's own colour, for a category or a stage (queue, production, ready): a token from the product's theme
+   * (`var(--…)`).
+   * Only with tone="neutral": the plate and the word stay neutral, the colour is an accent (Figma: the `dot` fill).
+   */
+  dotColor?: string;
 }
 
 /**
@@ -27,13 +33,16 @@ export function Status({
   tone = 'neutral',
   variant = 'outline',
   size = 'md',
+  dotColor,
   children,
   className,
+  style,
   ...rest
 }: StatusProps) {
   return (
     <span
       {...rest}
+      style={dotColor ? ({ ...style, '--_dot': dotColor } as CSSProperties) : style}
       className={['rds-status', `rds-status--${tone}-${variant}`, `rds-status--${size}`, className]
         .filter(Boolean)
         .join(' ')}
