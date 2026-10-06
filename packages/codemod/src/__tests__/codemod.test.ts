@@ -297,6 +297,7 @@ describe('codemod: the vocabulary on a 2.0.0-next project (from: next)', () => {
         'Stat.tone',
         'Item.variant',
         'Marker.variant',
+        'PageShell.maxWidth',
         'FilterChip.active',
         'RowActions.items',
         'type:CardSurface',

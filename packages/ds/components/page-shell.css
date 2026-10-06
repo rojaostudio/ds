@@ -1,7 +1,9 @@
-/* @tokens page-shell */
 /*
- * PageShell: no tokens of its own. Centred, full width up to narrow 768, default 1280 or wide 1536. Padded: 24 on
- * top and bottom, 16 on the sides, 24 from 640, 32 from 1024. The body's sections are 24 apart.
+ * PageShell (Figma Navigation/PageShell): no tokens of its own. Centred, full width up to narrow 768
+ * (layout/form/max-width) or wide 1536 (the Base's 1536 step, the default). Padded: layout/content/padding-y above and
+ * below and layout/content/padding-x at the sides, both by the screen's viewport mode (16 on base; 24 from sm 640; 32
+ * from lg 1024; 48 at the sides from 2xl 1536), emitted from the Base's viewport collection. The body's sections are
+ * 24 apart.
  */
 .rds-page-shell {
   box-sizing: border-box;
@@ -10,11 +12,7 @@
 }
 
 .rds-page-shell--narrow {
-  max-width: 768px;
-}
-
-.rds-page-shell--default {
-  max-width: 1280px;
+  max-width: var(--layout-form-max-width);
 }
 
 .rds-page-shell--wide {
@@ -22,19 +20,7 @@
 }
 
 .rds-page-shell--padded {
-  padding: var(--space-24) var(--space-16);
-}
-
-@media (min-width: 640px) {
-  .rds-page-shell--padded {
-    padding-inline: var(--space-24);
-  }
-}
-
-@media (min-width: 1024px) {
-  .rds-page-shell--padded {
-    padding-inline: var(--space-32);
-  }
+  padding: var(--layout-content-padding-y) var(--layout-content-padding-x);
 }
 
 .rds-page-shell__body {

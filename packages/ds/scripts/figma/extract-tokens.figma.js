@@ -4,8 +4,8 @@
 //
 //   - in the Components file (w64JuUL45DO4jGu3WEy9HU): one file per local collection,
 //     packages/ds/tokens/figma/<collection>.txt (Actions → actions.txt…)
-//   - in the Base Tokens file (1Xn5IkLiq5Yhas680rJQf6): packages/ds-core/figma/theme.txt and
-//     packages/ds-core/figma/foundation.txt
+//   - in the Base Tokens file (1Xn5IkLiq5Yhas680rJQf6): packages/ds-core/figma/theme.txt,
+//     packages/ds-core/figma/foundation.txt and packages/ds-core/figma/viewport.txt
 //
 // The file is told apart by its collections (a local `theme` collection means Base Tokens). The return
 // value is { "<path from the repo root>": "<content>" }: save each entry as is. Set ONLY to a list of
@@ -168,6 +168,38 @@ if (!cols.some((c) => c.name === "theme")) {
     "# Format: name|type (F number in px or ms, S string, E effect)|value|WEB codeSyntax",
     ...rows.map((r) => r.line),
   ].join("\n") + "\n";
+
+  // ── viewport.txt (the screen modes: the breakpoints and the value of each viewport variable per mode) ─────
+  // The build turns the layout/* numbers a stylesheet reads into custom properties with one media query per
+  // breakpoint (layout/content/padding-x…). Values are resolved (aliases followed down).
+  const breakpoint = cols.find((c) => c.name === "breakpoint");
+  const viewport = cols.find((c) => c.name === "viewport");
+  const resolveValue = async (val) => {
+    while (isAlias(val)) {
+      const t = await figma.variables.getVariableByIdAsync(val.id);
+      const tm = t.variableCollectionId === base.id ? baseMode.modeId : Object.keys(t.valuesByMode)[0];
+      val = t.valuesByMode[tm] ?? Object.values(t.valuesByMode)[0];
+    }
+    return val;
+  };
+  const vpLines = [
+    `# [RDS] Base Tokens · collections breakpoint and viewport · file ${FILES.base} · extracted ${today}`,
+    DO_NOT_EDIT,
+    "# breakpoint/<mode>|F|<min-width in px>: where each viewport mode starts (the base mode starts at 0).",
+    `# Format of the rest: name|type (F number in px, B boolean)|${viewport.modes.map((m) => m.name).join("|")}`,
+  ];
+  for (const v of await vars(breakpoint))
+    vpLines.push(`breakpoint/${v.name}|F|${num(await resolveValue(v.valuesByMode[breakpoint.defaultModeId]))}`);
+  for (const v of await vars(viewport)) {
+    if (v.resolvedType !== "FLOAT" && v.resolvedType !== "BOOLEAN") continue;
+    const values = [];
+    for (const m of viewport.modes) {
+      const val = await resolveValue(v.valuesByMode[m.modeId]);
+      values.push(v.resolvedType === "FLOAT" ? num(val) : String(val));
+    }
+    vpLines.push(`${v.name}|${TYPE[v.resolvedType]}|${values.join("|")}`);
+  }
+  files["packages/ds-core/figma/viewport.txt"] = vpLines.join("\n") + "\n";
 }
 
 return files;

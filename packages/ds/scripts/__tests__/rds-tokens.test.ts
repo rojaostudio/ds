@@ -3,8 +3,8 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { RDS_TOKEN_SCOPE } from "@rojaostudio/ds-core/generate";
 import {
-  check, emitComponentsCss, emitThemeCss, foundationCss, loadAll, loadBrandTable, parseCollection, pathVar,
-  RDS_LAYER_ORDER, TOKEN_SCOPE, tokenCss,
+  check, emitComponentsCss, emitThemeCss, emitViewportCss, foundationCss, loadAll, loadBrandTable, parseCollection,
+  parseViewport, pathVar, RDS_LAYER_ORDER, TOKEN_SCOPE, tokenCss,
 } from "../rds-tokens";
 
 const roles = new Set(["text/body", "surface/card", "focus/ring"]);
@@ -84,6 +84,39 @@ describe("rds-tokens checks", () => {
     const [t] = parseCollection("actions", "fab/cta/background/default|C|@theme:surface/card|--fab-cta-bg");
     expect(t.cssVar).toBe("--fab-cta-background-default");
     expect(check([t], roles, foundation, []).codeSyntaxDivergent).toHaveLength(1);
+  });
+});
+
+describe("viewport.txt (the screen modes)", () => {
+  const txt = [
+    "# Format of the rest: name|type (F number in px, B boolean)|base|sm|lg",
+    "breakpoint/sm|F|640",
+    "breakpoint/lg|F|1024",
+    "layout/content/padding-x|F|16|24|32",
+    "layout/form/max-width|F|768|768|768",
+    "layout/grid/item-min-width|F|300|300|300",
+    "layout/compact|B|true|true|false",
+    "data-table-header/search-min|F|200|200|320",
+  ].join("\n");
+
+  it("reads the modes with where they start, and the number variables", () => {
+    const v = parseViewport(txt);
+    expect(v.modes).toEqual([{ name: "base", from: 0 }, { name: "sm", from: 640 }, { name: "lg", from: 1024 }]);
+    expect(v.tokens.map((t) => t.name)).toEqual(["layout/content/padding-x", "layout/form/max-width", "layout/grid/item-min-width", "data-table-header/search-min"]);
+  });
+
+  it("emits only the layout/* a stylesheet reads, with a media query where the value changes", () => {
+    const css = emitViewportCss(parseViewport(txt), new Set(["--layout-content-padding-x", "--layout-form-max-width", "--data-table-header-search-min"]));
+    expect(css).toContain(":root {\n  --layout-content-padding-x: 16px;\n  --layout-form-max-width: 768px;\n}");
+    expect(css).toContain("@media (min-width: 640px) {\n:root {\n  --layout-content-padding-x: 24px;\n}\n}");
+    expect(css).toContain("@media (min-width: 1024px) {\n:root {\n  --layout-content-padding-x: 32px;\n}\n}");
+    expect(css).not.toContain("grid-item-min-width");
+    expect(css).not.toContain("search-min");
+    expect(emitViewportCss(parseViewport(txt), new Set())).toBe("");
+  });
+
+  it("fails on a mode without a breakpoint", () => {
+    expect(() => parseViewport(txt.replace("breakpoint/lg|F|1024\n", ""))).toThrow(/no breakpoint for mode "lg"/);
   });
 });
 
