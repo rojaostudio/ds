@@ -3,6 +3,7 @@ import { page, userEvent } from 'vitest/browser';
 import { Breadcrumb } from './breadcrumb';
 import { Button } from './button';
 import { PageHeader } from './page-header';
+import { Status } from './status';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './tabs';
 import { MODES, SCHEMES, axeViolations, cleanup, render, renderIn, settle } from './__tests__/render';
 
@@ -166,5 +167,45 @@ describe('PageHeader help', () => {
   it('without back and help nothing is added', async () => {
     const el = await render(<PageHeader title="Disparos" />);
     expect(el.querySelector('.rds-page-header__back, .rds-page-header__help')).toBeNull();
+  });
+});
+
+describe('PageHeader title addon', () => {
+  it('follows the title and the help, centred on the title line, and adds no height', async () => {
+    const el = await render(
+      <PageHeader
+        help={{ label: 'Como funciona', onClick: () => {} }}
+        title="Pedido 1042"
+        titleAddon={<Status tone="info">Em produção</Status>}
+      />,
+    );
+    const row = el.querySelector('.rds-page-header__title-row')!;
+    expect([...row.children].map((c) => c.className.split(' ')[0])).toEqual([
+      'rds-page-header__title',
+      'rds-page-header__help',
+      'rds-page-header__addon',
+    ]);
+    expect(row.getBoundingClientRect().height).toBe(30);
+    const title = row.querySelector('.rds-page-header__title')!.getBoundingClientRect();
+    const tag = row.querySelector('.rds-status')!.getBoundingClientRect();
+    expect(Math.round(tag.top + tag.height / 2)).toBe(Math.round(title.top + title.height / 2));
+    expect(await axeViolations(el)).toEqual([]);
+  });
+
+  it('wraps under the title on a phone when it does not fit, 4 below', async () => {
+    await page.viewport(390, 800);
+    const el = await render(
+      <PageHeader title="Pedido 1042 da Gráfica Central" titleAddon={<Status tone="info">Em produção</Status>} />,
+    );
+    const title = el.querySelector('.rds-page-header__title')!.getBoundingClientRect();
+    const addon = el.querySelector('.rds-page-header__addon')!.getBoundingClientRect();
+    expect(addon.top - title.bottom).toBe(4);
+    expect(addon.left).toBe(title.left);
+    await page.viewport(1280, 900);
+  });
+
+  it('without titleAddon nothing is added', async () => {
+    const el = await render(<PageHeader title="Disparos" />);
+    expect(el.querySelector('.rds-page-header__addon')).toBeNull();
   });
 });
