@@ -2,10 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act } from 'react';
 import { userEvent } from 'vitest/browser';
 import { ChoiceCard, ChoiceCardGroup, type ChoiceCardLayout } from './choice-card';
-import { SelectableCard } from './selectable-card';
-import { OptionTile, OptionTileGrid } from './option-tile';
-import { ChoicePreviewCard } from './choice-preview-card';
-import { CalendarIcon, MapPinIcon, StarIcon } from './internal/icons';
+import { CalendarIcon, MapPinIcon } from './internal/icons';
 import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
 afterEach(cleanup);
@@ -159,60 +156,6 @@ describe('ChoiceCard layouts behaviour', () => {
     expect(getComputedStyle(other).borderTopWidth).toBe('1px');
     const preview = other.querySelector('.rds-choice-card__preview')!.getBoundingClientRect();
     expect(Math.round((preview.width / preview.height) * 9)).toBe(16);
-  });
-});
-
-describe('ChoiceCard deprecated wrappers', () => {
-  it('SelectableCard is a row ChoiceCard; onClick chooses', async () => {
-    const onClick = vi.fn();
-    const el = await render(
-      <SelectableCard onClick={onClick}>
-        Plano mensal
-      </SelectableCard>,
-    );
-    const card = el.querySelector<HTMLLabelElement>('.rds-choice-card--row')!;
-    expect(card.querySelector('input[type="radio"]')).not.toBeNull();
-    await act(async () => card.click());
-    expect(onClick).toHaveBeenCalledOnce();
-  });
-
-  it('OptionTileGrid: one at a time as radios; with multiple, checkboxes that toggle', async () => {
-    const onChange = vi.fn();
-    const onMany = vi.fn();
-    const items = [
-      { value: 'a', label: 'Roupas', icon: StarIcon },
-      { value: 'b', label: 'Calçados' },
-    ];
-    const el = await render(
-      <div>
-        <OptionTileGrid label="Segmento" options={items} value="a" onChange={onChange} />
-        <OptionTileGrid label="Canais" options={items} multiple value={['a']} onChange={onMany} />
-      </div>,
-    );
-    const [single, multi] = el.querySelectorAll('fieldset');
-    expect(single.querySelector('legend')!.textContent).toBe('Segmento');
-    expect(single.querySelectorAll('input[type="radio"]')).toHaveLength(2);
-    expect(single.querySelector<HTMLInputElement>('input')!.checked).toBe(true);
-    await act(async () => single.querySelectorAll<HTMLLabelElement>('label')[1].click());
-    expect(onChange).toHaveBeenLastCalledWith('b');
-    const boxes = multi.querySelectorAll<HTMLLabelElement>('label');
-    expect(multi.querySelectorAll('input[type="checkbox"]')).toHaveLength(2);
-    await act(async () => boxes[0].click());
-    expect(onMany).toHaveBeenLastCalledWith([]);
-    await act(async () => boxes[1].click());
-    expect(onMany).toHaveBeenLastCalledWith(['a', 'b']);
-  });
-
-  it('OptionTile alone and ChoicePreviewCard keep compiling and render the new layouts', async () => {
-    const el = await render(
-      <div>
-        <OptionTile selected label="Roupas" onClick={() => {}} fullSpan />
-        <ChoicePreviewCard selected={false} onSelect={() => {}} preview={<span />} label="Grade" description="Duas colunas." />
-      </div>,
-    );
-    expect(el.querySelector('.rds-choice-card--tile .rds-choice-card__check')).not.toBeNull();
-    const preview = el.querySelector('.rds-choice-card--preview')!;
-    expect(preview.querySelector('.rds-choice-card__label')!.textContent).toBe('Grade');
   });
 });
 

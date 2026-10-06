@@ -67,7 +67,7 @@ export type { StarRatingProps, StarRatingSize } from './star-rating';
 
 // 2.0 (#16): Content follows the Figma [RDS]. Card: variant surface · soft · outline, size md · sm; the old variants left.
 export { Card, CardHeader, CardContent, CardFooter } from './card';
-export type { CardProps, CardHeaderProps, CardContentProps, CardFooterProps, CardVariant, CardSurface, CardSize } from './card';
+export type { CardProps, CardHeaderProps, CardContentProps, CardFooterProps, CardVariant, CardSize } from './card';
 export { Tile } from './tile';
 export type { TileProps, TileTone, TileVariant, TileSize } from './tile';
 export { Kbd, KbdGroup } from './kbd';
@@ -81,11 +81,8 @@ export type { CarouselProps } from './carousel';
 export { Item, ItemGroup } from './item';
 export type { ItemProps, ItemGroupProps, ItemVariant, ItemSize } from './item';
 
-// 2.0 (#18): Pricing is a Block of the Figma [RDS]; PricingCard is a deprecated thin wrapper over PricingPlan.
 export { Pricing, PricingPlan } from './pricing';
 export type { PricingProps, PricingPlanProps } from './pricing';
-export { PricingCard } from './pricing-card';
-export type { PricingCardProps } from './pricing-card';
 
 // 2.0 (#14): the form fields follow the Figma [RDS] Forms (label, hint, errorMessage, labelPosition).
 export { Checkbox } from './checkbox';
@@ -122,28 +119,18 @@ export { InsightCard } from './insight-card';
 export type { InsightCardProps, InsightCardType } from './insight-card';
 
 export { SectionCard } from './section-card';
-export { SectionHeader } from './section-header';
 export { Stepper } from './stepper';
 export type { StepperProps, StepperStep } from './stepper';
-/** @deprecated Renamed to `Stepper` in 2.0 (same props). */
-export { FloatingStepper } from './floating-stepper';
-/** @deprecated Renamed to `StepperProps` and `StepperStep` in 2.0. */
-export type { FloatingStepperProps, FloatingStepperStep } from './floating-stepper';
-export type { SectionHeaderProps } from './section-header';
 export type { SectionCardProps } from './section-card';
 
 // 2.0 (#18): SummaryBar is a strip of Stats (Figma [RDS] Content/Stat and Content/SummaryBar).
 export { Stat } from './stat';
 export type { StatProps, StatTone } from './stat';
 export { SummaryBar } from './summary-bar';
-export type { SummaryBarProps, SummaryBarLayout, SummaryBarItem, SummaryBarTone } from './summary-bar';
+export type { SummaryBarProps, SummaryBarLayout } from './summary-bar';
 
 export { ToggleCard } from './toggle-card';
 export type { ToggleCardProps, ToggleCardLayout } from './toggle-card';
-
-// Deprecated: ToggleCard layout="compact" (Figma [RDS] Forms/ToggleCard). The codemod rewrites it.
-export { ToggleCardCompact } from './toggle-card-compact';
-export type { ToggleCardCompactProps } from './toggle-card-compact';
 
 // 2.0 (#18): ChipInput follows the Figma [RDS] Forms/ChipInput; the values are strings (ChipItem is gone).
 export { ChipInput } from './chip-input';
@@ -159,26 +146,8 @@ export type { ChoiceCardProps, ChoiceCardGroupProps, ChoiceCardLayout } from './
 // #4: the dense list to choose one from (client search, catalog, side panel). Rows with a line only at the bottom.
 export { ChoiceList, ChoiceListItem } from './choice-list';
 export type { ChoiceListProps, ChoiceListItemProps } from './choice-list';
-// Deprecated (#18): thin wrappers over the ChoiceCard (layout tile, row and preview).
-export { OptionTile, OptionTileGrid } from './option-tile';
-export type { OptionTileProps, OptionTileItem, OptionTileGridProps } from './option-tile';
-
-export { SelectableCard } from './selectable-card';
-export type { SelectableCardProps } from './selectable-card';
-
-export { ChoicePreviewCard } from './choice-preview-card';
-export type { ChoicePreviewCardProps } from './choice-preview-card';
-
-// Deprecated (#16): a thin wrapper over the Item.
-export { SettingRow } from './setting-row';
-export type { SettingRowProps } from './setting-row';
-
 export { SettingsList } from './settings-list';
 export type { SettingsListProps } from './settings-list';
-
-/** @deprecated FileInput layout="dropzone". */
-export { Dropzone } from './dropzone';
-export type { DropzoneProps } from './dropzone';
 
 export { MediaTile } from './media-tile';
 export type { MediaTileProps, MediaTileAspect } from './media-tile';
@@ -190,17 +159,13 @@ export type { AttachmentProps, AttachmentStatus, AttachmentOrientation } from '.
 export { Bubble } from './bubble';
 export type { BubbleProps, BubbleVariant, BubbleTone, BubbleAlign } from './bubble';
 export { Marker } from './marker';
-export type { MarkerProps, MarkerKind, MarkerVariant } from './marker';
+export type { MarkerProps, MarkerKind } from './marker';
 export { Message } from './message';
 export type { MessageProps, MessageAlign } from './message';
 export { MessageScroller } from './message-scroller';
 export type { MessageScrollerProps } from './message-scroller';
 export { Questionnaire } from './questionnaire';
 export type { QuestionnaireProps, QuestionnaireAnswer } from './questionnaire';
-
-// Deprecated (#18): a thin wrapper over the Bubble with `typing`.
-export { TypingIndicator } from './typing-indicator';
-export type { TypingIndicatorProps } from './typing-indicator';
 
 export { ChoiceCarousel } from './choice-carousel';
 export type { ChoiceCarouselProps } from './choice-carousel';
@@ -210,10 +175,10 @@ export { Tabs, TabsList, TabsTrigger, TabsContent } from './tabs';
 export type { TabsProps, TabsListProps, TabsTriggerProps, TabsContentProps } from './tabs';
 
 export { PageHeader } from './page-header';
-export type { PageHeaderProps, PageHeaderHeading } from './page-header';
+export type { PageHeaderProps, PageHeaderHeading, PageHeaderBack, PageHeaderHelp } from './page-header';
 
-export { Sidebar, SidebarItem, SidebarSection, SidebarSeparator } from './sidebar';
-export type { SidebarProps, SidebarItemProps, SidebarSectionProps, SidebarHeader } from './sidebar';
+export { Sidebar, SidebarItem, SidebarGroup, SidebarTrigger } from './sidebar';
+export type { SidebarProps, SidebarItemProps, SidebarGroupProps, SidebarTriggerProps, SidebarHeader, SidebarCountTone } from './sidebar';
 
 export { NavigationMenu } from './navigation-menu';
 export type { NavigationMenuProps, NavigationMenuEntry, NavigationMenuLink, NavigationMenuLinkComponent } from './navigation-menu';
@@ -246,7 +211,7 @@ export type { TextareaProps } from './textarea';
 export { Toggle } from './toggle';
 export type { ToggleProps, ToggleVariant } from './toggle';
 export { Switch } from './switch';
-export type { SwitchProps } from './switch';
+export type { SwitchProps, SwitchSize, SwitchLabelPosition } from './switch';
 
 export { Tooltip } from './tooltip';
 export type { TooltipProps, TooltipSide } from './tooltip';
@@ -264,7 +229,7 @@ export { Heading, HeadingMark } from './heading';
 export type { HeadingProps, HeadingMarkProps, HeadingLevel, HeadingTone, HeadingElement } from './heading';
 
 export { Avatar, AvatarGroup, initials } from './avatar';
-export type { AvatarProps, AvatarGroupProps, AvatarSize, AvatarGroupSize, AvatarType, AvatarContent, AvatarVariant } from './avatar';
+export type { AvatarProps, AvatarGroupProps, AvatarSize, AvatarGroupSize, AvatarType, AvatarContent } from './avatar';
 
 export { IconButton } from './icon-button';
 export type { IconButtonProps } from './icon-button';
@@ -279,7 +244,7 @@ export { FormActions } from './form-actions';
 export type { FormActionsProps, FormActionsPlacement } from './form-actions';
 
 export { Breadcrumb } from './breadcrumb';
-export type { BreadcrumbProps, BreadcrumbItem, BreadcrumbTone, BreadcrumbLinkComponent } from './breadcrumb';
+export type { BreadcrumbProps, BreadcrumbItem, BreadcrumbLinkComponent } from './breadcrumb';
 
 export { Pagination, pageItems } from './pagination';
 export type { PaginationProps, PaginationLinkComponent } from './pagination';
@@ -301,7 +266,7 @@ export type { ListboxProps, ListboxOptionProps } from './listbox';
 export { Calendar } from './calendar';
 export type { CalendarProps, IsoDate } from './calendar';
 export { FileInput, formatFileSize } from './file-input';
-export type { FileInputProps, FileInputLayout, FileInputVariant } from './file-input';
+export type { FileInputProps, FileInputLayout } from './file-input';
 export { NumberInput } from './number-input';
 export type { NumberInputProps, NumberInputStep } from './number-input';
 export { InputOTP } from './input-otp';
@@ -327,16 +292,15 @@ export type { CurrencyInputProps } from './currency-input';
 export { ColorInput, normalizeHex } from './color-input';
 export type { ColorInputProps } from './color-input';
 
-// PhoneInput, ImageCropDialog and ImageUpload are NOT in the barrel: they import optional peers
-// (react-international-phone, react-image-crop), and a barrel export would make every consumer install
-// them (#2). Import them from their own entry: @rojaostudio/ds/components/phone-input,
-// .../image-crop-dialog, .../image-upload. (`.../image-crop-modal`, the old name, still works: deprecated.)
+// PhoneInput and ImageCropDialog are NOT in the barrel: they import optional peers (react-international-phone,
+// react-image-crop), and a barrel export would make every consumer install them (#2). Import them from their own
+// entry: @rojaostudio/ds/components/phone-input, .../image-crop-dialog.
 
 export { RowActions } from './row-actions';
 export type { RowActionsProps, RowActionItem } from './row-actions';
 
 export { PageShell } from './page-shell';
-export type { PageShellProps, PageShellHeaderProps, PageShellBodyProps, PageShellWidth } from './page-shell';
+export type { PageShellProps, PageShellBodyProps, PageShellWidth } from './page-shell';
 
 export { DangerZone, DangerZoneItem } from './danger-zone';
 export type { DangerZoneProps, DangerZoneItemProps } from './danger-zone';

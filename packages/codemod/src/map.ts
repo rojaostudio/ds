@@ -1102,6 +1102,16 @@ export const VOCABULARY: Record<string, VocabRule> = {
   Badge: { transforms: ['badgeHighlight'] },
   // RowActions: the items' variant → tone
   RowActions: { transforms: ['rowActionsItems'] },
+  // PageShell: maxWidth default (1280) is gone; narrow (768) and wide (1536, now the default) stay
+  PageShell: {
+    props: {
+      maxWidth: {
+        values: { narrow: 'narrow', wide: 'wide' },
+        manual:
+          'PageShell: maxWidth="default" (1280) saiu. Use "wide" (1536, o novo padrão: basta omitir a prop) ou "narrow" (768, para formulário e leitura).',
+      },
+    },
+  },
 };
 
 /** Bubble: the old surface → variant + tone (+ typing). */
@@ -1166,17 +1176,18 @@ export const ONLY_IN_2_0: ReadonlySet<string> = new Set([
   'Marker', 'MarkerKind', 'MarkerProps', 'MarkerVariant', 'MediaTileAspect', 'Message', 'MessageAlign',
   'MessageProps', 'MessageScroller', 'MessageScrollerProps', 'NavigationMenu', 'NavigationMenuEntry',
   'NavigationMenuLink', 'NavigationMenuLinkComponent', 'NavigationMenuProps', 'Newsletter', 'NewsletterProps',
-  'NumberInput', 'NumberInputProps', 'NumberInputStep', 'PageHeader', 'PageHeaderHeading', 'PageHeaderProps',
+  'NumberInput', 'NumberInputProps', 'NumberInputStep', 'PageHeader', 'PageHeaderBack', 'PageHeaderHeading',
+  'PageHeaderHelp', 'PageHeaderProps',
   'PaginationLinkComponent', 'PasswordInput', 'PasswordInputProps', 'Phone', 'PhonePlatform', 'PhoneProps',
   'PixIconProps', 'PopoverAlign', 'PopoverClose', 'PopoverSide', 'Pricing', 'PricingPlan', 'PricingPlanProps',
   'PricingProps', 'Progress', 'ProgressKind', 'ProgressProps', 'ProgressSize', 'Questionnaire',
   'QuestionnaireAnswer', 'QuestionnaireProps', 'SavingBarStatus', 'SelectItem', 'SelectItemProps', 'Separator',
   'SeparatorOrientation', 'SeparatorProps', 'Sheet', 'SheetClose', 'SheetProps', 'SheetSide', 'Sidebar',
-  'SidebarHeader', 'SidebarItem', 'SidebarItemProps', 'SidebarProps', 'SidebarSection', 'SidebarSectionProps',
-  'SidebarSeparator', 'SkeletonShape', 'Sparkline', 'SparklineProps', 'SpinnerTone', 'StarRating',
+  'SidebarCountTone', 'SidebarGroup', 'SidebarGroupProps', 'SidebarHeader', 'SidebarItem', 'SidebarItemProps',
+  'SidebarProps', 'SidebarSection', 'SidebarSectionProps', 'SidebarSeparator', 'SidebarTrigger', 'SidebarTriggerProps', 'SkeletonShape', 'Sparkline', 'SparklineProps', 'SpinnerTone', 'StarRating',
   'StarRatingProps', 'StarRatingSize', 'Stat', 'StatProps', 'StatTone', 'Status', 'StatusProps', 'StatusSize',
   'StatusTone', 'StatusVariant', 'Stepper', 'StepperProps', 'StepperStep', 'SummaryBarLayout', 'Switch',
-  'SwitchProps', 'TableAlign', 'TableCell', 'TableCellProps', 'TableHeadProps', 'TableHeader', 'TableProps',
+  'SwitchLabelPosition', 'SwitchProps', 'SwitchSize', 'TableAlign', 'TableCell', 'TableCellProps', 'TableHeadProps', 'TableHeader', 'TableProps',
   'TableSort', 'TableStatus', 'TableStatusProps', 'Tabs', 'TabsContent', 'TabsContentProps', 'TabsList',
   'TabsListProps', 'TabsProps', 'TabsTrigger', 'TabsTriggerProps', 'Testimonial', 'TestimonialItem',
   'TestimonialItemProps', 'TestimonialProps', 'Tile', 'TileProps', 'TileSize', 'TileTone', 'TileVariant',

@@ -31,6 +31,22 @@ export async function render(ui: ReactNode, mode: Mode = 'light', options: { hos
   return host;
 }
 
+/** light, dark and the brand plate (the theme's brand mode, `.ds-plate`): the three schemes a component passes axe in. */
+export type Scheme = Mode | 'plate';
+export const SCHEMES: Scheme[] = ['light', 'dark', 'plate'];
+
+/** Renders in light, dark, or on the brand plate (a `.ds-plate` band over the page, in light). */
+export async function renderIn(ui: ReactNode, scheme: Scheme, options: { host?: 'main' | 'div' } = {}): Promise<HTMLElement> {
+  if (scheme !== 'plate') return render(ui, scheme, options);
+  return render(
+    <div className="ds-plate" style={{ background: 'var(--surface-page)', color: 'var(--text-body)', padding: 16 }}>
+      {ui}
+    </div>,
+    'light',
+    options,
+  );
+}
+
 export function cleanup() {
   if (root) act(() => root!.unmount());
   host?.remove();

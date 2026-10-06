@@ -1,6 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { Bubble, type BubbleAlign, type BubbleProps } from './bubble';
-import { TypingIndicator } from './typing-indicator';
 import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
 afterEach(cleanup);
@@ -135,12 +134,6 @@ describe('Bubble typing', () => {
     expect(reduced).toMatch(/\.rds-bubble__dots > span:nth-child\(2\) \{ opacity: 0\.6; \}/);
   });
 
-  it('the deprecated TypingIndicator is the typing Bubble, its label the announcement', async () => {
-    const el = await render(<TypingIndicator />);
-    const bubble = el.querySelector('.rds-bubble--typing')!;
-    expect(bubble.getAttribute('role')).toBe('status');
-    expect(bubble.textContent).toBe('Digitando');
-  });
 });
 
 describe('Bubble vocabulary', () => {

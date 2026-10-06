@@ -11,17 +11,14 @@ export type AvatarSize = 'sm' | 'md' | 'lg' | 'xl';
  * (no name).
  */
 export type AvatarContent = 'image' | 'fallback' | 'icon';
-/** @deprecated Use AvatarContent (2.0.0-next: the Figma `variant` is `content`). */
-export type AvatarVariant = AvatarContent;
 
 export interface AvatarProps extends Omit<HTMLAttributes<HTMLSpanElement>, 'children'> {
   /** person is a circle; brand is a square with rounded corners, initials in bold on the brand's mark colour. */
   type?: AvatarType;
   /**
-   * sm 24, md 32 (default), lg 40, xl 56 (Figma: `size`). Inside an AvatarGroup, the group's size. `'default'` is
-   * deprecated (2.0.0-next): it is `'md'`.
+   * sm 24, md 32 (default), lg 40, xl 56 (Figma: `size`). Inside an AvatarGroup, the group's size.
    */
-  size?: AvatarSize | 'default';
+  size?: AvatarSize;
   /** The photo (Figma: `content=image`). If it fails to load, the initials (or the icon) show instead. */
   src?: string;
   /**
@@ -40,8 +37,6 @@ export interface AvatarProps extends Omit<HTMLAttributes<HTMLSpanElement>, 'chil
 }
 
 const GroupSize = createContext<AvatarSize | undefined>(undefined);
-
-const sizeOf = <S extends string>(size: S | 'default'): S | 'md' => (size === 'default' ? 'md' : size);
 
 /** Two letters: first and last name, or the first two letters of a single word. "?" for an empty name. */
 export function initials(name: string): string {
@@ -69,7 +64,7 @@ export function Avatar({
   ...rest
 }: AvatarProps) {
   const groupSize = useContext(GroupSize);
-  const finalSize = sizeOf(size ?? groupSize ?? 'md');
+  const finalSize = size ?? groupSize ?? 'md';
   const [failed, setFailed] = useState<string | null>(null);
   const trimmed = name?.trim() ?? '';
   const letters = fallbackText ?? (trimmed ? (type === 'brand' ? trimmed[0]!.toUpperCase() : initials(trimmed)) : '');
@@ -103,8 +98,8 @@ export type AvatarGroupSize = Exclude<AvatarSize, 'xl'>;
 export interface AvatarGroupProps extends HTMLAttributes<HTMLDivElement> {
   /** Who the group is ("Equipe do projeto"). Required: it names the group for screen readers. */
   'aria-label': string;
-  /** The size of every Avatar inside (Figma: sm, md, lg). `'default'` is deprecated (2.0.0-next): it is `'md'`. */
-  size?: AvatarGroupSize | 'default';
+  /** The size of every Avatar inside (Figma: sm, md, lg). */
+  size?: AvatarGroupSize;
   /** Show only the first `max` and a "+N" with the rest. 3 or 4 is a good limit. */
   max?: number;
   /** The Avatars. */
@@ -112,8 +107,7 @@ export interface AvatarGroupProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 /** AvatarGroup — Figma [RDS] Content/AvatarGroup. Overlapping avatars, each with a ring that separates it. */
-export function AvatarGroup({ size: sizeProp = 'md', max, className, children, ...rest }: AvatarGroupProps) {
-  const size = sizeOf(sizeProp);
+export function AvatarGroup({ size = 'md', max, className, children, ...rest }: AvatarGroupProps) {
   const items = Children.toArray(children);
   const shown = max && items.length > max ? items.slice(0, max) : items;
   const hidden = items.length - shown.length;

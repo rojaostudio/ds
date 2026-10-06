@@ -1,11 +1,22 @@
 /* @tokens sidebar */
 /*
  * Sidebar (Navigation collection, sidebar/*): 240 wide (64 collapsed), 12 × 8 inside, a 1px border on the right.
- * Header: the brand mark (24) and the module (16/24 medium), 10 apart, 44 tall. Entries of 44, 12 inside, 12 between
- * icon (20) and label (14/20 medium), 4 apart; the current one on the brand tint, its label semibold in
- * sidebar/item/label/active and a 3 × 20 marker on the left in sidebar/item/indicator, so the current entry does not
- * rest on colour alone.
- * Section labels 11/14 bold, 16 above and 6 below, with a 14 chevron. Foot: who is signed in (12/16) and Sair.
+ * Header: the brand mark (24) and the module (16/24 medium), 10 apart, 44 tall. Foot: who is signed in (12/16) and
+ * Sair. Style by level (Figma 04/10/2026), never by having children:
+ *   level 1, a loose entry and a group's header alike: 44 tall, 12 inside, 12 between the icon (20) and the label,
+ *            14/20 medium in sidebar/item/label/default; the group adds a 14 chevron on the right and 12 above (with
+ *            the list's 4, 16 above the group). The group with the current route inside it: icon, label and chevron
+ *            in sidebar/item/label/strong, semibold, no pill.
+ *   level 2, an entry inside a group: text only, 40 tall, indented 44 (12 + 20 + 12, under the level 1 label),
+ *            14/20 regular.
+ * The current page (one only): the pill sidebar/item/background/active, the label semibold in
+ * sidebar/item/label/active. No marker, no separator, no section caption.
+ * The count (.sidebar/count): the number on the right in sidebar/count/neutral or danger; in the rail, an 8 dot in
+ * the icon's corner in sidebar/dot/neutral or danger, with a 2 ring in the panel's colour. A group never shows a
+ * number; in the rail its dot takes the worst state of its entries.
+ * The rail's flyout is the DropdownMenu's shell (internal/menu.css), 240 wide, beside the group's icon.
+ * Below 1024 (Figma viewport: layout/nav-button/visible) the Sidebar is the drawer: fixed on the left, over the page
+ * and its veil (drawer/scrim), out of view and inert while closed.
  * No tone: the Sidebar follows its container's mode. The brand-coloured bar is a `.ds-plate` around it (the brand
  * mode), the dark one a `.dark`.
  */
@@ -16,9 +27,8 @@
   --_hover: var(--sidebar-item-background-hover);
   --_module: var(--sidebar-module);
   --_user: var(--sidebar-user);
-  --_section: var(--sidebar-section-label);
-  --_count: var(--sidebar-item-count);
   --_ring: var(--sidebar-focus-ring);
+  --_entry: calc(var(--space-12) * 2 + var(--type-button-line));
 
   box-sizing: border-box;
   display: flex;
@@ -42,7 +52,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  min-height: calc(var(--space-12) * 2 + var(--type-button-line));
+  min-height: var(--_entry);
   padding: var(--space-8) var(--space-12) var(--space-12);
 }
 
@@ -101,7 +111,7 @@
   align-items: center;
   gap: var(--space-12);
   width: 100%;
-  min-height: calc(var(--space-12) * 2 + var(--type-button-line));
+  min-height: var(--_entry);
   padding: 0 var(--space-12);
   border: 0;
   border-radius: var(--radius-control);
@@ -115,13 +125,20 @@
   cursor: pointer;
 }
 
-.rds-sidebar--collapsed .rds-sidebar__item {
+/* Level 2: text only, 40 tall, under the level 1 label (12 + 20 + 12). */
+.rds-sidebar__item--level-2 {
+  min-height: var(--space-40);
+  padding-inline-start: calc(var(--space-12) * 2 + var(--size-20));
+}
+
+.rds-sidebar--collapsed .rds-sidebar__item--level-1 {
   justify-content: center;
-  width: calc(var(--space-12) * 2 + var(--type-button-line));
+  width: var(--_entry);
   padding: 0;
 }
 
 .rds-sidebar__icon {
+  position: relative;
   display: inline-flex;
   flex: none;
 }
@@ -137,10 +154,40 @@
   font-weight: 500;
 }
 
+.rds-sidebar__item--level-2 .rds-sidebar__label {
+  font-weight: 400;
+}
+
 .rds-sidebar__count {
   flex: none;
-  color: var(--_count);
   font-variant-numeric: tabular-nums;
+}
+
+.rds-sidebar__count--neutral {
+  color: var(--sidebar-count-neutral);
+}
+
+.rds-sidebar__count--danger {
+  color: var(--sidebar-count-danger);
+}
+
+/* The rail's dot: 8, in the icon's top right corner, a 2 ring in the panel's colour. */
+.rds-sidebar__dot {
+  position: absolute;
+  top: -2px;
+  inset-inline-end: -2px;
+  width: var(--space-8);
+  height: var(--space-8);
+  border-radius: var(--radius-full);
+  box-shadow: 0 0 0 2px var(--_background);
+}
+
+.rds-sidebar__dot--neutral {
+  background: var(--sidebar-dot-neutral);
+}
+
+.rds-sidebar__dot--danger {
+  background: var(--sidebar-dot-danger);
 }
 
 @media (hover: hover) {
@@ -159,61 +206,30 @@
   font-weight: 600;
 }
 
-/* Figma .sidebar/item state=active: the marker, 3 × 20, on the left edge, vertically centred, radius 2. */
-.rds-sidebar__item[aria-current='page']::before {
-  content: '';
-  position: absolute;
-  inset-inline-start: 0;
-  top: 50%;
-  width: 3px;
-  height: var(--size-20);
-  border-radius: 2px;
-  background: var(--sidebar-item-indicator);
-  transform: translateY(-50%);
-}
-
-.rds-sidebar__item:focus-visible,
-.rds-sidebar__section-toggle:focus-visible {
+.rds-sidebar__item:focus-visible {
   outline: var(--focus-ring-width) solid var(--_ring);
   outline-offset: calc(var(--focus-ring-width) * -1);
 }
 
-.rds-sidebar__section {
+/* ---------- the group ---------- */
+.rds-sidebar__group {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
 }
 
-.rds-sidebar__section-toggle {
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  gap: var(--space-8);
-  width: 100%;
-  padding: var(--space-16) var(--space-12) 6px;
-  border: 0;
-  border-radius: var(--radius-control);
-  background: none;
-  color: var(--_section);
-  font: inherit;
-  font-size: 11px;
-  line-height: 14px;
-  font-weight: 700;
-  text-align: start;
-  cursor: pointer;
+.rds-sidebar__group-toggle {
+  margin-top: var(--space-12);
 }
 
-/* Figma .sidebar/section: label in caps with 6% tracking; the count keeps its own case and no tracking. */
-.rds-sidebar__section-label {
-  flex: 1;
-  min-width: 0;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+/* The current route is inside: strong text, semibold, no pill. */
+.rds-sidebar__group-toggle--current,
+.rds-sidebar__group-toggle--current:hover {
+  color: var(--sidebar-item-label-strong);
 }
 
-.rds-sidebar__section-count {
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
+.rds-sidebar__group-toggle--current .rds-sidebar__label {
+  font-weight: 600;
 }
 
 .rds-sidebar__chevron {
@@ -226,12 +242,105 @@
   height: 14px;
 }
 
-.rds-sidebar__section-toggle[aria-expanded='false'] .rds-sidebar__chevron {
+.rds-sidebar__group-toggle[aria-expanded='false'] .rds-sidebar__chevron {
   transform: rotate(-90deg);
 }
 
-.rds-sidebar__separator {
-  padding: var(--space-4) 0;
+/* ---------- the rail: one icon per group, its flyout ---------- */
+.rds-sidebar__group--rail {
+  position: relative;
+}
+
+.rds-sidebar__group--rail .rds-sidebar__group-toggle {
+  margin-top: 0;
+}
+
+/* In the rail the current group has the soft fill. */
+.rds-sidebar__group--rail .rds-sidebar__group-toggle--current {
+  background: var(--sidebar-item-background-active);
+}
+
+.rds-sidebar__flyout {
+  position: absolute;
+  top: 0;
+  inset-inline-start: calc(100% + var(--space-8));
+  z-index: var(--z-dropdown);
+  width: 240px;
+  min-width: 0;
+}
+
+.rds-sidebar__flyout[hidden] {
+  display: none;
+}
+
+.rds-sidebar__flyout-title {
+  margin: 0;
+  padding: var(--space-8) var(--space-12) var(--space-4);
+  color: var(--sidebar-item-label-strong);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  font-weight: 600;
+}
+
+/* Inside the flyout the entries sit on the menu's box: 12 inside, no indent. */
+.rds-sidebar__flyout .rds-sidebar__item--level-2 {
+  padding-inline-start: var(--space-12);
+}
+
+/* ---------- below 1024: the drawer ---------- */
+.rds-sidebar-trigger {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .rds-sidebar-trigger {
+    display: inline-flex;
+  }
+
+  .rds-sidebar {
+    position: fixed;
+    inset-block: 0;
+    inset-inline-start: 0;
+    z-index: var(--z-modal);
+    width: 240px;
+    max-width: calc(100% - var(--space-48));
+    overflow-y: auto;
+    visibility: hidden;
+    transform: translateX(-100%);
+  }
+
+  :dir(rtl) .rds-sidebar {
+    transform: translateX(100%);
+  }
+
+  .rds-sidebar--drawer-open,
+  :dir(rtl) .rds-sidebar--drawer-open {
+    visibility: visible;
+    transform: none;
+    box-shadow: var(--elevation-modal);
+  }
+
+  .rds-sidebar__scrim {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-overlay);
+    background: var(--drawer-scrim);
+  }
+}
+
+/* Opening shows it at once and slides it in; closing slides it out, then hides it. */
+@media (prefers-reduced-motion: no-preference) and (max-width: 1023px) {
+  .rds-sidebar {
+    transition:
+      transform var(--motion-duration-base) var(--motion-easing-standard),
+      visibility 0s linear var(--motion-duration-base);
+  }
+
+  .rds-sidebar--drawer-open {
+    transition:
+      transform var(--motion-duration-base) var(--motion-easing-standard),
+      visibility 0s;
+  }
 }
 
 @media (forced-colors: active) {
@@ -239,7 +348,8 @@
     outline: var(--border-width) solid CanvasText;
   }
 
-  .rds-sidebar__item[aria-current='page']::before {
-    background: Highlight;
+  .rds-sidebar__dot {
+    forced-color-adjust: none;
+    background: CanvasText;
   }
 }

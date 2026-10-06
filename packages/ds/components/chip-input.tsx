@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react';
+import { useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
 import { Chip } from './chip';
 import { announce } from './internal/announce';
 import { FieldShell, useFieldIds, warnIfUnlabelled, type FieldTextProps } from './internal/field';
@@ -17,8 +17,6 @@ export interface ChipInputProps extends Omit<FieldTextProps, 'labelPosition'> {
   onChange?: (value: string[]) => void;
   /** What shows in the empty field (Figma: `text`). Say how to add: "Digite e aperte Enter". */
   placeholder?: string;
-  /** @deprecated Use `hint`. */
-  helper?: ReactNode;
   /**
    * Values to offer while typing: the list under the field filters them by the text (ignoring case and accents),
    * the arrows move in it and Enter takes the active one.
@@ -62,7 +60,6 @@ const normalize = (text: string) => text.normalize('NFD').replace(/\p{Diacritic}
 export function ChipInput({
   label,
   hint,
-  helper,
   error,
   errorMessage,
   required,
@@ -84,8 +81,7 @@ export function ChipInput({
   'aria-labelledby': ariaLabelledBy,
 }: ChipInputProps) {
   warnIfUnlabelled('ChipInput', label, ariaLabel, ariaLabelledBy);
-  const shownHint = hint ?? helper;
-  const { controlId, hintId, errorId, invalid, describedBy } = useFieldIds(id, shownHint, error, errorMessage);
+  const { controlId, hintId, errorId, invalid, describedBy } = useFieldIds(id, hint, error, errorMessage);
   const [own, setOwn] = useState<string[]>(defaultValue);
   const values = value ?? own;
   const input = useRef<HTMLInputElement>(null);
@@ -192,7 +188,7 @@ export function ChipInput({
       hintId={hintId}
       errorId={errorId}
       label={label}
-      hint={shownHint}
+      hint={hint}
       errorMessage={errorMessage}
       invalid={invalid}
       required={required}

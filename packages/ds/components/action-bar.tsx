@@ -9,8 +9,8 @@ export interface ActionBarProps extends HTMLAttributes<HTMLDivElement> {
   /** How many are selected, as shown and announced ("3 selecionados") (Figma: `count`). */
   count: ReactNode;
   /**
-   * The actions (Figma: slot `actions`). Use `tone="inverse"` Buttons (ghost): the bar is painted with
-   * colors/primary, which is what the inverse tone is drawn for, in light and in dark.
+   * The actions (Figma: slot `actions`). Use `tone="neutral" variant="ghost"` Buttons: on the bar their label and icon
+   * are actionbar/text (the bar redeclares the neutral ghost's tokens in its own colours, in light and in dark).
    */
   children: ReactNode;
   /** Shows the X that clears the selection and is called when it is pressed (Figma: `showClear`). */
@@ -51,7 +51,7 @@ export function ActionBar({
               className="rds-actionbar__clear"
               icon={<CloseIcon />}
               label={clearLabel}
-              tone="inverse"
+              tone="neutral"
               variant="ghost"
               onClick={onClear}
             />

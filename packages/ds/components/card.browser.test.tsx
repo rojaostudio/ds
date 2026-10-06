@@ -4,7 +4,8 @@ import { Card, CardContent, CardFooter, CardHeader, type CardSize, type CardVari
 import { IconButton } from './icon-button';
 import { MoreVerticalIcon, InfoIcon } from './internal/icons';
 import { Tile } from './tile';
-import { MODES, axeViolations, cleanup, render } from './__tests__/render';
+import { Switch } from './switch';
+import { MODES, SCHEMES, axeViolations, cleanup, render, renderIn } from './__tests__/render';
 
 afterEach(cleanup);
 
@@ -141,6 +142,44 @@ describe('Card behaviour', () => {
     expect(Math.abs(a.width - b.width)).toBeLessThan(1);
   });
 
+  // Figma .card/header (04/10): with align=start the action sits in a band as tall as the title's line (24 on md, 20
+  // on sm), centred in it, with or without a description.
+  it.each(SIZES)('align=start, %s: the action band is the title line, the action centred on it, with or without a description', async (size) => {
+    const line = size === 'sm' ? 20 : 24;
+    const el = await render(
+      <div style={{ display: 'grid', gap: 16, maxWidth: 400 }}>
+        {[true, false].map((withDescription) => (
+          <Card key={String(withDescription)} size={size}>
+            <CardHeader
+              title="Resumo"
+              description={withDescription ? 'Duas linhas de descrição para ver que a ação não desce com ela.' : undefined}
+              action={<IconButton icon={<MoreVerticalIcon />} label="Mais ações" tone="neutral" variant="ghost" />}
+            />
+          </Card>
+        ))}
+      </div>,
+    );
+    for (const card of el.querySelectorAll('.rds-card')) {
+      const band = card.querySelector('.rds-card__action')!.getBoundingClientRect();
+      const title = card.querySelector('.rds-card__title')!.getBoundingClientRect();
+      const button = card.querySelector('.rds-card__action button')!.getBoundingClientRect();
+      expect(band.height).toBe(line);
+      expect(band.top).toBe(title.top);
+      expect(Math.round(button.top + button.height / 2)).toBe(Math.round(title.top + line / 2));
+      // Nothing clips the 44 button.
+      expect(getComputedStyle(card.querySelector('.rds-card__action')!).overflow).toBe('visible');
+    }
+  });
+
+  it('align=center keeps the action out of the band (unchanged)', async () => {
+    const el = await render(
+      <Card>
+        <CardHeader title="Resumo" align="center" action={<Button variant="ghost">Ver</Button>} />
+      </Card>,
+    );
+    expect(el.querySelector('.rds-card__action')!.getBoundingClientRect().height).toBe(44);
+  });
+
   it('the header action is opt-in', async () => {
     const el = await render(
       <Card>
@@ -151,25 +190,22 @@ describe('Card behaviour', () => {
   });
 });
 
-describe('Card vocabulary', () => {
-  it('the deprecated surface and size="default" still map to variant and md', async () => {
-    const el = await render(
-      <>
-        <Card surface="tint" size="default">
-          <CardContent>a</CardContent>
+describe.each(SCHEMES)('Card header action (%s)', (scheme) => {
+  it('a Switch or an IconButton in the header passes axe, in both sizes', async () => {
+    const el = await renderIn(
+      <div style={{ display: 'grid', gap: 16, maxWidth: 400 }}>
+        {SIZES.map((size) => (
+          <Card key={size} size={size}>
+            <CardHeader title="Avisos" description="Pedidos novos" action={<Switch size="sm">Ativar avisos</Switch>} />
+            <CardContent>Texto</CardContent>
+          </Card>
+        ))}
+        <Card>
+          <CardHeader title="Plano" action={<IconButton icon={<MoreVerticalIcon />} label="Mais ações" tone="neutral" variant="ghost" />} />
         </Card>
-        <Card surface="default">
-          <CardContent>b</CardContent>
-        </Card>
-        <Card variant="outline" surface="tint">
-          <CardContent>c</CardContent>
-        </Card>
-      </>,
+      </div>,
+      scheme,
     );
-    const [a, b, c] = [...el.querySelectorAll<HTMLElement>('.rds-card')].map((x) => x.className);
-    expect(a).toContain('rds-card--soft');
-    expect(a).not.toContain('rds-card--sm');
-    expect(b).toContain('rds-card--surface');
-    expect(c).toContain('rds-card--outline');
+    expect(await axeViolations(el)).toEqual([]);
   });
 });

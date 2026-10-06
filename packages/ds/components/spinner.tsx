@@ -4,13 +4,12 @@ export type SpinnerSize = 'sm' | 'md' | 'lg';
 export type SpinnerTone = 'neutral' | 'inverse';
 
 export interface SpinnerProps extends Omit<HTMLAttributes<HTMLSpanElement>, 'children'> {
-  /** sm 16 (inside a button or field), md 24 (next to text, the default), lg 32 (alone in an empty area). `'default'` is deprecated (2.0.0-next): it is `'md'`. */
-  size?: SpinnerSize | 'default';
+  /** sm 16 (inside a button or field), md 24 (next to text, the default), lg 32 (alone in an empty area). */
+  size?: SpinnerSize;
   /**
-   * neutral (default) on light surfaces; inverse on the dark brand band or a dark veil (Figma: `tone`). `'default'`
-   * is deprecated (2.0.0-next): it is `'neutral'`.
+   * neutral (default) on light surfaces; inverse on the dark brand band or a dark veil (Figma: `tone`).
    */
-  tone?: SpinnerTone | 'default';
+  tone?: SpinnerTone;
   /** What is happening (Figma: `label`). Always the accessible name; shown next to the ring with `showLabel`. */
   label?: string;
   /** Show the label next to the ring (Figma: `showLabel`). */
@@ -34,7 +33,7 @@ export function Spinner({
       {...rest}
       role="status"
       aria-label={showLabel ? undefined : label}
-      className={['rds-spinner', `rds-spinner--${size === 'default' ? 'md' : size}`, `rds-spinner--${tone === 'default' ? 'neutral' : tone}`, className].filter(Boolean).join(' ')}
+      className={['rds-spinner', `rds-spinner--${size}`, `rds-spinner--${tone}`, className].filter(Boolean).join(' ')}
     >
       {/* Figma: a full ring (track) and a quarter arc (indicator). */}
       <svg className="rds-spinner__ring" viewBox="0 0 24 24" aria-hidden="true">

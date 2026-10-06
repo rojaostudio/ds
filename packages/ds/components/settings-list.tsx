@@ -10,7 +10,7 @@ export interface SettingsListProps {
   action?: ReactNode;
   /** A Card around the rows. Default true; false leaves the rows loose. */
   framed?: boolean;
-  /** The rows: Items (or the deprecated SettingRows). */
+  /** The rows: Items. */
   children: ReactNode;
   className?: string;
 }

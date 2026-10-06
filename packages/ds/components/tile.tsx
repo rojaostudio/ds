@@ -12,8 +12,8 @@ export interface TileProps extends Omit<HTMLAttributes<HTMLSpanElement>, 'childr
   tone?: TileTone;
   /** fill is strong; soft is light, with the icon in the tone's colour (Figma: `variant`). Same variant across a list. */
   variant?: TileVariant;
-  /** sm 32, md 48 (default), lg 64 (Figma: `size`). `'default'` is deprecated (2.0.0-next): it is `'md'`. */
-  size?: TileSize | 'default';
+  /** sm 32, md 48 (default), lg 64 (Figma: `size`). */
+  size?: TileSize;
 }
 
 /**
@@ -25,7 +25,7 @@ export function Tile({ icon, tone = 'action', variant = 'fill', size = 'md', cla
     <span
       aria-hidden="true"
       {...rest}
-      className={['rds-tile', `rds-tile--${tone}-${variant}`, `rds-tile--${size === 'default' ? 'md' : size}`, className].filter(Boolean).join(' ')}
+      className={['rds-tile', `rds-tile--${tone}-${variant}`, `rds-tile--${size}`, className].filter(Boolean).join(' ')}
     >
       {icon}
     </span>

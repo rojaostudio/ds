@@ -105,11 +105,11 @@ describe('Avatar behaviour', () => {
 });
 
 describe('Avatar vocabulary', () => {
-  it('the deprecated size="default" is md, on the Avatar and the group', async () => {
+  it('md is the default size, on the Avatar and the group', async () => {
     const el = await render(
-      <AvatarGroup aria-label="Equipe" size="default">
+      <AvatarGroup aria-label="Equipe">
         <Avatar name="Ana Lima" />
-        <Avatar name="Bia Melo" size="default" />
+        <Avatar name="Bia Melo" />
       </AvatarGroup>,
     );
     expect(el.querySelector('.rds-avatar-group')!.className).toContain('rds-avatar-group--md');

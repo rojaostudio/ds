@@ -12,9 +12,8 @@ export interface HeadingProps extends HTMLAttributes<HTMLHeadingElement> {
   level?: HeadingLevel;
   /**
    * The colour of the brand pair (Figma `tone`): neutral (default) or accent. The Mark takes the other one.
-   * `'default'` is deprecated (2.0.0-next): it is `'neutral'`.
    */
-  tone?: HeadingTone | 'default';
+  tone?: HeadingTone;
   /** The heading element. Default h2. */
   as?: HeadingElement;
   /** The text (Figma `text`), with an optional <Heading.Mark> stretch (Figma `showMark` + `mark`). */

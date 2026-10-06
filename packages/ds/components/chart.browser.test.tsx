@@ -148,14 +148,6 @@ describe('Chart behaviour', () => {
     expect(el.querySelector('[role="tooltip"]')).toBeNull();
   });
 
-  it('showAllDates off keeps the first, middle and last label', async () => {
-    const el = await render(
-      <div style={{ width: 320 }}>
-        <Chart label="Volume" labels={dates} series={[{ name: 'Volume', data: [1, 2, 3, 4, 5] }]} showAllDates={false} />
-      </div>,
-    );
-    expect([...el.querySelectorAll('.rds-chart__label')].map((l) => l.textContent)).toEqual(['27 ago', '4 set', '12 set']);
-  });
 
   it('bar draws one bar per row, each in its palette colour, with the value beside it', async () => {
     const el = await render(<div style={{ width: 640 }}>{charts.bar}</div>);

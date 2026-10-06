@@ -6,6 +6,7 @@ import {
   Dialog,
   DropdownMenuItem,
   Heading,
+  PageShell,
   Progress,
   Spinner,
   StarRating,
@@ -23,6 +24,7 @@ export function Sizes({ open, size }: { open: boolean; size: 'sm' | 'lg' }) {
       </AvatarGroup>
       <Tile icon={<Info />} size="md" />
       <Tile icon={<Info />} size={size} />
+      <PageShell maxWidth="narrow">x</PageShell>
       <Status size="md">Ativo</Status>
       <StarRating value={4} size="md" />
       <Dialog open={open} title="Plano" size="md" />

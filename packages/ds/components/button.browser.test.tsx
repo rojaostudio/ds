@@ -21,15 +21,10 @@ const Arrow = () => (
   </svg>
 );
 
-// inverse goes on a band painted with the primary colour (Figma: "only on the dark brand band").
-const Band = ({ children }: { children: React.ReactNode }) => (
-  <div style={{ background: 'var(--colors-primary-default)', padding: 16, display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-    {children}
-  </div>
-);
-// The plate is a theme mode: the regular tones inside it take the plate's colours.
+// The plate is a theme mode: the regular tones inside it take the plate's colours. Over the brand colour, the Figma
+// asks for the brand mode with tone=neutral (the inverse tone is gone).
 const Plate = ({ children }: { children: React.ReactNode }) => (
-  <div className="ds-plate" style={{ background: 'var(--surface-page)', padding: 16, display: 'flex', gap: 8 }}>
+  <div className="ds-plate" style={{ background: 'var(--surface-page)', padding: 16, display: 'flex', flexWrap: 'wrap', gap: 8 }}>
     {children}
   </div>
 );
@@ -55,17 +50,17 @@ describe.each(MODES)('Button (%s)', (mode) => {
           ),
         )}
         {SIZES.map((size) => (
-          <Band key={size}>
+          <Plate key={size}>
             {VARIANTS.map((variant) => (
-              <Button key={variant} size={size} tone="inverse" variant={variant} icon={<Arrow />} iconPosition="start">
+              <Button key={variant} size={size} tone="neutral" variant={variant} icon={<Arrow />} iconPosition="start">
                 Ver o pedido
               </Button>
             ))}
             {VARIANTS.map((variant) => (
-              <IconButton key={`i-${variant}`} size={size} tone="inverse" variant={variant} icon={<Arrow />} label="Avançar" />
+              <IconButton key={`i-${variant}`} size={size} tone="neutral" variant={variant} icon={<Arrow />} label="Avançar" />
             ))}
-            <Button size={size} tone="inverse" variant="fill" disabled>Ver o pedido</Button>
-          </Band>
+            <Button size={size} tone="neutral" variant="fill" disabled>Ver o pedido</Button>
+          </Plate>
         ))}
         <Plate>
           <Button tone="action" variant="fill">Ver o pedido</Button>

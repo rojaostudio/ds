@@ -4,9 +4,9 @@ import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
 afterEach(cleanup);
 
-// inverse goes on a band painted with the primary colour (Figma: "only on the dark brand band").
-const Band = ({ children }: { children: React.ReactNode }) => (
-  <div style={{ background: 'var(--colors-primary-default)', padding: 16, display: 'flex', gap: 8 }}>{children}</div>
+// Over the brand colour: the theme's brand mode (.ds-plate) with tone=neutral (the inverse tone is gone).
+const Plate = ({ children }: { children: React.ReactNode }) => (
+  <div className="ds-plate" style={{ background: 'var(--surface-page)', padding: 16, display: 'flex', gap: 8 }}>{children}</div>
 );
 
 // The [RDS] accent/highlight badge: text/heading on colors/accent/highlight. In dark it failed (3.7:1) on the orange
@@ -32,10 +32,11 @@ describe.each(MODES)('Badge (%s)', (mode) => {
           <Badge tone="accent" value={8} />
           <Badge tone="accent" variant="soft" value={8} />
         </div>
-        <Band>
-          <Badge tone="inverse">Nova</Badge>
-          <Badge tone="inverse" value={4} />
-        </Band>
+        <Plate>
+          <Badge>Nova</Badge>
+          <Badge value={4} />
+          <Badge variant="soft">Nova</Badge>
+        </Plate>
       </div>,
       mode,
     );

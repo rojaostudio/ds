@@ -50,12 +50,6 @@
   --_background: var(--badge-accent-highlight-background);
   --_label: var(--badge-accent-highlight-label);
 }
-/* Only on the dark brand band (colors/primary). */
-.rds-badge--inverse-fill {
-  --_background: var(--badge-inverse-fill-background);
-  --_label: var(--badge-inverse-fill-label);
-}
-
 /* Windows high contrast drops backgrounds: keep the pill visible with a border. */
 @media (forced-colors: active) {
   .rds-badge {

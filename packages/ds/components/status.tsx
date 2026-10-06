@@ -14,8 +14,8 @@ export interface StatusProps extends Omit<HTMLAttributes<HTMLSpanElement>, 'chil
   /** neutral (a record: draft, closed), info (in progress), success (done), warning (pending), danger (failed). */
   tone?: StatusTone;
   variant?: StatusVariant;
-  /** md 32 tall (default); sm 24 (dot 6), for narrow cards and table rows. `'default'` is deprecated (2.0.0-next): it is `'md'`. */
-  size?: StatusSize | 'default';
+  /** md 32 tall (default); sm 24 (dot 6), for narrow cards and table rows. */
+  size?: StatusSize;
 }
 
 /**
@@ -34,7 +34,7 @@ export function Status({
   return (
     <span
       {...rest}
-      className={['rds-status', `rds-status--${tone}-${variant}`, `rds-status--${size === 'default' ? 'md' : size}`, className]
+      className={['rds-status', `rds-status--${tone}-${variant}`, `rds-status--${size}`, className]
         .filter(Boolean)
         .join(' ')}
     >

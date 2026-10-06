@@ -56,23 +56,6 @@
   --button-danger-ghost-icon: var(--text-error);
   --button-danger-ghost-background-hover: var(--surface-error);
   --button-danger-ghost-background-active: var(--surface-error-strong);
-  --button-inverse-fill-background-default: var(--surface-card);
-  --button-inverse-fill-background-hover: var(--surface-muted);
-  --button-inverse-fill-background-active: var(--surface-muted-strong);
-  --button-inverse-fill-label: var(--colors-primary-default);
-  --button-inverse-fill-icon: var(--colors-primary-default);
-  --button-inverse-outline-border: var(--text-on-primary-strong);
-  --button-inverse-outline-label: var(--text-on-primary-strong);
-  --button-inverse-outline-icon: var(--text-on-primary-strong);
-  --button-inverse-outline-background-hover: var(--colors-primary-light);
-  --button-inverse-outline-background-active: var(--colors-primary-active);
-  --button-inverse-ghost-label: var(--text-on-primary-strong);
-  --button-inverse-ghost-icon: var(--text-on-primary-strong);
-  --button-inverse-ghost-background-hover: var(--colors-primary-light);
-  --button-inverse-ghost-background-active: var(--colors-primary-active);
-  --button-inverse-focus-ring: var(--text-on-primary-strong);
-  --button-inverse-disabled-fill-background: var(--colors-primary-light);
-  --button-inverse-disabled-label: var(--text-disabled-invert);
   --bottom-bar-background: var(--colors-primary-default);
   --toggle-label: var(--text-body);
   --toggle-border: var(--border-strong);
@@ -188,6 +171,8 @@
   --pricing-plan-recommended-border: var(--colors-primary-default);
   --pricing-plan-recommended-text: var(--text-on-primary);
   --pricing-plan-recommended-check: var(--text-on-primary);
+  --pricing-plan-recommended-cta-background: var(--text-on-primary);
+  --pricing-plan-recommended-cta-label: var(--colors-primary-default);
 
   /* chat */
   --attachment-background: var(--surface-card);
@@ -907,8 +892,6 @@
   --delta-neutral: var(--text-body);
   --delta-success: var(--text-success);
   --delta-danger: var(--text-error);
-  --badge-inverse-fill-background: var(--surface-card);
-  --badge-inverse-fill-label: var(--colors-primary-default);
   --progress-track: var(--surface-tint-strong);
   --progress-fill: var(--chart-series-1);
   --progress-label: var(--text-body);
@@ -957,11 +940,7 @@
   --pagination-item-label-current: var(--colors-primary-default);
   --pagination-item-label-disabled: var(--text-disabled);
   --pagination-summary: var(--text-muted);
-  --sidebar-item-count: var(--text-muted);
-  --breadcrumb-inverse-label-default: var(--text-on-primary);
-  --breadcrumb-inverse-label-hover: var(--text-on-primary-strong);
-  --breadcrumb-inverse-label-current: var(--text-on-primary-strong);
-  --breadcrumb-inverse-separator: var(--text-on-primary);
+  --sidebar-count-neutral: var(--text-muted);
   --pageheader-description: var(--text-muted);
   --pageheader-title: var(--text-heading);
   --navmenu-focus-ring: var(--focus-ring);
@@ -977,8 +956,10 @@
   --tabs-soon-text: var(--text-subtle);
   --tabs-dot-background: var(--colors-state-success);
   --tabs-dot-indicator: var(--colors-state-success);
-  --sidebar-section-label: var(--text-subtle);
-  --sidebar-item-indicator: var(--colors-primary-default);
+  --sidebar-count-danger: var(--text-error);
+  --sidebar-dot-neutral: var(--colors-state-neutral-strong);
+  --sidebar-dot-danger: var(--border-error);
+  --sidebar-item-label-strong: var(--text-heading);
 
   /* overlays */
   --menu-background: var(--surface-card);

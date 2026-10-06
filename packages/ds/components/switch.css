@@ -2,6 +2,10 @@
 /*
  * Switch (Forms collection, switch/*): a 40 × 24 track with a 16 thumb, 4 from the edge; on, it slides 16.
  * The row (44 tall, label, hint) is internal/choice.css.
+ * size=sm: only the control and its text, no padding above and below (24 tall), as wide as its content; the 44
+ * touch target is an invisible pseudo-element around the control (10 above and below the 24, 4 at the sides), which
+ * takes no layout. labelPosition=start: the label first and the control at the right edge (row-reverse, the label
+ * fills); the hint and the error lose the control's indent and line up with the label. Only the visual order changes.
  */
 .rds-switch {
   --_control-width: var(--size-40);
@@ -15,6 +19,40 @@
 
 .rds-switch__label {
   color: var(--switch-label-color);
+}
+
+/* ---------- size=sm ---------- */
+.rds-switch--sm {
+  width: fit-content;
+  max-width: 100%;
+}
+
+.rds-switch--sm .rds-choice__row {
+  padding-block: 0;
+}
+
+.rds-switch--sm .rds-choice__support:last-child {
+  padding-bottom: 0;
+}
+
+.rds-switch--sm .rds-switch__control::before {
+  content: "";
+  position: absolute;
+  inset: calc((var(--_touch) - var(--_text-line)) / -2) calc(var(--space-4) * -1);
+}
+
+/* ---------- labelPosition=start ---------- */
+.rds-switch--label-start .rds-choice__row {
+  flex-direction: row-reverse;
+  justify-content: space-between;
+}
+
+.rds-switch--label-start .rds-choice__label {
+  flex: 1;
+}
+
+.rds-switch--label-start .rds-choice__support {
+  padding-inline: 0 calc(var(--_control-width) + var(--space-12));
 }
 
 .rds-switch__hint {

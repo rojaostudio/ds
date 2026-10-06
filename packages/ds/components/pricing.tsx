@@ -57,7 +57,8 @@ export interface PricingPlanProps extends Omit<HTMLAttributes<HTMLDivElement>, '
   recommendedLabel?: ReactNode;
   /**
    * The call to action (Figma: the exposed Button): a Button, a link through asChild. The Figma uses tone="action"
-   * variant="outline" on a plain plan and tone="inverse" on the recommended one.
+   * variant="outline" on a plain plan and tone="neutral" variant="fill" on the recommended one, which the recommended
+   * plan paints in pricing/plan/recommended/cta/* (background and label).
    */
   cta?: ReactNode;
 }

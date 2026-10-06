@@ -17,12 +17,6 @@ export interface FilterChipProps extends Omit<ComponentPropsWithRef<'button'>, '
   defaultPressed?: boolean;
   /** Called with the new state when the chip is pressed (a button, not a link). */
   onPressedChange?: (pressed: boolean) => void;
-  /** @deprecated Use `pressed` (2.0.0-next). */
-  active?: boolean;
-  /** @deprecated Use `defaultPressed` (2.0.0-next). */
-  defaultActive?: boolean;
-  /** @deprecated Use `onPressedChange` (2.0.0-next). */
-  onActiveChange?: (active: boolean) => void;
   /** Rendered as aria-disabled="true": stays in the tab order and takes focus, but does not turn on or navigate. */
   disabled?: boolean;
   /**
@@ -42,12 +36,9 @@ export function FilterChip({
   children,
   count,
   icon,
-  pressed: pressedProp,
+  pressed,
   defaultPressed,
   onPressedChange,
-  active,
-  defaultActive,
-  onActiveChange,
   disabled,
   asChild,
   type = 'button',
@@ -55,8 +46,7 @@ export function FilterChip({
   onClick,
   ...rest
 }: FilterChipProps) {
-  const pressed = pressedProp ?? active;
-  const [own, setOwn] = useState(defaultPressed ?? defaultActive ?? false);
+  const [own, setOwn] = useState(defaultPressed ?? false);
   const on = pressed ?? own;
   const Root = asChild ? Slot : 'button';
 
@@ -64,7 +54,7 @@ export function FilterChip({
     onClick?.(event);
     if (event.defaultPrevented || asChild) return;
     if (pressed === undefined) setOwn(!on);
-    (onPressedChange ?? onActiveChange)?.(!on);
+    onPressedChange?.(!on);
   }
 
   return (

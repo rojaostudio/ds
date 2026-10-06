@@ -1,4 +1,4 @@
-# [RDS] Components · collection Navigation · file w64JuUL45DO4jGu3WEy9HU · extracted 2026-10-03
+# [RDS] Components · collection Navigation · file w64JuUL45DO4jGu3WEy9HU · extracted 2026-10-04
 # DO NOT EDIT. Figma is the source: publish in Figma, run the extraction, save the output here.
 # Format: name|type (C colour, F number, S string, B boolean)|@collection:target (alias) OR raw value|WEB codeSyntax ("=" when it is the path with hyphens)[|obsolete]
 # obsolete: the Figma description starts with "Obsoleto"; the token stays for old code and no stylesheet has to read it.
@@ -33,11 +33,7 @@ pagination/item/label/default|C|@theme:text/body|=
 pagination/item/label/current|C|@theme:colors/primary/default|=
 pagination/item/label/disabled|C|@theme:text/disabled|=
 pagination/summary|C|@theme:text/muted|=
-sidebar/item/count|C|@theme:text/muted|=
-breadcrumb/inverse/label/default|C|@theme:text/on/primary|=
-breadcrumb/inverse/label/hover|C|@theme:text/on/primary-strong|=
-breadcrumb/inverse/label/current|C|@theme:text/on/primary-strong|=
-breadcrumb/inverse/separator|C|@theme:text/on/primary|=
+sidebar/count/neutral|C|@theme:text/muted|=
 pageheader/description|C|@theme:text/muted|=
 pageheader/title|C|@theme:text/heading|=
 navmenu/focus/ring|C|@theme:focus/ring|=
@@ -53,5 +49,7 @@ tabs/soon/background|C|@theme:surface/muted|=
 tabs/soon/text|C|@theme:text/subtle|=
 tabs/dot/background|C|@theme:colors/state/success|=
 tabs/dot/indicator|C|@theme:colors/state/success|=
-sidebar/section/label|C|@theme:text/subtle|=
-sidebar/item/indicator|C|@theme:colors/primary/default|=
+sidebar/count/danger|C|@theme:text/error|=
+sidebar/dot/neutral|C|@theme:colors/state/neutral-strong|=
+sidebar/dot/danger|C|@theme:border/error|=
+sidebar/item/label/strong|C|@theme:text/heading|=

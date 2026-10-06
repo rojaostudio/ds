@@ -1,7 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { Stepper } from './stepper';
-import { FloatingStepper } from './floating-stepper';
-import { FloatingStepper as FromBarrel, Stepper as StepperFromBarrel } from './index';
+import { Stepper as StepperFromBarrel } from './index';
 import { RotateCcwIcon } from './internal/icons';
 import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
@@ -65,10 +64,8 @@ describe('Stepper behaviour', () => {
   });
 });
 
-describe('Stepper: the old name', () => {
-  it('FloatingStepper (deprecated) is the Stepper, from its old deep import and from the barrel', () => {
-    expect(FloatingStepper).toBe(Stepper);
-    expect(FromBarrel).toBe(Stepper);
+describe('Stepper: the barrel', () => {
+  it('the barrel exports the Stepper', () => {
     expect(StepperFromBarrel).toBe(Stepper);
   });
 });

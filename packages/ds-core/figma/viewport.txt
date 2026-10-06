@@ -1,0 +1,28 @@
+# [RDS] Base Tokens · collections breakpoint and viewport · file 1Xn5IkLiq5Yhas680rJQf6 · extracted 2026-10-04
+# DO NOT EDIT. Figma is the source: publish in Figma, run the extraction, save the output here.
+# breakpoint/<mode>|F|<min-width in px>: where each viewport mode starts (the base mode starts at 0).
+# Format of the rest: name|type (F number in px, B boolean)|base|sm|md|lg|xl|2xl
+breakpoint/sm|F|640
+breakpoint/md|F|768
+breakpoint/lg|F|1024
+breakpoint/xl|F|1280
+breakpoint/2xl|F|1536
+viewport/width|F|390|640|768|1024|1280|1536
+layout/content/padding-x|F|16|24|24|32|32|48
+layout/content/padding-y|F|16|24|24|32|32|32
+layout/content/max-width|F|1120|1120|1120|1120|1120|1120
+layout/form/max-width|F|768|768|768|768|768|768
+layout/grid/item-min-width|F|300|300|300|300|300|300
+layout/rail/visible|B|false|false|false|true|true|true
+layout/nav-button/visible|B|true|true|true|false|false|false
+layout/compact|B|true|true|true|false|false|false
+layout/expanded|B|false|false|false|true|true|true
+layout/aside/narrow/max-width|F|9999|9999|9999|9999|248|248
+layout/aside/wide/max-width|F|9999|9999|9999|9999|352|352
+layout/main/min-width|F|358|592|720|752|360|360
+layout/aside/preview/max-width|F|9999|9999|9999|9999|420|420
+viewport/from/sm|B|false|true|true|true|true|true
+viewport/from/md|B|false|false|true|true|true|true
+viewport/from/lg|B|false|false|false|true|true|true
+viewport/from/xl|B|false|false|false|false|true|true
+data-table-header/search-min|F|200|200|200|320|320|320

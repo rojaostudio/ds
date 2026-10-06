@@ -14,7 +14,7 @@ export interface MenuItemContentProps {
   shortcut?: ReactNode;
 }
 
-export const menuItemClassName = (tone: MenuItemTone | 'default' = 'neutral', extra?: string) =>
+export const menuItemClassName = (tone: MenuItemTone = 'neutral', extra?: string) =>
   ['rds-menu__item', tone === 'danger' && 'rds-menu__item--danger', extra].filter(Boolean).join(' ');
 
 export function MenuItemContent({ children, icon, shortcut }: MenuItemContentProps) {

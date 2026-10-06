@@ -59,16 +59,3 @@ describe('Marker behaviour', () => {
   });
 });
 
-describe('Marker vocabulary', () => {
-  it('the deprecated variant maps to kind (default → inline)', async () => {
-    const el = await render(
-      <>
-        <Marker variant="default">a</Marker>
-        <Marker variant="separator">b</Marker>
-      </>,
-    );
-    const [a, b] = [...el.querySelectorAll<HTMLElement>('.rds-marker')].map((x) => x.className);
-    expect(a).toContain('rds-marker--inline');
-    expect(b).toContain('rds-marker--separator');
-  });
-});

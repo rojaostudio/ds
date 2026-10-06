@@ -1,4 +1,4 @@
-import { Bubble, Card, CardContent, FilterChip, Item, Marker, RowActions, Sidebar, Stat } from '@rojaostudio/ds/components';
+import { Bubble, Card, CardContent, FilterChip, Item, Marker, PageShell, RowActions, Sidebar, Stat } from '@rojaostudio/ds/components';
 import type { CardSurface, MarkerVariant, SidebarTone } from '@rojaostudio/ds/components';
 
 export type Old = { card: CardSurface; marker: MarkerVariant; sidebar: SidebarTone };
@@ -19,6 +19,7 @@ export function Manual({ v, on, kind }: { v: 'fill' | 'muted'; on: boolean; kind
       <FilterChip active={on} pressed={on}>
         Todos
       </FilterChip>
+      <PageShell maxWidth="default">x</PageShell>
       <RowActions primaryLabel="Ver" items={[{ label: 'Excluir', variant: kind, onClick: () => {} }]} />
     </>
   );

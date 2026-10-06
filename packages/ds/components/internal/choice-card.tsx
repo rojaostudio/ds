@@ -1,7 +1,6 @@
 'use client';
-// The ChoiceCard and its group, shared with the deprecated wrappers (SelectableCard, OptionTile, ChoicePreviewCard).
-// The public ChoiceCard is always a radio; `control="checkbox"` exists only for OptionTileGrid's multiple choice.
-// Not exported from the package. Styles: choice-card.css.
+// The ChoiceCard (always a radio) and its group, behind choice-card.tsx. Not exported from the package.
+// Styles: choice-card.css.
 import { createContext, useContext, useId, useState, type InputHTMLAttributes, type ReactNode } from 'react';
 import { CheckIcon, ImageIcon } from './icons';
 
@@ -42,7 +41,6 @@ export interface ChoiceCardProps extends Omit<InputHTMLAttributes<HTMLInputEleme
 }
 
 export function ChoiceCardControl({
-  control,
   children,
   description,
   icon,
@@ -56,10 +54,10 @@ export function ChoiceCardControl({
   layout,
   preview,
   ...rest
-}: ChoiceCardProps & { control: 'radio' | 'checkbox' }) {
+}: ChoiceCardProps) {
   const group = useContext(Group);
   const descriptionId = useId();
-  const checked = group && value !== undefined && control === 'radio' ? group.value === value : !!selected;
+  const checked = group && value !== undefined ? group.value === value : !!selected;
   const isDisabled = disabled || group?.disabled;
   const kind = layout ?? group?.layout ?? 'row';
   const check = checked && (
@@ -81,7 +79,7 @@ export function ChoiceCardControl({
     >
       <input
         {...rest}
-        type={control}
+        type="radio"
         className="rds-choice-card__input"
         name={group?.name ?? name}
         value={value}

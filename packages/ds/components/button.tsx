@@ -20,7 +20,10 @@ export type ButtonIconPosition = 'start' | 'end';
 export interface ButtonProps extends ComponentPropsWithRef<'button'> {
   /** The button text (Figma: `label`): a verb or a destination. Required, it is the accessible name. */
   children: ReactNode;
-  /** The role: brand click (action), quiet (neutral), destructive (danger), or over the brand plate (inverse). */
+  /**
+   * The role: brand click (action), quiet (neutral) or destructive (danger). Over the brand colour, apply the theme's
+   * brand mode to the band (`.ds-plate`) and use neutral.
+   */
   tone?: ButtonTone;
   /** The emphasis (Figma: `variant`): fill draws the most attention, ghost the least. */
   variant?: ButtonVariant;
@@ -55,7 +58,7 @@ export interface ButtonProps extends ComponentPropsWithRef<'button'> {
 }
 
 /**
- * Button — Figma [RDS] Actions/Button. Three tones on light surfaces plus inverse for the brand plate,
+ * Button — Figma [RDS] Actions/Button. Three tones,
  * three variants, three sizes (sm 36, md 44, lg 52; the touch target is 44 in all of them), and the icon on
  * either side of the text. Styles: button.css.
  *

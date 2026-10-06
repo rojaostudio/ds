@@ -65,8 +65,7 @@ describe('RowActions behaviour', () => {
       <RowActions
         primaryLabel="Ver"
         items={[
-          // The deprecated `variant` (2.0.0-next) still works: it is `tone`.
-          { label: 'Excluir', variant: 'danger', onClick: onDelete },
+          { label: 'Excluir', tone: 'danger', onClick: onDelete },
           { label: 'Editar', onClick: () => {} },
         ]}
       />,

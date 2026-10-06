@@ -148,8 +148,4 @@ describe('ChipInput behaviour', () => {
     expect(el.querySelectorAll('.rds-chip--disabled')).toHaveLength(1);
   });
 
-  it('helper is the old name of hint', async () => {
-    const el = await render(<ChipInput label="Etiquetas" helper="Enter cria." />);
-    expect(el.querySelector('.rds-field__hint')?.textContent).toBe('Enter cria.');
-  });
 });

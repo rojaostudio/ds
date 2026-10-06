@@ -12,8 +12,6 @@ export interface RowActionItem {
   icon?:     ReactNode;
   /** neutral (default) or danger: danger items go last, after a separator. */
   tone?:     'neutral' | 'danger';
-  /** @deprecated Use `tone` (2.0.0-next): default → neutral, danger stays. */
-  variant?:  'default' | 'danger';
   disabled?: boolean;
   onClick:   () => void;
 }
@@ -42,7 +40,7 @@ export function RowActions({
   items = [],
   dangerSeparator,
 }: RowActionsProps) {
-  const isDanger = (i: RowActionItem) => (i.tone ?? i.variant) === 'danger';
+  const isDanger = (i: RowActionItem) => i.tone === 'danger';
   const hasDanger = items.some(isDanger);
   const showSep   = dangerSeparator ?? hasDanger;
 

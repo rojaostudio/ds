@@ -12,5 +12,5 @@ export type { ChoiceCardProps, ChoiceCardGroupProps, ChoiceCardLayout } from './
  * chooses. Use it inside a ChoiceCardGroup (one chosen at a time). Styles: choice-card.css.
  */
 export function ChoiceCard(props: ChoiceCardProps) {
-  return <ChoiceCardControl {...props} control="radio" />;
+  return <ChoiceCardControl {...props} />;
 }

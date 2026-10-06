@@ -236,9 +236,10 @@ const defaultWarn = (m: string) => (globalThis as { console?: { warn(m: string):
 /**
  * Roles of the [RDS] theme collection, in Figma order: [name, dark source, brand source].
  * The light mode always reads the plain base token. In dark and brand, Figma points either to the
- * mode's own variant (`d` = base dark/…, `b` = base brand/…) or back to another one (`l` = plain).
+ * mode's own variant (`d` = base dark/…, `b` = base brand/…) or back to another one (`l` = plain), or straight
+ * to a primitive of the [RDS] Primitives library (`p`: the same colour for every brand, see FIXED in the generator).
  */
-export const ROLES: ReadonlyArray<readonly [string, "l" | "d", "l" | "d" | "b"]> = [
+export const ROLES: ReadonlyArray<readonly [string, "l" | "d" | "p", "l" | "d" | "b" | "p"]> = [
   ["colors/primary/light", "d", "b"], ["colors/primary/default", "d", "b"], ["colors/primary/dark", "d", "b"],
   ["colors/secondary/light", "d", "b"], ["colors/secondary/default", "d", "b"], ["colors/secondary/active", "d", "b"],
   ["colors/accent/highlight", "d", "d"], ["colors/accent/default", "d", "d"], ["colors/accent/hover", "d", "d"],
@@ -247,7 +248,7 @@ export const ROLES: ReadonlyArray<readonly [string, "l" | "d", "l" | "d" | "b"]>
   ["surface/page", "d", "b"], ["surface/card", "d", "b"], ["surface/panel", "d", "b"],
   ["border/default", "d", "b"], ["surface/tint/default", "d", "b"], ["text/on/action-tonal", "d", "b"],
   ["text/on/primary", "d", "b"], ["text/on/secondary", "d", "b"], ["text/on/accent", "d", "d"],
-  ["text/on/tint", "d", "b"], ["colors/state/error", "l", "l"], ["colors/state/error-strong", "d", "d"],
+  ["text/on/tint", "d", "b"], ["colors/state/error", "l", "l"], ["colors/state/error-strong", "p", "p"],
   ["surface/tint/strong", "d", "b"], ["text/on/error", "l", "l"],
   ["surface/action/default", "d", "b"], ["surface/action/strong", "d", "b"],
   ["focus/ring", "d", "b"], ["focus/ring-inset", "d", "b"], ["surface/disabled", "d", "b"],
@@ -383,7 +384,7 @@ export function generateRdsTheme(def: BrandDef, opts: RdsThemeOptions = {}): Rds
     ["surface/tint/default", "text/on/tint"],
   ] as const) l[text] = on(l[fill]);
   // Hover and active carry the same text as the default fill (see stateFills). colors/primary/dark is the hover of
-  // the neutral Button, colors/primary/light the hover of the inverse outline and ghost: both under that label.
+  // the neutral Button, colors/primary/light the lighter step of the same ink: both under that label.
   for (const role of ["colors/primary/dark", "colors/primary/light"])
     l[role] = carry(K, l["colors/primary/default"], l["text/on/primary-strong"], l[role]);
   [l["colors/primary/active"]] = stateFills(K, l["colors/primary/default"], l["text/on/primary"], [l["colors/primary/active"]]);
@@ -425,7 +426,7 @@ export function generateRdsTheme(def: BrandDef, opts: RdsThemeOptions = {}): Rds
     "surface/action/default": L[900], "surface/action/strong": L[800],
     "text/on/action-tonal": readableFrom(P.scale[200], P.scale, [L[900]], "lighter", WHITE),
     "surface/lift/action": P.scale[800], "surface/lift/action-strong": P.scale[700],
-    "colors/state/error-strong": red[400], "colors/state/success-strong": green[300],
+    "colors/state/success-strong": green[300],
     "colors/state/warning-strong": orange[400],
     "surface/error": red[900], "surface/error-strong": red[900], "text/error": red[300],
     "surface/success": green[900], "text/success": green[300], "surface/info": L[900], "text/info": L[300],
@@ -468,9 +469,6 @@ export function generateRdsTheme(def: BrandDef, opts: RdsThemeOptions = {}): Rds
   // In dark, border/error starts from error-strong (red/400) and series 1 from the primary's 400.
   d["border/error"] = readableFrom(red[400], red, [d["surface/card"]], awayFrom(d["surface/card"]), WHITE, NON_TEXT);
   d["chart/series/1"] = readableFrom(P.scale[400], P.scale, [d["surface/card"]], awayFrom(d["surface/card"]), WHITE, NON_TEXT);
-  // error-strong is the hover of the danger Button, under text/on/error (the light one, white on red/600 for every
-  // mode): red/400 would drop that label to 2.8:1. It moves along the red ramp until it carries it.
-  d["colors/state/error-strong"] = carry(red, l["colors/state/error"], l["text/on/error"], d["colors/state/error-strong"]);
 
   // base — brand/… tokens: the "plate" of the brand, a section painted with the brand colour itself (the primary as
   // given, not the neutral ink). Figma draws it for dark brands (white ink over the plate). The ink is picked by
@@ -538,7 +536,7 @@ export function generateRdsTheme(def: BrandDef, opts: RdsThemeOptions = {}): Rds
   };
   // On the plate the fills are the ink and their text is the plate: hover and active have to carry the plate colour
   // (a light plate has a black ink, so the template's near-white steps would hide its text). colors/primary/dark is
-  // the hover of the neutral Button, colors/primary/light that of the inverse outline and ghost.
+  // the hover of the neutral Button, colors/primary/light the lighter step of the same ink.
   for (const role of ["colors/primary/dark", "colors/primary/light"])
     br[role] = carry(P.scale, br["colors/primary/default"], br["text/on/primary-strong"], br[role]);
   // colors/primary/dark is also the Spinner's indicator: a mark, 3:1 on the plate's card.
@@ -567,11 +565,17 @@ export function generateRdsTheme(def: BrandDef, opts: RdsThemeOptions = {}): Rds
     [d["colors/accent/highlight"], l["colors/accent/highlight"]].find((c) => contrastRatio(ink, c) >= AA) ??
     readableFrom(l["colors/accent/highlight"], A.scale, [ink], lightPlate ? "lighter" : "darker", ink === WHITE ? BLACK : WHITE);
   plateOwn["chart/series/1"] = readableFrom(d["chart/series/1"], P.scale, plateBgs, awayFrom(plate), ink, NON_TEXT);
+  // colors/state/neutral-strong is a mark on the plate's panel and card (the Sidebar's neutral dot in the rail, the
+  // neutral Toast's icon): 3:1, walking the neutral ramp away from the plate.
+  plateOwn["colors/state/neutral-strong"] = readableFrom(d["colors/state/neutral-strong"], N, plateBgs, awayFrom(plate), ink, NON_TEXT);
   for (const logo of ["logo/primary", "logo/signature", "logo/accent", "logo/mono", "social/ink"]) plateOwn[logo] = ink;
 
+  // Roles that point straight at a primitive in dark and on the plate (`p` in ROLES), the same for every brand.
+  // error-strong is the hover of the danger Button under text/on/error (white on red/600): red/700 carries it at AA.
+  const fixed: Record<string, string> = { "colors/state/error-strong": red[700] };
   const out: RdsTheme = { light: {}, dark: {}, brand: {} };
-  const pick = (src: "l" | "d" | "b", role: string) => {
-    const table = src === "l" ? l : src === "d" ? d : br;
+  const pick = (src: "l" | "d" | "b" | "p", role: string) => {
+    const table = src === "l" ? l : src === "d" ? d : src === "p" ? fixed : br;
     const v = table[role] ?? l[role];
     if (v === undefined) throw new Error(`rdsTheme: no value for "${role}"`);
     return v;
@@ -708,7 +712,7 @@ export const RDS_CONTRAST_PAIRS: ReadonlyArray<readonly [string, string]> = [
   ["text/on/warning", "colors/state/warning"], ["text/on/neutral", "colors/state/neutral"],
   ["text/error", "surface/error"],
   // The pairs the components join (packages/ds, styles/rds/components.css): the label of the neutral Button and
-  // Badge on its fill and hovers, the inverse label (colors/primary/default) on the card, the pressed outline Button,
+  // Badge on its fill and hovers, the brand ink as text (colors/primary/default) on the card, the pressed outline Button,
   // the Badge highlight, the selected entry, quiet text and state text where they are placed.
   ["text/on/primary-strong", "colors/primary/default"], ["text/on/primary-strong", "colors/primary/light"],
   ["text/on/primary-strong", "colors/primary/active"], ["colors/primary/default", "surface/card"],
@@ -730,6 +734,7 @@ export const RDS_NON_TEXT_PAIRS: ReadonlyArray<readonly [string, string]> = [
   ["focus/ring", "surface/page"], ["focus/ring", "surface/card"],
   ["logo/primary", "surface/card"], ["logo/primary", "surface/page"], ["logo/primary", "surface/panel"],
   ["chart/series/1", "surface/card"], ["chart/series/1", "surface/page"],
+  ["colors/state/neutral-strong", "surface/panel"], ["colors/state/neutral-strong", "surface/card"],
 ];
 
 /** A pair below its minimum: 4.5:1 for text (RDS_CONTRAST_PAIRS), 3:1 for the rest (RDS_NON_TEXT_PAIRS). */

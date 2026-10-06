@@ -3,9 +3,6 @@ import { Avatar } from './avatar';
 import { Button } from './button';
 import { Item, ItemGroup, type ItemSize, type ItemVariant } from './item';
 import { InfoIcon } from './internal/icons';
-import { SettingRow } from './setting-row';
-import { SettingsList } from './settings-list';
-import { Switch } from './switch';
 import { Tile } from './tile';
 import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
@@ -64,29 +61,5 @@ describe('Item behaviour', () => {
     expect(one.getBoundingClientRect().height).toBeGreaterThanOrEqual(44);
   });
 
-  it('SettingRow (deprecated) is an Item: the label is tied to the control', async () => {
-    const el = await render(
-      <SettingsList title="Notificações">
-        <SettingRow label="E-mail" description="Avisos de novos pedidos" htmlFor="email" control={<Switch id="email" />} />
-      </SettingsList>,
-    );
-    expect(el.querySelector('.rds-item')).not.toBeNull();
-    expect(el.querySelector('label[for="email"]')!.textContent).toBe('E-mail');
-    expect(await axeViolations(el)).toEqual([]);
-  });
 });
 
-describe('Item vocabulary', () => {
-  it('the deprecated variant default/muted and size="default" map to ghost, soft and md', async () => {
-    const el = await render(
-      <>
-        <Item variant="default" size="default" title="a" />
-        <Item variant="muted" title="b" />
-      </>,
-    );
-    const [a, b] = [...el.querySelectorAll<HTMLElement>('.rds-item')].map((x) => x.className);
-    expect(a).toContain('rds-item--ghost');
-    expect(a).not.toContain('rds-item--sm');
-    expect(b).toContain('rds-item--soft');
-  });
-});
