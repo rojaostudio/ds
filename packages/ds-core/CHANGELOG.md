@@ -1,5 +1,103 @@
 # @rojaostudio/ds-core
 
+## 1.1.0-next.12
+
+### Minor Changes
+
+- f6efbd9: Sincronia com o Figma [RDS] de 04/10/2026: tokens e tabela da Rojão extraídos de novo.
+
+  - **Muda aparência:** o hover do Button danger (`colors/state/error-strong`) no escuro e na chapa passa de red/400 (`#ff6c5c`) para red/700 (`#990001`) na tabela da Rojão (`figma/brands/rojao.rds.json`) e no `styles/rds/theme.css`. O claro continua red/800. O rótulo branco sobre o hover sobe de 2,78:1 para AA.
+  - No Figma, esse papel aponta direto para o primitivo no escuro e na chapa (`@color:red/700` no `theme.txt`), não mais para um token do `base`. O `export-brand.js` e o extrator já lidavam com isso: a tabela reextraída bate byte a byte com o Figma.
+  - `ROLES` ganha uma fonte nova, `"p"`: um primitivo fixo, o mesmo para toda marca. É o caso de `colors/state/error-strong` no escuro e na chapa. `generateRdsTheme` passa a usar red/700 direto (antes, andava na rampa até carregar o rótulo e chegava ao mesmo valor), e o gerador e a tabela da Rojão deixam de divergir nesse papel (snapshot atualizado).
+
+### Patch Changes
+
+- f6efbd9: **BREAKING.** Saem os componentes obsoletos, o tom `inverse` do Button, do IconButton e do Badge, a prop `tone` do Breadcrumb e os nomes legados de props e valores que o 2.0.0-next ainda aceitava. O Figma [RDS] de 04/10/2026 não tem mais nada disso.
+
+  **Componentes que saem (módulo, export do barril, CSS e testes):**
+
+  | Sai                                                                            | Entra                                                                                                                                           |
+  | ------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+  | `Dropzone` (`components/dropzone`)                                             | `<FileInput layout="dropzone">`                                                                                                                 |
+  | `ImageUpload` (`components/image-upload`)                                      | `<FileInput layout="tile">` (envio em `onFiles`, URL em `preview`) + `ImageCropDialog` se precisar recortar                                     |
+  | `OptionTile`, `OptionTileGrid` (`components/option-tile`)                      | `<ChoiceCard layout="tile">` dentro de `<ChoiceCardGroup layout="tile">` (a escolha múltipla do `OptionTileGrid multiple` vira `CheckboxGroup`) |
+  | `SelectableCard`                                                               | `<ChoiceCard layout="row">`                                                                                                                     |
+  | `ChoicePreviewCard`                                                            | `<ChoiceCard layout="preview" preview={…}>`                                                                                                     |
+  | `ToggleCardCompact`                                                            | `<ToggleCard layout="compact">`                                                                                                                 |
+  | `PricingCard`                                                                  | `<PricingPlan>` dentro de `<Pricing>`                                                                                                           |
+  | `SectionHeader` (e `section-header.css`)                                       | `<PageHeader titleAs="h2">` (eyebrow e número não existem no Figma: leve para `description`)                                                    |
+  | `SettingRow`                                                                   | `<Item title description media action>`                                                                                                         |
+  | `FloatingStepper`, `FloatingStepperProps`, `FloatingStepperStep`               | `Stepper`, `StepperProps`, `StepperStep` (`components/stepper`)                                                                                 |
+  | `TypingIndicator`                                                              | `<Bubble typing />`                                                                                                                             |
+  | `ImageCropModal`, `ImageCropModalProps` (`components/image-crop-modal`)        | `ImageCropDialog`, `ImageCropDialogProps` (`components/image-crop-dialog`)                                                                      |
+  | `PageShell.Header`, `PageShellHeaderProps`, a classe `.rds-page-shell__header` | `<PageHeader title actions description>` dentro do `PageShell`                                                                                  |
+
+  **Tom `inverse`:**
+
+  | Sai                                                                                                                                                                                  | Entra                                                                                                      |
+  | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------- |
+  | `<Button tone="inverse">`, `<IconButton tone="inverse">`                                                                                                                             | Sobre a cor da marca: a faixa no modo brand do tema (`.ds-plate` ou `data-rds-plate`) com `tone="neutral"` |
+  | `<Badge tone="inverse">`                                                                                                                                                             | O mesmo: `.ds-plate` com `tone="neutral"`                                                                  |
+  | `<Breadcrumb tone=…>` e o tipo `BreadcrumbTone`                                                                                                                                      | Sem prop. Sobre a marca, o Breadcrumb dentro de `.ds-plate`                                                |
+  | Tokens `--button-inverse-*` (17), `--badge-inverse-fill-*` (2), `--breadcrumb-inverse-*` (4), classes `.rds-button--inverse`, `.rds-badge--inverse-fill`, `.rds-breadcrumb--inverse` | —                                                                                                          |
+  | `ButtonTone` com `'inverse'`                                                                                                                                                         | `'action' \| 'neutral' \| 'danger'`                                                                        |
+
+  O `Spinner` mantém `tone="inverse"`.
+
+  **Valores e props legados:**
+
+  | Sai                                                                                                       | Entra                                                         |
+  | --------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+  | `size="default"` em Avatar, AvatarGroup, Card, Dialog, Item, Progress, Spinner, StarRating, Status e Tile | `size="md"` (ou omita: é o padrão)                            |
+  | `tone="default"` em Heading, Spinner e no item do ContextMenu e do DropdownMenu                           | `tone="neutral"` (ou omita)                                   |
+  | `AvatarVariant`                                                                                           | `AvatarContent`                                               |
+  | Card `surface` (`default`, `tint`, `outline`) e o tipo `CardSurface`                                      | `variant`: `surface`, `soft`, `outline`                       |
+  | Item `variant="default"` / `"muted"`                                                                      | `variant="ghost"` / `"soft"`                                  |
+  | Marker `variant` (`default`, `border`, `separator`) e `MarkerVariant`                                     | `kind`: `inline`, `border`, `separator`                       |
+  | Stat `tone="default"` / `"positive"` / `"negative"`, `LegacyStatTone`, `statTone()`, `LEGACY_TONE`        | `tone="neutral"` / `"success"` / `"danger"`                   |
+  | SummaryBar `items`, `SummaryBarItem`, `SummaryBarTone` e o tom `muted` do item                            | `<Stat>` como filhos (`<Stat muted>` para o zero), `StatTone` |
+  | RowActions: item com `variant: 'default' \| 'danger'`                                                     | `tone: 'neutral' \| 'danger'`                                 |
+  | FileInput `variant` e `FileInputVariant`                                                                  | `layout` e `FileInputLayout`                                  |
+  | Chart `showAllDates`                                                                                      | `dates="all"` (true) ou `dates="edges"` (false, o padrão)     |
+  | ChipInput `helper`                                                                                        | `hint`                                                        |
+  | FilterChip `active`, `defaultActive`, `onActiveChange`                                                    | `pressed`, `defaultPressed`, `onPressedChange`                |
+  | SidebarItem `active`                                                                                      | `current`                                                     |
+
+  **Muda aparência:**
+
+  - **ActionBar:** as ações e o X passam a ser Button neutral ghost. A barra redeclara os tokens do neutral ghost nas suas cores: rótulo e ícone em `--actionbar-text`, hover a 15% e pressionado a 25% dessa cor, desabilitado a 40% sobre a barra, anel de foco em `--actionbar-text`. Use `tone="neutral" variant="ghost"` nos Buttons do slot.
+  - **Pricing:** o CTA do plano recomendado passa a ser Button neutral fill, pintado com os tokens novos `--pricing-plan-recommended-cta-background` (`text/on/primary`) e `--pricing-plan-recommended-cta-label` (`colors/primary/default`). O hover fica a 85% sobre o plano (70% pressionado) e o anel de foco no texto do plano. Use `cta={<Button tone="neutral">…</Button>}`.
+  - O `ChoiceCard` interno não tem mais o modo checkbox (servia só ao `OptionTileGrid multiple`).
+
+  Nos testes, `renderIn(ui, scheme)` e `SCHEMES` (claro, escuro e marca) passam a rodar o axe também na chapa da marca.
+
+- f6efbd9: **Sidebar (BREAKING), como no Figma de 04/10/2026:** grupos com ícone num accordion exclusivo, tipografia por nível, um só item atual, trilho com um ícone por grupo e gaveta no celular.
+
+  **Mapa de migração:**
+
+  | Sai                                                                                                | Entra                                                                                                                                                        |
+  | -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+  | `SidebarSection` (`label`, `count`, `open`, `defaultOpen`, `onOpenChange`) e `SidebarSectionProps` | `SidebarGroup` (`label`, `icon`, `id?`) e `SidebarGroupProps`. O grupo não leva número, e quem abre e fecha é a Sidebar (accordion exclusivo).               |
+  | `SidebarSeparator`                                                                                 | — (a separação é o espaço de 16 acima do grupo)                                                                                                              |
+  | `current` em cada item para marcar a página                                                        | `currentPath` na `Sidebar` (o pathname). O `current` do item continua aceito, mas só um item fica com `aria-current`: vence o `href` mais longo.             |
+  | `SidebarItem` `icon` obrigatório                                                                   | `icon` opcional: só o nível 1 desenha ícone. No nível 2 (dentro de um grupo) é só texto.                                                                     |
+  | Tokens `--sidebar-section-label`, `--sidebar-item-indicator`, `--sidebar-item-count`               | `--sidebar-count-neutral` (o antigo `item-count`), `--sidebar-count-danger`, `--sidebar-dot-neutral`, `--sidebar-dot-danger` e `--sidebar-item-label-strong` |
+  | Classes `.rds-sidebar__section*`, `.rds-sidebar__separator`, o `::before` do item atual            | `.rds-sidebar__group*`, `.rds-sidebar__item--level-1/2`, `.rds-sidebar__count--*`, `.rds-sidebar__dot--*`                                                    |
+
+  **Novo:**
+
+  - `SidebarItem` ganha `countTone` (`neutral` | `danger`) e `countLabel` (o que o número conta, dito no nome acessível: "Contas a pagar, 3 vencidos").
+  - **Nível pela posição, nunca por ter filhos.** Nível 1 (item solto e cabeçalho do grupo): 44 de altura, 12 por dentro, ícone de 20, 14/20 peso 500. Nível 2 (item dentro do grupo): 40 de altura, recuo de 44, só texto, 14/20 peso 400.
+  - **Atual.** A página atual tem a pílula (`--sidebar-item-background-active`) e o rótulo semibold em `--sidebar-item-label-active`. O grupo com a rota atual fica em `--sidebar-item-label-strong`, semibold, sem pílula, e abre sozinho. O botão do grupo aberto também o fecha.
+  - **Trilho** (`collapsed`, a partir de 1024): os itens soltos e um ícone por grupo. O grupo leva um ponto de 8 no canto do ícone, na cor do pior estado entre os filhos (`--sidebar-dot-danger` vence `--sidebar-dot-neutral`), e o nome acessível com o número ("Financeiro, 3 vencidos"). O flyout com os subitens (a casca do DropdownMenu, 240 de largura) abre ao clicar ou ao receber foco, sem mover o foco. Enter, Espaço e → entram nele, ↑ e ↓ andam, e Esc e ← fecham e devolvem o foco. O item solto com número também vira ponto.
+  - **Gaveta** (abaixo de 1024, o `layout/nav-button/visible` do Figma): a Sidebar sai da tela e fica `inert` enquanto fechada. `drawerOpen` e `onDrawerOpenChange` a controlam, e `SidebarTrigger` é o botão (IconButton neutral ghost com Tooltip, `aria-controls` e `aria-expanded`, escondido a partir de 1024). Ao abrir, o foco entra no item atual. Esc, o véu (`--drawer-scrim`) e um item que navega a fecham, e o foco volta ao botão. O `collapsed` não vale na gaveta: ela abre inteira.
+
+  **Muda aparência:** saem o marcador de 3 × 20 do item atual, a linha separadora e a legenda 11/14 em caixa alta dos grupos. Abaixo de 1024, a Sidebar deixa de aparecer na página até a gaveta abrir.
+
+  **ds-core:** na chapa do tema gerado, `colors/state/neutral-strong` (o ponto neutral da Sidebar e o ícone da Toast neutral) anda na rampa até 3:1 sobre o painel e o card. `RDS_NON_TEXT_PAIRS` passa a medir esse par. A tabela da Rojão não muda.
+
+  **codemod:** os nomes novos (`SidebarGroup`, `SidebarTrigger`, `SidebarCountTone`, `SwitchSize`, `SwitchLabelPosition` e os `*Props`) entram na detecção de código que já está no 2.0.
+
 ## 1.1.0-next.11
 
 ### Minor Changes

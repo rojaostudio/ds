@@ -1,5 +1,14 @@
 # rojao-ds
 
+## 0.1.0-next.11
+
+### Patch Changes
+
+- Updated dependencies [f6efbd9]
+- Updated dependencies [f6efbd9]
+- Updated dependencies [f6efbd9]
+  - @rojaostudio/ds-core@1.1.0-next.12
+
 ## 0.1.0-next.10
 
 ### Patch Changes
