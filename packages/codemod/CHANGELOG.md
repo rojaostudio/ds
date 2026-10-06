@@ -1,5 +1,50 @@
 # @rojaostudio/ds-codemod
 
+## 0.1.0-next.5
+
+### Patch Changes
+
+- f6efbd9: **PageHeader:** `back` e `help`, como no Figma de 04/10/2026 (`showBack` e `showHelp`).
+
+  - `back?: { href; label }`: o caminho de volta à página-mãe. É um link (nunca `history.back`), um IconButton neutral ghost com seta para a esquerda, `aria-label` "Voltar para {label}" e Tooltip com o nome da mãe. Fica numa faixa da altura da linha do título (`type/heading/line`, 30), centrado nela mesmo com descrição, a 8 do título, e não muda de lugar no celular. Use da segunda tela em diante, nunca na primeira. Não depende do Breadcrumb.
+  - `help?: { label; onClick?; href? }`: a ajuda da tela. É um IconButton neutral ghost com ponto de interrogação (`circle-question-mark`) e Tooltip (`label`, ex.: "Como funciona"), ao lado do título, com `aria-label` "{label}: {título}". Com `onClick` é um botão (abre a ajuda, ex.: um Sheet); com `href`, um link.
+  - **Muda aparência:** o cabeçalho vira uma linha (voltar e texto). A linha do título passa a ter a altura de `type/heading/line`, com `align-items: center`, e nem o voltar nem a ajuda acrescentam altura (o botão de 44 transborda por igual). Sem `back` e sem `help`, nada muda na tela, mas o título e a descrição passam a ficar dentro de `.rds-page-header__text` e `.rds-page-header__title-row`: quem estiliza por classe precisa rever os seletores.
+  - Tipos novos no barril: `PageHeaderBack` e `PageHeaderHelp`. O codemod passa a reconhecer os dois como nomes do 2.0.
+
+- f6efbd9: **BREAKING.** **PageShell:** as margens e a largura vêm do modo viewport do Figma [RDS] de 04/10/2026 (coleções `breakpoint` e `viewport` do Base Tokens).
+
+  - `maxWidth` fica com `narrow` (768, `layout/form/max-width`, para formulário e leitura) e `wide` (1536). **Sai `default` (1280); o padrão passa a ser `wide`.** O codemod marca `maxWidth="default"` como manual.
+  - **Muda aparência:** sem `maxWidth`, a página vai até 1536 (antes 1280). A margem acima e abaixo segue `layout/content/padding-y` (16 no celular, 24 a partir de 640, 32 a partir de 1024; antes era 24 fixo) e a lateral segue `layout/content/padding-x` (16, 24 a partir de 640, 32 a partir de 1024 e 48 a partir de 1536).
+  - Tokens novos em `foundation.css`: `--layout-content-padding-x`, `--layout-content-padding-y` e `--layout-form-max-width`, com uma media query por breakpoint. O build só emite os `layout/*` que alguma folha de estilo lê.
+  - A extração do Figma passa a gravar `ds-core/figma/viewport.txt` (breakpoints e o valor de cada variável por modo).
+
+- f6efbd9: **Sidebar (BREAKING), como no Figma de 04/10/2026:** grupos com ícone num accordion exclusivo, tipografia por nível, um só item atual, trilho com um ícone por grupo e gaveta no celular.
+
+  **Mapa de migração:**
+
+  | Sai                                                                                                | Entra                                                                                                                                                        |
+  | -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+  | `SidebarSection` (`label`, `count`, `open`, `defaultOpen`, `onOpenChange`) e `SidebarSectionProps` | `SidebarGroup` (`label`, `icon`, `id?`) e `SidebarGroupProps`. O grupo não leva número, e quem abre e fecha é a Sidebar (accordion exclusivo).               |
+  | `SidebarSeparator`                                                                                 | — (a separação é o espaço de 16 acima do grupo)                                                                                                              |
+  | `current` em cada item para marcar a página                                                        | `currentPath` na `Sidebar` (o pathname). O `current` do item continua aceito, mas só um item fica com `aria-current`: vence o `href` mais longo.             |
+  | `SidebarItem` `icon` obrigatório                                                                   | `icon` opcional: só o nível 1 desenha ícone. No nível 2 (dentro de um grupo) é só texto.                                                                     |
+  | Tokens `--sidebar-section-label`, `--sidebar-item-indicator`, `--sidebar-item-count`               | `--sidebar-count-neutral` (o antigo `item-count`), `--sidebar-count-danger`, `--sidebar-dot-neutral`, `--sidebar-dot-danger` e `--sidebar-item-label-strong` |
+  | Classes `.rds-sidebar__section*`, `.rds-sidebar__separator`, o `::before` do item atual            | `.rds-sidebar__group*`, `.rds-sidebar__item--level-1/2`, `.rds-sidebar__count--*`, `.rds-sidebar__dot--*`                                                    |
+
+  **Novo:**
+
+  - `SidebarItem` ganha `countTone` (`neutral` | `danger`) e `countLabel` (o que o número conta, dito no nome acessível: "Contas a pagar, 3 vencidos").
+  - **Nível pela posição, nunca por ter filhos.** Nível 1 (item solto e cabeçalho do grupo): 44 de altura, 12 por dentro, ícone de 20, 14/20 peso 500. Nível 2 (item dentro do grupo): 40 de altura, recuo de 44, só texto, 14/20 peso 400.
+  - **Atual.** A página atual tem a pílula (`--sidebar-item-background-active`) e o rótulo semibold em `--sidebar-item-label-active`. O grupo com a rota atual fica em `--sidebar-item-label-strong`, semibold, sem pílula, e abre sozinho. O botão do grupo aberto também o fecha.
+  - **Trilho** (`collapsed`, a partir de 1024): os itens soltos e um ícone por grupo. O grupo leva um ponto de 8 no canto do ícone, na cor do pior estado entre os filhos (`--sidebar-dot-danger` vence `--sidebar-dot-neutral`), e o nome acessível com o número ("Financeiro, 3 vencidos"). O flyout com os subitens (a casca do DropdownMenu, 240 de largura) abre ao clicar ou ao receber foco, sem mover o foco. Enter, Espaço e → entram nele, ↑ e ↓ andam, e Esc e ← fecham e devolvem o foco. O item solto com número também vira ponto.
+  - **Gaveta** (abaixo de 1024, o `layout/nav-button/visible` do Figma): a Sidebar sai da tela e fica `inert` enquanto fechada. `drawerOpen` e `onDrawerOpenChange` a controlam, e `SidebarTrigger` é o botão (IconButton neutral ghost com Tooltip, `aria-controls` e `aria-expanded`, escondido a partir de 1024). Ao abrir, o foco entra no item atual. Esc, o véu (`--drawer-scrim`) e um item que navega a fecham, e o foco volta ao botão. O `collapsed` não vale na gaveta: ela abre inteira.
+
+  **Muda aparência:** saem o marcador de 3 × 20 do item atual, a linha separadora e a legenda 11/14 em caixa alta dos grupos. Abaixo de 1024, a Sidebar deixa de aparecer na página até a gaveta abrir.
+
+  **ds-core:** na chapa do tema gerado, `colors/state/neutral-strong` (o ponto neutral da Sidebar e o ícone da Toast neutral) anda na rampa até 3:1 sobre o painel e o card. `RDS_NON_TEXT_PAIRS` passa a medir esse par. A tabela da Rojão não muda.
+
+  **codemod:** os nomes novos (`SidebarGroup`, `SidebarTrigger`, `SidebarCountTone`, `SwitchSize`, `SwitchLabelPosition` e os `*Props`) entram na detecção de código que já está no 2.0.
+
 ## 0.1.0-next.4
 
 ### Minor Changes
