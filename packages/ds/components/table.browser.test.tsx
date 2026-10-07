@@ -4,7 +4,17 @@ import { page } from 'vitest/browser';
 import { Card, CardContent, CardHeader } from './card';
 import { Button } from './button';
 import { Status } from './status';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableStatus, type TableStatus as TableStatusValue } from './table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+  TableStatus,
+  type TableStatus as TableStatusValue,
+} from './table';
 import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
 afterEach(async () => {
@@ -217,3 +227,64 @@ describe('Table inside a Card at 390', () => {
     expect(await axeViolations(el)).toEqual([]);
   });
 });
+
+describe('TableFooter (#42)', () => {
+  function Totals() {
+    return (
+      <Table caption="Contas a receber">
+        {header}
+        <TableBody>
+          <TableRow>
+            <TableCell>1042</TableCell>
+            <TableCell>Aberto</TableCell>
+            <TableCell align="end">48</TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell>1043</TableCell>
+            <TableCell>Aberto</TableCell>
+            <TableCell align="end">143</TableCell>
+          </TableRow>
+        </TableBody>
+        <TableFooter>
+          <TableRow>
+            <TableHead scope="row">Total</TableHead>
+            <TableCell />
+            <TableCell align="end">191</TableCell>
+          </TableRow>
+        </TableFooter>
+      </Table>
+    );
+  }
+
+  it.each(MODES)('passes axe (%s)', async (mode) => {
+    const el = await render(<Totals />, mode);
+    expect(await axeViolations(el)).toEqual([]);
+  });
+
+  it('is a tfoot after the body; the label is a row header, the sum is on the right, tabular', async () => {
+    const el = await render(<Totals />);
+    const table = el.querySelector('table')!;
+    expect([...table.children].map((c) => c.tagName)).toEqual(['CAPTION', 'THEAD', 'TBODY', 'TFOOT']);
+    const label = table.querySelector('tfoot th')!;
+    expect(label.getAttribute('scope')).toBe('row');
+    const sum = table.querySelector<HTMLElement>('tfoot td:last-child')!;
+    expect(getComputedStyle(sum).textAlign).toBe('end');
+    expect(getComputedStyle(sum).fontVariantNumeric).toBe('tabular-nums');
+  });
+
+  it('48 tall, a line above and none below, the panel fill and the stronger label at 600', async () => {
+    const el = await render(<Totals />);
+    const foot = el.querySelector<HTMLElement>('tfoot td:last-child')!;
+    const body = el.querySelector<HTMLElement>('tbody td:last-child')!;
+    const head = el.querySelector<HTMLElement>('thead th')!;
+    const style = getComputedStyle(foot);
+    expect(foot.getBoundingClientRect().height).toBe(48);
+    expect(style.borderTopWidth).toBe('1px');
+    expect(style.borderBottomWidth).toBe('0px');
+    expect(style.fontWeight).toBe('600');
+    expect(style.backgroundColor).toBe(getComputedStyle(head).backgroundColor);
+    expect(style.color).not.toBe(getComputedStyle(body).color);
+    expect(getComputedStyle(el.querySelector('tfoot th')!).color).toBe(style.color);
+  });
+});
+

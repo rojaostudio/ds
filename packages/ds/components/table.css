@@ -1,7 +1,8 @@
 /* @tokens table */
 /*
  * Table (Content collection, table/*). Header 44 tall (12 16, 14/20 medium), body rows 48 (text 12 16, slot 8 16).
- * A line under every row but the last: the Table's border closes it. Corners in radius/container; the sort button in
+ * A line under every row but the last: the Table's border closes it. The totals row (tfoot, Figma 06/10 type=footer):
+ * 48 tall, table/footer/background, table/footer/label at 600, a line above and none below. Corners in radius/container; the sort button in
  * radius/xs. The status rows hold an Empty, 32 24 around it.
  */
 /*
@@ -81,6 +82,16 @@
 tbody > tr:last-child > .rds-table__cell,
 tbody > tr:last-child > .rds-table__status {
   border-bottom: 0;
+}
+
+.rds-table__foot .rds-table__head,
+.rds-table__foot .rds-table__cell {
+  height: var(--space-48);
+  border-top: var(--border-width) solid var(--table-border);
+  border-bottom: 0;
+  background: var(--table-footer-background);
+  color: var(--table-footer-label);
+  font-weight: 600;
 }
 
 .rds-table__sort {

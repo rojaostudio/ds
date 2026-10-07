@@ -15,7 +15,7 @@ export interface TableProps extends HTMLAttributes<HTMLTableElement> {
   caption: ReactNode;
   /** Show the caption on screen. By default it is only for screen readers. */
   showCaption?: boolean;
-  /** TableHeader and TableBody (Figma: the `rows` slot). */
+  /** TableHeader, TableBody and, for totals, TableFooter (Figma: the `rows` slot). */
   children: ReactNode;
   /** loading marks the table busy. Outside default, put a TableStatus in the body. */
   status?: TableStatus;
@@ -45,6 +45,15 @@ export function TableHeader(props: HTMLAttributes<HTMLTableSectionElement>) {
 
 export function TableBody(props: HTMLAttributes<HTMLTableSectionElement>) {
   return <tbody {...props} />;
+}
+
+/**
+ * The totals row at the end (Figma: .table/cell type=footer): one row, the label in a `TableHead scope="row"`
+ * ("Total"), the sums in `TableCell align="end"` (tabular). Panel fill, a line above, the text stronger than the body.
+ * With pagination, say what it totals ("Total da página").
+ */
+export function TableFooter({ className, ...rest }: HTMLAttributes<HTMLTableSectionElement>) {
+  return <tfoot {...rest} className={['rds-table__foot', className].filter(Boolean).join(' ')} />;
 }
 
 export function TableRow(props: HTMLAttributes<HTMLTableRowElement>) {
