@@ -108,6 +108,7 @@ export const PAIRS: Pair[] = [
   ['--table-header-label', '--table-header-background', 't'], ['--table-cell-label', '--table-background', 't'],
   ['--table-footer-label', '--table-footer-background', 't'],
   ['--description-list-label', CTX, 't'], ['--description-list-value', CTX, 't'],
+  ['--timeline-actor', CTX, 't'], ['--timeline-action', CTX, 't'], ['--timeline-meta', CTX, 't'],
   ['--sidebar-item-label-default', '--sidebar-background', 't'], ['--sidebar-item-label-hover', '--sidebar-item-background-hover', 't'],
   ['--sidebar-item-label-active', '--sidebar-item-background-active', 't'], ['--sidebar-module', '--sidebar-background', 't'],
   ['--sidebar-user', '--sidebar-background', 't'],

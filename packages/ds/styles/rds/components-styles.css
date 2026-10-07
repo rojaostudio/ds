@@ -11077,6 +11077,98 @@ tbody > tr:last-child > .rds-table__status {
   max-height: calc(5 * (var(--space-12) * 2 + var(--type-button-line)) + var(--space-8));
 }
 
+/* components/timeline.css */
+/* @tokens timeline */
+/*
+ * Timeline (Content collection, timeline/*; Figma 07/10). The day: its label in caption medium (timeline/meta), 8
+ * above and 12 below. The item: the rail (an Avatar sm, 24, and a 1px line in timeline/line from 4 under it down to
+ * the next item; none after the day's last) and, 12 apart, the body: actor (medium, timeline/actor) and action
+ * (timeline/action) wrapping together in 14/20, the time in caption (timeline/meta), the change in 14/20
+ * (timeline/meta); 2 between them, 16 below the item.
+ */
+.rds-timeline {
+  font-family: var(--type-font-stack);
+}
+
+.rds-timeline__day-label {
+  margin: 0;
+  padding: var(--space-8) 0 var(--space-12);
+  color: var(--timeline-meta);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+  font-weight: 500;
+}
+
+.rds-timeline__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rds-timeline__item {
+  display: flex;
+  gap: var(--space-12);
+}
+
+.rds-timeline__rail {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  min-width: var(--size-24);
+}
+
+.rds-timeline__avatar {
+  display: inline-flex;
+}
+
+.rds-timeline__line {
+  flex: 1;
+  width: var(--border-width);
+  background: var(--timeline-line);
+}
+
+.rds-timeline__item:last-child .rds-timeline__line {
+  visibility: hidden;
+}
+
+.rds-timeline__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: calc(var(--space-4) / 2);
+  min-width: 0;
+  padding: calc(var(--space-4) / 2) 0 var(--space-16);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+}
+
+.rds-timeline__head,
+.rds-timeline__diff {
+  margin: 0;
+}
+
+.rds-timeline__actor {
+  color: var(--timeline-actor);
+  font-weight: 500;
+}
+
+.rds-timeline__action {
+  color: var(--timeline-action);
+}
+
+.rds-timeline__time {
+  color: var(--timeline-meta);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+}
+
+.rds-timeline__diff {
+  color: var(--timeline-meta);
+  overflow-wrap: anywhere;
+}
+
 /* components/toast.css */
 /* @tokens toast */
 /*

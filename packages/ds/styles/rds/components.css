@@ -273,6 +273,10 @@
   --table-border: var(--border-default);
   --table-footer-background: var(--surface-panel);
   --table-footer-label: var(--text-heading);
+  --timeline-line: var(--border-default);
+  --timeline-actor: var(--text-heading);
+  --timeline-action: var(--text-body);
+  --timeline-meta: var(--text-muted);
   --accordion-title: var(--text-heading);
   --accordion-content: var(--text-body);
   --accordion-icon: var(--text-muted);
