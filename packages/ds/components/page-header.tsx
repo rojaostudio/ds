@@ -107,20 +107,22 @@ export function PageHeader({
           )}
           <div className="rds-page-header__text">
             <div className="rds-page-header__title-row">
-              <Title className="rds-page-header__title">{title}</Title>
-              {help && (
-                <div className="rds-page-header__help">
-                  <Tooltip text={help.label}>
-                    {help.href ? (
-                      <IconButton asChild icon={<HelpCircleIcon />} label={helpName!} tone="neutral" variant="ghost" onClick={help.onClick}>
-                        <a href={help.href} />
-                      </IconButton>
-                    ) : (
-                      <IconButton icon={<HelpCircleIcon />} label={helpName!} tone="neutral" variant="ghost" onClick={help.onClick} />
-                    )}
-                  </Tooltip>
-                </div>
-              )}
+              <div className="rds-page-header__title-group">
+                <Title className="rds-page-header__title">{title}</Title>
+                {help && (
+                  <div className="rds-page-header__help">
+                    <Tooltip text={help.label}>
+                      {help.href ? (
+                        <IconButton asChild icon={<HelpCircleIcon />} label={helpName!} tone="neutral" variant="ghost" onClick={help.onClick}>
+                          <a href={help.href} />
+                        </IconButton>
+                      ) : (
+                        <IconButton icon={<HelpCircleIcon />} label={helpName!} tone="neutral" variant="ghost" onClick={help.onClick} />
+                      )}
+                    </Tooltip>
+                  </div>
+                )}
+              </div>
               {titleAddon && <div className="rds-page-header__addon">{titleAddon}</div>}
             </div>
             {description && <p className="rds-page-header__description">{description}</p>}
