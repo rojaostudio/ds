@@ -81,6 +81,19 @@
   min-width: 0;
 }
 
+/* The option's count (.menu/check-item), on the right in the icon's muted colour, figures of one width. */
+.rds-menu__count {
+  flex: none;
+  color: var(--_icon);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The checkbox in a highlighted item takes the Checkbox's hover. */
+.rds-menu__item[data-highlighted] .rds-checkbox__box--standalone:not([data-disabled]) {
+  --_border: var(--checkbox-control-border-hover);
+  --_checked: var(--checkbox-control-background-checked-hover);
+}
+
 .rds-menu__shortcut {
   flex: none;
   padding: 0 var(--space-4);
