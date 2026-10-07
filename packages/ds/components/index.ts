@@ -22,6 +22,7 @@ export {
   DropdownMenuItem,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
+  DropdownMenuCheckboxItem,
   DropdownMenuSeparator,
 } from './dropdown-menu';
 export type {
@@ -30,6 +31,7 @@ export type {
   DropdownMenuItemTone,
   DropdownMenuRadioGroupProps,
   DropdownMenuRadioItemProps,
+  DropdownMenuCheckboxItemProps,
   DropdownMenuAlign,
   DropdownMenuSide,
 } from './dropdown-menu';
@@ -41,6 +43,9 @@ export type { CommandProps, CommandGroupProps, CommandItemProps } from './comman
 // 2.0 (#14): FilterChip follows the Figma [RDS] Forms/FilterChip; links go through asChild (no next/link).
 export { FilterChip, FilterChipGroup } from './filter-chip';
 export type { FilterChipProps, FilterChipGroupProps } from './filter-chip';
+// #47: a filter on a category with many options, a pill with a menu of ticked options.
+export { FilterChipMenu } from './filter-chip-menu';
+export type { FilterChipMenuProps, FilterChipMenuOption } from './filter-chip-menu';
 
 export { DataTableHeader, FilterDropdown } from './data-table-header';
 export type {

@@ -4,6 +4,10 @@ import { useState, type ComponentPropsWithRef, type HTMLAttributes, type MouseEv
 import { Slot, Slottable } from '@radix-ui/react-slot';
 import { blockWhenDisabled } from './internal/button';
 
+/** The pill's classes, on or off: shared with the FilterChipMenu, whose button is drawn as a FilterChip. */
+export const filterChipClassName = (on: boolean, extra?: string) =>
+  ['rds-filter-chip', on && 'rds-filter-chip--pressed', extra].filter(Boolean).join(' ');
+
 export interface FilterChipProps extends Omit<ComponentPropsWithRef<'button'>, 'children'> {
   /** The filter's name (Figma: `label`): Todos, Entradas, Saídas. With `asChild`, the link goes here with it. */
   children: ReactNode;
@@ -61,7 +65,7 @@ export function FilterChip({
     <Root
       {...rest}
       type={asChild ? undefined : type}
-      className={['rds-filter-chip', on && 'rds-filter-chip--pressed', className].filter(Boolean).join(' ')}
+      className={filterChipClassName(on, className)}
       aria-pressed={asChild ? undefined : on}
       aria-current={asChild && on ? 'true' : undefined}
       aria-disabled={disabled || undefined}

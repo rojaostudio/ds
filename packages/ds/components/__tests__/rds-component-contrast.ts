@@ -175,6 +175,8 @@ export const PAIRS: Pair[] = [
   ['--menu-item-label', '--menu-background', 't'], ['--menu-item-label', '--menu-item-background-hover', 't'],
   ['--menu-item-danger', '--menu-background', 't'], ['--menu-item-danger', '--menu-item-background-hover', 't'],
   ['--menu-item-icon', '--menu-background', 'u'],
+  // The option's count (.menu/check-item) is text in the icon's colour (#47).
+  ['--menu-item-icon', '--menu-background', 't'], ['--menu-item-icon', '--menu-item-background-hover', 't'],
   ['--command-group-label', '--command-background', 't'], ['--command-placeholder', '--command-background', 't'],
   ['--listbox-option-text-default', '--listbox-background', 't'],
   ['--listbox-option-text-default', '--listbox-option-background-hover', 't'],

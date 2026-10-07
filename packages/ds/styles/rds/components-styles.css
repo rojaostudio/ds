@@ -2421,7 +2421,8 @@ button.rds-breadcrumb__link:focus-visible {
  * Checked fills with colors/secondary and drops the border. Focus: the single outline, 2 away.
  * The row (44 tall, label, hint, error) is internal/choice.css.
  */
-.rds-checkbox {
+.rds-checkbox,
+.rds-checkbox__box--standalone {
   --_control-width: var(--size-20);
   --_text-size: var(--checkbox-text-size);
   --_text-line: var(--checkbox-text-line);
@@ -2492,6 +2493,26 @@ input:focus-visible + .rds-checkbox__box {
   outline-offset: var(--focus-ring-width);
 }
 
+/*
+ * The box alone, without an input (a menuitemcheckbox draws it: the item is the control, the box only shows the
+ * state). data-checked and data-disabled stand for the input's states.
+ */
+.rds-checkbox__box--standalone[data-checked] {
+  border-color: transparent;
+  background: var(--_checked);
+}
+
+.rds-checkbox__box--standalone[data-checked] .rds-checkbox__check {
+  display: block;
+}
+
+.rds-checkbox__box--standalone[data-disabled] {
+  --_border: var(--checkbox-control-border-disabled);
+  --_background: var(--checkbox-control-background-disabled);
+  --_checked: var(--checkbox-control-background-checked-disabled);
+  --_mark: var(--checkbox-control-mark-disabled);
+}
+
 /* Its own error, or the error of the CheckboxGroup around it: every box of the group gets the red border. */
 .rds-checkbox--error,
 .rds-checkbox-group--error .rds-checkbox {
@@ -2533,7 +2554,8 @@ input:focus-visible + .rds-checkbox__box {
   }
 
   input:checked + .rds-checkbox__box,
-  input:indeterminate + .rds-checkbox__box {
+  input:indeterminate + .rds-checkbox__box,
+  .rds-checkbox__box--standalone[data-checked] {
     forced-color-adjust: none;
     background: Highlight;
     color: HighlightText;
@@ -4612,6 +4634,38 @@ input:focus-visible + .rds-checkbox__box {
 @media (forced-colors: active) {
   .rds-file-input__area--dragging {
     outline: var(--focus-ring-width) solid Highlight;
+  }
+}
+
+/* components/filter-chip-menu.css */
+/*
+ * FilterChipMenu (Figma [RDS] Forms/FilterChipMenu, 06/10): the pill is the FilterChip (filter-chip.css, its tokens
+ * and its on state) with showChevron: a 14 chevron after the label, in the label's colour, turned over while the menu
+ * is open. The label ellipsises within the space it gets; the menu is internal/menu.css. No tokens of its own.
+ */
+.rds-filter-chip-menu {
+  max-width: 100%;
+}
+
+.rds-filter-chip-menu__chevron {
+  display: inline-flex;
+  flex: none;
+  width: 1em;
+  height: 1em;
+}
+
+.rds-filter-chip-menu__chevron > svg {
+  width: 100%;
+  height: 100%;
+}
+
+.rds-filter-chip-menu[data-state='open'] .rds-filter-chip-menu__chevron {
+  transform: rotate(180deg);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .rds-filter-chip-menu__chevron {
+    transition: transform var(--motion-duration-fast) var(--motion-easing-standard);
   }
 }
 
@@ -6783,6 +6837,19 @@ input:focus-visible + .rds-checkbox__box {
 .rds-menu__label {
   flex: 1;
   min-width: 0;
+}
+
+/* The option's count (.menu/check-item), on the right in the icon's muted colour, figures of one width. */
+.rds-menu__count {
+  flex: none;
+  color: var(--_icon);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The checkbox in a highlighted item takes the Checkbox's hover. */
+.rds-menu__item[data-highlighted] .rds-checkbox__box--standalone:not([data-disabled]) {
+  --_border: var(--checkbox-control-border-hover);
+  --_checked: var(--checkbox-control-background-checked-hover);
 }
 
 .rds-menu__shortcut {

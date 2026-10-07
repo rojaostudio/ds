@@ -1,0 +1,30 @@
+/*
+ * FilterChipMenu (Figma [RDS] Forms/FilterChipMenu, 06/10): the pill is the FilterChip (filter-chip.css, its tokens
+ * and its on state) with showChevron: a 14 chevron after the label, in the label's colour, turned over while the menu
+ * is open. The label ellipsises within the space it gets; the menu is internal/menu.css. No tokens of its own.
+ */
+.rds-filter-chip-menu {
+  max-width: 100%;
+}
+
+.rds-filter-chip-menu__chevron {
+  display: inline-flex;
+  flex: none;
+  width: 1em;
+  height: 1em;
+}
+
+.rds-filter-chip-menu__chevron > svg {
+  width: 100%;
+  height: 100%;
+}
+
+.rds-filter-chip-menu[data-state='open'] .rds-filter-chip-menu__chevron {
+  transform: rotate(180deg);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .rds-filter-chip-menu__chevron {
+    transition: transform var(--motion-duration-fast) var(--motion-easing-standard);
+  }
+}
