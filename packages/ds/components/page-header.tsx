@@ -59,6 +59,13 @@ export interface PageHeaderProps extends Omit<HTMLAttributes<HTMLElement>, 'titl
    * it wraps under the title, 4 below.
    */
   titleAddon?: ReactNode;
+  /**
+   * Where the title lives on a compact screen (below 1024; Figma: layout/compact). inline (default): in the PageHeader.
+   * bar: the app's bar owns the way back, the title and the help ("≡ or ← · title · ?"), so the PageHeader hides them
+   * there and keeps the addon, the description, the tabs and the actions; the title stays for screen readers (the
+   * page's <h1>). From 1024 up nothing changes.
+   */
+  compactTitle?: 'inline' | 'bar';
 }
 
 /** The title as plain text, for the help's accessible name. */
@@ -84,6 +91,7 @@ export function PageHeader({
   back,
   help,
   titleAddon,
+  compactTitle = 'inline',
   className,
   ...rest
 }: PageHeaderProps) {
@@ -92,7 +100,10 @@ export function PageHeader({
   const titleText = textOf(title);
   const helpName = titleText ? `${help?.label}: ${titleText}` : help?.label;
   return (
-    <Root {...rest} className={['rds-page-header', className].filter(Boolean).join(' ')}>
+    <Root
+      {...rest}
+      className={['rds-page-header', compactTitle === 'bar' && 'rds-page-header--bar-title', className].filter(Boolean).join(' ')}
+    >
       {breadcrumb}
       <div className="rds-page-header__row">
         <div className="rds-page-header__heading">

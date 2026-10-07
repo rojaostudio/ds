@@ -7935,6 +7935,33 @@ body:has(.rds-modal) {
   gap: var(--space-8);
 }
 
+/*
+ * compactTitle="bar" (Figma 07/10, ds#50): below 1024 the app's bar owns the way back, the title and the help. They
+ * leave the layout; the title stays for screen readers (clipped, as rds-visually-hidden); the addon leads the row.
+ */
+@media (max-width: 1023px) {
+  .rds-page-header--bar-title .rds-page-header__back,
+  .rds-page-header--bar-title .rds-page-header__help {
+    display: none;
+  }
+
+  .rds-page-header--bar-title .rds-page-header__title-group {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .rds-page-header--bar-title .rds-page-header__title-row {
+    min-height: 0;
+  }
+}
+
 /* components/page-shell.css */
 /*
  * PageShell (Figma Navigation/PageShell): no tokens of its own. Centred, full width up to narrow 768
