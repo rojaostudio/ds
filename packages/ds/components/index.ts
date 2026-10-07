@@ -121,6 +121,10 @@ export type {
   DescriptionListColumns,
 } from './description-list';
 
+// #42: a record's history, by day.
+export { Timeline, TimelineDay, TimelineItem } from './timeline';
+export type { TimelineProps, TimelineDayProps, TimelineItemProps } from './timeline';
+
 // 2.0 (#16): EmptyState became Empty, with the icon by prop.
 export { Empty } from './empty';
 export type { EmptyProps } from './empty';
