@@ -1,10 +1,10 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 import { Button } from './button';
 import { Dialog, DialogClose, type DialogSize } from './dialog';
 import { Input } from './input';
 import { MODES, axeViolations, cleanup, render, settle } from './__tests__/render';
-import { expectFocusTrapped, scrollLocked } from './__tests__/overlay';
+import { drag, expectFocusTrapped, scrollLocked } from './__tests__/overlay';
 
 afterEach(cleanup);
 
@@ -43,6 +43,9 @@ describe.each(MODES)('Dialog (%s)', (mode) => {
 });
 
 describe('Dialog behaviour', () => {
+  // The centred box: from 1024 up (the compact sheet is below).
+  beforeEach(() => page.viewport(1280, 800));
+
   it('the title and Cancel on the rojao light theme pass axe', async () => {
     const el = await render(<Example />, 'light');
     await open(el);
@@ -124,5 +127,142 @@ describe('Dialog behaviour', () => {
     const scrim = document.querySelector<HTMLElement>('.rds-dialog__scrim')!;
     expect(getComputedStyle(scrim).backgroundColor).toBe('rgba(0, 0, 0, 0)');
     expect(scrollLocked()).toBe(true);
+  });
+});
+
+describe('Dialog on a compact screen (the sheet, #45)', () => {
+  beforeEach(() => page.viewport(390, 844));
+  afterEach(() => page.viewport(1280, 800));
+
+  const footerButtons = (d: HTMLElement) =>
+    [...d.querySelectorAll<HTMLElement>('.rds-modal__footer button')].filter((b) => b.offsetParent !== null);
+
+  it.each(MODES)('passes axe (%s)', async (mode) => {
+    const el = await render(<Example />, mode);
+    await open(el);
+    expect(await axeViolations(document.body)).toEqual([]);
+  });
+
+  it.each(['sm', 'md', 'lg'] as const)('size %s is stuck to the bottom, the screen wide, top corners only', async (size) => {
+    const el = await render(<Example size={size} />);
+    const d = await open(el);
+    const r = d.getBoundingClientRect();
+    expect(Math.round(r.bottom)).toBe(844);
+    expect([Math.round(r.left), Math.round(r.width)]).toEqual([0, 390]);
+    const style = getComputedStyle(d);
+    expect(style.borderBottomLeftRadius).toBe('0px');
+    expect(style.borderTopLeftRadius).not.toBe('0px');
+    expect(d.querySelector<HTMLElement>('.rds-modal__handle-area')!.offsetParent).not.toBeNull();
+  });
+
+  it('stops at 560 and centres on a tablet', async () => {
+    await page.viewport(768, 1024);
+    const el = await render(<Example size="lg" />);
+    const r = (await open(el)).getBoundingClientRect();
+    expect(Math.round(r.width)).toBe(560);
+    expect(Math.round(r.left)).toBe(104);
+  });
+
+  it('drops the default Cancel (out of Tab and of the tree); the action is full width and the × stays', async () => {
+    const el = await render(<Example />);
+    const d = await open(el);
+    const cancel = [...d.querySelectorAll<HTMLElement>('button')].find((b) => b.textContent === 'Cancelar')!;
+    expect(getComputedStyle(cancel).display).toBe('none');
+    expect(footerButtons(d).map((b) => b.textContent)).toEqual(['Criar público']);
+    const footer = d.querySelector('.rds-modal__footer')!.getBoundingClientRect();
+    expect(Math.round(footerButtons(d)[0].getBoundingClientRect().width)).toBe(Math.round(footer.width));
+    expect(d.querySelector('[aria-label="Fechar"]')).not.toBeNull();
+  });
+
+  it('only the content scrolls, up to 85% of the screen', async () => {
+    const el = await render(
+      <Dialog trigger={<Button>Abrir</Button>} title="Longo" confirmLabel="Salvar">
+        {Array.from({ length: 30 }, (_, i) => (
+          <p key={i}>Linha {i + 1}</p>
+        ))}
+      </Dialog>,
+    );
+    const d = await open(el);
+    expect(d.getBoundingClientRect().height).toBeLessThanOrEqual(Math.ceil(844 * 0.85));
+    const body = d.querySelector<HTMLElement>('.rds-modal__body')!;
+    expect(body.scrollHeight).toBeGreaterThan(body.clientHeight);
+    expect(getComputedStyle(body).overscrollBehaviorY).toBe('contain');
+  });
+
+  it('dragging the handle past 80 closes it and tells onOpenChange; a short drag does not', async () => {
+    const onOpenChange = vi.fn();
+    await render(<Dialog defaultOpen onOpenChange={onOpenChange} title="Arrastar" confirmLabel="Salvar" />);
+    await vi.waitFor(() => expect(dialog()).not.toBeNull());
+    await settle();
+    drag(dialog()!.querySelector<HTMLElement>('.rds-modal__handle-area')!, 40);
+    await settle();
+    expect(dialog()).not.toBeNull();
+    expect(dialog()!.style.transform).toBe('');
+    drag(dialog()!.querySelector<HTMLElement>('.rds-modal__handle-area')!, 120);
+    await vi.waitFor(() => expect(dialog()).toBeNull());
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+  });
+
+  it('the veil, Escape and the × close it and give the focus back to the trigger', async () => {
+    const el = await render(<Example />);
+    const trigger = el.querySelector('button')!;
+    for (const close of [
+      () => dialog()!.querySelector<HTMLButtonElement>('[aria-label="Fechar"]')!.click(),
+      () => userEvent.keyboard('{Escape}'),
+      async () => {
+        const scrim = document.querySelector<HTMLElement>('.rds-dialog__scrim')!;
+        await userEvent.click(scrim, { position: { x: 195, y: 8 } });
+      },
+    ]) {
+      await open(el);
+      await close();
+      await vi.waitFor(() => expect(dialog()).toBeNull());
+      await vi.waitFor(() => expect(document.activeElement).toBe(trigger));
+    }
+  });
+
+  it('a custom footer keeps every button, full width, the last (the main action) on top', async () => {
+    await render(
+      <Dialog
+        defaultOpen
+        title="Recortar"
+        footer={
+          <>
+            <Button tone="neutral" variant="ghost">
+              Cancelar
+            </Button>
+            <Button>Aplicar</Button>
+          </>
+        }
+      />,
+    );
+    await vi.waitFor(() => expect(dialog()).not.toBeNull());
+    await settle();
+    const [a, b] = footerButtons(dialog()!);
+    expect([a.textContent, b.textContent]).toEqual(['Cancelar', 'Aplicar']);
+    expect(b.getBoundingClientRect().top).toBeLessThan(a.getBoundingClientRect().top);
+    expect(Math.round(a.getBoundingClientRect().width)).toBe(Math.round(b.getBoundingClientRect().width));
+  });
+
+  it('the focus opens on the field, and the field is at least 16px (no zoom on iOS)', async () => {
+    const el = await render(<Example />);
+    await open(el);
+    await vi.waitFor(() => expect(document.activeElement?.tagName).toBe('INPUT'));
+    expect(parseFloat(getComputedStyle(document.activeElement!).fontSize)).toBeGreaterThanOrEqual(16);
+  });
+
+  it('rises above the on-screen keyboard', async () => {
+    const viewport = window.visualViewport!;
+    Object.defineProperty(viewport, 'height', { configurable: true, get: () => 500 });
+    try {
+      const el = await render(<Example />);
+      const d = await open(el);
+      await vi.waitFor(() => expect(document.activeElement?.tagName).toBe('INPUT'));
+      viewport.dispatchEvent(new Event('resize'));
+      await vi.waitFor(() => expect(Math.round(d.getBoundingClientRect().bottom)).toBe(500));
+      expect(footerButtons(d)[0].getBoundingClientRect().bottom).toBeLessThanOrEqual(500);
+    } finally {
+      delete (viewport as unknown as Record<string, unknown>).height;
+    }
   });
 });

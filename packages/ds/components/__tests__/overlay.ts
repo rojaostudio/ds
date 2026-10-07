@@ -20,3 +20,15 @@ export async function expectFocusTrapped(box: HTMLElement) {
 
 /** The page behind can't scroll (Radix's react-remove-scroll locks the body). */
 export const scrollLocked = () => getComputedStyle(document.body).overflow === 'hidden';
+
+/** A pointer drag on the handle, `dy` px down. */
+export function drag(area: HTMLElement, dy: number) {
+  const r = area.getBoundingClientRect();
+  const x = r.left + r.width / 2;
+  const y = r.top + r.height / 2;
+  const at = (type: string, clientY: number) =>
+    area.dispatchEvent(new PointerEvent(type, { bubbles: true, clientX: x, clientY, pointerId: 1 }));
+  at('pointerdown', y);
+  at('pointermove', y + dy);
+  at('pointerup', y + dy);
+}

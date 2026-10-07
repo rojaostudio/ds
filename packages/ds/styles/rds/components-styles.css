@@ -170,6 +170,9 @@
 /*
  * AlertDialog (Feedback collection, alertdialog/*): the veil over the page and, centred, a 400 box, 24 inside,
  * 24 between the text and the buttons (8 between title and description), shadow elevation/modal.
+ * Compact (below 1024, Figma 06/10): a sheet stuck to the bottom, the screen's width up to 560
+ * (layout/dialog/sm/width), no bottom corners and no bottom border, no handle (the answer is required: no drag, no
+ * veil). Both actions stay, full width, the confirm on top (column-reverse: the focus still opens on Cancel).
  */
 .rds-alert-dialog__scrim {
   position: fixed;
@@ -192,7 +195,7 @@
   flex-direction: column;
   gap: var(--space-24);
   width: min(400px, calc(100vw - var(--space-32)));
-  max-height: calc(100vh - var(--space-32));
+  max-height: calc(100dvh - var(--space-32));
   overflow-y: auto;
   padding: var(--space-24);
   border: var(--border-width) solid var(--alertdialog-border);
@@ -233,6 +236,44 @@
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: var(--space-8);
+}
+
+@media (max-width: 1023px) {
+  .rds-alert-dialog {
+    top: auto;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    max-width: 560px;
+    max-height: 85dvh;
+    margin-inline: auto;
+    padding-bottom: calc(var(--space-24) + env(safe-area-inset-bottom, 0px));
+    border-bottom: 0;
+    border-radius: var(--radius-container) var(--radius-container) 0 0;
+    transform: none;
+  }
+
+  .rds-alert-dialog__footer {
+    flex-direction: column-reverse;
+    flex-wrap: nowrap;
+  }
+
+  .rds-alert-dialog__footer > * {
+    width: 100%;
+  }
+}
+
+@media (max-width: 1023px) and (prefers-reduced-motion: no-preference) {
+  .rds-alert-dialog[data-state='open'] {
+    animation-name: rds-alert-dialog-sheet-in;
+  }
+}
+
+@keyframes rds-alert-dialog-sheet-in {
+  from {
+    transform: translateY(100%);
+  }
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -3779,6 +3820,11 @@ input:focus-visible + .rds-checkbox__box {
 /*
  * Dialog (Overlays collection, dialog/*): centred, sm 400 · default 560 · lg 720 wide, 16 between header, content
  * and footer (8 more above the footer), corners radius/container, shadow elevation/modal (internal/modal.css).
+ * Compact (below 1024, Figma 06/10: the viewport mode, layout/compact): a sheet stuck to the bottom, the screen's
+ * width up to 560 in every size (layout/dialog/<size>/width), no bottom corners (layout/sheet/radius-end) and no
+ * bottom border, 12 above for the handle (layout/sheet/padding-top), the default Cancel gone and the action full
+ * width (layout/sheet/action-min-width). Up to 85% of the screen, only the content scrolls. It rises by --_kb (the
+ * on-screen keyboard, set by the Dialog) and clears the safe area.
  */
 .rds-dialog__scrim {
   background: var(--dialog-scrim);
@@ -3816,9 +3862,77 @@ input:focus-visible + .rds-checkbox__box {
   padding-top: var(--space-8);
 }
 
+/* The handle is the sheet's only (compact). */
+.rds-dialog .rds-modal__handle-area {
+  display: none;
+}
+
+.rds-dialog .rds-modal__handle {
+  background: var(--dialog-handle);
+}
+
+@media (max-width: 1023px) {
+  .rds-dialog,
+  .rds-dialog--sm,
+  .rds-dialog--lg {
+    top: auto;
+    right: 0;
+    bottom: var(--_kb, 0px);
+    left: 0;
+    width: 100%;
+    max-width: 560px;
+    max-height: min(85dvh, calc(100dvh - var(--_kb, 0px) - var(--space-16)));
+    margin-inline: auto;
+    padding: var(--space-12) var(--space-24) calc(var(--space-24) + env(safe-area-inset-bottom, 0px));
+    border-bottom: 0;
+    border-radius: var(--radius-container) var(--radius-container) 0 0;
+    transform: none;
+  }
+
+  .rds-dialog .rds-modal__handle-area {
+    display: flex;
+  }
+
+  .rds-dialog .rds-modal__body {
+    flex: 1;
+    overscroll-behavior: contain;
+  }
+
+  /* No Cancel on the sheet: the handle, the veil, Escape and the × close it (display none: out of Tab and of the tree). */
+  .rds-dialog .rds-modal__cancel {
+    display: none;
+  }
+
+  .rds-dialog .rds-modal__footer {
+    flex-direction: column;
+    flex-wrap: nowrap;
+  }
+
+  /* A custom footer keeps every button, stacked: the last (the main action) on top. */
+  .rds-dialog .rds-modal__footer--custom {
+    flex-direction: column-reverse;
+  }
+
+  .rds-dialog .rds-modal__footer > * {
+    width: 100%;
+  }
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .rds-dialog[data-state='open'] {
     animation: rds-dialog-in var(--motion-duration-base) var(--motion-easing-enter);
+  }
+}
+
+@media (max-width: 1023px) and (prefers-reduced-motion: no-preference) {
+  .rds-dialog[data-state='open'] {
+    animation-name: rds-dialog-sheet-in;
+  }
+}
+
+@keyframes rds-dialog-sheet-in {
+  from {
+    transform: translateY(100%);
   }
 }
 
@@ -3842,7 +3956,8 @@ input:focus-visible + .rds-checkbox__box {
  * handle, 40 × 4), 24 on the sides, 32 below, 20 between parts; no border and no ×. On a wide screen it stops at
  * 560 and centres (the Figma draws it on a 390 phone only).
  * Height by the content, up to 85% of the screen (717 on an 844): past it, only the content scrolls inside; the
- * handle, the title and the footer stay put.
+ * handle, the title and the footer stay put. The foot clears the phone's safe area (env(safe-area-inset-bottom)).
+ * The handle's shape lives in internal/modal.css (shared with the Dialog's sheet).
  */
 .rds-drawer__scrim {
   background: var(--drawer-scrim);
@@ -3856,25 +3971,12 @@ input:focus-visible + .rds-checkbox__box {
   max-width: 560px;
   max-height: 85dvh;
   margin-inline: auto;
-  padding: var(--space-12) var(--space-24) var(--space-32);
+  padding: var(--space-12) var(--space-24) calc(var(--space-32) + env(safe-area-inset-bottom, 0px));
   border-radius: var(--radius-container) var(--radius-container) 0 0;
   background: var(--drawer-background);
 }
 
-.rds-drawer__handle-area {
-  display: flex;
-  flex: none;
-  justify-content: center;
-  margin: calc(var(--space-12) * -1) calc(var(--space-24) * -1) 0;
-  padding: var(--space-12) 0 0;
-  cursor: grab;
-  touch-action: none;
-}
-
-.rds-drawer__handle {
-  width: var(--space-40);
-  height: var(--space-4);
-  border-radius: var(--radius-full);
+.rds-drawer .rds-modal__handle {
   background: var(--drawer-handle);
 }
 
@@ -6638,6 +6740,26 @@ input:focus-visible + .rds-checkbox__box {
 
 .rds-modal__footer--stacked > * {
   width: 100%;
+}
+
+/*
+ * The sheet's handle (useDragDismiss): 40 × 4 on a band that reaches the box's edges (12 above, 24 on the sides,
+ * the sheet's padding), so the whole top edge can be grabbed. Each sheet gives it its colour.
+ */
+.rds-modal__handle-area {
+  display: flex;
+  flex: none;
+  justify-content: center;
+  margin: calc(var(--space-12) * -1) calc(var(--space-24) * -1) 0;
+  padding: var(--space-12) 0 0;
+  cursor: grab;
+  touch-action: none;
+}
+
+.rds-modal__handle {
+  width: var(--space-40);
+  height: var(--space-4);
+  border-radius: var(--radius-full);
 }
 
 @media (forced-colors: active) {

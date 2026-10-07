@@ -46,7 +46,7 @@ interface ModalShellProps extends ModalProps {
   prefix: string;
   modifiers?: string[];
   closeButton?: boolean;
-  /** Something above the header (the Drawer's handle). */
+  /** Something above the header (the sheet's handle, from useDragDismiss). */
   handle?: ReactNode;
   /** The default footer stacked, the confirm first and full width (the Drawer). */
   stackedFooter?: boolean;
@@ -81,7 +81,7 @@ export function ModalShell({
   const opener = useRef<HTMLElement | null>(null);
   const cancel = (
     <DialogPrimitive.Close asChild key="cancel">
-      <Button tone="neutral" variant="outline">
+      <Button tone="neutral" variant="outline" className="rds-modal__cancel">
         {cancelLabel}
       </Button>
     </DialogPrimitive.Close>
@@ -143,7 +143,14 @@ export function ModalShell({
           </div>
           {children != null && <div className={`rds-modal__body ${prefix}__text`}>{children}</div>}
           {actions && (
-            <div className={['rds-modal__footer', `${prefix}__footer`, stackedFooter && 'rds-modal__footer--stacked'].filter(Boolean).join(' ')}>
+            <div className={[
+                'rds-modal__footer',
+                `${prefix}__footer`,
+                stackedFooter && 'rds-modal__footer--stacked',
+                footer != null && 'rds-modal__footer--custom',
+              ]
+                .filter(Boolean)
+                .join(' ')}>
               {actions}
             </div>
           )}

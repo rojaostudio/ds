@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { userEvent } from 'vitest/browser';
+import { page, userEvent } from 'vitest/browser';
 import { ImageCropDialog } from './image-crop-dialog';
 import { MODES, axeViolations, cleanup, render, settle } from './__tests__/render';
 
@@ -31,6 +31,22 @@ describe.each(MODES)('ImageCropDialog (%s)', (mode) => {
     await settle();
     await loaded();
     expect(outsideRegion(await axeViolations(document.body, KNOWN(mode)))).toEqual([]);
+  });
+});
+
+describe('ImageCropDialog on a compact screen (#45)', () => {
+  afterEach(() => page.viewport(1280, 800));
+
+  it('the sheet keeps both buttons, full width, the confirm above Cancelar', async () => {
+    await page.viewport(390, 844);
+    const file = await photo();
+    await render(<ImageCropDialog open file={file} position="Foto 1 de 3" onCancel={() => {}} onConfirm={() => {}} />);
+    await settle();
+    await loaded();
+    const [cancel, confirm] = [...dialog().querySelectorAll<HTMLElement>('.rds-modal__footer button')];
+    expect(cancel.textContent).toBe('Cancelar');
+    expect(confirm.getBoundingClientRect().top).toBeLessThan(cancel.getBoundingClientRect().top);
+    expect(Math.round(dialog().getBoundingClientRect().bottom)).toBe(844);
   });
 });
 

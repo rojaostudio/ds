@@ -4,7 +4,7 @@ import { Button } from './button';
 import { Drawer } from './drawer';
 import { Input } from './input';
 import { MODES, axeViolations, cleanup, render, settle } from './__tests__/render';
-import { expectFocusTrapped, scrollLocked } from './__tests__/overlay';
+import { drag, expectFocusTrapped, scrollLocked } from './__tests__/overlay';
 
 afterEach(cleanup);
 
@@ -30,17 +30,6 @@ async function open(el: HTMLElement) {
   return drawer()!;
 }
 
-/** A pointer drag on the handle, `dy` px down. */
-function drag(area: HTMLElement, dy: number) {
-  const r = area.getBoundingClientRect();
-  const x = r.left + r.width / 2;
-  const y = r.top + r.height / 2;
-  const at = (type: string, clientY: number) =>
-    area.dispatchEvent(new PointerEvent(type, { bubbles: true, clientX: x, clientY, pointerId: 1 }));
-  at('pointerdown', y);
-  at('pointermove', y + dy);
-  at('pointerup', y + dy);
-}
 
 describe.each(MODES)('Drawer (%s)', (mode) => {
   it('open passes axe', async () => {
@@ -62,7 +51,7 @@ describe('Drawer behaviour', () => {
     const el = await render(<Example />);
     const d = await open(el);
     expect(Math.round(d.getBoundingClientRect().bottom)).toBe(window.innerHeight);
-    expect(d.querySelector('.rds-drawer__handle')).not.toBeNull();
+    expect(d.querySelector('.rds-modal__handle')).not.toBeNull();
     expect(d.querySelector('[aria-label="Fechar"]')).toBeNull();
     const buttons = [...d.querySelectorAll('.rds-modal__footer button')].map((b) => b.textContent);
     expect(buttons).toEqual(['Aplicar filtros', 'Cancelar']);
@@ -99,10 +88,10 @@ describe('Drawer behaviour', () => {
     await vi.waitFor(() => expect(document.activeElement).toBe(trigger));
 
     d = await open(el);
-    drag(d.querySelector<HTMLElement>('.rds-drawer__handle-area')!, 40);
+    drag(d.querySelector<HTMLElement>('.rds-modal__handle-area')!, 40);
     await new Promise((resolve) => setTimeout(resolve, 50));
     expect(drawer()).not.toBeNull();
-    drag(d.querySelector<HTMLElement>('.rds-drawer__handle-area')!, 120);
+    drag(d.querySelector<HTMLElement>('.rds-modal__handle-area')!, 120);
     await vi.waitFor(() => expect(drawer()).toBeNull());
   });
 

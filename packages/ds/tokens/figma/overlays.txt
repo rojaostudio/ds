@@ -18,6 +18,7 @@ dialog/background|C|@theme:surface/card|=
 dialog/border|C|@theme:border/default|=
 dialog/text|C|@theme:text/body|=
 dialog/title|C|@theme:text/heading|=
+dialog/handle|C|@theme:border/strong|=
 drawer/background|C|@theme:surface/card|=
 drawer/handle|C|@theme:border/strong|=
 drawer/scrim|C|@theme:surface/scrim|=
