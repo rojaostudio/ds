@@ -1,7 +1,8 @@
 /* @tokens tabs */
 /*
  * Tabs (Navigation collection, tabs/*): tabs of 44 on a 1px baseline, 16 on the sides, 11 above and below the
- * label plus the 2px line of the open tab. Label 14/20 medium, the count 14/20 regular, 6 apart. The "em breve"
+ * label plus the 2px line of the open tab. Icon 16 (optional, in the label's colour), label 14/20 medium, the count
+ * 14/20 regular, 6 apart. The "em breve"
  * tag: 10/12 medium on surface/muted, radius 4, 2 × 6 inside. The dot: an 18 × 14 pill of the success colour at
  * 15% with a 6 dot inside. The trailing slot sits at the right end of the strip, on the same baseline.
  */
@@ -50,6 +51,18 @@
   white-space: nowrap;
   text-decoration: none;
   cursor: pointer;
+}
+
+.rds-tabs__icon {
+  display: inline-flex;
+  flex: none;
+  width: var(--size-16);
+  height: var(--size-16);
+}
+
+.rds-tabs__icon > svg {
+  width: 100%;
+  height: 100%;
 }
 
 .rds-tabs__label {

@@ -3815,6 +3815,77 @@ input:focus-visible + .rds-checkbox__box {
   --_color: var(--delta-danger);
 }
 
+/* components/description-list.css */
+/* @tokens description-list */
+/*
+ * DescriptionList (Content collection, description-list/*; Figma 07/10). The list: 16 between pairs; the grid
+ * (columns auto): columns of at least 300 (layout/grid/item-min-width) that wrap, 16 apart. The pair, md: label 14/20
+ * medium in description-list/label, value 14/20 in description-list/value; sm (the printed sheet): 12/16.
+ * stacked: 4 between label and value (2 in sm). inline: the label in a column of description-list/label-width/<density>
+ * (160 · 104), 16 to the value (8 in sm); on a compact screen (below 1024, layout/stack/min-width) the value goes
+ * under the label, as stacked.
+ */
+.rds-description-list {
+  --_label-width: var(--description-list-label-width-md);
+  --_gap: var(--space-4);
+  --_inline-gap: var(--space-16);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  margin: 0;
+  font-family: var(--type-font-stack);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+}
+
+.rds-description-list--sm {
+  --_label-width: var(--description-list-label-width-sm);
+  --_gap: calc(var(--space-4) / 2);
+  --_inline-gap: var(--space-8);
+
+  gap: var(--space-8);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+}
+
+.rds-description-list--grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+}
+
+.rds-description-list__item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--_gap);
+  min-width: 0;
+}
+
+.rds-description-list--inline .rds-description-list__item {
+  display: grid;
+  grid-template-columns: var(--_label-width) minmax(0, 1fr);
+  column-gap: var(--_inline-gap);
+  row-gap: var(--_gap);
+}
+
+.rds-description-list__label {
+  color: var(--description-list-label);
+  font-weight: 500;
+}
+
+.rds-description-list__value {
+  min-width: 0;
+  margin: 0;
+  color: var(--description-list-value);
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 1023px) {
+  .rds-description-list--inline .rds-description-list__item {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 /* components/dialog.css */
 /* @tokens dialog */
 /*
@@ -10412,7 +10483,8 @@ input:focus-visible + .rds-switch__track {
 /* @tokens table */
 /*
  * Table (Content collection, table/*). Header 44 tall (12 16, 14/20 medium), body rows 48 (text 12 16, slot 8 16).
- * A line under every row but the last: the Table's border closes it. Corners in radius/container; the sort button in
+ * A line under every row but the last: the Table's border closes it. The totals row (tfoot, Figma 06/10 type=footer):
+ * 48 tall, table/footer/background, table/footer/label at 600, a line above and none below. Corners in radius/container; the sort button in
  * radius/xs. The status rows hold an Empty, 32 24 around it.
  */
 /*
@@ -10494,6 +10566,16 @@ tbody > tr:last-child > .rds-table__status {
   border-bottom: 0;
 }
 
+.rds-table__foot .rds-table__head,
+.rds-table__foot .rds-table__cell {
+  height: var(--space-48);
+  border-top: var(--border-width) solid var(--table-border);
+  border-bottom: 0;
+  background: var(--table-footer-background);
+  color: var(--table-footer-label);
+  font-weight: 600;
+}
+
 .rds-table__sort {
   display: inline-flex;
   align-items: center;
@@ -10554,7 +10636,8 @@ tbody > tr:last-child > .rds-table__status {
 /* @tokens tabs */
 /*
  * Tabs (Navigation collection, tabs/*): tabs of 44 on a 1px baseline, 16 on the sides, 11 above and below the
- * label plus the 2px line of the open tab. Label 14/20 medium, the count 14/20 regular, 6 apart. The "em breve"
+ * label plus the 2px line of the open tab. Icon 16 (optional, in the label's colour), label 14/20 medium, the count
+ * 14/20 regular, 6 apart. The "em breve"
  * tag: 10/12 medium on surface/muted, radius 4, 2 × 6 inside. The dot: an 18 × 14 pill of the success colour at
  * 15% with a 6 dot inside. The trailing slot sits at the right end of the strip, on the same baseline.
  */
@@ -10603,6 +10686,18 @@ tbody > tr:last-child > .rds-table__status {
   white-space: nowrap;
   text-decoration: none;
   cursor: pointer;
+}
+
+.rds-tabs__icon {
+  display: inline-flex;
+  flex: none;
+  width: var(--size-16);
+  height: var(--size-16);
+}
+
+.rds-tabs__icon > svg {
+  width: 100%;
+  height: 100%;
 }
 
 .rds-tabs__label {

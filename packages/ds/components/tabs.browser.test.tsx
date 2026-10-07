@@ -3,6 +3,7 @@ import { act } from 'react';
 import { userEvent } from 'vitest/browser';
 import { Button } from './button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './tabs';
+import { CheckIcon } from './internal/icons';
 import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
 afterEach(cleanup);
@@ -129,3 +130,58 @@ describe('Tabs behaviour', () => {
     expect(await axeViolations(el)).toEqual([]);
   });
 });
+
+describe('TabsTrigger icon (#49)', () => {
+  function WithIcons({ asChild }: { asChild?: boolean }) {
+    return (
+      <Tabs defaultValue="quadro">
+        <TabsList aria-label="Visão">
+          {asChild ? (
+            <TabsTrigger value="quadro" icon={<CheckIcon />} asChild>
+              <a href="#quadro">Quadro</a>
+            </TabsTrigger>
+          ) : (
+            <TabsTrigger value="quadro" icon={<CheckIcon />}>
+              Quadro
+            </TabsTrigger>
+          )}
+          <TabsTrigger value="itens" icon={<CheckIcon />}>
+            Itens
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent value="quadro">Quadro</TabsContent>
+        <TabsContent value="itens">Itens</TabsContent>
+      </Tabs>
+    );
+  }
+
+  it.each(MODES)('passes axe (%s)', async (mode) => {
+    const el = await render(<WithIcons />, mode);
+    expect(await axeViolations(el)).toEqual([]);
+  });
+
+  it('a 16 icon before the label, 6 apart, hidden from screen readers, in the label colour', async () => {
+    const el = await render(<WithIcons />);
+    const tabs = [...el.querySelectorAll<HTMLElement>('[role="tab"]')];
+    for (const tab of tabs) {
+      const icon = tab.querySelector<HTMLElement>('.rds-tabs__icon')!;
+      const label = tab.querySelector<HTMLElement>('.rds-tabs__label')!;
+      expect(tab.firstElementChild).toBe(icon);
+      expect(icon.getAttribute('aria-hidden')).toBe('true');
+      const r = icon.getBoundingClientRect();
+      expect([r.width, r.height]).toEqual([16, 16]);
+      expect(Math.round(label.getBoundingClientRect().left - r.right)).toBe(6);
+      expect(getComputedStyle(icon).color).toBe(getComputedStyle(label).color);
+      expect(tab.textContent).toBe(label.textContent);
+    }
+    expect(getComputedStyle(tabs[0]).color).not.toBe(getComputedStyle(tabs[1]).color);
+  });
+
+  it('asChild: the link tab shows the icon too', async () => {
+    const el = await render(<WithIcons asChild />);
+    const link = el.querySelector<HTMLAnchorElement>('a[role="tab"]')!;
+    expect(link.querySelector('.rds-tabs__icon')).not.toBeNull();
+    expect(link.firstElementChild!.className).toBe('rds-tabs__icon');
+  });
+});
+

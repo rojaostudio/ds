@@ -62,6 +62,8 @@ export interface TabsTriggerProps {
    * text is the name: the tab is then that link.
    */
   children: ReactNode;
+  /** An icon before the name, in the name's colour (Figma: `showIcon` + `icon`), for tabs that switch views. Decorative. */
+  icon?: ReactNode;
   /** A count after the name, when the number helps choosing (Figma: `showCount` + `count`). */
   count?: number | string;
   /** The "em breve" tag: the view is not there yet (Figma: `showSoon`). Usually with `disabled`. */
@@ -78,8 +80,13 @@ export interface TabsTriggerProps {
   asChild?: boolean;
 }
 
-/** One tab (Figma: .tabs/tab). Order inside: name, "em breve", dot, count. */
-export function TabsTrigger({ value, children, count, soon, dot, dotLabel = 'Tem novidade', disabled, asChild }: TabsTriggerProps) {
+/** One tab (Figma: .tabs/tab). Order inside: icon, name, "em breve", dot, count. */
+export function TabsTrigger({ value, children, icon, count, soon, dot, dotLabel = 'Tem novidade', disabled, asChild }: TabsTriggerProps) {
+  const lead = icon && (
+    <span className="rds-tabs__icon" aria-hidden="true">
+      {icon}
+    </span>
+  );
   const extras = (
     <>
       {soon && <span className="rds-tabs__soon">em breve</span>}
@@ -99,6 +106,7 @@ export function TabsTrigger({ value, children, count, soon, dot, dotLabel = 'Tem
           className: ['rds-tabs__tab', link.props.className].filter(Boolean).join(' '),
           children: (
             <>
+              {lead}
               <span className="rds-tabs__label">{link.props.children}</span>
               {extras}
             </>
@@ -109,6 +117,7 @@ export function TabsTrigger({ value, children, count, soon, dot, dotLabel = 'Tem
   }
   return (
     <TabsPrimitive.Trigger value={value} disabled={disabled} className="rds-tabs__tab">
+      {lead}
       <span className="rds-tabs__label">{children}</span>
       {extras}
     </TabsPrimitive.Trigger>

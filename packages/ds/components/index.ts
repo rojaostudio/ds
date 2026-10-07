@@ -111,6 +111,16 @@ export { Skeleton } from './skeleton';
 export { StepProgress } from './step-progress';
 export type { StepProgressProps } from './step-progress';
 
+// #42: label → value pairs (dl).
+export { DescriptionList, DescriptionItem } from './description-list';
+export type {
+  DescriptionListProps,
+  DescriptionItemProps,
+  DescriptionListLayout,
+  DescriptionListDensity,
+  DescriptionListColumns,
+} from './description-list';
+
 // 2.0 (#16): EmptyState became Empty, with the icon by prop.
 export { Empty } from './empty';
 export type { EmptyProps } from './empty';
@@ -194,7 +204,7 @@ export type { FABProps, FABConfig } from './fab';
 export type { SkeletonProps, SkeletonShape } from './skeleton';
 
 // 2.0 (#16): Table follows the Figma [RDS]: caption, status, TableHead is the column header (<th>), TableCell the cell.
-export { Table, TableHeader, TableBody, TableRow, TableHead, TableCell, TableStatus } from './table';
+export { Table, TableHeader, TableBody, TableFooter, TableRow, TableHead, TableCell, TableStatus } from './table';
 export type {
   TableProps,
   TableHeadProps,

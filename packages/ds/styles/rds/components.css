@@ -256,6 +256,10 @@
   --kbd-border: var(--border-default);
   --kbd-label: var(--text-body);
   --skeleton-background: var(--surface-muted);
+  --description-list-label: var(--text-muted);
+  --description-list-value: var(--text-body);
+  --description-list-label-width-md: 160px;
+  --description-list-label-width-sm: 104px;
   --empty-title: var(--text-heading);
   --empty-description: var(--text-muted);
   --item-title: var(--text-heading);
@@ -267,6 +271,8 @@
   --table-header-label: var(--text-muted);
   --table-cell-label: var(--text-body);
   --table-border: var(--border-default);
+  --table-footer-background: var(--surface-panel);
+  --table-footer-label: var(--text-heading);
   --accordion-title: var(--text-heading);
   --accordion-content: var(--text-body);
   --accordion-icon: var(--text-muted);

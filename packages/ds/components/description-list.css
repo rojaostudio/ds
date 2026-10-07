@@ -1,0 +1,69 @@
+/* @tokens description-list */
+/*
+ * DescriptionList (Content collection, description-list/*; Figma 07/10). The list: 16 between pairs; the grid
+ * (columns auto): columns of at least 300 (layout/grid/item-min-width) that wrap, 16 apart. The pair, md: label 14/20
+ * medium in description-list/label, value 14/20 in description-list/value; sm (the printed sheet): 12/16.
+ * stacked: 4 between label and value (2 in sm). inline: the label in a column of description-list/label-width/<density>
+ * (160 · 104), 16 to the value (8 in sm); on a compact screen (below 1024, layout/stack/min-width) the value goes
+ * under the label, as stacked.
+ */
+.rds-description-list {
+  --_label-width: var(--description-list-label-width-md);
+  --_gap: var(--space-4);
+  --_inline-gap: var(--space-16);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  margin: 0;
+  font-family: var(--type-font-stack);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+}
+
+.rds-description-list--sm {
+  --_label-width: var(--description-list-label-width-sm);
+  --_gap: calc(var(--space-4) / 2);
+  --_inline-gap: var(--space-8);
+
+  gap: var(--space-8);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+}
+
+.rds-description-list--grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+}
+
+.rds-description-list__item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--_gap);
+  min-width: 0;
+}
+
+.rds-description-list--inline .rds-description-list__item {
+  display: grid;
+  grid-template-columns: var(--_label-width) minmax(0, 1fr);
+  column-gap: var(--_inline-gap);
+  row-gap: var(--_gap);
+}
+
+.rds-description-list__label {
+  color: var(--description-list-label);
+  font-weight: 500;
+}
+
+.rds-description-list__value {
+  min-width: 0;
+  margin: 0;
+  color: var(--description-list-value);
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 1023px) {
+  .rds-description-list--inline .rds-description-list__item {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
