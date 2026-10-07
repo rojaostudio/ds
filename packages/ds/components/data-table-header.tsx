@@ -41,7 +41,8 @@ export type DataTableHeaderProps = {
   filters?: DataTableFilterDef[];
   /**
    * Quick filters, always in view (Figma: `showQuickFilters` + the `quickFilters` slot): up to three, a
-   * FilterChipGroup with its FilterChips; four or more, one Button with a menu (DropdownMenu), "Categoria: Todas".
+   * FilterChipGroup with its FilterChips; four or more, or more than one ticked, a FilterChipMenu ("Processo: Todos"),
+   * so the whole bar stays at 32.
    * No quick filters: do not pass the slot (Figma: `showQuickFilters` false). Wrapped in a group "Filtros rápidos".
    */
   quickFilters?: ReactNode;

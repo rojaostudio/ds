@@ -3,7 +3,7 @@
 import type { ReactElement, ReactNode } from 'react';
 import * as Menu from '@radix-ui/react-dropdown-menu';
 import { CheckIcon } from './internal/icons';
-import { MenuItemContent, menuItemClassName, type MenuItemContentProps, type MenuItemTone } from './internal/menu';
+import { MenuCheckBox, MenuItemContent, menuItemClassName, type MenuItemContentProps, type MenuItemTone } from './internal/menu';
 
 export type DropdownMenuAlign = 'start' | 'center' | 'end';
 export type DropdownMenuSide = 'top' | 'bottom' | 'left' | 'right';
@@ -79,7 +79,7 @@ export interface DropdownMenuItemProps extends MenuItemContentProps {
 }
 
 /** One action (Figma .menu/item): role="menuitem". */
-export function DropdownMenuItem({ children, icon, shortcut, onSelect, tone, disabled, textValue, asChild }: DropdownMenuItemProps) {
+export function DropdownMenuItem({ children, icon, count, shortcut, onSelect, tone, disabled, textValue, asChild }: DropdownMenuItemProps) {
   if (asChild) {
     return (
       <Menu.Item asChild onSelect={onSelect} disabled={disabled} textValue={textValue} className={menuItemClassName(tone)}>
@@ -89,7 +89,7 @@ export function DropdownMenuItem({ children, icon, shortcut, onSelect, tone, dis
   }
   return (
     <Menu.Item onSelect={onSelect} disabled={disabled} textValue={textValue} className={menuItemClassName(tone)}>
-      <MenuItemContent icon={icon} shortcut={shortcut}>
+      <MenuItemContent icon={icon} count={count} shortcut={shortcut}>
         {children}
       </MenuItemContent>
     </Menu.Item>
@@ -120,16 +120,57 @@ export interface DropdownMenuRadioItemProps extends MenuItemContentProps {
 }
 
 /** One option of a DropdownMenuRadioGroup: role="menuitemradio", aria-checked; the chosen one shows a check. */
-export function DropdownMenuRadioItem({ value, children, icon, shortcut, disabled, textValue }: DropdownMenuRadioItemProps) {
+export function DropdownMenuRadioItem({ value, children, icon, count, shortcut, disabled, textValue }: DropdownMenuRadioItemProps) {
   return (
     <Menu.RadioItem value={value} disabled={disabled} textValue={textValue} className={menuItemClassName()}>
-      <MenuItemContent icon={icon} shortcut={shortcut}>
+      <MenuItemContent icon={icon} count={count} shortcut={shortcut}>
         {children}
       </MenuItemContent>
       <Menu.ItemIndicator className="rds-menu__check" aria-hidden="true">
         <CheckIcon />
       </Menu.ItemIndicator>
     </Menu.RadioItem>
+  );
+}
+
+export interface DropdownMenuCheckboxItemProps extends Omit<MenuItemContentProps, 'icon'> {
+  checked: boolean;
+  onCheckedChange: (checked: boolean) => void;
+  disabled?: boolean;
+  /** The text typing jumps by. Give it when there is a `count`, or the count joins the label ("Laser3"). */
+  textValue?: string;
+  /** Close the menu when it is toggled. Off by default: several are ticked in a row (a filter, the columns shown). */
+  closeOnSelect?: boolean;
+}
+
+/**
+ * An option that is ticked on or off (Figma .menu/check-item): role="menuitemcheckbox", aria-checked; the Checkbox's
+ * box, the label and the count on the right. Ticking (click, Enter or Space) keeps the menu open, unless closeOnSelect.
+ */
+export function DropdownMenuCheckboxItem({
+  checked,
+  onCheckedChange,
+  children,
+  count,
+  shortcut,
+  disabled,
+  textValue,
+  closeOnSelect = false,
+}: DropdownMenuCheckboxItemProps) {
+  return (
+    <Menu.CheckboxItem
+      checked={checked}
+      onCheckedChange={onCheckedChange}
+      onSelect={closeOnSelect ? undefined : (event) => event.preventDefault()}
+      disabled={disabled}
+      textValue={textValue}
+      className={menuItemClassName()}
+    >
+      <MenuCheckBox checked={checked} disabled={disabled} />
+      <MenuItemContent count={count} shortcut={shortcut}>
+        {children}
+      </MenuItemContent>
+    </Menu.CheckboxItem>
   );
 }
 

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { IconButton } from './icon-button';
 import {
   DropdownMenu,
+  DropdownMenuCheckboxItem,
   DropdownMenuItem,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
@@ -141,5 +142,48 @@ describe('DropdownMenu behaviour', () => {
     expect(ativos.getAttribute('aria-checked')).toBe('false');
     ativos.click();
     await vi.waitFor(() => expect(el.querySelector('output')!.textContent).toBe('ativos'));
+  });
+
+  it('a checkbox item is menuitemcheckbox with aria-checked; ticking keeps the menu open, unless closeOnSelect', async () => {
+    function Check({ closeOnSelect }: { closeOnSelect?: boolean }) {
+      const [on, setOn] = useState(false);
+      return (
+        <DropdownMenu trigger={<button type="button">Colunas</button>}>
+          <DropdownMenuCheckboxItem checked={on} onCheckedChange={setOn} count={12} textValue="Cidade" closeOnSelect={closeOnSelect}>
+            Cidade
+          </DropdownMenuCheckboxItem>
+        </DropdownMenu>
+      );
+    }
+    let el = await render(<Check />);
+    await open(el);
+    let [item] = items();
+    expect(item.getAttribute('role')).toBe('menuitemcheckbox');
+    expect(item.getAttribute('aria-checked')).toBe('false');
+    expect(item.querySelector('.rds-menu__count')!.textContent).toBe('12');
+    expect(getComputedStyle(item.querySelector('.rds-menu__count')!).fontVariantNumeric).toBe('tabular-nums');
+    await userEvent.click(item);
+    await vi.waitFor(() => expect(items()[0].getAttribute('aria-checked')).toBe('true'));
+    expect(menu()).not.toBeNull();
+    const box = items()[0].querySelector<HTMLElement>('.rds-checkbox__box')!;
+    expect(box.hasAttribute('data-checked')).toBe(true);
+    expect(getComputedStyle(box).backgroundColor).not.toBe('rgba(0, 0, 0, 0)');
+
+    cleanup();
+    el = await render(<Check closeOnSelect />);
+    await open(el);
+    [item] = items();
+    await userEvent.click(item);
+    await vi.waitFor(() => expect(menu()).toBeNull());
+  });
+
+  it('a plain item takes a count on the right', async () => {
+    const el = await render(
+      <DropdownMenu trigger={<button type="button">Abrir</button>}>
+        <DropdownMenuItem count={3}>Pendentes</DropdownMenuItem>
+      </DropdownMenu>,
+    );
+    await open(el);
+    expect(items()[0].querySelector('.rds-menu__count')!.textContent).toBe('3');
   });
 });

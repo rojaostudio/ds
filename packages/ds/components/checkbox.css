@@ -4,7 +4,8 @@
  * Checked fills with colors/secondary and drops the border. Focus: the single outline, 2 away.
  * The row (44 tall, label, hint, error) is internal/choice.css.
  */
-.rds-checkbox {
+.rds-checkbox,
+.rds-checkbox__box--standalone {
   --_control-width: var(--size-20);
   --_text-size: var(--checkbox-text-size);
   --_text-line: var(--checkbox-text-line);
@@ -75,6 +76,26 @@ input:focus-visible + .rds-checkbox__box {
   outline-offset: var(--focus-ring-width);
 }
 
+/*
+ * The box alone, without an input (a menuitemcheckbox draws it: the item is the control, the box only shows the
+ * state). data-checked and data-disabled stand for the input's states.
+ */
+.rds-checkbox__box--standalone[data-checked] {
+  border-color: transparent;
+  background: var(--_checked);
+}
+
+.rds-checkbox__box--standalone[data-checked] .rds-checkbox__check {
+  display: block;
+}
+
+.rds-checkbox__box--standalone[data-disabled] {
+  --_border: var(--checkbox-control-border-disabled);
+  --_background: var(--checkbox-control-background-disabled);
+  --_checked: var(--checkbox-control-background-checked-disabled);
+  --_mark: var(--checkbox-control-mark-disabled);
+}
+
 /* Its own error, or the error of the CheckboxGroup around it: every box of the group gets the red border. */
 .rds-checkbox--error,
 .rds-checkbox-group--error .rds-checkbox {
@@ -116,7 +137,8 @@ input:focus-visible + .rds-checkbox__box {
   }
 
   input:checked + .rds-checkbox__box,
-  input:indeterminate + .rds-checkbox__box {
+  input:indeterminate + .rds-checkbox__box,
+  .rds-checkbox__box--standalone[data-checked] {
     forced-color-adjust: none;
     background: Highlight;
     color: HighlightText;
