@@ -181,9 +181,12 @@ describe('PageHeader title addon', () => {
     );
     const row = el.querySelector('.rds-page-header__title-row')!;
     expect([...row.children].map((c) => c.className.split(' ')[0])).toEqual([
+      'rds-page-header__title-group',
+      'rds-page-header__addon',
+    ]);
+    expect([...row.children[0].children].map((c) => c.className.split(' ')[0])).toEqual([
       'rds-page-header__title',
       'rds-page-header__help',
-      'rds-page-header__addon',
     ]);
     expect(row.getBoundingClientRect().height).toBe(30);
     const title = row.querySelector('.rds-page-header__title')!.getBoundingClientRect();
@@ -201,6 +204,26 @@ describe('PageHeader title addon', () => {
     const addon = el.querySelector('.rds-page-header__addon')!.getBoundingClientRect();
     expect(addon.top - title.bottom).toBe(4);
     expect(addon.left).toBe(title.left);
+    await page.viewport(1280, 900);
+  });
+
+  it('on a phone the help never wraps alone: the title text wraps and the help stays on its first line', async () => {
+    await page.viewport(390, 800);
+    const el = await render(
+      <PageHeader
+        back={{ href: '/clientes', label: 'Clientes' }}
+        help={{ label: 'Como funciona', onClick: () => {} }}
+        title="Gráfica Bom Preço Comunicação Visual"
+        titleAddon={<Status tone="info">Ativo</Status>}
+      />,
+    );
+    const title = el.querySelector('.rds-page-header__title')!.getBoundingClientRect();
+    const help = el.querySelector('.rds-page-header__help')!.getBoundingClientRect();
+    const row = el.querySelector('.rds-page-header__title-row')!.getBoundingClientRect();
+    expect(title.height).toBeGreaterThan(30);
+    expect(help.top).toBe(title.top);
+    expect(help.left).toBeGreaterThan(title.left);
+    expect(help.right).toBeLessThanOrEqual(row.right + 7);
     await page.viewport(1280, 900);
   });
 

@@ -57,10 +57,21 @@
   min-height: var(--type-heading-line);
 }
 
-.rds-page-header__title {
-  /* It keeps its width and wraps its own text only past the row: the addon goes under it first. */
-  flex: none;
+/*
+ * The title and its help travel together (Figma 07/10, titleGroup): the help never wraps alone onto the next line;
+ * on a narrow row the title's text wraps instead, the help beside it on its first line. The addon still wraps under.
+ */
+.rds-page-header__title-group {
+  display: flex;
+  flex: 0 1 auto;
+  align-items: flex-start;
+  gap: var(--space-8);
+  min-width: 0;
   max-width: 100%;
+}
+
+.rds-page-header__title {
+  flex: 0 1 auto;
   min-width: 0;
   margin: 0;
   color: var(--pageheader-title);
