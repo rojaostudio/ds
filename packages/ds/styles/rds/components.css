@@ -489,7 +489,8 @@
 
   /* feedback */
   --alert-text: var(--text-body);
-  --alert-neutral-background: var(--surface-neutral);
+  --alert-neutral-background: var(--surface-card);
+  --alert-neutral-border: var(--border-default);
   --alert-neutral-foreground: var(--text-neutral);
   --alert-info-background: var(--surface-info);
   --alert-info-foreground: var(--text-info);

@@ -3,7 +3,8 @@
 # Format: name|type (C colour, F number, S string, B boolean)|@collection:target (alias) OR raw value|WEB codeSyntax ("=" when it is the path with hyphens)[|obsolete]
 # obsolete: the Figma description starts with "Obsoleto"; the token stays for old code and no stylesheet has to read it.
 alert/text|C|@theme:text/body|=
-alert/neutral/background|C|@theme:surface/neutral|=
+alert/neutral/background|C|@theme:surface/card|=
+alert/neutral/border|C|@theme:border/default|=
 alert/neutral/foreground|C|@theme:text/neutral|=
 alert/info/background|C|@theme:surface/info|=
 alert/info/foreground|C|@theme:text/info|=
