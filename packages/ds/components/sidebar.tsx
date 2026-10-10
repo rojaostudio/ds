@@ -124,7 +124,11 @@ export interface SidebarProps extends Omit<HTMLAttributes<HTMLElement>, 'childre
    * Put them directly inside (Fragments are fine): the Sidebar reads their `href` to find the current page.
    */
   children: ReactNode;
-  /** The foot, under the user: usually the "Sair" SidebarItem. */
+  /**
+   * The account block's entries, under the user (Figma: the `account` block's .sidebar/item): the product's own
+   * SidebarItems, with their icon, label, `href` and `current` ("Plano e consumo" → /billing, "Sair"). Their `href`
+   * counts for `currentPath` like any other entry's; in the rail they keep their name in a Tooltip.
+   */
   footer?: ReactNode;
   /**
    * Below 1024, the drawer is open. Controlled with `onDrawerOpenChange`; the button that opens it is the
