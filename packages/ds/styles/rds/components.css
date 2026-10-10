@@ -913,6 +913,9 @@
   --delta-danger: var(--text-error);
   --progress-track: var(--surface-tint-strong);
   --progress-fill: var(--chart-series-1);
+  --progress-fill-success: var(--colors-state-success-strong);
+  --progress-fill-warning: var(--text-warning);
+  --progress-fill-danger: var(--text-error);
   --progress-label: var(--text-body);
   --progress-value: var(--text-muted);
   --spinner-indicator: var(--colors-primary-dark);

@@ -66,7 +66,7 @@ export type { StatusProps, StatusTone, StatusVariant, StatusSize } from './statu
 export { Delta } from './delta';
 export type { DeltaProps, DeltaDirection, DeltaTone } from './delta';
 export { Progress } from './progress';
-export type { ProgressProps, ProgressKind, ProgressSize } from './progress';
+export type { ProgressProps, ProgressKind, ProgressSize, ProgressTone } from './progress';
 export { StarRating } from './star-rating';
 export type { StarRatingProps, StarRatingSize } from './star-rating';
 
