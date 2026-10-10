@@ -3,7 +3,7 @@
 import { createContext, useContext, useId, type HTMLAttributes, type ReactNode } from 'react';
 
 /** The surface (Figma: `variant`). */
-export type CardVariant = 'surface' | 'soft' | 'outline';
+export type CardVariant = 'surface' | 'soft' | 'outline' | 'inverse';
 export type CardSize = 'md' | 'sm';
 
 type Heading = 'h2' | 'h3' | 'h4';
@@ -13,7 +13,8 @@ export interface CardProps extends HTMLAttributes<HTMLElement> {
    * The surface (Figma: `variant`). surface (default): white, with a border and elevation/raised, for a topic on its
    * own on the page. outline: only the border, no fill nor shadow, it takes the surface underneath; for cards side by
    * side in a grid, inside a panel or a list. soft: the brand's light plate, no border nor shadow; a rare highlight,
-   * one per screen.
+   * one per screen. inverse: the brand's dark fill (white in dark), no border nor shadow, title, content and icons in
+   * its own text colour, the description a step quieter; a highlight that carries text and icons.
    */
   variant?: CardVariant;
   /**

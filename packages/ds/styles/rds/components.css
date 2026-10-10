@@ -259,6 +259,9 @@
   --card-title: var(--text-heading);
   --card-description: var(--text-muted);
   --card-tint-background: var(--surface-tint-default);
+  --card-inverse-background: var(--surface-inverse);
+  --card-inverse-title: var(--text-on-inverse);
+  --card-inverse-description: var(--text-on-inverse-subtle);
   --kbd-background: var(--surface-muted);
   --kbd-border: var(--border-default);
   --kbd-label: var(--text-body);

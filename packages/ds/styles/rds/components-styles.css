@@ -1911,6 +1911,7 @@ button.rds-breadcrumb__link:focus-visible {
  *   outline: only the hairline, no fill, no shadow; it takes the surface underneath (cards side by side in a grid,
  *            inside a panel or a list, where stacked shadows turn into noise).
  *   soft:    the brand's light plate (card/tint/background), no border, no shadow, title in card/tint/title.
+ *   inverse: the brand's dark fill (card/inverse/*), no border, no shadow, every text on it in its own colours.
  * The footer has no band and no rule: the actions sit side by side, the main one last (on the right). The
  * card/footer/background tokens are obsolete in Figma (03/10/2026) and not read here.
  */
@@ -1944,6 +1945,24 @@ button.rds-breadcrumb__link:focus-visible {
   border-color: transparent;
   background: var(--card-tint-background);
   box-shadow: none;
+}
+
+/*
+ * inverse: the brand's dark fill (card/inverse/background: the primary, coal/900 for a light brand; white in dark and on
+ * the plate), no border, no shadow. Title, content, footer note and icons drawn in currentColor take
+ * card/inverse/title; the description card/inverse/description.
+ */
+.rds-card--inverse {
+  --_title: var(--card-inverse-title);
+
+  border-color: transparent;
+  background: var(--card-inverse-background);
+  box-shadow: none;
+  color: var(--card-inverse-title);
+}
+
+.rds-card--inverse .rds-card__description {
+  color: var(--card-inverse-description);
 }
 
 .rds-card__header {
