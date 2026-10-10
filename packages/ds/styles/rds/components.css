@@ -216,7 +216,7 @@
 
   /* content */
   --avatar-fallback-background: var(--surface-muted);
-  --avatar-fallback-label: var(--text-subtle);
+  --avatar-fallback-label: var(--text-muted);
   --avatar-icon-background: var(--surface-muted);
   --avatar-icon-icon: var(--text-body);
   --avatar-presence-background: var(--colors-state-success);
@@ -273,10 +273,12 @@
   --table-border: var(--border-default);
   --table-footer-background: var(--surface-panel);
   --table-footer-label: var(--text-heading);
-  --timeline-line: var(--border-default);
+  --timeline-line: var(--border-strong);
   --timeline-actor: var(--text-heading);
   --timeline-action: var(--text-body);
   --timeline-meta: var(--text-muted);
+  --timeline-day: var(--text-heading);
+  --timeline-avatar-border: var(--border-strong);
   --accordion-title: var(--text-heading);
   --accordion-content: var(--text-body);
   --accordion-icon: var(--text-muted);
@@ -299,21 +301,21 @@
   --carousel-dot-active: var(--colors-primary-default);
   --carousel-placeholder: var(--text-subtle);
   --choice-card-container-background-default: var(--surface-card);
-  --choice-card-container-background-selected: var(--colors-primary-default);
+  --choice-card-container-background-selected: var(--surface-tint-subtle);
   --choice-card-container-border-default: var(--border-default);
   --choice-card-container-border-hover: var(--border-strong);
   --choice-card-container-border-selected: var(--colors-primary-default);
   --choice-card-label-color-default: var(--text-body);
-  --choice-card-label-color-selected: var(--text-on-primary);
+  --choice-card-label-color-selected: var(--text-body);
   --choice-card-description-color-default: var(--text-muted);
-  --choice-card-description-color-selected: var(--text-on-primary);
+  --choice-card-description-color-selected: var(--text-muted);
   --choice-card-icon-background-default: var(--surface-muted);
-  --choice-card-icon-background-selected: var(--text-on-primary);
+  --choice-card-icon-background-selected: var(--surface-card);
   --choice-card-icon-color-default: var(--text-body);
-  --choice-card-icon-color-selected: var(--text-on-primary);
+  --choice-card-icon-color-selected: var(--colors-primary-default);
   --choice-card-radio-border-default: var(--border-strong);
-  --choice-card-radio-border-selected: var(--text-on-primary);
-  --choice-card-radio-dot: var(--text-on-primary);
+  --choice-card-radio-border-selected: var(--colors-primary-default);
+  --choice-card-radio-dot: var(--colors-primary-default);
   --insight-card-alert-border: var(--colors-state-warning);
   --insight-card-alert-background: var(--surface-warning);
   --insight-card-alert-badge-background: var(--surface-warning);
@@ -366,8 +368,8 @@
   --media-tile-media: var(--surface-muted);
   --media-tile-fallback: var(--text-subtle);
   --media-tile-label: var(--text-body);
-  --choice-card-check-background-tile: var(--text-on-primary);
-  --choice-card-check-icon-tile: var(--colors-primary-default);
+  --choice-card-check-background-tile: var(--colors-primary-default);
+  --choice-card-check-icon-tile: var(--text-on-primary);
   --choice-card-check-background-preview: var(--colors-primary-default);
   --choice-card-check-icon-preview: var(--text-on-primary);
   --choice-card-preview-background: var(--surface-muted);
@@ -674,8 +676,8 @@
   --switch-label-color: var(--text-body);
   --switch-label-disabled: var(--text-disabled);
   --switch-hint-color: var(--text-muted);
-  --switch-text-size: var(--type-label-size);
-  --switch-text-line: var(--type-label-line);
+  --switch-text-size: var(--type-small-size);
+  --switch-text-line: var(--type-small-line);
   --switch-support-size: var(--type-small-size);
   --switch-support-line: var(--type-small-line);
   --switch-focus-ring: var(--focus-ring);

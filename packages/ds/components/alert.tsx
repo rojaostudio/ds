@@ -25,7 +25,10 @@ export interface AlertProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title'
   description?: ReactNode;
   /** The tone's icon (Figma: `showIcon`). Decorative: the title says the same in words. */
   showIcon?: boolean;
-  /** One way out (Figma: `showAction`), usually a neutral ghost Button or a link rendered with Button asChild. */
+  /**
+   * One way out (Figma: `showAction`), usually a neutral outline `size="sm"` Button or a link rendered with Button
+   * asChild. Below lg 1024 it sits under the description; from 1024 it moves to the right of the text, centred.
+   */
   action?: ReactNode;
   /**
    * Lets the person dismiss it (Figma: `showClose`): an × named by `closeLabel`. The Alert hides itself, calls
@@ -75,8 +78,10 @@ export function Alert({
         </span>
       )}
       <div className="rds-alert__content">
-        <p className="rds-alert__title">{title}</p>
-        {description && <div className="rds-alert__description">{description}</div>}
+        <div className="rds-alert__text">
+          <p className="rds-alert__title">{title}</p>
+          {description && <div className="rds-alert__description">{description}</div>}
+        </div>
         {action && <div className="rds-alert__action">{action}</div>}
       </div>
       {onClose && (

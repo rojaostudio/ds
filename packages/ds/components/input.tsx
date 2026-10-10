@@ -30,6 +30,11 @@ export interface InputProps extends FieldTextProps, Omit<ComponentPropsWithRef<'
   onClear?: () => void;
   /** The clear button's accessible name. */
   clearLabel?: string;
+  /**
+   * md (default) 44; sm 32 for dense toolbars (a list's search beside 32 FilterChips), the text still 16/24 and the
+   * icons 16 (Figma: `size`, Figma 07/10). sm has no floating label.
+   */
+  size?: 'md' | 'sm';
 }
 
 /**
@@ -53,6 +58,7 @@ export function Input({
   clearable,
   onClear,
   clearLabel = 'Limpar',
+  size = 'md',
   id,
   disabled,
   className,
@@ -67,7 +73,9 @@ export function Input({
   const [typed, setTyped] = useState(() => hasContent(input.defaultValue as ReactNode));
   const hasValue = input.value !== undefined ? String(input.value) !== '' : typed;
   const showClear = clearable && hasValue && !disabled;
-  const floating = labelPosition === 'floating' && hasContent(label);
+  // sm has no floating label: a 32 box has no room for it.
+  const position = size === 'sm' ? 'top' : labelPosition;
+  const floating = position === 'floating' && hasContent(label);
 
   function change(event: ChangeEvent<HTMLInputElement>) {
     setTyped(event.target.value !== '');
@@ -87,14 +95,14 @@ export function Input({
       hintId={hintId}
       errorId={errorId}
       label={label}
-      labelPosition={labelPosition}
+      labelPosition={position}
       hint={hint}
       errorMessage={errorMessage}
       invalid={invalid}
       required={required}
       disabled={disabled}
       boxClassName={showClear ? 'rds-field__box--action' : undefined}
-      className={className}
+      className={[size === 'sm' && 'rds-field--sm', className].filter(Boolean).join(' ') || undefined}
       style={style}
     >
       {leadingIcon && (

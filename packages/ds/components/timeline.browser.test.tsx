@@ -70,5 +70,9 @@ describe('Timeline behaviour', () => {
     expect(actor.color).not.toBe(action.color);
     expect([time.fontSize, time.lineHeight]).toEqual(['12px', '16px']);
     expect(getComputedStyle(li.querySelector('.rds-timeline__diff')!).color).toBe(time.color);
+    // Figma 07/10: the time is a 48 column on the right; the day is a heading.
+    expect(time.width).toBe('48px');
+    expect(time.textAlign).toBe('right');
+    expect(el.querySelector('.rds-timeline__day-label')!.tagName).toBe('H3');
   });
 });

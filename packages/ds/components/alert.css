@@ -36,9 +36,20 @@
   display: flex;
   flex: 1;
   flex-direction: column;
+  align-items: flex-start;
   gap: var(--space-4);
   min-width: 0;
-  padding: var(--space-12) 0;
+  padding: var(--space-4) 0;
+}
+
+/* The text carries the title's 8 so a title-only Alert keeps the title on the icon's line beside a 36 action. */
+.rds-alert__text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  align-self: stretch;
+  min-width: 0;
+  padding: var(--space-8) 0;
 }
 
 .rds-alert__title {
@@ -55,9 +66,26 @@
   margin: 0;
 }
 
-/* As in Figma: the ghost Button's box starts on the title's edge. */
+/*
+ * The action, by the screen width as the Figma viewport mode (Figma 07/10): compact (below lg 1024) under the text,
+ * the outline's edge on the title's edge; expanded (from 1024) to the right of the text, centred on it.
+ */
 .rds-alert__action {
   display: flex;
+  flex: none;
+}
+
+@media (min-width: 1024px) {
+  .rds-alert__content {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-16);
+  }
+
+  .rds-alert__text {
+    flex: 1;
+    align-self: auto;
+  }
 }
 
 .rds-alert__close {

@@ -35,7 +35,7 @@ function GearIcon() {
 /** The list's action, as the Figma asks: an outline neutral IconButton with its Tooltip (creating is the FAB). */
 const ACTION = (
   <Tooltip text="Organizar pedidos">
-    <IconButton icon={<GearIcon />} label="Organizar pedidos" variant="outline" tone="neutral" />
+    <IconButton icon={<GearIcon />} label="Organizar pedidos" variant="outline" tone="neutral" size="sm" />
   </Tooltip>
 );
 
@@ -142,7 +142,7 @@ function Produtos({
       onClear={noop}
       actions={
         <Tooltip text="Organizar categorias">
-          <IconButton icon={<GearIcon />} label="Organizar categorias" variant="outline" tone="neutral" />
+          <IconButton icon={<GearIcon />} label="Organizar categorias" variant="outline" tone="neutral" size="sm" />
         </Tooltip>
       }
     />
@@ -245,6 +245,16 @@ describe('DataTableHeader behaviour', () => {
     expect(chip.getAttribute('aria-pressed')).toBe('false');
     await userEvent.click(chip);
     expect(chip.getAttribute('aria-pressed')).toBe('true');
+  });
+
+  it('the quick filters stay on one line and scroll sideways, also on a phone', async () => {
+    for (const width of [1280, 390]) {
+      await page.viewport(width, 800);
+      const el = await render(<Example />);
+      const quick = getComputedStyle(el.querySelector<HTMLElement>('.rds-data-table-header__quick')!);
+      expect(quick.flexWrap).toBe('nowrap');
+      expect(quick.overflowX).toBe('auto');
+    }
   });
 
   it('no Separator and no Badge anywhere in the bar', async () => {
@@ -451,8 +461,9 @@ describe('DataTableHeader behaviour', () => {
     }
   });
 
-  it('the action stays at the end of the first line, on the right, while the tools wrap onto a second line (768, 390)', async () => {
-    for (const width of [768, 390]) {
+  it('the action stays at the end of the first line, on the right, while the tools wrap onto a second line (390)', async () => {
+    // At 768 the tools now fit one line: the quick filters scroll instead of wrapping (Figma 09/10).
+    for (const width of [390]) {
       await page.viewport(width, 800);
       const el = await render(<Example two withView moreQuick />);
       const row = el.querySelector<HTMLElement>('.rds-data-table-header__row')!;
@@ -485,7 +496,7 @@ describe('DataTableHeader behaviour', () => {
 });
 
 describe('DataTableHeader compact (bar below 1024)', () => {
-  it('at 390: the search (200, the token), the filter IconButton and the action on one line, 44 tall', async () => {
+  it('at 390: the search (200, the token), the filter IconButton and the action on one line, 32 tall (Figma 07/10)', async () => {
     await page.viewport(390, 800);
     const el = await render(<Produtos />);
     expect(searchMin(el)).toBe('200px');
@@ -497,10 +508,10 @@ describe('DataTableHeader compact (bar below 1024)', () => {
     expect(search.getBoundingClientRect().width).toBeGreaterThanOrEqual(200);
     const tops = [search, toggle, action].map((n) => n.getBoundingClientRect().top);
     expect(new Set(tops).size).toBe(1);
-    expect(row.getBoundingClientRect().height).toBe(44);
+    expect(row.getBoundingClientRect().height).toBe(32);
     expect(toggle.className).toContain('rds-button--outline');
     const box = toggle.getBoundingClientRect();
-    expect([box.width, box.height]).toEqual([44, 44]);
+    expect([box.width, box.height]).toEqual([32, 32]);
     expect(visible(row.querySelector('.rds-data-table-header__wide')!)).toBe(false);
     expect(row.scrollWidth).toBeLessThanOrEqual(row.clientWidth);
   });
@@ -533,7 +544,7 @@ describe('DataTableHeader compact (bar below 1024)', () => {
     expect(toggle.textContent).toBe('1');
     const icon = toggle.querySelector('svg')!;
     expect(icon.getBoundingClientRect().left).toBeLessThan(toggle.getBoundingClientRect().left + toggle.getBoundingClientRect().width / 2);
-    expect(toggle.getBoundingClientRect().height).toBe(44);
+    expect(toggle.getBoundingClientRect().height).toBe(32);
   });
 
   it('several filters: inactive "Filtros"; active, a fill Button with the number, named "Filtros, N ativos"', async () => {

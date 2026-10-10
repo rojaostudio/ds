@@ -334,9 +334,20 @@
   display: flex;
   flex: 1;
   flex-direction: column;
+  align-items: flex-start;
   gap: var(--space-4);
   min-width: 0;
-  padding: var(--space-12) 0;
+  padding: var(--space-4) 0;
+}
+
+/* The text carries the title's 8 so a title-only Alert keeps the title on the icon's line beside a 36 action. */
+.rds-alert__text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  align-self: stretch;
+  min-width: 0;
+  padding: var(--space-8) 0;
 }
 
 .rds-alert__title {
@@ -353,9 +364,26 @@
   margin: 0;
 }
 
-/* As in Figma: the ghost Button's box starts on the title's edge. */
+/*
+ * The action, by the screen width as the Figma viewport mode (Figma 07/10): compact (below lg 1024) under the text,
+ * the outline's edge on the title's edge; expanded (from 1024) to the right of the text, centred on it.
+ */
 .rds-alert__action {
   display: flex;
+  flex: none;
+}
+
+@media (min-width: 1024px) {
+  .rds-alert__content {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-16);
+  }
+
+  .rds-alert__text {
+    flex: 1;
+    align-self: auto;
+  }
 }
 
 .rds-alert__close {
@@ -1869,9 +1897,16 @@ button.rds-breadcrumb__link:focus-visible {
   height: var(--type-small-line);
 }
 
-/* The content keeps the colour of where the card sits: the slot holds any component. */
+/*
+ * The content keeps the colour of where the card sits: the slot holds any component. Its blocks stack as many
+ * apart as the padding (Figma 07/10: cardContent's gap), so an Alert above a list needs no spacer.
+ */
 .rds-card__content {
+  display: flex;
   flex: 1;
+  flex-direction: column;
+  gap: var(--_pad);
+  min-width: 0;
   padding: var(--_pad);
   font-size: var(--type-body-size);
   line-height: var(--type-body-line);
@@ -2698,10 +2733,11 @@ input:focus-visible + .rds-checkbox__box {
 /*
  * ChoiceCard (Content collection, choice-card/*): 16 inside, 16 between icon, text and radio. Icon 36 square in
  * radius/container with a 20 glyph; label 16/24 semibold, description 14/20, 2 apart; radio 16 with a 2px ring and
- * an 8 dot. Selected fills the card with the brand. Disabled is the same card at half opacity (as in Figma).
+ * an 8 dot. Selected (Figma 07/10) keeps it light: a 2px border in the brand, the soft tint behind, the text in its
+ * normal tones, the icon square on the card surface with the glyph in the brand, the radio ring and dot in the brand.
+ * A full brand fill is the ToggleGroup's. Disabled is the same card at half opacity (as in Figma).
  * tile: a grid cell, 16 inside, centred: the icon, then the label 14/20 semibold and the description 12/16 (8 below
- * the icon). Selected fills it with the brand, the icon square at 10% of choice-card/icon/background/selected, the
- * description at full opacity, and a 16 check (11 glyph) 8 from the top right corner.
+ * the icon). Selected as the row, with a 16 check (11 glyph) in the brand 8 from the top right corner.
  * preview: 8 inside, the picture on top (16:9, a 1px border, corners radius/container, a 24 placeholder icon), then
  * the label 16/24 semibold and the description 14/20, 4 in from the sides. Selected keeps the surface: a 2px border
  * in the brand, the description at full opacity and a 20 check (12 glyph) in the picture's bottom right corner.
@@ -2743,6 +2779,7 @@ input:focus-visible + .rds-checkbox__box {
   --_icon-background: var(--choice-card-icon-background-default);
   --_icon: var(--choice-card-icon-color-default);
   --_radio: var(--choice-card-radio-border-default);
+  --_border-width: var(--border-width);
 
   position: relative;
   box-sizing: border-box;
@@ -2750,8 +2787,8 @@ input:focus-visible + .rds-checkbox__box {
   align-items: center;
   gap: var(--space-16);
   width: 100%;
-  padding: calc(var(--space-16) - var(--border-width));
-  border: var(--border-width) solid var(--_border);
+  padding: calc(var(--space-16) - var(--_border-width));
+  border: var(--_border-width) solid var(--_border);
   border-radius: var(--radius-container);
   background: var(--_background);
   font-family: var(--type-font-stack);
@@ -2773,6 +2810,7 @@ input:focus-visible + .rds-checkbox__box {
   --_icon-background: var(--choice-card-icon-background-selected);
   --_icon: var(--choice-card-icon-color-selected);
   --_radio: var(--choice-card-radio-border-selected);
+  --_border-width: var(--border-width-strong);
 }
 
 .rds-choice-card--disabled {
@@ -2807,11 +2845,6 @@ input:focus-visible + .rds-checkbox__box {
   border-radius: var(--radius-container);
   background: var(--_icon-background);
   color: var(--_icon);
-}
-
-/* Selected: the icon square is text/on/primary, so the glyph would vanish into it; it takes the card's colour. */
-.rds-choice-card--selected .rds-choice-card__icon {
-  color: var(--_background);
 }
 
 .rds-choice-card__icon > svg {
@@ -2891,15 +2924,10 @@ input:focus-visible + .rds-checkbox__box {
   line-height: var(--type-caption-line);
 }
 
-.rds-choice-card--tile.rds-choice-card--selected .rds-choice-card__icon {
-  background: color-mix(in srgb, var(--choice-card-icon-background-selected) 10%, transparent);
-  color: var(--choice-card-icon-color-selected);
-}
-
 .rds-choice-card--tile .rds-choice-card__check {
   position: absolute;
-  top: calc(var(--space-8) - var(--border-width));
-  right: calc(var(--space-8) - var(--border-width));
+  top: calc(var(--space-8) - var(--_border-width));
+  right: calc(var(--space-8) - var(--_border-width));
   width: var(--size-16);
   height: var(--size-16);
   background: var(--choice-card-check-background-tile);
@@ -2918,16 +2946,13 @@ input:focus-visible + .rds-checkbox__box {
   flex-direction: column;
   align-items: stretch;
   gap: var(--space-8);
-  padding: calc(var(--space-8) - var(--border-width));
+  padding: calc(var(--space-8) - var(--_border-width));
 }
 
 .rds-choice-card--preview.rds-choice-card--selected {
   --_background: var(--choice-card-container-background-default);
   --_label: var(--choice-card-label-color-default);
   --_description: var(--choice-card-description-color-default);
-
-  padding: calc(var(--space-8) - var(--border-width-strong));
-  border-width: var(--border-width-strong);
 }
 
 .rds-choice-card__preview {
@@ -3616,9 +3641,11 @@ input:focus-visible + .rds-checkbox__box {
  *   fixed at the end of the FIRST line, on the right, and never goes down.
  * - `active`, only while a filter is on: the `chips` (wrapping, at least 280 before "Limpar filtros" goes down)
  *   and "Limpar filtros" at the end.
+ * One height, 32 (Figma 07/10): the search is the Input sm, the triggers Buttons and IconButtons sm, beside the
+ * FilterChips; the action and the view control go in sm too.
  * Two arrangements, by the screen width, as the Figma viewport mode (layout/compact below lg 1024; the SavingBar's
  * cut): expanded from 1024 (the __wide parts: the trigger as a Button with its label); compact below it (the __narrow
- * parts: the trigger as an IconButton of 44, or a fill Button with the number while a filter is on).
+ * parts: the trigger as an IconButton sm, or a fill Button with the number while a filter is on).
  * In the Popover and the Drawer the filters stack 16 apart, each one a caption-sized label over its chips.
  */
 .rds-data-table-header {
@@ -3674,7 +3701,25 @@ input:focus-visible + .rds-checkbox__box {
   flex: 1 1 auto;
 }
 
-.rds-data-table-header__quick,
+/*
+ * Figma `quickFilters`: one line that scrolls sideways (no wrap), taking the free width, at least 160; below that it
+ * goes to its own line and still scrolls (Figma 09/10).
+ */
+.rds-data-table-header__quick {
+  flex: 1 1 160px;
+  min-width: min(160px, 100%);
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: var(--space-8);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.rds-data-table-header__quick > * {
+  flex: none;
+}
+
 .rds-data-table-header__view,
 .rds-data-table-header__wide,
 .rds-data-table-header__actions,
@@ -5292,7 +5337,7 @@ input:focus-visible + .rds-checkbox__box {
 }
 
 .rds-otp__support {
-  padding: 0 var(--space-4);
+  padding: 0;
   font-size: var(--type-small-size);
   line-height: var(--type-small-line);
 }
@@ -5755,7 +5800,7 @@ input:focus-visible + .rds-checkbox__box {
 /*
  * The text fields' shared parts (Input, PasswordInput, Textarea, Select). Label 14/20 medium, 8 above the box;
  * box 44 tall (56 floating), 12 inside, 8 between parts (8 on the right when it ends on an action); hint or
- * error 4 below, 4 in from the sides. Focus is a state of the box: the border turns 2px focus ring (red on
+ * error 4 below, on the label's edge. Focus is a state of the box: the border turns 2px focus ring (red on
  * error). Text 16/24, so iOS does not zoom. The defaults below are the Input's (input/*); Textarea and Select
  * swap the local variables for their own tokens.
  */
@@ -5926,14 +5971,31 @@ input:focus-visible + .rds-checkbox__box {
   }
 }
 
+/* sm (Input size="sm", Figma 07/10): a 32 box for dense toolbars; the text stays 16/24, icons 16, the action 24. */
+.rds-field--sm {
+  --_height: var(--size-32);
+}
+
+.rds-field--sm .rds-field__icon > svg,
+.rds-field--sm .rds-field__action-icon > svg {
+  width: var(--size-16);
+  height: var(--size-16);
+}
+
+.rds-field--sm .rds-field__action {
+  width: var(--size-24);
+  height: var(--size-24);
+}
+
 /* The field has no ring token apart from its focus border: the same colour, so every focus in it looks alike. */
 .rds-field__action:focus-visible {
   outline: var(--focus-ring-width) solid var(--_border-focus);
   outline-offset: calc(var(--focus-ring-width) * -1);
 }
 
+/* On the label's and the box's edge (Figma 07/10: hintRow and errorRow lost their 4 at the sides). */
 .rds-field__support {
-  padding: 0 var(--space-4);
+  padding: 0;
   font-size: var(--_support-size);
   line-height: var(--_support-line);
 }
@@ -7010,6 +7072,14 @@ body:has(.rds-modal) {
 .rds-item--sm .rds-item__description {
   font-size: var(--type-caption-size);
   line-height: var(--type-caption-line);
+}
+
+/* The meta before the action (Figma 07/10, trailing): a Status, a Badge or a value, 8 apart when there are more. */
+.rds-item__trailing {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-8);
 }
 
 .rds-item__action {
@@ -9290,6 +9360,32 @@ input:focus-visible + .rds-radio__circle {
   padding: var(--space-8) var(--space-12) var(--space-12);
 }
 
+/* header=logo (Figma 07/10): 64 tall, 8 above and below; the logo up to 48 tall, in its own proportion. */
+.rds-sidebar__header--logo {
+  height: calc(var(--size-48) + var(--space-8) * 2);
+  padding-block: var(--space-8);
+}
+
+.rds-sidebar__header--logo .rds-sidebar__logo {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  height: 100%;
+}
+
+/*
+ * Ceilings, not a size: up to 48 tall and the header's width. The width is the product's call (a width on the
+ * <img>, Figma 07/10: a horizontal logo at the full 199 reads too big); without one, the logo's own size within them.
+ */
+.rds-sidebar__logo > img,
+.rds-sidebar__logo > svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  max-height: var(--size-48);
+  object-fit: contain;
+}
+
 .rds-sidebar--collapsed .rds-sidebar__header {
   justify-content: center;
   padding-inline: 0;
@@ -10348,10 +10444,22 @@ input:focus-visible + .rds-radio__circle {
   --_support-line: var(--switch-support-line);
   --_off: var(--switch-track-off);
   --_on: var(--switch-track-on);
+  /* The 24 track is taller than the 20 label line: the row pads from the track, so it stays 44 (sm 24). */
+  --_pad: calc((var(--_touch) - var(--size-24)) / 2);
 }
 
+.rds-switch .rds-choice__control {
+  height: var(--size-24);
+}
+
+/*
+ * 14/20 medium, as the Input's label (Figma 07/10): a Switch and an Input in one form read as one family. The label's
+ * first line sits on the track's middle.
+ */
 .rds-switch__label {
+  padding-top: calc((var(--size-24) - var(--_text-line)) / 2);
   color: var(--switch-label-color);
+  font-weight: 500;
 }
 
 /* ---------- size=sm ---------- */
@@ -10371,7 +10479,7 @@ input:focus-visible + .rds-radio__circle {
 .rds-switch--sm .rds-switch__control::before {
   content: "";
   position: absolute;
-  inset: calc((var(--_touch) - var(--_text-line)) / -2) calc(var(--space-4) * -1);
+  inset: calc((var(--_touch) - var(--size-24)) / -2) calc(var(--space-4) * -1);
 }
 
 /* ---------- labelPosition=start ---------- */
@@ -11080,11 +11188,12 @@ tbody > tr:last-child > .rds-table__status {
 /* components/timeline.css */
 /* @tokens timeline */
 /*
- * Timeline (Content collection, timeline/*; Figma 07/10). The day: its label in caption medium (timeline/meta), 8
- * above and 12 below. The item: the rail (an Avatar sm, 24, and a 1px line in timeline/line from 4 under it down to
- * the next item; none after the day's last) and, 12 apart, the body: actor (medium, timeline/actor) and action
- * (timeline/action) wrapping together in 14/20, the time in caption (timeline/meta), the change in 14/20
- * (timeline/meta); 2 between them, 16 below the item.
+ * Timeline (Content collection, timeline/*; Figma 07/10). The day: a subtitle, label 16/24 semibold in timeline/day,
+ * 24 above and 12 below, so a day parts more than the events do. The item: the rail (an Avatar sm, 24, ringed in
+ * timeline/avatar/border, and a 1px line in timeline/line from 4 under it down to the next item; none after the
+ * day's last) and, 12 apart, the body: the head (actor, medium, timeline/actor, and action, timeline/action,
+ * wrapping together in 14/20; the time in a 48 column on the right, caption, timeline/meta, on the same baseline)
+ * and the change in 14/20 (timeline/meta); 2 between them, 16 below the item.
  */
 .rds-timeline {
   font-family: var(--type-font-stack);
@@ -11092,11 +11201,11 @@ tbody > tr:last-child > .rds-table__status {
 
 .rds-timeline__day-label {
   margin: 0;
-  padding: var(--space-8) 0 var(--space-12);
-  color: var(--timeline-meta);
-  font-size: var(--type-caption-size);
-  line-height: var(--type-caption-line);
-  font-weight: 500;
+  padding: var(--space-24) 0 var(--space-12);
+  color: var(--timeline-day);
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  font-weight: 600;
 }
 
 .rds-timeline__list {
@@ -11121,6 +11230,10 @@ tbody > tr:last-child > .rds-table__status {
 
 .rds-timeline__avatar {
   display: inline-flex;
+  border-radius: var(--radius-full);
+  /* The ring keeps the initials' circle visible on a grey page (surface/muted on surface/muted). */
+  outline: var(--border-width) solid var(--timeline-avatar-border);
+  outline-offset: calc(var(--border-width) * -1);
 }
 
 .rds-timeline__line {
@@ -11144,7 +11257,18 @@ tbody > tr:last-child > .rds-table__status {
   line-height: var(--type-small-line);
 }
 
-.rds-timeline__head,
+.rds-timeline__head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-12);
+}
+
+.rds-timeline__summary {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+}
+
 .rds-timeline__diff {
   margin: 0;
 }
@@ -11159,7 +11283,10 @@ tbody > tr:last-child > .rds-table__status {
 }
 
 .rds-timeline__time {
+  flex: none;
+  width: var(--size-48);
   color: var(--timeline-meta);
+  text-align: right;
   font-size: var(--type-caption-size);
   line-height: var(--type-caption-line);
 }

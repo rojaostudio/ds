@@ -17,7 +17,7 @@ export interface ChartSeries {
 export interface ChartProps extends Omit<HTMLAttributes<HTMLElement>, 'children' | 'onSelect'> {
   /** What the chart shows, with the period. It names the chart and captions its data table. */
   label: string;
-  /** line: lines over time; bar: a ranking in horizontal bars; column: columns by category. */
+  /** line: lines over time; bar: a ranking in horizontal bars, all in the first series colour; column: columns by category. */
   type?: ChartType;
   /** The x labels: dates (line) or categories (bar, column), one per value. */
   labels: string[];
@@ -264,7 +264,7 @@ export function Chart({
               <span className="rds-chart__track">
                 <span
                   className="rds-chart__bar"
-                  style={{ ...seriesStyle(i + 1), width: `${top ? ((s?.data[i] ?? 0) / top) * 100 : 0}%` }}
+                  style={{ ...seriesStyle(1), width: `${top ? ((s?.data[i] ?? 0) / top) * 100 : 0}%` }}
                 />
               </span>
               <span className="rds-chart__bar-value">{value}</span>

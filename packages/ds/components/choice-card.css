@@ -2,10 +2,11 @@
 /*
  * ChoiceCard (Content collection, choice-card/*): 16 inside, 16 between icon, text and radio. Icon 36 square in
  * radius/container with a 20 glyph; label 16/24 semibold, description 14/20, 2 apart; radio 16 with a 2px ring and
- * an 8 dot. Selected fills the card with the brand. Disabled is the same card at half opacity (as in Figma).
+ * an 8 dot. Selected (Figma 07/10) keeps it light: a 2px border in the brand, the soft tint behind, the text in its
+ * normal tones, the icon square on the card surface with the glyph in the brand, the radio ring and dot in the brand.
+ * A full brand fill is the ToggleGroup's. Disabled is the same card at half opacity (as in Figma).
  * tile: a grid cell, 16 inside, centred: the icon, then the label 14/20 semibold and the description 12/16 (8 below
- * the icon). Selected fills it with the brand, the icon square at 10% of choice-card/icon/background/selected, the
- * description at full opacity, and a 16 check (11 glyph) 8 from the top right corner.
+ * the icon). Selected as the row, with a 16 check (11 glyph) in the brand 8 from the top right corner.
  * preview: 8 inside, the picture on top (16:9, a 1px border, corners radius/container, a 24 placeholder icon), then
  * the label 16/24 semibold and the description 14/20, 4 in from the sides. Selected keeps the surface: a 2px border
  * in the brand, the description at full opacity and a 20 check (12 glyph) in the picture's bottom right corner.
@@ -47,6 +48,7 @@
   --_icon-background: var(--choice-card-icon-background-default);
   --_icon: var(--choice-card-icon-color-default);
   --_radio: var(--choice-card-radio-border-default);
+  --_border-width: var(--border-width);
 
   position: relative;
   box-sizing: border-box;
@@ -54,8 +56,8 @@
   align-items: center;
   gap: var(--space-16);
   width: 100%;
-  padding: calc(var(--space-16) - var(--border-width));
-  border: var(--border-width) solid var(--_border);
+  padding: calc(var(--space-16) - var(--_border-width));
+  border: var(--_border-width) solid var(--_border);
   border-radius: var(--radius-container);
   background: var(--_background);
   font-family: var(--type-font-stack);
@@ -77,6 +79,7 @@
   --_icon-background: var(--choice-card-icon-background-selected);
   --_icon: var(--choice-card-icon-color-selected);
   --_radio: var(--choice-card-radio-border-selected);
+  --_border-width: var(--border-width-strong);
 }
 
 .rds-choice-card--disabled {
@@ -111,11 +114,6 @@
   border-radius: var(--radius-container);
   background: var(--_icon-background);
   color: var(--_icon);
-}
-
-/* Selected: the icon square is text/on/primary, so the glyph would vanish into it; it takes the card's colour. */
-.rds-choice-card--selected .rds-choice-card__icon {
-  color: var(--_background);
 }
 
 .rds-choice-card__icon > svg {
@@ -195,15 +193,10 @@
   line-height: var(--type-caption-line);
 }
 
-.rds-choice-card--tile.rds-choice-card--selected .rds-choice-card__icon {
-  background: color-mix(in srgb, var(--choice-card-icon-background-selected) 10%, transparent);
-  color: var(--choice-card-icon-color-selected);
-}
-
 .rds-choice-card--tile .rds-choice-card__check {
   position: absolute;
-  top: calc(var(--space-8) - var(--border-width));
-  right: calc(var(--space-8) - var(--border-width));
+  top: calc(var(--space-8) - var(--_border-width));
+  right: calc(var(--space-8) - var(--_border-width));
   width: var(--size-16);
   height: var(--size-16);
   background: var(--choice-card-check-background-tile);
@@ -222,16 +215,13 @@
   flex-direction: column;
   align-items: stretch;
   gap: var(--space-8);
-  padding: calc(var(--space-8) - var(--border-width));
+  padding: calc(var(--space-8) - var(--_border-width));
 }
 
 .rds-choice-card--preview.rds-choice-card--selected {
   --_background: var(--choice-card-container-background-default);
   --_label: var(--choice-card-label-color-default);
   --_description: var(--choice-card-description-color-default);
-
-  padding: calc(var(--space-8) - var(--border-width-strong));
-  border-width: var(--border-width-strong);
 }
 
 .rds-choice-card__preview {

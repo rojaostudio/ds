@@ -15,10 +15,22 @@
   --_support-line: var(--switch-support-line);
   --_off: var(--switch-track-off);
   --_on: var(--switch-track-on);
+  /* The 24 track is taller than the 20 label line: the row pads from the track, so it stays 44 (sm 24). */
+  --_pad: calc((var(--_touch) - var(--size-24)) / 2);
 }
 
+.rds-switch .rds-choice__control {
+  height: var(--size-24);
+}
+
+/*
+ * 14/20 medium, as the Input's label (Figma 07/10): a Switch and an Input in one form read as one family. The label's
+ * first line sits on the track's middle.
+ */
 .rds-switch__label {
+  padding-top: calc((var(--size-24) - var(--_text-line)) / 2);
   color: var(--switch-label-color);
+  font-weight: 500;
 }
 
 /* ---------- size=sm ---------- */
@@ -38,7 +50,7 @@
 .rds-switch--sm .rds-switch__control::before {
   content: "";
   position: absolute;
-  inset: calc((var(--_touch) - var(--_text-line)) / -2) calc(var(--space-4) * -1);
+  inset: calc((var(--_touch) - var(--size-24)) / -2) calc(var(--space-4) * -1);
 }
 
 /* ---------- labelPosition=start ---------- */

@@ -6,17 +6,22 @@ export interface PixIconProps extends SVGProps<SVGSVGElement> {
 }
 
 /**
- * The Pix symbol (Banco Central do Brasil), monochrome: it takes the text colour (currentColor), so it sits with
- * the other payment-method icons. Decorative by default (aria-hidden); name it with aria-label and role="img" when
- * it stands alone. The coloured version belongs to brand contexts, not to UI.
+ * The Pix symbol (Banco Central do Brasil) as a line icon, as Figma [RDS] Icons icon/finance/pix (08/10): its outline
+ * in a 1.5 stroke at 24 (2 closes the symbol's gaps), the shape 18 wide with 3 around it, in currentColor, so it sits
+ * with the other line icons wherever they get recoloured. Decorative by default (aria-hidden); name it with
+ * aria-label and role="img" when it stands alone. The filled, coloured symbol belongs to brand contexts, not to UI.
  */
 export function PixIcon({ size = 16, ...props }: PixIconProps) {
   return (
     <svg
       width={size}
       height={size}
-      viewBox="0 0 512 512"
-      fill="currentColor"
+      viewBox="-85.33 -85.33 682.67 682.67"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={42.67}
+      strokeLinecap="round"
+      strokeLinejoin="round"
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
       {...props}
