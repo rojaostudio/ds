@@ -34,6 +34,7 @@ tile/danger/fill/background|C|@theme:colors/state/error|=
 tile/danger/fill/icon|C|@theme:text/on/error|=
 tile/danger/soft/background|C|@theme:surface/error|=
 tile/danger/soft/icon|C|@theme:text/error|=
+tile/radius|F|@base:radius/control|=
 card/background|C|@theme:surface/card|=
 card/border|C|@theme:border/default|=
 card/title|C|@theme:text/heading|=

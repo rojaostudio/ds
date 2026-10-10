@@ -222,6 +222,7 @@ file-input/area/icon/default|C|@theme:colors/primary/default|=
 file-input/area/icon/disabled|C|@theme:text/disabled|=
 file-input/area/icon-background/default|C|@theme:surface/tint/default|=
 file-input/area/icon-background/disabled|C|@theme:surface/muted|=
+file-input/area/icon-radius|F|@base:radius/control|=
 file-input/area/title/default|C|@theme:text/body|=
 file-input/area/title/disabled|C|@theme:text/disabled|=
 file-input/area/caption/default|C|@theme:text/muted|=

@@ -17,8 +17,8 @@ export interface TileProps extends Omit<HTMLAttributes<HTMLSpanElement>, 'childr
 }
 
 /**
- * Tile — Figma [RDS] Content/Tile. An icon with weight, in a circle: a benefit in a list, a card's header, the top
- * of an empty state. Decorative (aria-hidden): the text beside it says what it is. Not clickable. Styles: tile.css.
+ * Tile — Figma [RDS] Content/Tile. An icon with weight, on a plate with the brand's control radius (tile/radius →
+ * radius/control; a person is the Avatar, in a circle): a benefit in a list, a card's header, the top of an empty state. Decorative (aria-hidden): the text beside it says what it is. Not clickable. Styles: tile.css.
  */
 export function Tile({ icon, tone = 'action', variant = 'fill', size = 'md', className, ...rest }: TileProps) {
   return (

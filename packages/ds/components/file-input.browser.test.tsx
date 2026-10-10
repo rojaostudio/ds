@@ -124,6 +124,16 @@ describe('FileInput behaviour', () => {
 });
 
 describe('FileInput layouts', () => {
+  it('the dropzone icon plates (upload and the chosen file clip) take the control radius, not a circle', async () => {
+    const el = await render(<FileInput layout="dropzone" label="Comprovante" />);
+    const control = getComputedStyle(document.documentElement).getPropertyValue('--radius-control').trim();
+    const plate = () => el.querySelector<HTMLElement>('.rds-file-input__circle')!;
+    expect(getComputedStyle(plate()).borderTopLeftRadius).toBe(control);
+    await userEvent.upload(el.querySelector('input')!, pdf());
+    await vi.waitFor(() => expect(el.textContent).toContain('comprovante.pdf'));
+    expect(getComputedStyle(plate()).borderTopLeftRadius).toBe(control);
+  });
+
   it('formats the size the way a person reads it', () => {
     expect(formatFileSize(512)).toBe('512 B');
     expect(formatFileSize(1258291)).toBe('1,2 MB');

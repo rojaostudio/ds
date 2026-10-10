@@ -253,6 +253,7 @@
   --tile-danger-fill-icon: var(--text-on-error);
   --tile-danger-soft-background: var(--surface-error);
   --tile-danger-soft-icon: var(--text-error);
+  --tile-radius: var(--radius-control);
   --card-background: var(--surface-card);
   --card-border: var(--border-default);
   --card-title: var(--text-heading);
@@ -766,6 +767,7 @@
   --file-input-area-icon-disabled: var(--text-disabled);
   --file-input-area-icon-background-default: var(--surface-tint-default);
   --file-input-area-icon-background-disabled: var(--surface-muted);
+  --file-input-area-icon-radius: var(--radius-control);
   --file-input-area-title-default: var(--text-body);
   --file-input-area-title-disabled: var(--text-disabled);
   --file-input-area-caption-default: var(--text-muted);
