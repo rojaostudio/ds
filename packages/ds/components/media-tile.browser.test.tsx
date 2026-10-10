@@ -136,13 +136,81 @@ describe('MediaTile behaviour', () => {
     }
   });
 
+  it('parity: the same measures and colours as before Media (square and video, image and fallback, at 160)', async () => {
+    const el = await render(
+      <div style={{ width: 160 }}>
+        <MediaTile label="Camiseta" />
+        <MediaTile aspect="video" src={PIXEL} alt="" label="Camiseta" />
+      </div>,
+    );
+    const [square, video] = [...el.querySelectorAll<HTMLElement>('.rds-media-tile')];
+    const measure = (tile: HTMLElement) => {
+      const t = tile.getBoundingClientRect();
+      const m = tile.querySelector<HTMLElement>('.rds-media-tile__media')!;
+      const r = m.getBoundingClientRect();
+      return {
+        tile: [t.width, Math.round(t.height * 100) / 100],
+        media: [r.left - t.left, r.top - t.top, r.width, Math.round(r.height * 100) / 100],
+        radius: getComputedStyle(m).borderTopLeftRadius,
+      };
+    };
+    expect(measure(square!)).toEqual({ tile: [160, 192], media: [1, 1, 158, 158], radius: '0px' });
+    expect(measure(video!)).toEqual({ tile: [160, 122.88], media: [1, 1, 158, 88.88], radius: '0px' });
+    const probe = document.createElement('div');
+    el.appendChild(probe);
+    const colour = (v: string) => {
+      probe.style.color = `var(${v})`;
+      return getComputedStyle(probe).color;
+    };
+    const media = square!.querySelector<HTMLElement>('.rds-media-tile__media')!;
+    expect(getComputedStyle(media).backgroundColor).toBe(colour('--media-tile-media'));
+    const icon = square!.querySelector<SVGElement>('svg')!;
+    expect(getComputedStyle(icon).color).toBe(colour('--media-tile-fallback'));
+    expect(icon.getBoundingClientRect().width).toBe(20);
+    expect(icon.getBoundingClientRect().height).toBe(20);
+  });
+
   it('when the image fails to load it shows the image-off icon', async () => {
     const el = await render(<MediaTile src="data:image/png;base64,quebrada" alt="Foto" />);
     await act(async () => {
       for (let i = 0; i < 50 && el.querySelector('img'); i++) await new Promise((resolve) => setTimeout(resolve, 20));
     });
     expect(el.querySelector('img')).toBeNull();
-    expect(el.querySelector('.rds-media-tile__fallback svg')).not.toBeNull();
+    expect(el.querySelector('.rds-media__fallback svg')).not.toBeNull();
+    expect(el.querySelector('.rds-media-tile__media')!.getAttribute('role')).toBe('img');
+    expect(el.querySelector('.rds-media-tile__media')!.getAttribute('aria-label')).toBe('Foto');
+  });
+
+  it('ratio takes the five proportions; aspect (deprecated) maps video to 16:9 and ratio wins over it', async () => {
+    const el = await render(
+      <div style={{ width: 162 }}>
+        <MediaTile ratio="1:1" />
+        <MediaTile ratio="4:3" />
+        <MediaTile ratio="3:4" />
+        <MediaTile ratio="16:9" />
+        <MediaTile ratio="9:16" />
+        <MediaTile aspect="video" />
+        <MediaTile aspect="video" ratio="3:4" />
+      </div>,
+    );
+    const heights = [...el.querySelectorAll<HTMLElement>('.rds-media-tile__media')].map((m) =>
+      Math.round(m.getBoundingClientRect().height * 100) / 100,
+    );
+    expect(heights).toEqual([160, 120, 213.33, 90, 284.44, 90, 213.33]);
+  });
+
+  it('without alt the media is decorative; the own image of the caller is not hidden', async () => {
+    const el = await render(
+      <div>
+        <MediaTile src={PIXEL} label="Camiseta" />
+        <MediaTile image={<img src={PIXEL} alt="Camiseta azul" />} />
+      </div>,
+    );
+    const [plain, own] = el.querySelectorAll<HTMLElement>('.rds-media-tile__media');
+    expect(plain!.getAttribute('aria-hidden')).toBe('true');
+    expect(plain!.querySelector('img')!.getAttribute('alt')).toBe('');
+    expect(own!.hasAttribute('aria-hidden')).toBe(false);
+    expect(own!.querySelector('img')!.getAttribute('alt')).toBe('Camiseta azul');
   });
 
   it('with href it is a link with a 2px outline on focus; without, a plain box', async () => {
