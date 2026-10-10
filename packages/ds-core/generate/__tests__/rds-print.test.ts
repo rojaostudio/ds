@@ -7,8 +7,11 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
-  emitRdsCss, generateRdsTheme, RDS_MEDIA_TYPE, RDS_PRINT_TRANSPARENT, RDS_PRINT_WHITE, rdsPrintMode, ROLES, roleVar,
+  emitRdsCss, generateRdsTheme, RDS_CONTRAST_PAIRS, RDS_MEDIA_TYPE, RDS_PRINT_ON_WHITE, RDS_PRINT_TRANSPARENT, RDS_PRINT_WHITE,
+  rdsPrintMode, ROLES, roleVar,
 } from "../rdsTheme";
+import { contrastRatio } from "../scale";
+import type { BrandDef } from "../../tokens/recipe.schema";
 import { emitClaudeMd } from "../emitClaudeMd";
 import { recipes } from "../../recipes";
 
@@ -28,20 +31,41 @@ describe("rdsPrintMode", () => {
     expect(RDS_PRINT_TRANSPARENT).toHaveLength(3);
     for (const role of RDS_PRINT_WHITE) expect(print[roleVar(role)], role).toBe("#ffffff");
     for (const role of RDS_PRINT_TRANSPARENT) expect(print[roleVar(role)], role).toBe("#00000000");
-    const swapped = new Set<string>([...RDS_PRINT_WHITE, ...RDS_PRINT_TRANSPARENT].map(roleVar));
+    const swapped = new Set<string>([...RDS_PRINT_WHITE, ...RDS_PRINT_ON_WHITE, ...RDS_PRINT_TRANSPARENT].map(roleVar));
     for (const [k, v] of Object.entries(theme.light)) if (!swapped.has(k)) expect(print[k], k).toBe(v);
   });
 
   it("only swaps roles of the theme", () => {
     const roles = new Set(ROLES.map(([r]) => r));
-    expect([...RDS_PRINT_WHITE, ...RDS_PRINT_TRANSPARENT].filter((r) => !roles.has(r))).toEqual([]);
+    expect([...RDS_PRINT_WHITE, ...RDS_PRINT_ON_WHITE, ...RDS_PRINT_TRANSPARENT].filter((r) => !roles.has(r))).toEqual([]);
     expect(Object.keys(print)).toHaveLength(ROLES.length);
   });
 
-  it("leaves borders and texts as in light", () => {
-    for (const role of ["border/default", "border/strong", "text/body", "text/heading", "text/muted"])
-      expect(print[roleVar(role)]).toBe(theme.light[roleVar(role)]);
+  it("leaves borders and texts as in light, the text on a full fill too", () => {
+    for (const role of ["border/default", "border/strong", "text/body", "text/heading", "text/muted", "text/on/success",
+      "text/on/warning", "text/on/error", "text/on/info", "text/on/neutral", "text/on/primary", "text/on/secondary", "text/on/accent"])
+      expect(print[roleVar(role)], role).toBe(theme.light[roleVar(role)]);
   });
+
+  it("the text on a background turned white is the light body text", () => {
+    expect([...RDS_PRINT_ON_WHITE]).toEqual(["text/on/cover", "text/on/tint", "text/on/band-base"]);
+    for (const role of RDS_PRINT_ON_WHITE) expect(print[roleVar(role)], role).toBe(theme.light["--text-body"]);
+  });
+
+  // The colours that broke the generator: no text pair of the theme below AA on paper (a white text/on/cover on the
+  // white cover of a dark accent was the case).
+  it.each(["#FFD60A", "#10B981", "#E11D48", "#7C3AED", "#6B7280", "#22D3EE", "#111111", "#F5F5F5", "#FF6A00"])(
+    "%s: every text pair of the theme clears 4.5:1 in print",
+    (hex) => {
+      const p = rdsPrintMode(generateRdsTheme({ name: "b", brand: { primary: hex }, fonts: { body: "inter" } } as BrandDef, { warn: () => {} }));
+      const opaque = (v: string) => /^#[0-9a-f]{6}$/i.test(v);
+      const bad = RDS_CONTRAST_PAIRS.filter(([fg, bg]) => {
+        const f = p[roleVar(fg)], b = p[roleVar(bg)];
+        return opaque(f) && opaque(b) && contrastRatio(f, b) < 4.5;
+      });
+      expect(bad).toEqual([]);
+    },
+  );
 });
 
 describe("emitRdsCss — the print block", () => {

@@ -634,10 +634,20 @@ export const RDS_PRINT_WHITE = [
 /** The shadows the print mode clears. */
 export const RDS_PRINT_TRANSPARENT = ["shadow/ambient", "shadow/key", "shadow/strong"] as const;
 
-/** The theme roles in print: light, the backgrounds of RDS_PRINT_WHITE white, the shadows of RDS_PRINT_TRANSPARENT clear. */
+/**
+ * The text that sits on a background the print mode turns white: picked for the coloured fill (white on a dark
+ * cover), it would vanish on paper. In print it is the light body text, the text of the page.
+ */
+export const RDS_PRINT_ON_WHITE = ["text/on/cover", "text/on/tint", "text/on/band-base"] as const;
+
+/**
+ * The theme roles in print: light, the backgrounds of RDS_PRINT_WHITE white, the text on them (RDS_PRINT_ON_WHITE)
+ * the light text/body, the shadows of RDS_PRINT_TRANSPARENT clear.
+ */
 export function rdsPrintMode(theme: RdsTheme): Record<string, string> {
   const out = { ...theme.light };
   for (const role of RDS_PRINT_WHITE) out[roleVar(role)] = WHITE;
+  for (const role of RDS_PRINT_ON_WHITE) out[roleVar(role)] = theme.light[roleVar("text/body")];
   for (const role of RDS_PRINT_TRANSPARENT) out[roleVar(role)] = black(0);
   return out;
 }
