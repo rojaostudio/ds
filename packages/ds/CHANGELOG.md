@@ -1,5 +1,12 @@
 # @rojaostudio/ds
 
+## 2.0.0-next.42
+
+### Patch Changes
+
+- c9e1f4b: Badge neutral soft: a chapa passa a surface/muted-strong e se separa da página e do cartão em todas as marcas (antes sumia sobre surface/page). O texto não muda.
+- 79453b7: ChoiceList: o disco do Avatar segue a linha, em surface/muted-strong na linha normal e em surface/card na escolhida (tokens choice-list/item/avatar/background e /selected).
+
 ## 2.0.0-next.41
 
 ### Patch Changes
