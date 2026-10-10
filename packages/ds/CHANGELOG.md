@@ -1,5 +1,18 @@
 # @rojaostudio/ds
 
+## 2.0.0-next.36
+
+### Minor Changes
+
+- dde39b7: Alert neutral segue o Figma [RDS]: a faixa vira um card, com `alert/neutral/background` em `surface/card` (era `surface/neutral`) e a borda nova `alert/neutral/border` em `border/default` (era transparente). Os tons info, success, warning e danger continuam com o próprio fundo e sem linha. Token novo na coleção Feedback: `alert/neutral/border`.
+- a99fbf1: Banner attention segue o Figma [RDS]: os fundos vêm de três papéis novos do tema, `surface/attention/low` (amber/100, #fff2d6), `surface/attention/medium` (amber/200, #ffe3ab) e `surface/attention/high` (amber/400, #ffc107), com o mesmo valor no claro, no escuro e na chapa, para toda marca. O texto dos três níveis é `banner/attention/text` (text/on/warning, preto). O `color-mix` do medium sai. O CTA continua outline em low e medium e fill em high. No ds-core, o gerador e a tabela da marca rojao ganham os três papéis, e uma tabela exportada antes deles carrega o âmbar fixo com um aviso para exportar de novo. Tokens do componente: `banner/attention/{low,medium,high}/background` passam a apontar para `surface/attention/*`, `banner/attention/medium/background` e `banner/attention/text` são novos, e saem `banner/attention/low/text`, `banner/attention/medium/text` e `banner/attention/high/text`.
+- 88377ee: Os tokens do contador do IconButton passam a ter o nome do Figma [RDS]: `button/count/background` vira `icon-button/count/background` e `button/count/label` vira `icon-button/count/label`, com os mesmos valores (colors/state/error e text/on/error). Quem lia `--button-count-background` ou `--button-count-label` passa a ler `--icon-button-count-background` e `--icon-button-count-label`.
+
+### Patch Changes
+
+- Updated dependencies [a99fbf1]
+  - @rojaostudio/ds-core@1.1.0-next.13
+
 ## 2.0.0-next.35
 
 ### Minor Changes
