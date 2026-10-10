@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, type HTMLAttributes, type ReactNode } from 'react';
-import { ImageOffIcon } from './internal/icons';
+import type { HTMLAttributes, ReactNode } from 'react';
+import { Media, type MediaRatio } from './media';
 
+/** @deprecated Use `ratio`: square is 1:1, video is 16:9. */
 export type MediaTileAspect = 'square' | 'video';
 /** Changes only the label: md (default) on two lines, sm in caption on one line. The width is the parent's. */
 export type MediaTileSize = 'md' | 'sm';
@@ -20,7 +21,9 @@ export interface MediaTileProps extends Omit<HTMLAttributes<HTMLElement>, 'child
   href?: string;
   /** What shows when the image is missing (Figma: `media=fallback`). Defaults to the image-off icon. */
   fallback?: ReactNode;
-  /** square (1:1) or video (16:9) (Figma: `aspect`). */
+  /** The proportion of the media: 1:1 (default), 4:3, 3:4, 16:9 or 9:16. Wins over `aspect`. */
+  ratio?: MediaRatio;
+  /** @deprecated Use `ratio`: square is 1:1, video is 16:9. When both come, `ratio` wins. */
   aspect?: MediaTileAspect;
   /**
    * Changes only the label (Figma: `size`): md (default) cut at two lines, sm in caption 12/16 on one line with an
@@ -32,7 +35,8 @@ export interface MediaTileProps extends Omit<HTMLAttributes<HTMLElement>, 'child
 
 /**
  * MediaTile — Figma [RDS] Content/MediaTile. A thumbnail of a product or image with an optional label, for lists
- * and grids. It takes 100% of its parent's width; the media keeps its proportion by aspect-ratio. A link when it has `href`, otherwise a plain box. Styles: media-tile.css.
+ * and grids. It takes 100% of its parent's width; the media is a Media (aspect-ratio, fallback), without its radius
+ * and in the media-tile/* colours. A link when it has `href`, otherwise a plain box. Styles: media-tile.css.
  */
 export function MediaTile({
   src,
@@ -41,34 +45,23 @@ export function MediaTile({
   label,
   href,
   fallback,
-  aspect = 'square',
+  ratio,
+  aspect,
   size = 'md',
   className,
   ...rest
 }: MediaTileProps) {
-  const [failed, setFailed] = useState<string | null>(null);
-  const showImage = !image && src && failed !== src;
-  const classes = [
-    'rds-media-tile',
-    `rds-media-tile--${aspect}`,
-    size === 'sm' && 'rds-media-tile--sm',
-    href && 'rds-media-tile--link',
-    className,
-  ]
+  const finalRatio: MediaRatio = ratio ?? (aspect === 'video' ? '16:9' : '1:1');
+  const classes = ['rds-media-tile', size === 'sm' && 'rds-media-tile--sm', href && 'rds-media-tile--link', className]
     .filter(Boolean)
     .join(' ');
+  // Without alt (and without the caller's own image) the media is decorative: the label already says what it is.
+  const a11y = image || alt ? { alt } : { decorative: true as const };
   const content = (
     <>
-      <span className="rds-media-tile__media">
-        {image ??
-          (showImage ? (
-            <img src={src} alt={alt} onError={() => setFailed(src)} />
-          ) : (
-            <span className="rds-media-tile__fallback" aria-hidden={fallback ? undefined : true}>
-              {fallback ?? <ImageOffIcon />}
-            </span>
-          ))}
-      </span>
+      <Media {...a11y} className="rds-media-tile__media" ratio={finalRatio} src={src} fallback={fallback}>
+        {image}
+      </Media>
       {label != null && label !== '' && <span className="rds-media-tile__label">{label}</span>}
     </>
   );

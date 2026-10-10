@@ -7760,9 +7760,9 @@ body:has(.rds-modal) {
 /* @tokens media-tile */
 /*
  * MediaTile (Content collection, media-tile/*): 100% of the parent's width, no fixed width and no min or max; the
- * media keeps its proportion by aspect-ratio, so the height follows the width. A 1px border in radius/container around the media (1:1 or 16:9,
- * media-tile/media behind it) and the label row (8 inside, 12/16 medium, cut at two lines). The fallback is the
- * 20 image-off icon, centred. As a link, hover and keyboard focus draw a 2px outline in media-tile/border/hover,
+ * media keeps its proportion by aspect-ratio, so the height follows the width. A 1px border in radius/container
+ * around the media (a Media in any of its ratios, media-tile/media behind it) and the label row (8 inside, 12/16
+ * medium, cut at two lines). The fallback is the 20 image-off icon, centred. As a link, hover and keyboard focus draw a 2px outline in media-tile/border/hover,
  * inside the corners, over the media (Figma: state=hover).
  */
 .rds-media-tile {
@@ -7780,32 +7780,14 @@ body:has(.rds-modal) {
   text-decoration: none;
 }
 
+/* The media is a Media: here it loses its radius (the tile cuts the corners) and takes the media-tile/* colours. */
 .rds-media-tile__media {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  aspect-ratio: 1;
-  overflow: hidden;
-  background: var(--media-tile-media);
+  --media-radius: 0;
+  --media-background: var(--media-tile-media);
+  --media-fallback: var(--media-tile-fallback);
 }
 
-.rds-media-tile--video .rds-media-tile__media {
-  aspect-ratio: 16 / 9;
-}
-
-.rds-media-tile__media > img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.rds-media-tile__fallback {
-  display: inline-flex;
-  color: var(--media-tile-fallback);
-}
-
-.rds-media-tile__fallback > svg {
+.rds-media-tile__media .rds-media__fallback > svg {
   width: var(--size-20);
   height: var(--size-20);
 }
