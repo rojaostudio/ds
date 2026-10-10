@@ -5,3 +5,13 @@
   flex-wrap: wrap;
   gap: var(--space-4);
 }
+
+/*
+ * size=sm under a coarse pointer: each item's touch layer reaches 6px beyond it (toggle.css), so the items go
+ * 44 - 32 = 12 apart, in rows and between rows. The layers of neighbours meet and never overlap.
+ */
+@media (pointer: coarse) {
+  .rds-toggle-group--sm {
+    gap: calc(var(--button-size-md-height) - var(--button-size-sm-height));
+  }
+}

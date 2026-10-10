@@ -1,15 +1,20 @@
 'use client';
 
-import { createContext, useContext, type ComponentPropsWithRef, type ReactNode } from 'react';
+import { createContext, useContext, useMemo, type ComponentPropsWithRef, type ReactNode } from 'react';
 import * as ToggleGroupPrimitive from '@radix-ui/react-toggle-group';
 import { blockWhenDisabled } from './internal/button';
-import { toggleClassName, warnIfUnnamed, type ToggleVariant } from './internal/toggle';
+import { toggleClassName, warnIfUnnamed, type ToggleSize, type ToggleVariant } from './internal/toggle';
 
-const VariantContext = createContext<ToggleVariant>('outline');
+const VariantContext = createContext<{ variant: ToggleVariant; size: ToggleSize }>({ variant: 'outline', size: 'md' });
 
 export type ToggleGroupProps = ComponentPropsWithRef<typeof ToggleGroupPrimitive.Root> & {
   /** One emphasis for every item (the Toggle `style`; ghost and outline are not mixed in a group). */
   variant?: ToggleVariant;
+  /**
+   * One size for every item: md (default) 44 tall, sm 32. Under a coarse pointer an sm group spaces its items 12
+   * apart, so the 44 touch layers of neighbours never overlap.
+   */
+  size?: ToggleSize;
   /** Required: what the group chooses ("Vista", "Estilo do texto"). */
   'aria-label': string;
 };
@@ -19,10 +24,14 @@ export type ToggleGroupProps = ComponentPropsWithRef<typeof ToggleGroupPrimitive
  * `type="single"`: only one on (Lista or Grade). `type="multiple"`: each one on its own (bold, italic).
  * Tab enters the group, the arrow keys move between items. Styles: toggle-group.css and toggle.css.
  */
-export function ToggleGroup({ variant = 'outline', className, ...rest }: ToggleGroupProps) {
+export function ToggleGroup({ variant = 'outline', size = 'md', className, ...rest }: ToggleGroupProps) {
+  const context = useMemo(() => ({ variant, size }), [variant, size]);
   return (
-    <VariantContext.Provider value={variant}>
-      <ToggleGroupPrimitive.Root {...rest} className={['rds-toggle-group', className].filter(Boolean).join(' ')} />
+    <VariantContext.Provider value={context}>
+      <ToggleGroupPrimitive.Root
+        {...rest}
+        className={['rds-toggle-group', size === 'sm' && 'rds-toggle-group--sm', className].filter(Boolean).join(' ')}
+      />
     </VariantContext.Provider>
   );
 }
@@ -37,14 +46,14 @@ export interface ToggleGroupItemProps
   disabled?: boolean;
 }
 
-/** One option of a ToggleGroup: a Toggle that the group turns on and off. */
+/** One option of a ToggleGroup: a Toggle that the group turns on and off, in the group's variant and size. */
 export function ToggleGroupItem({ icon, children, disabled, className, onClick, ...rest }: ToggleGroupItemProps) {
-  const variant = useContext(VariantContext);
+  const { variant, size } = useContext(VariantContext);
   warnIfUnnamed('ToggleGroupItem', Boolean(children), rest['aria-label'], rest['aria-labelledby']);
   return (
     <ToggleGroupPrimitive.Item
       {...rest}
-      className={toggleClassName(variant, className)}
+      className={toggleClassName(variant, size, Boolean(icon) && !children, className)}
       aria-disabled={disabled || undefined}
       // Radix skips its own toggle when the click was already prevented.
       onClick={blockWhenDisabled(disabled, onClick)}

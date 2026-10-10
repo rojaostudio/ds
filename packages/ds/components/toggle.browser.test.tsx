@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act } from 'react';
-import { userEvent } from 'vitest/browser';
+import { cdp, userEvent } from 'vitest/browser';
 import { Toggle, type ToggleVariant } from './toggle';
 import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
@@ -121,5 +121,81 @@ describe('Toggle behaviour', () => {
     await userEvent.keyboard(' ');
     expect(b.getAttribute('aria-pressed')).toBe('false');
     expect(onPressedChange).not.toHaveBeenCalled();
+  });
+});
+
+describe('Toggle size', () => {
+  const touch = (enabled: boolean) => cdp().send('Emulation.setTouchEmulationEnabled', { enabled, maxTouchPoints: 1 });
+  afterEach(async () => {
+    await touch(false);
+  });
+
+  const layout = (
+    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 24, padding: 24 }}>
+      <Toggle size="sm" variant="outline" icon={<Bold />}>
+        Negrito
+      </Toggle>
+      <Toggle size="sm" variant="outline" icon={<Bold />} aria-label="Negrito" />
+      <Toggle size="sm" variant="outline" icon={<Bold />} aria-label="Negrito" defaultPressed />
+      <Toggle variant="outline">Negrito</Toggle>
+    </div>
+  );
+
+  it('sm is 32 tall with a 16 icon; only the icon makes a 32 square, also outline on; md stays 44', async () => {
+    const el = await render(layout);
+    const [text, icon, iconOn, md] = Array.from(el.querySelectorAll('button'));
+    expect(text!.getBoundingClientRect().height).toBe(32);
+    const glyph = text!.querySelector('.rds-toggle__icon')!.getBoundingClientRect();
+    expect([glyph.width, glyph.height]).toEqual([16, 16]);
+    for (const b of [icon!, iconOn!]) {
+      const r = b.getBoundingClientRect();
+      expect([r.width, r.height]).toEqual([32, 32]);
+    }
+    expect(md!.getBoundingClientRect().height).toBe(44);
+  });
+
+  it.each(MODES)('sm passes axe (%s)', async (mode) => {
+    const el = await render(layout, mode);
+    expect(await axeViolations(el)).toEqual([]);
+  });
+
+  it('with a fine pointer, sm takes only its own 32', async () => {
+    const el = await render(layout);
+    expect(matchMedia('(pointer: coarse)').matches).toBe(false);
+    const [text, icon] = Array.from(el.querySelectorAll('button'));
+    const r = text!.getBoundingClientRect();
+    expect(document.elementFromPoint(r.left + r.width / 2, r.top - 2)).not.toBe(text);
+    const i = icon!.getBoundingClientRect();
+    expect(document.elementFromPoint(i.left - 2, i.top + i.height / 2)).not.toBe(icon);
+  });
+
+  it('with a coarse pointer, sm takes the touch to 44 (vertically; four sides with only the icon), the layout unmoved', async () => {
+    await touch(true);
+    const el = await render(layout);
+    expect(matchMedia('(pointer: coarse)').matches).toBe(true);
+    const [text, icon, iconOn, md] = Array.from(el.querySelectorAll('button'));
+    const r = text!.getBoundingClientRect();
+    expect(r.height).toBe(32);
+    const x = r.left + r.width / 2;
+    expect(document.elementFromPoint(x, r.top - 5.5)).toBe(text);
+    expect(document.elementFromPoint(x, r.bottom + 5.5)).toBe(text);
+    expect(document.elementFromPoint(x, r.top - 7)).not.toBe(text);
+    expect(document.elementFromPoint(r.left - 2, r.top + r.height / 2)).not.toBe(text);
+    // Only the icon (off with a 1px border, on with 2px): 44 x 44 either way.
+    for (const b of [icon!, iconOn!]) {
+      const i = b.getBoundingClientRect();
+      expect([i.width, i.height]).toEqual([32, 32]);
+      const y = i.top + i.height / 2;
+      expect(document.elementFromPoint(i.left - 5.5, y)).toBe(b);
+      expect(document.elementFromPoint(i.right + 5.5, y)).toBe(b);
+      expect(document.elementFromPoint(i.left + i.width / 2, i.top - 5.5)).toBe(b);
+      expect(document.elementFromPoint(i.left + i.width / 2, i.bottom + 5.5)).toBe(b);
+      expect(document.elementFromPoint(i.left - 7, y)).not.toBe(b);
+    }
+    expect(getComputedStyle(md!, '::after').content).toBe('none');
+    const after = getComputedStyle(text!, '::after');
+    expect(after.backgroundColor).toBe('rgba(0, 0, 0, 0)');
+    expect(after.borderTopStyle).toBe('none');
+    expect(await axeViolations(el)).toEqual([]);
   });
 });

@@ -3,9 +3,9 @@
 import type { ComponentPropsWithRef, ReactNode } from 'react';
 import * as TogglePrimitive from '@radix-ui/react-toggle';
 import { blockWhenDisabled } from './internal/button';
-import { toggleClassName, warnIfUnnamed, type ToggleVariant } from './internal/toggle';
+import { toggleClassName, warnIfUnnamed, type ToggleSize, type ToggleVariant } from './internal/toggle';
 
-export type { ToggleVariant };
+export type { ToggleSize, ToggleVariant };
 
 export interface ToggleProps extends Omit<ComponentPropsWithRef<typeof TogglePrimitive.Root>, 'children' | 'disabled'> {
   /** The name of what it turns on (Figma: `showLabel` + `label`). It never changes when pressed. Without it, pass aria-label. */
@@ -14,6 +14,11 @@ export interface ToggleProps extends Omit<ComponentPropsWithRef<typeof TogglePri
   icon?: ReactNode;
   /** The emphasis (Figma: `variant`): ghost in a toolbar, outline when it stands alone. */
   variant?: ToggleVariant;
+  /**
+   * md (default): 44 tall. sm: 32 tall with a 16 icon, a 32 square when it has only the icon. Under a coarse pointer
+   * an invisible layer takes the touch to 44 (vertically; on all four sides when it has only the icon).
+   */
+  size?: ToggleSize;
   /** Rendered as aria-disabled="true": stays in the tab order and takes focus, but does not toggle. */
   disabled?: boolean;
 }
@@ -23,12 +28,21 @@ export interface ToggleProps extends Omit<ComponentPropsWithRef<typeof TogglePri
  * `onPressedChange` to control it, `defaultPressed` to start on (Figma: `pressed`). Not the Switch:
  * a Toggle turns on a mode or a format (bold, list view); a Switch, a setting. Styles: toggle.css.
  */
-export function Toggle({ variant = 'ghost', icon, children, disabled, className, onClick, ...rest }: ToggleProps) {
+export function Toggle({
+  variant = 'ghost',
+  size = 'md',
+  icon,
+  children,
+  disabled,
+  className,
+  onClick,
+  ...rest
+}: ToggleProps) {
   warnIfUnnamed('Toggle', Boolean(children), rest['aria-label'], rest['aria-labelledby']);
   return (
     <TogglePrimitive.Root
       {...rest}
-      className={toggleClassName(variant, className)}
+      className={toggleClassName(variant, size, Boolean(icon) && !children, className)}
       aria-disabled={disabled || undefined}
       // Radix skips its own toggle when the click was already prevented.
       onClick={blockWhenDisabled(disabled, onClick)}

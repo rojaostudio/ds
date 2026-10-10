@@ -1,7 +1,8 @@
 /* @tokens toggle */
 /*
- * Toggle and ToggleGroupItem: a button that stays on or off (Actions collection, toggle/*). 44 tall,
- * like the Button. Radix sets data-state="on|off" and aria-pressed; the colours follow data-state.
+ * Toggle and ToggleGroupItem: a button that stays on or off (Actions collection, toggle/*). md 44 tall, like the
+ * Button; sm 32 tall (6 + 20 + 6, 8 at the sides) with a 16 icon, a 32 square with only the icon. Radix sets
+ * data-state="on|off" and aria-pressed; the colours follow data-state.
  */
 .rds-toggle {
   --_background: transparent;
@@ -60,6 +61,41 @@
 .rds-toggle__icon > svg {
   width: 100%;
   height: 100%;
+}
+
+/* size=sm: 32 tall (the Button sm height), the icon 16; only the icon makes a 32 square (8 + 16 + 8). */
+.rds-toggle--sm {
+  --_min-size: var(--button-size-sm-height);
+  padding: calc(var(--button-size-sm-padding-y) - var(--_border-width)) calc(var(--space-8) - var(--_border-width));
+}
+
+.rds-toggle--sm .rds-toggle__icon {
+  width: var(--size-16);
+  height: var(--size-16);
+}
+
+/*
+ * Touch target: 44 × 44, as the Button sm (button.css). Under a coarse pointer an invisible layer (no paint, no
+ * layout, outside the focus ring's drawing) grows the hit area by (44 - 32) / 2 = 6px: vertically, and on all four
+ * sides when there is only the icon. In a ToggleGroup sm the items go 12 apart (toggle-group.css), so the layers of
+ * two neighbours meet without overlapping.
+ */
+@media (pointer: coarse) {
+  .rds-toggle--sm {
+    /* Placed from the padding box: the border (1px, or 2px on outline "on") is taken out too. */
+    --_touch-inset: calc((var(--button-size-sm-height) - var(--button-size-md-height)) / 2 - var(--_border-width));
+    position: relative;
+  }
+
+  .rds-toggle--sm::after {
+    content: '';
+    position: absolute;
+    inset: var(--_touch-inset) calc(0px - var(--_border-width));
+  }
+
+  .rds-toggle--sm.rds-toggle--icon-only::after {
+    inset: var(--_touch-inset);
+  }
 }
 
 .rds-toggle--outline {

@@ -230,7 +230,7 @@ export type { TextareaProps } from './textarea';
 
 // 2.0 (#14): Toggle is the [RDS] pressable button; the on/off switch that was called Toggle is Switch.
 export { Toggle } from './toggle';
-export type { ToggleProps, ToggleVariant } from './toggle';
+export type { ToggleProps, ToggleVariant, ToggleSize } from './toggle';
 export { Switch } from './switch';
 export type { SwitchProps, SwitchSize, SwitchLabelPosition } from './switch';
 
