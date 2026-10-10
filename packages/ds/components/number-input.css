@@ -77,3 +77,59 @@
 .rds-number-input__steps {
   padding-top: var(--space-4);
 }
+
+/*
+ * size=sm: a 32 frame (the field's sm height) that hugs its content, no inside padding nor gap: the − and the +
+ * 32 wide, running the frame's height, the number at least 32 and growing with its digits. The label is visually
+ * hidden (rds-visually-hidden) and still names the spinbutton.
+ */
+.rds-field.rds-number-input--sm .rds-number-input__box {
+  align-self: flex-start;
+  max-width: 100%;
+  gap: 0;
+  padding: 0;
+}
+
+.rds-field.rds-number-input--sm .rds-field__action {
+  align-self: stretch;
+  width: var(--size-32);
+  height: auto;
+  border-radius: 0;
+}
+
+.rds-number-input--sm .rds-number-input__value {
+  flex: none;
+  min-width: var(--size-32);
+  padding: 0 var(--space-4);
+  box-sizing: border-box;
+}
+
+/*
+ * Touch target of sm: under a coarse pointer an invisible layer takes − and + to 44 × 44, growing outwards only
+ * (− to the left, + to the right, and both up and down), so it never lies over the number. The button is 32 wide
+ * and 30 tall inside the 1px border: 12 more to the outer side, (44 - 30) / 2 = 7 above and below.
+ */
+@media (pointer: coarse) {
+  .rds-number-input--sm .rds-number-input__step {
+    --_touch-y: calc((var(--button-size-md-height) - var(--size-32)) / 2 + var(--border-width));
+    --_touch-x: calc(var(--button-size-md-height) - var(--size-32));
+    position: relative;
+  }
+
+  .rds-number-input--sm .rds-number-input__step::after {
+    content: '';
+    position: absolute;
+    top: calc(0px - var(--_touch-y));
+    bottom: calc(0px - var(--_touch-y));
+  }
+
+  .rds-number-input--sm .rds-number-input__step--decrement::after {
+    left: calc(0px - var(--_touch-x));
+    right: 0;
+  }
+
+  .rds-number-input--sm .rds-number-input__step--increment::after {
+    left: 0;
+    right: calc(0px - var(--_touch-x));
+  }
+}

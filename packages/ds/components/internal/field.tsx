@@ -49,6 +49,8 @@ export interface FieldShellProps {
   errorId?: string;
   label?: ReactNode;
   labelPosition?: FieldLabelPosition;
+  /** The top label stays in the page and keeps naming the control, but is not shown (a dense row). */
+  labelHidden?: boolean;
   hint?: ReactNode;
   errorMessage?: ReactNode;
   invalid: boolean;
@@ -86,6 +88,7 @@ export function FieldShell({
   errorId,
   label,
   labelPosition = 'top',
+  labelHidden,
   hint,
   errorMessage,
   invalid,
@@ -116,7 +119,7 @@ export function FieldShell({
       style={style}
     >
       {labelled && !floating && (
-        <label htmlFor={controlId} className="rds-field__label">
+        <label htmlFor={controlId} className={labelHidden ? 'rds-field__label rds-visually-hidden' : 'rds-field__label'}>
           <LabelText label={label} required={required} />
         </label>
       )}
@@ -155,10 +158,11 @@ export function FieldShell({
 export function FieldAction({
   label,
   icon,
+  className,
   ...rest
 }: { label: string; icon: ReactNode } & Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children'>) {
   return (
-    <button type="button" aria-label={label} {...rest} className="rds-field__action">
+    <button type="button" aria-label={label} {...rest} className={['rds-field__action', className].filter(Boolean).join(' ')}>
       <span className="rds-field__action-icon" aria-hidden="true">
         {icon}
       </span>
