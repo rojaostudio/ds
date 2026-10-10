@@ -277,7 +277,28 @@ export const ROLES: ReadonlyArray<readonly [string, "l" | "d" | "p", "l" | "d" |
   ["colors/state/info-strong", "d", "d"], ["colors/state/neutral-strong", "d", "d"],
   ["text/on/primary-subtle", "d", "b"], ["surface/tint/subtle", "d", "b"], ["border/error", "d", "d"],
   ["surface/attention/low", "p", "p"], ["surface/attention/medium", "p", "p"], ["surface/attention/high", "p", "p"],
+  ["surface/inverse", "d", "d"], ["text/on-inverse", "d", "d"], ["text/on-inverse-subtle", "d", "d"],
 ];
+
+const coal = palettes.coal as Record<number, string>;
+
+/**
+ * surface/inverse (the inverse Card): the brand's primary in light (and print) when white text reads AA on it,
+ * otherwise coal/900 (a light brand, as Figma draws it per brand); white in dark and on the plate. Its texts:
+ * text/on-inverse white, text/on-inverse-subtle white at 70% (more when the fill asks, inverseSubtle) in light; coal/900 and coal/600 in dark and on the plate.
+ */
+const inverseOf = (primary: string) => (contrastRatio(WHITE, primary) >= AA ? primary : coal[900]);
+/**
+ * text/on-inverse-subtle in light: white at 70% as Figma draws it, more opaque 5% at a time until it reads AA on the
+ * fill (a mid primary, a violet or a green, leaves 70% near 3.5:1).
+ */
+function inverseSubtle(fill: string): string {
+  for (let p = 70; p < 100; p += 5) if (contrastRatio(over(white(p), fill), fill) >= AA) return white(p);
+  return WHITE;
+}
+const INVERSE_DARK: Record<string, string> = {
+  "surface/inverse": WHITE, "text/on-inverse": coal[900], "text/on-inverse-subtle": coal[600],
+};
 
 /**
  * surface/attention/* (Figma: amber/100, 200 and 400 of the [RDS] Primitives): the same in light, dark and on the
@@ -368,6 +389,7 @@ export function generateRdsTheme(def: BrandDef, opts: RdsThemeOptions = {}): Rds
     "shadow/ambient": black(5), "shadow/key": black(10), "shadow/strong": black(20),
     "type/font/mono": "Roboto Mono",
     "logo/mono": BLACK, "logo/inverse": WHITE, "logo/inverse-signature": WHITE, "social/ink": BLACK,
+    "surface/inverse": inverseOf(P.base), "text/on-inverse": WHITE, "text/on-inverse-subtle": inverseSubtle(inverseOf(P.base)),
     ...ATTENTION,
   };
   // The neutral ink: colors/primary/* is the fill of the neutral Button and Badge, the bars, the Tooltip, the selected
@@ -449,6 +471,7 @@ export function generateRdsTheme(def: BrandDef, opts: RdsThemeOptions = {}): Rds
     "logo/primary": WHITE, "logo/accent": WHITE, "logo/signature": WHITE, "logo/mono": WHITE, "social/ink": WHITE,
     "colors/state/info-strong": L[300], "colors/state/neutral-strong": N[400],
     "text/on/primary-subtle": black(30),
+    ...INVERSE_DARK,
   };
   // The neutral ink in dark: a light neutral (one colour only), the one of the neutral steps far enough from the
   // action fill. See the light mode.
@@ -802,6 +825,8 @@ export const RDS_CONTRAST_PAIRS: ReadonlyArray<readonly [string, string]> = [
   ["text/error", "surface/card"], ["text/error", "surface/page"], ["text/error", "surface/error-strong"],
   ["text/success", "surface/success"], ["text/success", "surface/card"], ["text/info", "surface/info"],
   ["text/warning", "surface/warning"], ["text/neutral", "surface/neutral"],
+  // The inverse Card: its text on its fill.
+  ["text/on-inverse", "surface/inverse"],
   // The attention Banner: text/on/warning on its three levels.
   ["text/on/warning", "surface/attention/low"], ["text/on/warning", "surface/attention/medium"],
   ["text/on/warning", "surface/attention/high"],
@@ -850,6 +875,15 @@ export type RdsBrandTable = {
   /** The brand's own variables of the `brand` collection, by Figma path ("marca/ciano") → primitive or value. */
   vars?: Record<string, string>;
 };
+
+/** An inverse role a table exported before it existed: the generator's rule, from the table's light primary. */
+function inverseFallback(role: string, mode: RdsMode, primary: string | undefined): string | undefined {
+  if (!(role in INVERSE_DARK)) return undefined;
+  if (mode !== "light") return INVERSE_DARK[role];
+  const fill = primary && /^#[0-9a-f]{6}$/i.test(primary) ? inverseOf(primary) : coal[900];
+  if (role === "surface/inverse") return fill;
+  return role === "text/on-inverse" ? WHITE : inverseSubtle(fill);
+}
 
 const isColourRef = (v: string) => /^[a-z][a-z0-9-]*\/[a-z]?\d+$/i.test(v);
 
@@ -913,6 +947,13 @@ export function rdsThemeFromTable(table: RdsBrandTable, opts: RdsThemeOptions = 
         derived.add(role);
         continue;
       }
+      // The inverse roles, added later: drawn from the table's own primary (inverseOf), as the generator does.
+      const inverse = ref === undefined ? inverseFallback(role, mode, out[mode][roleVar("colors/primary/default")]) : undefined;
+      if (inverse !== undefined) {
+        out[mode][roleVar(role)] = inverse;
+        derived.add(role);
+        continue;
+      }
       if (ref === undefined) problems.push(`${mode}: role "${role}" is missing`);
       else if (isColourRef(ref)) {
         const value = table.primitives[ref];
@@ -946,7 +987,9 @@ export function rdsThemeFromTable(table: RdsBrandTable, opts: RdsThemeOptions = 
           .map((r) =>
             ADDED_ROLES[r]
               ? Object.entries(ADDED_ROLES[r]).map(([m, src]) => `${m}: ${src}`).join(", ")
-              : `${r}: ${ATTENTION[r]} in every mode`,
+              : ATTENTION[r]
+                ? `${r}: ${ATTENTION[r]} in every mode`
+                : `${r}: ${out.light[roleVar(r)]} in light, ${INVERSE_DARK[r]} in dark and on the plate`,
           )
           .join("; ") +
         `). Export the table again with figma/export-brand.js.`,
