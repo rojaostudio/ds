@@ -62,9 +62,9 @@
   --toggle-background-hover: var(--surface-muted);
   --toggle-background-pressed: var(--surface-tint-subtle);
   --toggle-background-pressed-hover: var(--surface-tint-default);
-  --toggle-label-pressed: var(--colors-primary-default);
+  --toggle-label-pressed: var(--text-selected);
   --toggle-label-disabled: var(--text-disabled);
-  --toggle-border-pressed: var(--colors-primary-default);
+  --toggle-border-pressed: var(--text-selected);
   --toggle-border-disabled: var(--border-default);
   --bottom-bar-text: var(--text-on-primary);
   --fab-cta-background-default: var(--colors-primary-default);
@@ -976,7 +976,7 @@
   --pagination-item-background-hover: var(--surface-muted);
   --pagination-item-background-current: var(--surface-tint-default);
   --pagination-item-label-default: var(--text-body);
-  --pagination-item-label-current: var(--colors-primary-default);
+  --pagination-item-label-current: var(--text-selected);
   --pagination-item-label-disabled: var(--text-disabled);
   --pagination-summary: var(--text-muted);
   --sidebar-count-neutral: var(--text-muted);

@@ -2,7 +2,7 @@
 /*
  * Pagination (Navigation collection, pagination/*): the summary on the left (14/20 muted), 16 away from the
  * controls; previous, the numbers and next, each 44 × 44 and 4 apart. The open page: the brand tint with the number
- * in colors/primary, medium. Previous and next turn pagination/item/label/disabled at the ends.
+ * in text/selected, medium. Previous and next turn pagination/item/label/disabled at the ends.
  */
 .rds-pagination {
   display: flex;

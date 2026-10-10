@@ -195,7 +195,7 @@ export const PAIRS: Pair[] = [
   ['--tooltip-text', '--tooltip-background', 't'],
   ['--toggle-label', CTX, 't'], ['--toggle-label', '--toggle-background-hover', 't'],
   ['--toggle-label-pressed', '--toggle-background-pressed', 't'], ['--toggle-label-pressed', '--toggle-background-pressed-hover', 't'],
-  ['--toggle-border', CTX, 'u'],
+  ['--toggle-border', CTX, 'u'], ['--toggle-border-pressed', CTX, 'u'],
   ['--chip-label', '--chip-background', 't'], ['--chip-label', '--chip-background-hover', 't'], ['--chip-icon', '--chip-background', 'u'],
   ['--filter-chip-text-inactive', '--filter-chip-surface-inactive', 't'], ['--filter-chip-text-hover', '--filter-chip-surface-hover', 't'],
   ['--filter-chip-text-active', '--filter-chip-surface-active@12', 't'],

@@ -13,7 +13,7 @@ const Bold = () => (
   </svg>
 );
 
-// The [RDS] paints "on" with toggle/label/pressed → colors/primary/default over toggle/background/pressed →
+// The [RDS] paints "on" with toggle/label/pressed → text/selected (colors/primary/default) over toggle/background/pressed →
 // surface/tint/subtle (#26; surface/tint/default before). In dark, subtle is the default tint itself (no step
 // below 900). It failed (3.4:1) on the orange tint #b34b00 the generator drew; the rojao theme is the Figma table
 // now, with subtle at blue/900 in dark, and "on" passes in both modes.
