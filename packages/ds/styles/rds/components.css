@@ -978,6 +978,7 @@
   --dialog-border: var(--border-default);
   --dialog-text: var(--text-body);
   --dialog-title: var(--text-heading);
+  --dialog-handle: var(--border-strong);
   --drawer-background: var(--surface-card);
   --drawer-handle: var(--border-strong);
   --drawer-scrim: var(--surface-scrim);

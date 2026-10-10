@@ -90,6 +90,26 @@
   width: 100%;
 }
 
+/*
+ * The sheet's handle (useDragDismiss): 40 × 4 on a band that reaches the box's edges (12 above, 24 on the sides,
+ * the sheet's padding), so the whole top edge can be grabbed. Each sheet gives it its colour.
+ */
+.rds-modal__handle-area {
+  display: flex;
+  flex: none;
+  justify-content: center;
+  margin: calc(var(--space-12) * -1) calc(var(--space-24) * -1) 0;
+  padding: var(--space-12) 0 0;
+  cursor: grab;
+  touch-action: none;
+}
+
+.rds-modal__handle {
+  width: var(--space-40);
+  height: var(--space-4);
+  border-radius: var(--radius-full);
+}
+
 @media (forced-colors: active) {
   .rds-modal {
     border: var(--border-width) solid CanvasText;

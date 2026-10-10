@@ -68,3 +68,47 @@ export function useOnScreenKeyboard(enabled = true): boolean {
 
   return enabled && open;
 }
+
+/**
+ * How much of the bottom of the layout viewport the phone's on-screen keyboard covers (px): compact screen, an
+ * editable field focused, and the visible area (visualViewport) short of the layout viewport. For a sheet stuck to
+ * the bottom (the Dialog on a compact screen), which rises by this much so its action stays above the keyboard;
+ * `dvh` does not shrink with the keyboard on iOS. 0 without visualViewport, on the server or when `enabled` is false.
+ */
+export function useKeyboardInset(enabled = true): number {
+  const [inset, setInset] = useState(0);
+
+  useEffect(() => {
+    const viewport = window.visualViewport;
+    if (!enabled || !viewport || typeof window.matchMedia !== 'function') {
+      setInset(0);
+      return;
+    }
+    const compact = window.matchMedia(COMPACT);
+    let frame = 0;
+    const measure = () =>
+      compact.matches && isEditable(document.activeElement)
+        ? Math.max(0, Math.round(window.innerHeight - (viewport.height + viewport.offsetTop)))
+        : 0;
+    const check = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => setInset(measure()));
+    };
+    check();
+    viewport.addEventListener('resize', check);
+    viewport.addEventListener('scroll', check);
+    document.addEventListener('focusin', check);
+    document.addEventListener('focusout', check);
+    compact.addEventListener('change', check);
+    return () => {
+      cancelAnimationFrame(frame);
+      viewport.removeEventListener('resize', check);
+      viewport.removeEventListener('scroll', check);
+      document.removeEventListener('focusin', check);
+      document.removeEventListener('focusout', check);
+      compact.removeEventListener('change', check);
+    };
+  }, [enabled]);
+
+  return enabled ? inset : 0;
+}

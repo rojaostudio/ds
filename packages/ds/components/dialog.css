@@ -2,6 +2,11 @@
 /*
  * Dialog (Overlays collection, dialog/*): centred, sm 400 · default 560 · lg 720 wide, 16 between header, content
  * and footer (8 more above the footer), corners radius/container, shadow elevation/modal (internal/modal.css).
+ * Compact (below 1024, Figma 06/10: the viewport mode, layout/compact): a sheet stuck to the bottom, the screen's
+ * width up to 560 in every size (layout/dialog/<size>/width), no bottom corners (layout/sheet/radius-end) and no
+ * bottom border, 12 above for the handle (layout/sheet/padding-top), the default Cancel gone and the action full
+ * width (layout/sheet/action-min-width). Up to 85% of the screen, only the content scrolls. It rises by --_kb (the
+ * on-screen keyboard, set by the Dialog) and clears the safe area.
  */
 .rds-dialog__scrim {
   background: var(--dialog-scrim);
@@ -39,9 +44,77 @@
   padding-top: var(--space-8);
 }
 
+/* The handle is the sheet's only (compact). */
+.rds-dialog .rds-modal__handle-area {
+  display: none;
+}
+
+.rds-dialog .rds-modal__handle {
+  background: var(--dialog-handle);
+}
+
+@media (max-width: 1023px) {
+  .rds-dialog,
+  .rds-dialog--sm,
+  .rds-dialog--lg {
+    top: auto;
+    right: 0;
+    bottom: var(--_kb, 0px);
+    left: 0;
+    width: 100%;
+    max-width: 560px;
+    max-height: min(85dvh, calc(100dvh - var(--_kb, 0px) - var(--space-16)));
+    margin-inline: auto;
+    padding: var(--space-12) var(--space-24) calc(var(--space-24) + env(safe-area-inset-bottom, 0px));
+    border-bottom: 0;
+    border-radius: var(--radius-container) var(--radius-container) 0 0;
+    transform: none;
+  }
+
+  .rds-dialog .rds-modal__handle-area {
+    display: flex;
+  }
+
+  .rds-dialog .rds-modal__body {
+    flex: 1;
+    overscroll-behavior: contain;
+  }
+
+  /* No Cancel on the sheet: the handle, the veil, Escape and the × close it (display none: out of Tab and of the tree). */
+  .rds-dialog .rds-modal__cancel {
+    display: none;
+  }
+
+  .rds-dialog .rds-modal__footer {
+    flex-direction: column;
+    flex-wrap: nowrap;
+  }
+
+  /* A custom footer keeps every button, stacked: the last (the main action) on top. */
+  .rds-dialog .rds-modal__footer--custom {
+    flex-direction: column-reverse;
+  }
+
+  .rds-dialog .rds-modal__footer > * {
+    width: 100%;
+  }
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .rds-dialog[data-state='open'] {
     animation: rds-dialog-in var(--motion-duration-base) var(--motion-easing-enter);
+  }
+}
+
+@media (max-width: 1023px) and (prefers-reduced-motion: no-preference) {
+  .rds-dialog[data-state='open'] {
+    animation-name: rds-dialog-sheet-in;
+  }
+}
+
+@keyframes rds-dialog-sheet-in {
+  from {
+    transform: translateY(100%);
   }
 }
 

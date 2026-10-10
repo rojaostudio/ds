@@ -1,5 +1,5 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
-import { userEvent } from 'vitest/browser';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { page, userEvent } from 'vitest/browser';
 import { AlertDialog, type AlertDialogTone } from './alert-dialog';
 import { Button } from './button';
 import { MODES, axeViolations, cleanup, render, settle } from './__tests__/render';
@@ -79,5 +79,65 @@ describe('AlertDialog behaviour', () => {
     expect(onConfirm).toHaveBeenCalledOnce();
     await vi.waitFor(() => expect(dialog()).toBeNull());
     await vi.waitFor(() => expect(document.activeElement).toBe(trigger));
+  });
+});
+
+describe('AlertDialog on a compact screen (the sheet, #45)', () => {
+  beforeEach(() => page.viewport(390, 844));
+  afterEach(() => page.viewport(1280, 800));
+
+  async function openIt() {
+    const el = await render(<Example />);
+    el.querySelector('button')!.click();
+    await vi.waitFor(() => expect(dialog()).not.toBeNull());
+    await settle();
+    return dialog()!;
+  }
+
+  it.each(MODES)('passes axe (%s)', async (mode) => {
+    const el = await render(<Example />, mode);
+    el.querySelector('button')!.click();
+    await vi.waitFor(() => expect(dialog()).not.toBeNull());
+    await settle();
+    expect(await axeViolations(document.body)).toEqual([]);
+  });
+
+  it('is stuck to the bottom, the screen wide, no handle; both actions full width, the confirm on top', async () => {
+    const d = await openIt();
+    const r = d.getBoundingClientRect();
+    expect([Math.round(r.bottom), Math.round(r.left), Math.round(r.width)]).toEqual([844, 0, 390]);
+    expect(d.querySelector('.rds-modal__handle-area')).toBeNull();
+    const [cancel, confirm] = [...d.querySelectorAll<HTMLElement>('.rds-alert-dialog__footer button')];
+    expect([cancel.textContent, confirm.textContent]).toEqual(['Cancelar', 'Excluir lista']);
+    expect(confirm.getBoundingClientRect().top).toBeLessThan(cancel.getBoundingClientRect().top);
+    const footer = d.querySelector('.rds-alert-dialog__footer')!.getBoundingClientRect();
+    expect(Math.round(cancel.getBoundingClientRect().width)).toBe(Math.round(footer.width));
+    expect(Math.round(confirm.getBoundingClientRect().width)).toBe(Math.round(footer.width));
+  });
+
+  it('the focus opens on Cancel; the veil does not close it, Escape does', async () => {
+    await openIt();
+    await vi.waitFor(() => expect(document.activeElement?.textContent).toBe('Cancelar'));
+    await userEvent.click(document.body, { position: { x: 195, y: 8 } });
+    await settle();
+    expect(dialog()).not.toBeNull();
+    await userEvent.keyboard('{Escape}');
+    await vi.waitFor(() => expect(dialog()).toBeNull());
+  });
+});
+
+describe('AlertDialog on a wide screen', () => {
+  beforeEach(() => page.viewport(1280, 800));
+
+  it('is centred, 400 wide, the buttons in a row', async () => {
+    const el = await render(<Example />);
+    el.querySelector('button')!.click();
+    await vi.waitFor(() => expect(dialog()).not.toBeNull());
+    await settle();
+    const r = dialog()!.getBoundingClientRect();
+    expect(Math.round(r.width)).toBe(400);
+    expect(Math.round(r.left)).toBe(440);
+    const [cancel, confirm] = [...dialog()!.querySelectorAll<HTMLElement>('.rds-alert-dialog__footer button')];
+    expect(Math.round(cancel.getBoundingClientRect().top)).toBe(Math.round(confirm.getBoundingClientRect().top));
   });
 });

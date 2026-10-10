@@ -2,6 +2,9 @@
 /*
  * AlertDialog (Feedback collection, alertdialog/*): the veil over the page and, centred, a 400 box, 24 inside,
  * 24 between the text and the buttons (8 between title and description), shadow elevation/modal.
+ * Compact (below 1024, Figma 06/10): a sheet stuck to the bottom, the screen's width up to 560
+ * (layout/dialog/sm/width), no bottom corners and no bottom border, no handle (the answer is required: no drag, no
+ * veil). Both actions stay, full width, the confirm on top (column-reverse: the focus still opens on Cancel).
  */
 .rds-alert-dialog__scrim {
   position: fixed;
@@ -24,7 +27,7 @@
   flex-direction: column;
   gap: var(--space-24);
   width: min(400px, calc(100vw - var(--space-32)));
-  max-height: calc(100vh - var(--space-32));
+  max-height: calc(100dvh - var(--space-32));
   overflow-y: auto;
   padding: var(--space-24);
   border: var(--border-width) solid var(--alertdialog-border);
@@ -65,6 +68,44 @@
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: var(--space-8);
+}
+
+@media (max-width: 1023px) {
+  .rds-alert-dialog {
+    top: auto;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    max-width: 560px;
+    max-height: 85dvh;
+    margin-inline: auto;
+    padding-bottom: calc(var(--space-24) + env(safe-area-inset-bottom, 0px));
+    border-bottom: 0;
+    border-radius: var(--radius-container) var(--radius-container) 0 0;
+    transform: none;
+  }
+
+  .rds-alert-dialog__footer {
+    flex-direction: column-reverse;
+    flex-wrap: nowrap;
+  }
+
+  .rds-alert-dialog__footer > * {
+    width: 100%;
+  }
+}
+
+@media (max-width: 1023px) and (prefers-reduced-motion: no-preference) {
+  .rds-alert-dialog[data-state='open'] {
+    animation-name: rds-alert-dialog-sheet-in;
+  }
+}
+
+@keyframes rds-alert-dialog-sheet-in {
+  from {
+    transform: translateY(100%);
+  }
 }
 
 @media (prefers-reduced-motion: no-preference) {

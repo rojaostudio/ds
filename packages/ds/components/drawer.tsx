@@ -1,12 +1,9 @@
 'use client';
 
-import { useRef, useState } from 'react';
 import { ModalClose, ModalShell, type ModalProps } from './internal/modal';
+import { useDragDismiss } from './internal/use-drag-dismiss';
 
 export type DrawerProps = ModalProps;
-
-/** How far down (px) the handle has to be dragged to close. */
-const DISMISS_DISTANCE = 80;
 
 /**
  * Drawer — Figma [RDS] Overlays/Drawer. The panel that comes up from the bottom, on a phone: filters, quick
@@ -17,50 +14,16 @@ const DISMISS_DISTANCE = 80;
  * Styles: internal/modal.css and drawer.css.
  */
 export function Drawer({ open, defaultOpen, onOpenChange, ...props }: DrawerProps) {
-  const [own, setOwn] = useState(defaultOpen ?? false);
-  const isOpen = open ?? own;
-  const setOpen = (next: boolean) => {
-    setOwn(next);
-    onOpenChange?.(next);
-  };
-  const start = useRef<number | null>(null);
-  const [drag, setDrag] = useState(0);
-  const reset = () => {
-    start.current = null;
-    setDrag(0);
-  };
-
-  // The handle is for the pointer only: the keyboard closes with Escape or Cancel.
-  const handle = (
-    <div
-      className="rds-drawer__handle-area"
-      aria-hidden="true"
-      onPointerDown={(event) => {
-        start.current = event.clientY;
-        event.currentTarget.setPointerCapture?.(event.pointerId);
-      }}
-      onPointerMove={(event) => {
-        if (start.current !== null) setDrag(Math.max(0, event.clientY - start.current));
-      }}
-      onPointerUp={(event) => {
-        if (start.current !== null && event.clientY - start.current > DISMISS_DISTANCE) setOpen(false);
-        reset();
-      }}
-      onPointerCancel={reset}
-    >
-      <span className="rds-drawer__handle" />
-    </div>
-  );
-
+  const sheet = useDragDismiss({ open, defaultOpen, onOpenChange });
   return (
     <ModalShell
       prefix="rds-drawer"
       closeButton={false}
       stackedFooter
-      handle={handle}
-      open={isOpen}
-      onOpenChange={setOpen}
-      boxStyle={drag ? { transform: `translateY(${drag}px)`, animation: 'none' } : undefined}
+      handle={sheet.handle}
+      open={sheet.isOpen}
+      onOpenChange={sheet.setOpen}
+      boxStyle={sheet.boxStyle}
       {...props}
     />
   );
