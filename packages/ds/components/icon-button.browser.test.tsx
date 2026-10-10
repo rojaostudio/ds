@@ -135,8 +135,8 @@ describe('IconButton count', () => {
     const p = pill(el)!;
     expect(p.textContent).toBe('3');
     expect(p.getAttribute('aria-hidden')).toBe('true');
-    expect(getComputedStyle(p).backgroundColor).toBe(colour(p, '--button-count-background'));
-    expect(getComputedStyle(p).color).toBe(colour(p, '--button-count-label'));
+    expect(getComputedStyle(p).backgroundColor).toBe(colour(p, '--icon-button-count-background'));
+    expect(getComputedStyle(p).color).toBe(colour(p, '--icon-button-count-label'));
     const b = button.getBoundingClientRect();
     const r = p.getBoundingClientRect();
     // Over the corner: 4 past the top and the right edge, a 20 circle for one figure.
