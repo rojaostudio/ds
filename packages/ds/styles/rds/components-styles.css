@@ -1705,6 +1705,7 @@ button.rds-breadcrumb__link:focus-visible {
 /*
  * IconButton `count` (Figma: `showCount` + `count`): a danger pill in the top right corner, over the square's edge.
  * Caption bold, at least 20 across and 20 tall (a circle for one figure), 4 inside, figures of one width; "99+".
+ * Its tokens are the IconButton's (icon-button/count/*, as in the Figma).
  */
 .rds-button--counted {
   position: relative;
@@ -1723,8 +1724,8 @@ button.rds-breadcrumb__link:focus-visible {
   height: var(--size-20);
   padding: 0 var(--space-4);
   border-radius: var(--radius-full);
-  background: var(--button-count-background);
-  color: var(--button-count-label);
+  background: var(--icon-button-count-background);
+  color: var(--icon-button-count-label);
   font-size: var(--type-caption-size);
   line-height: var(--type-caption-line);
   font-weight: 700;
