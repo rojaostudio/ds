@@ -29,6 +29,7 @@
     "chart-dates-links",
     "chart-href-seguro",
     "chart-tabela-oculta",
+    "choice-card-preview-media",
     "choice-card-selected-soft",
     "choice-list",
     "claude-md-2-0",
@@ -67,8 +68,12 @@
     "item-row-selected",
     "item-trailing",
     "loading-overlay-savingbar-compacta",
+    "media-tile-largura-do-pai",
     "media-tile-sm-fluid",
+    "media-tile-sobre-media",
+    "media",
     "native-experimental",
+    "number-input-size-remove",
     "papel-inverse",
     "pix-icon-traco",
     "print-ds-core",
@@ -109,6 +114,7 @@
     "timeline",
     "title-addon-status-dot",
     "toast-acao-sem-prazo",
+    "toggle-size",
     "vocabulario-props"
   ]
 }

@@ -1,5 +1,41 @@
 # @rojaostudio/ds
 
+## 2.0.0-next.39
+
+### Minor Changes
+
+- 40ac985: ChoiceCard `layout="preview"` passa a desenhar a imagem com o `Media` (16:9, decorativo), com a mesma borda de 1px, o raio radius/container, o check no canto e o ícone de imagem vazia quando não há `preview`. As medidas não mudam. A classe interna do ícone vazio passa a ser `.rds-media__fallback` (era `.rds-choice-card__placeholder`).
+- 6e9c1b0: MediaTile pega a largura do pai: o tile ocupa 100% do container e a mídia mantém a proporção por aspect-ratio, sem largura fixa e sem mínimo ou máximo. `size="sm" | "md"` passa a mudar só o rótulo (sm numa linha com reticências, md em duas); o sm deixa de ter 96 de largura.
+
+  **Breaking:** sai `fluid` (e a faixa de 72 a 100). Sem `fluid`; envolva o tile num wrapper com a largura que quiser (ex.: flex 1 1 72px; max-width 100px).
+
+- 01bd5bd: MediaTile passa a usar o `Media` por dentro e ganha `ratio` com as cinco proporções (`1:1`, `4:3`, `3:4`, `16:9`, `9:16`). Dentro do tile a mídia fica sem raio e mantém as cores `media-tile/*`, então o visual não muda.
+
+  - `aspect` e o tipo `MediaTileAspect` ficam deprecated: `square` vira `1:1` e `video` vira `16:9`. Se vierem os dois, `ratio` vence.
+  - No fallback com `alt`, a mídia vira role="img" com esse nome; sem `alt`, a mídia é decorativa (o rótulo já diz o que é).
+  - A classe interna do fallback passa a ser `.rds-media__fallback` (era `.rds-media-tile__fallback`).
+
+- 05a172f: Componente novo `Media`: uma caixa de imagem ou vídeo numa proporção fixa, `<Media ratio="1:1" | "4:3" | "3:4" | "16:9" | "9:16" src alt fit="cover" | "contain" />`.
+
+  - Ocupa 100% do pai e a altura vem do aspect-ratio, então a imagem nunca distorce. Raio em `media/radius` (radius/card) e overflow hidden.
+  - O tipo exige `alt` ou `decorative`. Com `decorative`, a imagem leva alt="" e a caixa aria-hidden.
+  - Sem `src`, ou quando a imagem falha, mostra o fallback: fundo `media/background` (surface/muted) e o ícone de imagem quebrada centrado em `media/fallback` (text/subtle). No fallback com `alt`, a caixa vira role="img" com esse nome.
+  - Aceita `children` no lugar de `src` (next/image, picture, video) e uma prop `fallback` para trocar o ícone.
+  - Exporta `Media`, `MediaProps`, `MediaRatio` e `MediaFit`. Tokens novos na coleção Content: `media/background`, `media/fallback`, `media/radius`.
+
+- dbb1ee4: NumberInput ganha `size?: 'sm' | 'md'` e `onRemove`.
+
+  - `sm`: moldura de 32 de altura que abraça o conteúdo; − e + com 32 de largura e o número com no mínimo 32, crescendo com os dígitos. O rótulo fica visualmente oculto e continua dando nome ao campo. No ponteiro grosso, − e + chegam a 44 × 44 crescendo para fora (o − para a esquerda, o + para a direita, e os dois para cima e para baixo), sem cobrir o número. `md` (padrão) continua como era.
+  - `onRemove?: () => void` e `removeLabel` (padrão "Remover item"): no mínimo, o − vira uma lixeira, fica ativo, entra no Tab e chama `onRemove`. Sem `onRemove` nada muda: o − desliga no mínimo.
+  - Exporta o tipo `NumberInputSize`.
+
+- ce1241b: Toggle e ToggleGroup ganham `size?: 'sm' | 'md'` (padrão `md`, o tamanho de hoje, 44 de altura).
+
+  - `sm`: 32 de altura e ícone de 16; só com ícone vira um quadrado de 32.
+  - No ponteiro grosso, uma camada invisível leva o alvo de toque a 44, como no Button sm: na vertical, e nos quatro lados quando é só ícone. O layout não se mexe.
+  - `<ToggleGroup size>` repassa o tamanho aos itens. Num ToggleGroup `sm`, no ponteiro grosso, os itens ficam 12 de distância (eram 4), nas linhas e entre linhas, para que as camadas de toque de itens vizinhos se encontrem sem se sobrepor.
+  - Exporta o tipo `ToggleSize`.
+
 ## 2.0.0-next.38
 
 ### Minor Changes
