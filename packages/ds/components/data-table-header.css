@@ -13,9 +13,11 @@
  *   fixed at the end of the FIRST line, on the right, and never goes down.
  * - `active`, only while a filter is on: the `chips` (wrapping, at least 280 before "Limpar filtros" goes down)
  *   and "Limpar filtros" at the end.
+ * One height, 32 (Figma 07/10): the search is the Input sm, the triggers Buttons and IconButtons sm, beside the
+ * FilterChips; the action and the view control go in sm too.
  * Two arrangements, by the screen width, as the Figma viewport mode (layout/compact below lg 1024; the SavingBar's
  * cut): expanded from 1024 (the __wide parts: the trigger as a Button with its label); compact below it (the __narrow
- * parts: the trigger as an IconButton of 44, or a fill Button with the number while a filter is on).
+ * parts: the trigger as an IconButton sm, or a fill Button with the number while a filter is on).
  * In the Popover and the Drawer the filters stack 16 apart, each one a caption-sized label over its chips.
  */
 .rds-data-table-header {
@@ -71,7 +73,25 @@
   flex: 1 1 auto;
 }
 
-.rds-data-table-header__quick,
+/*
+ * Figma `quickFilters`: one line that scrolls sideways (no wrap), taking the free width, at least 160; below that it
+ * goes to its own line and still scrolls (Figma 09/10).
+ */
+.rds-data-table-header__quick {
+  flex: 1 1 160px;
+  min-width: min(160px, 100%);
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: var(--space-8);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.rds-data-table-header__quick > * {
+  flex: none;
+}
+
 .rds-data-table-header__view,
 .rds-data-table-header__wide,
 .rds-data-table-header__actions,

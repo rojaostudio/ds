@@ -149,13 +149,13 @@ describe('Chart behaviour', () => {
   });
 
 
-  it('bar draws one bar per row, each in its palette colour, with the value beside it', async () => {
+  it('bar draws one bar per row, all in the first series colour (a ranking), with the value beside it', async () => {
     const el = await render(<div style={{ width: 640 }}>{charts.bar}</div>);
     const bars = [...el.querySelectorAll<HTMLElement>('.rds-chart__bar')];
     expect(bars).toHaveLength(5);
     expect(bars[0].style.width).toBe('100%');
     const colours = new Set(bars.map((b) => getComputedStyle(b).backgroundColor));
-    expect(colours.size).toBe(5);
+    expect(colours.size).toBe(1);
     expect(text(el.querySelector('.rds-chart__bar-value')!.textContent)).toBe('12,5 mil');
   });
 });

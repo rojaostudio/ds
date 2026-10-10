@@ -2,7 +2,7 @@
 /*
  * The text fields' shared parts (Input, PasswordInput, Textarea, Select). Label 14/20 medium, 8 above the box;
  * box 44 tall (56 floating), 12 inside, 8 between parts (8 on the right when it ends on an action); hint or
- * error 4 below, 4 in from the sides. Focus is a state of the box: the border turns 2px focus ring (red on
+ * error 4 below, on the label's edge. Focus is a state of the box: the border turns 2px focus ring (red on
  * error). Text 16/24, so iOS does not zoom. The defaults below are the Input's (input/*); Textarea and Select
  * swap the local variables for their own tokens.
  */
@@ -173,14 +173,31 @@
   }
 }
 
+/* sm (Input size="sm", Figma 07/10): a 32 box for dense toolbars; the text stays 16/24, icons 16, the action 24. */
+.rds-field--sm {
+  --_height: var(--size-32);
+}
+
+.rds-field--sm .rds-field__icon > svg,
+.rds-field--sm .rds-field__action-icon > svg {
+  width: var(--size-16);
+  height: var(--size-16);
+}
+
+.rds-field--sm .rds-field__action {
+  width: var(--size-24);
+  height: var(--size-24);
+}
+
 /* The field has no ring token apart from its focus border: the same colour, so every focus in it looks alike. */
 .rds-field__action:focus-visible {
   outline: var(--focus-ring-width) solid var(--_border-focus);
   outline-offset: calc(var(--focus-ring-width) * -1);
 }
 
+/* On the label's and the box's edge (Figma 07/10: hintRow and errorRow lost their 4 at the sides). */
 .rds-field__support {
-  padding: 0 var(--space-4);
+  padding: 0;
   font-size: var(--_support-size);
   line-height: var(--_support-line);
 }

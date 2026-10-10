@@ -91,6 +91,14 @@
   line-height: var(--type-caption-line);
 }
 
+/* The meta before the action (Figma 07/10, trailing): a Status, a Badge or a value, 8 apart when there are more. */
+.rds-item__trailing {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-8);
+}
+
 .rds-item__action {
   display: inline-flex;
   flex: none;

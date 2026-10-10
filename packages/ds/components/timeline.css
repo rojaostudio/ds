@@ -1,10 +1,11 @@
 /* @tokens timeline */
 /*
- * Timeline (Content collection, timeline/*; Figma 07/10). The day: its label in caption medium (timeline/meta), 8
- * above and 12 below. The item: the rail (an Avatar sm, 24, and a 1px line in timeline/line from 4 under it down to
- * the next item; none after the day's last) and, 12 apart, the body: actor (medium, timeline/actor) and action
- * (timeline/action) wrapping together in 14/20, the time in caption (timeline/meta), the change in 14/20
- * (timeline/meta); 2 between them, 16 below the item.
+ * Timeline (Content collection, timeline/*; Figma 07/10). The day: a subtitle, label 16/24 semibold in timeline/day,
+ * 24 above and 12 below, so a day parts more than the events do. The item: the rail (an Avatar sm, 24, ringed in
+ * timeline/avatar/border, and a 1px line in timeline/line from 4 under it down to the next item; none after the
+ * day's last) and, 12 apart, the body: the head (actor, medium, timeline/actor, and action, timeline/action,
+ * wrapping together in 14/20; the time in a 48 column on the right, caption, timeline/meta, on the same baseline)
+ * and the change in 14/20 (timeline/meta); 2 between them, 16 below the item.
  */
 .rds-timeline {
   font-family: var(--type-font-stack);
@@ -12,11 +13,11 @@
 
 .rds-timeline__day-label {
   margin: 0;
-  padding: var(--space-8) 0 var(--space-12);
-  color: var(--timeline-meta);
-  font-size: var(--type-caption-size);
-  line-height: var(--type-caption-line);
-  font-weight: 500;
+  padding: var(--space-24) 0 var(--space-12);
+  color: var(--timeline-day);
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  font-weight: 600;
 }
 
 .rds-timeline__list {
@@ -41,6 +42,10 @@
 
 .rds-timeline__avatar {
   display: inline-flex;
+  border-radius: var(--radius-full);
+  /* The ring keeps the initials' circle visible on a grey page (surface/muted on surface/muted). */
+  outline: var(--border-width) solid var(--timeline-avatar-border);
+  outline-offset: calc(var(--border-width) * -1);
 }
 
 .rds-timeline__line {
@@ -64,7 +69,18 @@
   line-height: var(--type-small-line);
 }
 
-.rds-timeline__head,
+.rds-timeline__head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-12);
+}
+
+.rds-timeline__summary {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+}
+
 .rds-timeline__diff {
   margin: 0;
 }
@@ -79,7 +95,10 @@
 }
 
 .rds-timeline__time {
+  flex: none;
+  width: var(--size-48);
   color: var(--timeline-meta);
+  text-align: right;
   font-size: var(--type-caption-size);
   line-height: var(--type-caption-line);
 }

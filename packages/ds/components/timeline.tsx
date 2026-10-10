@@ -27,14 +27,16 @@ export interface TimelineDayProps extends Omit<HTMLAttributes<HTMLElement>, 'chi
   children: ReactNode;
 }
 
-/** One day: its label and the list of what happened (Figma .timeline/day and the items after it). */
+/**
+ * One day: its label, a heading (<h3>), and the list of what happened (Figma .timeline/day and the items after it).
+ */
 export function TimelineDay({ label, children, className, ...rest }: TimelineDayProps) {
   const id = useId();
   return (
     <section {...rest} className={['rds-timeline__day', className].filter(Boolean).join(' ')}>
-      <p id={id} className="rds-timeline__day-label">
+      <h3 id={id} className="rds-timeline__day-label">
         {label}
-      </p>
+      </h3>
       <ol aria-labelledby={id} className="rds-timeline__list">
         {children}
       </ol>
@@ -66,12 +68,14 @@ export function TimelineItem({ avatar, actor, action, time, dateTime, diff, clas
         <span className="rds-timeline__line" />
       </span>
       <div className="rds-timeline__body">
-        <p className="rds-timeline__head">
-          <span className="rds-timeline__actor">{actor}</span> <span className="rds-timeline__action">{action}</span>
-        </p>
-        <time className="rds-timeline__time" dateTime={dateTime}>
-          {time}
-        </time>
+        <div className="rds-timeline__head">
+          <p className="rds-timeline__summary">
+            <span className="rds-timeline__actor">{actor}</span> <span className="rds-timeline__action">{action}</span>
+          </p>
+          <time className="rds-timeline__time" dateTime={dateTime}>
+            {time}
+          </time>
+        </div>
         {diff && <p className="rds-timeline__diff">{diff}</p>}
       </div>
     </li>

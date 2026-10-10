@@ -17,7 +17,7 @@ describe.each(MODES)('Alert (%s)', (mode) => {
             tone={tone}
             title="Seu perfil está oculto"
             description="Clientes não encontram você nas buscas. Torne o perfil visível para voltar a aparecer."
-            action={<Button tone="neutral" variant="ghost">Tornar visível</Button>}
+            action={<Button tone="neutral" variant="outline" size="sm">Tornar visível</Button>}
             onClose={() => {}}
           />
         ))}
@@ -32,12 +32,21 @@ describe.each(MODES)('Alert (%s)', (mode) => {
 });
 
 describe('Alert behaviour', () => {
-  it('the neutral ghost action on the rojao light theme passes axe (text/heading is navy)', async () => {
+  it('the neutral outline action on the rojao light theme passes axe (text/heading is navy)', async () => {
     const el = await render(
-      <Alert title="Seu perfil está oculto" action={<Button tone="neutral" variant="ghost">Tornar visível</Button>} />,
+      <Alert title="Seu perfil está oculto" action={<Button tone="neutral" variant="outline" size="sm">Tornar visível</Button>} />,
       'light',
     );
     expect(await axeViolations(el)).toEqual([]);
+  });
+
+  it('puts the action under the text below lg 1024 and beside it from 1024', async () => {
+    const el = await render(
+      <Alert title="1 conta vencida" action={<Button tone="neutral" variant="outline" size="sm">Ver vencidas</Button>} />,
+    );
+    const content = el.querySelector('.rds-alert__content') as HTMLElement;
+    const wide = window.matchMedia('(min-width: 1024px)').matches;
+    expect(getComputedStyle(content).flexDirection).toBe(wide ? 'row' : 'column');
   });
 
   it('has no role by default; status and alert when asked', async () => {

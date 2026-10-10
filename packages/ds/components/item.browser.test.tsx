@@ -3,6 +3,7 @@ import { Avatar } from './avatar';
 import { Button } from './button';
 import { Item, ItemGroup, type ItemSize, type ItemVariant } from './item';
 import { InfoIcon } from './internal/icons';
+import { Status } from './status';
 import { Tile } from './tile';
 import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
@@ -24,6 +25,7 @@ describe.each(MODES)('Item (%s)', (mode) => {
                 media={<Tile icon={<InfoIcon />} variant="soft" />}
                 title="Pedido #4821"
                 description="3 itens · Entregue"
+                trailing={<Status tone="warning" size="sm">Revisar</Status>}
                 action={<Button variant="ghost">Ver pedido</Button>}
               />
               <Item variant={variant} size={size} media={<Avatar name="Ana Lima" />} title="Ana Lima" />
@@ -41,6 +43,14 @@ describe('Item behaviour', () => {
   it('the title (item/title → text/heading) passes axe on the rojao light theme', async () => {
     const el = await render(<Item title="Pedido #4821" />, 'light');
     expect(await axeViolations(el)).toEqual([]);
+  });
+
+  it('puts the trailing meta between the text and the action', async () => {
+    const el = await render(
+      <Item title="Tabela de preços" trailing={<Status tone="warning" size="sm">Revisar</Status>} action={<Button variant="ghost">Editar</Button>} />,
+    );
+    const parts = [...el.querySelector('.rds-item')!.children].map((c) => c.className);
+    expect(parts).toEqual(['rds-item__content', 'rds-item__trailing', 'rds-item__action']);
   });
 
   it('is a <li> inside an ItemGroup and a <div> alone; ghost rows get a line between them', async () => {

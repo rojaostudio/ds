@@ -86,7 +86,11 @@ export interface SidebarProps extends Omit<HTMLAttributes<HTMLElement>, 'childre
    * `logo`. The DS carries no client logo: both come in through slots.
    */
   header?: SidebarHeader;
-  /** The product's logo, for header="logo" (Figma: `logo`). Give it its accessible name (an <img alt>, an svg title). */
+  /**
+   * The product's logo, for header="logo" (Figma: the `logo` slot). Give it its accessible name (an <img alt>, an svg
+   * title). It keeps its own proportion: up to 48 tall in a 64 header, as wide as that makes it up to the header's
+   * width (a very wide logo is bounded by the width and comes out shorter).
+   */
   logo?: ReactNode;
   /** The brand mark, for header="mark". By default a brand Avatar with the module's first letter. */
   mark?: ReactNode;
@@ -246,7 +250,7 @@ export function Sidebar({
           .filter(Boolean)
           .join(' ')}
       >
-        <div className="rds-sidebar__header">
+        <div className={['rds-sidebar__header', header === 'logo' && 'rds-sidebar__header--logo'].filter(Boolean).join(' ')}>
           {header === 'logo' ? (
             <span className="rds-sidebar__logo">{logo}</span>
           ) : (

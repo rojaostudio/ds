@@ -62,7 +62,7 @@ export type DataTableHeaderProps = {
   count?: ReactNode;
   /**
    * The list's action (Figma: `showActions`, off by default, + the `actions` instance): an IconButton, neutral outline
-   * md, with its Tooltip, such as a gear "Organizar categorias" or exporting. It sits outside the tools, always at the
+   * sm (the whole bar is 32, Figma 07/10), with its Tooltip, such as a gear "Organizar categorias" or exporting. It sits outside the tools, always at the
    * end of the FIRST line, on the right; the tools wrap, the action never goes down.
    * Creating is NOT an action of the bar: creating is the FAB. The component does not enforce this; it documents it.
    */
@@ -93,6 +93,7 @@ function FilterTrigger({ filter, ...rest }: { filter: DataTableFilterDef } & Omi
       {...rest}
       tone="neutral"
       variant={on ? 'fill' : 'outline'}
+      size="sm"
       icon={<SlidersIcon />}
       iconPosition="start"
       aria-label={on ? `${filter.label}, ${optionLabel(filter)}` : undefined}
@@ -128,6 +129,7 @@ function FiltersButton({ count, ...rest }: { count: number } & Omit<ComponentPro
       {...rest}
       tone="neutral"
       variant={count > 0 ? 'fill' : 'outline'}
+      size="sm"
       icon={<SlidersIcon />}
       iconPosition="start"
       data-filter-toggle=""
@@ -200,11 +202,11 @@ function CompactFilterTrigger({
   return (
     <Tooltip text={label}>
       {active > 0 ? (
-        <Button {...rest} tone="neutral" variant="fill" icon={<SlidersIcon />} iconPosition="start" aria-label={name} data-filter-toggle="">
+        <Button {...rest} tone="neutral" variant="fill" size="sm" icon={<SlidersIcon />} iconPosition="start" aria-label={name} data-filter-toggle="">
           {String(active)}
         </Button>
       ) : (
-        <IconButton {...rest} icon={<SlidersIcon />} label={name} variant="outline" tone="neutral" size="md" data-filter-toggle="" />
+        <IconButton {...rest} icon={<SlidersIcon />} label={name} variant="outline" tone="neutral" size="sm" data-filter-toggle="" />
       )}
     </Tooltip>
   );
@@ -351,6 +353,7 @@ export function DataTableHeader({
               <Input
                 ref={searchRef}
                 type="search"
+                size="sm"
                 aria-label={search.label ?? 'Buscar'}
                 placeholder={search.placeholder ?? 'Buscar…'}
                 leadingIcon={<SearchIcon />}

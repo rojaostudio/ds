@@ -78,6 +78,38 @@ describe.each(SCHEMES)('Sidebar (%s)', (scheme) => {
   });
 });
 
+describe('Sidebar logo header', () => {
+  const logo = (w: number, h: number) =>
+    `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><rect width="${w}" height="${h}"/></svg>`)}`;
+
+  it('64 tall; the logo keeps its proportion, up to 48 tall and never wider than the header', async () => {
+    const el = await render(
+      <div>
+        <Sidebar aria-label="A" header="logo" logo={<img src={logo(234, 85)} alt="Rojão" />}>{null}</Sidebar>
+        <Sidebar aria-label="B" header="logo" logo={<img src={logo(1128, 144)} alt="Acassius" />}>{null}</Sidebar>
+      </div>,
+    );
+    await vi.waitFor(() => expect([...el.querySelectorAll('img')].every((i) => i.complete)).toBe(true));
+    const [a, b] = [...el.querySelectorAll<HTMLElement>('.rds-sidebar__header')];
+    expect(a.getBoundingClientRect().height).toBe(64);
+    const [ia, ib] = [...el.querySelectorAll('img')].map((i) => i.getBoundingClientRect());
+    expect(ia.height).toBeCloseTo(48, 0);
+    expect(ia.width / ia.height).toBeCloseTo(234 / 85, 1);
+    const room = b.clientWidth - parseFloat(getComputedStyle(b).paddingLeft) - parseFloat(getComputedStyle(b).paddingRight);
+    expect(ib.width).toBeLessThanOrEqual(room);
+    expect(ib.height).toBeLessThan(48);
+    expect(ib.width / ib.height).toBeCloseTo(1128 / 144, 1);
+  });
+
+  it('the product sets the width: an <img width={100}> stays 100, in proportion', async () => {
+    const el = await render(<Sidebar aria-label="C" header="logo" logo={<img src={logo(1128, 144)} width={100} alt="Acassius" />}>{null}</Sidebar>);
+    await vi.waitFor(() => expect(el.querySelector('img')!.complete).toBe(true));
+    const box = el.querySelector('img')!.getBoundingClientRect();
+    expect(box.width).toBe(100);
+    expect(box.height).toBeCloseTo(100 * 144 / 1128, 0);
+  });
+});
+
 describe('Sidebar levels', () => {
   it('level 1 (loose entry and group header): 44 tall, 12 inside, icon 20, 14/20 medium in label/default', async () => {
     const el = await render(<Example />);

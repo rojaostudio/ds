@@ -111,9 +111,16 @@
   height: var(--type-small-line);
 }
 
-/* The content keeps the colour of where the card sits: the slot holds any component. */
+/*
+ * The content keeps the colour of where the card sits: the slot holds any component. Its blocks stack as many
+ * apart as the padding (Figma 07/10: cardContent's gap), so an Alert above a list needs no spacer.
+ */
 .rds-card__content {
+  display: flex;
   flex: 1;
+  flex-direction: column;
+  gap: var(--_pad);
+  min-width: 0;
   padding: var(--_pad);
   font-size: var(--type-body-size);
   line-height: var(--type-body-line);

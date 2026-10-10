@@ -13,6 +13,11 @@ export interface ItemProps extends Omit<HTMLAttributes<HTMLElement>, 'title'> {
   description?: ReactNode;
   /** A Tile for a thing, an Avatar for a person (Figma: `showMedia` + `media`). */
   media?: ReactNode;
+  /**
+   * The row's meta, between the text and the action (Figma: `showTrailing` + `trailing`): a sm Status or Badge
+   * (e.g. a warning Status "Revisar") or a value. A state goes here, not at the end of the description.
+   */
+  trailing?: ReactNode;
   /** One action or control on the right (Figma: `showAction` + `action`): a ghost Button, an IconButton, a Switch. */
   action?: ReactNode;
   /**
@@ -27,10 +32,10 @@ export interface ItemProps extends Omit<HTMLAttributes<HTMLElement>, 'title'> {
 const InGroup = createContext(false);
 
 /**
- * Item — Figma [RDS] Content/Item. One row of a list: media, title, description and one action. Inside an ItemGroup
+ * Item — Figma [RDS] Content/Item. One row of a list: media, title, description and one action, with an optional meta (trailing) before it. Inside an ItemGroup
  * it is a list item (<li>); alone, a <div>. Styles: item.css.
  */
-export function Item({ title, description, media, action, variant = 'ghost', size = 'md', className, ...rest }: ItemProps) {
+export function Item({ title, description, media, trailing, action, variant = 'ghost', size = 'md', className, ...rest }: ItemProps) {
   const Root = useContext(InGroup) ? 'li' : 'div';
   return (
     <Root
@@ -42,6 +47,7 @@ export function Item({ title, description, media, action, variant = 'ghost', siz
         <span className="rds-item__title">{title}</span>
         {description && <span className="rds-item__description">{description}</span>}
       </span>
+      {trailing && <span className="rds-item__trailing">{trailing}</span>}
       {action && <span className="rds-item__action">{action}</span>}
     </Root>
   );
