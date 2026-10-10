@@ -847,6 +847,57 @@
   }
 }
 
+/*
+ * tone="attention" (banner/attention/*): something to act on soon (a trial ending), in three levels of amber,
+ * never red. low: the soft amber (surface/warning) with the warning text; high: the full amber (colors/state/warning)
+ * with the text on it; medium: halfway between the two backgrounds (no theme role sits there), with high's text.
+ * The text, the highlight, the icon and the × take the level's text colour (4.5:1 on each level, light and dark).
+ * The CTA: outline in low and medium, fill in high (the Banner sets the variant), drawn in the strip's colours.
+ */
+.rds-banner--attention {
+  --_banner-background: var(--banner-attention-low-background);
+  --_banner-text: var(--banner-attention-low-text);
+
+  background: var(--_banner-background);
+  color: var(--_banner-text);
+}
+
+.rds-banner--attention.rds-banner--medium {
+  --_banner-background: color-mix(in srgb, var(--banner-attention-low-background), var(--banner-attention-high-background));
+  --_banner-text: var(--banner-attention-medium-text);
+}
+
+.rds-banner--attention.rds-banner--high {
+  --_banner-background: var(--banner-attention-high-background);
+  --_banner-text: var(--banner-attention-high-text);
+}
+
+.rds-banner--attention .rds-banner__icon,
+.rds-banner--attention .rds-banner__highlight {
+  color: var(--_banner-text);
+}
+
+.rds-banner--attention .rds-banner__action .rds-button,
+.rds-banner--attention .rds-button.rds-banner__close {
+  --_label: var(--_banner-text);
+  --_icon: var(--_banner-text);
+  --_ring: var(--_banner-text);
+  --_background-hover: color-mix(in srgb, var(--_banner-text) 10%, transparent);
+  --_background-active: color-mix(in srgb, var(--_banner-text) 18%, transparent);
+}
+
+.rds-banner--attention .rds-banner__action .rds-button--outline {
+  --_border: var(--_banner-text);
+}
+
+.rds-banner--attention .rds-banner__action .rds-button--fill {
+  --_background: var(--_banner-text);
+  --_background-hover: color-mix(in srgb, var(--_banner-text) 85%, var(--_banner-background));
+  --_background-active: color-mix(in srgb, var(--_banner-text) 75%, var(--_banner-background));
+  --_label: var(--_banner-background);
+  --_icon: var(--_banner-background);
+}
+
 @media (forced-colors: active) {
   .rds-banner {
     border-bottom: var(--border-width) solid CanvasText;
