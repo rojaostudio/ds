@@ -138,6 +138,8 @@ export const PAIRS: Pair[] = [
   ['--heading-default', CTX, 't'], ['--pageheader-title', CTX, 't'], ['--pageheader-description', CTX, 't'],
   ['--empty-title', CTX, 't'], ['--empty-description', CTX, 't'], ['--item-title', CTX, 't'], ['--item-description', CTX, 't'],
   ['--item-description', '--item-muted-background', 't'],
+  ['--item-title', '--item-selected-background', 't'], ['--item-description', '--item-selected-background', 't'],
+  ['--item-selected-indicator', '--item-selected-background', 'u'],
   // Badge, Status, Tile, Toast, Alert.
   ...['neutral-fill', 'neutral-soft', 'action-fill', 'action-soft', 'accent-fill', 'accent-highlight'].map(
     (v): Pair => [`--badge-${v}-label`, `--badge-${v}-background`, 't'],

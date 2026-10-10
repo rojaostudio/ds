@@ -2,6 +2,7 @@
 /*
  * Item (Content collection, item/*): one list row, at least 44 tall. md pads 12 16, gap 16; sm pads 8 12,
  * gap 12. Corners in radius/container. Title in label (16/24 medium), description in small (14/20); sm one step down.
+ * row: the dense list's line; selected: item/selected/*.
  */
 .rds-item-group {
   display: flex;
@@ -56,6 +57,88 @@
   background: var(--item-muted-background);
 }
 
+/*
+ * row (Figma 10/10, the dense list): no corners, only the line below (item/border), 12 16 in md and 8 16 in sm; the
+ * media in a box of 48 or 32; title and description on one line each, cut with an ellipsis.
+ */
+.rds-item--row {
+  --_pad-x: var(--space-16);
+
+  padding: var(--_pad-y) var(--_pad-x) calc(var(--_pad-y) - var(--border-width));
+  border-width: 0 0 var(--border-width);
+  border-color: var(--item-border);
+  border-radius: 0;
+}
+
+.rds-item-group:has(> .rds-item--row) {
+  gap: 0;
+}
+
+.rds-item--row .rds-item__media {
+  justify-content: center;
+  align-items: center;
+  width: var(--size-48);
+  height: var(--size-48);
+}
+
+.rds-item--row.rds-item--sm .rds-item__media {
+  width: var(--size-32);
+  height: var(--size-32);
+}
+
+.rds-item--row .rds-item__title,
+.rds-item--row .rds-item__description {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* selected (Figma 10/10), in any variant: the tint and a 3px band on the start edge. */
+.rds-item--selected {
+  background: var(--item-selected-background);
+  box-shadow: inset calc(var(--border-width) * 3) 0 0 var(--item-selected-indicator);
+}
+
+/*
+ * Pressable (onSelect): the title is the button, its ::after stretched over the row, so the whole row takes the
+ * press; the action sits above it. The ring is drawn around the row (the Button's ring token, as every control).
+ */
+.rds-item--pressable {
+  position: relative;
+  cursor: pointer;
+}
+
+.rds-item__press {
+  display: block;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.rds-item__press::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
+.rds-item__press:focus-visible {
+  outline: none;
+}
+
+.rds-item--pressable:has(.rds-item__press:focus-visible) {
+  outline: var(--focus-ring-width) solid var(--button-focus-ring);
+  outline-offset: calc(var(--focus-ring-width) * -1);
+}
+
+.rds-item--pressable .rds-item__action {
+  position: relative;
+}
+
 .rds-item__media {
   display: inline-flex;
   flex: none;
@@ -106,7 +189,17 @@
 
 @media (forced-colors: active) {
   .rds-item--outline,
-  .rds-item--soft {
+  .rds-item--soft,
+  .rds-item--row {
     border-color: CanvasText;
+  }
+
+  /* The inset shadow is dropped in forced colours: the band becomes a border. */
+  .rds-item--selected {
+    border-inline-start: calc(var(--border-width) * 3) solid Highlight;
+  }
+
+  .rds-item--pressable:has(.rds-item__press:focus-visible) {
+    outline-color: Highlight;
   }
 }
