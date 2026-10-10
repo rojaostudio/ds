@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react';
 import { FilterChip, FilterChipGroup } from './filter-chip';
 import { FieldAction, FieldShell, useFieldIds, warnIfUnlabelled, type FieldTextProps } from './internal/field';
-import { MinusIcon, PlusIcon } from './internal/icons';
+import { MinusIcon, PlusIcon, TrashIcon } from './internal/icons';
 
 export interface NumberInputStep {
   /** The value the chip sets. */
@@ -11,6 +11,9 @@ export interface NumberInputStep {
   /** What the chip says. By default the value with the unit ("500 un"). */
   label?: ReactNode;
 }
+
+/** md (default): the 44 frame across its column. sm: a 32 frame that hugs its content, the label hidden. */
+export type NumberInputSize = 'sm' | 'md';
 
 export interface NumberInputProps extends Omit<FieldTextProps, 'labelPosition'> {
   /** Controlled: the number (Figma: `value`), or null for none. */
@@ -40,6 +43,19 @@ export interface NumberInputProps extends Omit<FieldTextProps, 'labelPosition'> 
   decrementLabel?: string;
   /** The + button's name. */
   incrementLabel?: string;
+  /**
+   * md (default): the 44 frame, as wide as its column. sm: a 32 frame that hugs its content: − and + 32 wide, the
+   * number at least 32 and growing with its digits. The label is visually hidden and still names the field. Under a
+   * coarse pointer − and + take the touch to 44 × 44, growing outwards, never over the number.
+   */
+  size?: NumberInputSize;
+  /**
+   * Called by the − at the minimum, where it becomes a bin (an item in a cart): it stays on, enters the Tab order
+   * and removes. Without it, nothing changes: the − turns off at the minimum.
+   */
+  onRemove?: () => void;
+  /** The bin's name. */
+  removeLabel?: string;
   /** The form field name: a hidden input carries the number. */
   name?: string;
   placeholder?: string;
@@ -65,7 +81,7 @@ const parse = (text: string) => {
  * split by an inner border: for small whole quantities moved a little at a time (items in a cart, people in a
  * booking, instalments). The number in the middle is typed; the field is a spinbutton, so the arrows move it (Page
  * Up/Down by ten steps, Home/End to the limits) and − and + stay out of the Tab order. At a limit its button turns
- * off. A price, a CPF or a CEP is the Input; a continuous range, the Slider; the steps of a flow, the
+ * off (or, with `onRemove`, the − becomes a bin at the minimum). A price, a CPF or a CEP is the Input; a continuous range, the Slider; the steps of a flow, the
  * Stepper. Styles: number-input.css and internal/field.css.
  */
 export function NumberInput({
@@ -86,6 +102,9 @@ export function NumberInput({
   debounce = 300,
   decrementLabel = 'Diminuir',
   incrementLabel = 'Aumentar',
+  size = 'md',
+  onRemove,
+  removeLabel = 'Remover item',
   name,
   placeholder,
   disabled,
@@ -190,20 +209,33 @@ export function NumberInput({
   const unitText = typeof unit === 'string' || typeof unit === 'number' ? String(unit) : undefined;
   const presets = (steps ?? []).map((s) => (typeof s === 'number' ? { value: s } : s));
 
-  const button = (direction: 1 | -1) => (
-    <FieldAction
-      label={direction > 0 ? incrementLabel : decrementLabel}
-      icon={direction > 0 ? <PlusIcon /> : <MinusIcon />}
-      tabIndex={-1}
-      disabled={disabled || (direction > 0 ? atMax : atMin)}
-      // The focus stays in the field (or goes there), so the arrows keep working after a click.
-      onMouseDown={(event) => {
-        event.preventDefault();
-        input.current?.focus();
-      }}
-      onClick={() => nudge(direction)}
-    />
-  );
+  // At the minimum, with onRemove, the − is a bin: on, in the Tab order, and it removes instead of stepping.
+  const removing = Boolean(onRemove) && atMin;
+
+  const button = (direction: 1 | -1) =>
+    direction < 0 && removing ? (
+      <FieldAction
+        className="rds-number-input__step rds-number-input__step--decrement rds-number-input__remove"
+        label={removeLabel}
+        icon={<TrashIcon />}
+        disabled={disabled}
+        onClick={() => onRemove?.()}
+      />
+    ) : (
+      <FieldAction
+        className={`rds-number-input__step rds-number-input__step--${direction > 0 ? 'increment' : 'decrement'}`}
+        label={direction > 0 ? incrementLabel : decrementLabel}
+        icon={direction > 0 ? <PlusIcon /> : <MinusIcon />}
+        tabIndex={-1}
+        disabled={disabled || (direction > 0 ? atMax : atMin)}
+        // The focus stays in the field (or goes there), so the arrows keep working after a click.
+        onMouseDown={(event) => {
+          event.preventDefault();
+          input.current?.focus();
+        }}
+        onClick={() => nudge(direction)}
+      />
+    );
 
   return (
     <FieldShell
@@ -212,13 +244,14 @@ export function NumberInput({
       hintId={hintId}
       errorId={errorId}
       label={label}
+      labelHidden={size === 'sm'}
       hint={hint}
       errorMessage={errorMessage}
       invalid={invalid}
       required={required}
       disabled={disabled}
       boxClassName="rds-number-input__box"
-      className={className}
+      className={[size === 'sm' && 'rds-field--sm rds-number-input--sm', className].filter(Boolean).join(' ') || undefined}
       style={style}
       afterBox={
         presets.length > 0 && (

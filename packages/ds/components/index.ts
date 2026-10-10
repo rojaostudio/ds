@@ -289,7 +289,7 @@ export type { CalendarProps, CalendarSingleProps, CalendarRangeProps, DateRange,
 export { FileInput, formatFileSize } from './file-input';
 export type { FileInputProps, FileInputLayout } from './file-input';
 export { NumberInput } from './number-input';
-export type { NumberInputProps, NumberInputStep } from './number-input';
+export type { NumberInputProps, NumberInputStep, NumberInputSize } from './number-input';
 export { InputOTP } from './input-otp';
 export type { InputOTPProps, InputOTPLength } from './input-otp';
 
