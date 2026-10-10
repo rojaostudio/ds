@@ -620,6 +620,55 @@ export const RDS_SCOPE_SELECTORS = [
 /** RDS_SCOPE_SELECTORS as one selector list, as the component token layer is emitted. */
 export const RDS_TOKEN_SCOPE = RDS_SCOPE_SELECTORS.join(", ");
 
+/**
+ * The print mode of the [RDS] theme (issue #42): the light mode with two swaps, as Figma draws it. Every background
+ * turns white (paper, and no ink spent on fills; the borders and texts of light stay, so a box keeps its outline) and
+ * every shadow turns transparent. emitRdsCss writes it in an `@media print` block over every scope, dark and plate.
+ */
+export const RDS_PRINT_WHITE = [
+  "surface/page", "surface/card", "surface/panel", "surface/cover", "surface/muted", "surface/muted-strong",
+  "surface/tint/default", "surface/tint/strong", "surface/tint/subtle", "surface/band/base",
+  "surface/neutral", "surface/info", "surface/success", "surface/warning", "surface/error", "surface/error-strong",
+  "surface/attention/low", "surface/attention/medium", "surface/attention/high",
+] as const;
+/** The shadows the print mode clears. */
+export const RDS_PRINT_TRANSPARENT = ["shadow/ambient", "shadow/key", "shadow/strong"] as const;
+
+/** The theme roles in print: light, the backgrounds of RDS_PRINT_WHITE white, the shadows of RDS_PRINT_TRANSPARENT clear. */
+export function rdsPrintMode(theme: RdsTheme): Record<string, string> {
+  const out = { ...theme.light };
+  for (const role of RDS_PRINT_WHITE) out[roleVar(role)] = WHITE;
+  for (const role of RDS_PRINT_TRANSPARENT) out[roleVar(role)] = black(0);
+  return out;
+}
+
+/**
+ * The media type variables of the [RDS] Base Tokens (Figma `media/type/<role>/{size,line}`, issue #42): on screen an
+ * alias of a type style (title → type/heading), on paper a closed scale in points. Only the variables exist: the
+ * components keep the type tokens, and the consumer's printed sheet reads `--media-type-<role>-size` / `-line`.
+ */
+export const RDS_MEDIA_TYPE: ReadonlyArray<{
+  role: string; screen: string; size: number; line: number; print: readonly [size: number, line: number];
+}> = [
+  { role: "caption", screen: "caption", size: 12, line: 16, print: [8, 10] },
+  { role: "small", screen: "small", size: 14, line: 20, print: [9, 12] },
+  { role: "body", screen: "body", size: 16, line: 24, print: [10, 14] },
+  { role: "label", screen: "label", size: 16, line: 24, print: [12, 16] },
+  { role: "title", screen: "heading", size: 24, line: 30, print: [18, 24] },
+];
+
+/** The media type variables as declarations: the screen alias (its px value as fallback) or, in print, points. */
+function mediaTypeLines(print: boolean): string[] {
+  return RDS_MEDIA_TYPE.flatMap(({ role, screen, size, line, print: [ps, pl] }) =>
+    print
+      ? [`  --media-type-${role}-size: ${ps}pt;`, `  --media-type-${role}-line: ${pl}pt;`]
+      : [
+          `  --media-type-${role}-size: var(--type-${screen}-size, ${size}px);`,
+          `  --media-type-${role}-line: var(--type-${screen}-line, ${line}px);`,
+        ],
+  );
+}
+
 export type RdsCssOptions = {
   /** Scope of the light mode. Default `:root, .ds-scope, [data-rds-scope]`. */
   scope?: string;
@@ -650,7 +699,9 @@ const covered = (sel: string) => {
 
 /**
  * The theme as CSS. Dark and plate only carry what differs from light: they inherit the rest
- * through the cascade, like the [RDS] modes that point back to the plain token.
+ * through the cascade, like the [RDS] modes that point back to the plain token. An `@media print` block closes the
+ * sheet with the print mode (rdsPrintMode) over every one of those selectors. The light scope also declares the media
+ * type variables (RDS_MEDIA_TYPE), which the print block turns into points.
  *
  * Throws when a selector would leave the components of @rojaostudio/ds on the root colours (see
  * RDS_SCOPE_SELECTORS), unless `allowUncovered`.
@@ -668,11 +719,11 @@ export function emitRdsCss(theme: RdsTheme, opts: RdsCssOptions = {}): string {
   const scopes = split(opts.scope ?? ":root, .ds-scope, [data-rds-scope]");
   const darks = split(opts.dark ?? '.dark, [data-rds-mode="dark"]');
   const plates = split(opts.plate ?? ".ds-plate, [data-rds-plate]");
-  const block = (sels: string[], map: Record<string, string>, only?: Record<string, string>) => {
+  const block = (sels: string[], map: Record<string, string>, only?: Record<string, string>, extra: string[] = []) => {
     const lines = Object.entries(map)
       .filter(([k, v]) => !only || only[k] !== v)
       .map(([k, v]) => `  ${k}: ${k === "--type-font-mono" ? `"${v}", monospace` : v};`);
-    return `${sels.join(", ")} {\n${lines.join("\n")}\n}`;
+    return `${sels.join(", ")} {\n${[...lines, ...extra].join("\n")}\n}`;
   };
   const darkSels = scopes.flatMap((s) =>
     darks.flatMap((d) => {
@@ -692,10 +743,14 @@ export function emitRdsCss(theme: RdsTheme, opts: RdsCssOptions = {}): string {
           `Pass allowUncovered: true only for a theme without the components.`,
       );
   }
+  // Print (issue #42): the print mode in full on every scope, dark and plate included, so a page printed from dark
+  // mode or a plate comes out on white paper. Same selectors as the blocks above, later in the sheet: it wins.
+  const print = block([...new Set([...scopes, ...darkSels, ...plates])], rdsPrintMode(theme), undefined, mediaTypeLines(true));
   return [
-    block(scopes, { ...theme.light, ...theme.vars }),
+    block(scopes, { ...theme.light, ...theme.vars }, undefined, mediaTypeLines(false)),
     block(darkSels, theme.dark, theme.light),
     block(plates, theme.brand, theme.light),
+    `@media print {\n${print}\n}`,
   ].join("\n\n") + "\n";
 }
 
