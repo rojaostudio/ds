@@ -74,11 +74,12 @@
 }
 
 /*
- * Figma `quickFilters`: one line that scrolls sideways (no wrap), taking the free width, at least 160; below that it
- * goes to its own line and still scrolls (Figma 09/10).
+ * Figma `quickFilters`: one line that scrolls sideways (no wrap). It hugs its chips and the search takes the rest
+ * (Figma 10/10); when the chips do not fit next to the search's minimum, it goes to its own line, at least 160, and
+ * scrolls there.
  */
 .rds-data-table-header__quick {
-  flex: 1 1 160px;
+  flex: 0 1 auto;
   min-width: min(160px, 100%);
   display: flex;
   flex-wrap: nowrap;

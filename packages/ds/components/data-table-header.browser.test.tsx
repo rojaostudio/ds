@@ -247,6 +247,19 @@ describe('DataTableHeader behaviour', () => {
     expect(chip.getAttribute('aria-pressed')).toBe('true');
   });
 
+  it('the quick filters hug their chips and the search takes the rest: three chips stay whole on 796 (Figma 10/10)', async () => {
+    await page.viewport(1280, 800);
+    const el = await render(
+      <div style={{ width: 796 }}>
+        <Example moreQuick withView />
+      </div>,
+    );
+    const quick = el.querySelector<HTMLElement>('.rds-data-table-header__quick')!;
+    expect(quick.scrollWidth).toBeLessThanOrEqual(quick.clientWidth + 1);
+    const search = el.querySelector<HTMLElement>('.rds-data-table-header__search')!.getBoundingClientRect();
+    expect(search.width).toBeGreaterThan(quick.getBoundingClientRect().width * 0.5);
+  });
+
   it('the quick filters stay on one line and scroll sideways, also on a phone', async () => {
     for (const width of [1280, 390]) {
       await page.viewport(width, 800);
