@@ -61,6 +61,30 @@
   -webkit-line-clamp: 2;
 }
 
+/* size=sm: 96 wide; the label on one line with an ellipsis. */
+.rds-media-tile--sm {
+  flex: none;
+  width: 96px;
+}
+
+.rds-media-tile--sm .rds-media-tile__label {
+  display: block;
+  overflow-wrap: normal;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* fluid: from 72 up to 100 in a flex row (four in a 480 card); the media stays square (aspect-ratio). */
+.rds-media-tile--fluid {
+  flex: 1 1 72px;
+  width: auto;
+  max-width: 100px;
+}
+
+.rds-media-tile--fluid .rds-media-tile__media {
+  aspect-ratio: 1;
+}
+
 .rds-media-tile--link {
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;

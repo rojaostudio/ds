@@ -4,6 +4,8 @@ import { useState, type HTMLAttributes, type ReactNode } from 'react';
 import { ImageOffIcon } from './internal/icons';
 
 export type MediaTileAspect = 'square' | 'video';
+/** md (default): fills its column, 160 in the Figma, label of two lines. sm: 96 wide, label of one line. */
+export type MediaTileSize = 'md' | 'sm';
 
 export interface MediaTileProps extends Omit<HTMLAttributes<HTMLElement>, 'children'> {
   /** The image (Figma: `media=image`). Without it, or when it fails to load, the tile shows the fallback. */
@@ -20,16 +22,47 @@ export interface MediaTileProps extends Omit<HTMLAttributes<HTMLElement>, 'child
   fallback?: ReactNode;
   /** square (1:1) or video (16:9) (Figma: `aspect`). */
   aspect?: MediaTileAspect;
+  /**
+   * md (default): fills its column (160 in the Figma), the label cut at two lines. sm: 96 wide, the label in
+   * caption 12/16 on one line with an ellipsis (Figma: `size`).
+   */
+  size?: MediaTileSize;
+  /**
+   * A fluid width for a row of thumbnails: the tile grows and shrinks from 72 up to 100 (flex 1 1 72px), the media
+   * always square (even with aspect="video"). Four per row in a 480 card. Put the tiles in a flex row with a gap.
+   */
+  fluid?: boolean;
 }
 
 /**
  * MediaTile — Figma [RDS] Content/MediaTile. A thumbnail of a product or image with an optional label, for lists
  * and grids. A link when it has `href`, otherwise a plain box. Styles: media-tile.css.
  */
-export function MediaTile({ src, alt = '', image, label, href, fallback, aspect = 'square', className, ...rest }: MediaTileProps) {
+export function MediaTile({
+  src,
+  alt = '',
+  image,
+  label,
+  href,
+  fallback,
+  aspect = 'square',
+  size = 'md',
+  fluid,
+  className,
+  ...rest
+}: MediaTileProps) {
   const [failed, setFailed] = useState<string | null>(null);
   const showImage = !image && src && failed !== src;
-  const classes = ['rds-media-tile', `rds-media-tile--${aspect}`, href && 'rds-media-tile--link', className].filter(Boolean).join(' ');
+  const classes = [
+    'rds-media-tile',
+    `rds-media-tile--${aspect}`,
+    size === 'sm' && 'rds-media-tile--sm',
+    fluid && 'rds-media-tile--fluid',
+    href && 'rds-media-tile--link',
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ');
   const content = (
     <>
       <span className="rds-media-tile__media">

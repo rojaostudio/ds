@@ -23,6 +23,18 @@ describe.each(MODES)('MediaTile (%s)', (mode) => {
     );
     expect(await axeViolations(el)).toEqual([]);
   });
+
+  it('sm and fluid, plain and link, pass axe', async () => {
+    const el = await render(
+      <div style={{ display: 'flex', gap: 8, width: 432 }}>
+        <MediaTile size="sm" src={PIXEL} alt="" label="Camiseta básica algodão" />
+        <MediaTile size="sm" fluid label="Sem imagem" href="#produto" />
+        <MediaTile fluid src={PIXEL} alt="Camiseta azul" href="#produto" />
+      </div>,
+      mode,
+    );
+    expect(await axeViolations(el)).toEqual([]);
+  });
 });
 
 describe('MediaTile behaviour', () => {
@@ -39,6 +51,65 @@ describe('MediaTile behaviour', () => {
     const label = el.querySelector<HTMLElement>('.rds-media-tile__label')!;
     expect(label.getBoundingClientRect().height).toBe(32);
     expect(getComputedStyle(label).marginTop).toBe('8px');
+  });
+
+  it('md stays as it was: fills its column, the label on two lines', async () => {
+    const el = await render(
+      <div style={{ width: 160 }}>
+        <MediaTile label={LONG} />
+      </div>,
+    );
+    expect(el.querySelector<HTMLElement>('.rds-media-tile')!.getBoundingClientRect().width).toBe(160);
+    expect(el.querySelector<HTMLElement>('.rds-media-tile__label')!.getBoundingClientRect().height).toBe(32);
+  });
+
+  it('sm: 96 wide, square media, the label in caption 12/16 on one line with an ellipsis', async () => {
+    const el = await render(
+      <div style={{ display: 'flex', width: 480 }}>
+        <MediaTile size="sm" label={LONG} />
+      </div>,
+    );
+    const tile = el.querySelector<HTMLElement>('.rds-media-tile')!;
+    expect(tile.getBoundingClientRect().width).toBe(96);
+    const media = el.querySelector<HTMLElement>('.rds-media-tile__media')!.getBoundingClientRect();
+    expect(media.height).toBe(media.width);
+    const label = el.querySelector<HTMLElement>('.rds-media-tile__label')!;
+    const style = getComputedStyle(label);
+    expect(style.fontSize).toBe('12px');
+    expect(style.lineHeight).toBe('16px');
+    expect(style.textOverflow).toBe('ellipsis');
+    expect(style.whiteSpace).toBe('nowrap');
+    expect(label.getBoundingClientRect().height).toBe(16);
+    expect(label.scrollWidth).toBeGreaterThan(label.clientWidth);
+  });
+
+  it('fluid: four in a row in a 480 card, each from 72 up to 100, the media always square', async () => {
+    const tiles = (width: number) => (
+      <div style={{ width, padding: 24, boxSizing: 'border-box' }}>
+        <div style={{ display: 'flex', gap: 8 }}>
+          {['A', 'B', 'C', 'D'].map((n) => (
+            <MediaTile key={n} fluid size="sm" aspect={n === 'D' ? 'video' : 'square'} label={`Foto ${n}`} />
+          ))}
+        </div>
+      </div>
+    );
+    for (const [width, expected] of [
+      [480, 100],
+      [360, (360 - 48 - 24) / 4],
+    ] as const) {
+      cleanup();
+      const el = await render(tiles(width));
+      const all = [...el.querySelectorAll<HTMLElement>('.rds-media-tile')];
+      expect(new Set(all.map((t) => Math.round(t.getBoundingClientRect().top))).size).toBe(1);
+      for (const tile of all) {
+        const w = tile.getBoundingClientRect().width;
+        expect(w).toBeCloseTo(expected, 0);
+        expect(w).toBeGreaterThanOrEqual(72);
+        expect(w).toBeLessThanOrEqual(100);
+        const media = tile.querySelector<HTMLElement>('.rds-media-tile__media')!.getBoundingClientRect();
+        expect(media.height).toBeCloseTo(media.width, 1);
+      }
+    }
   });
 
   it('when the image fails to load it shows the image-off icon', async () => {

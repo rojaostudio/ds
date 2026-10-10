@@ -169,7 +169,7 @@ export { SettingsList } from './settings-list';
 export type { SettingsListProps } from './settings-list';
 
 export { MediaTile } from './media-tile';
-export type { MediaTileProps, MediaTileAspect } from './media-tile';
+export type { MediaTileProps, MediaTileAspect, MediaTileSize } from './media-tile';
 
 // 2.0 (#17): Chat follows the Figma [RDS]. ChatBubble became Bubble (variant fill · soft · outline · ghost, tone
 // neutral · action · danger, typing, align start · end).
