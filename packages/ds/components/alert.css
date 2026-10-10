@@ -9,8 +9,9 @@
   align-items: flex-start;
   gap: var(--space-12);
   padding: var(--space-8) var(--space-8) var(--space-8) var(--space-16);
-  /* Transparent: it only shows in forced colors, where the background is dropped. */
-  border: var(--border-width) solid transparent;
+  /* Transparent on the toned Alerts (it only shows in forced colors, where the background is dropped); the neutral
+     one draws it in alert/neutral/border, a card on the page. */
+  border: var(--border-width) solid var(--_border, transparent);
   border-radius: var(--radius-container);
   background: var(--_background);
   font-family: var(--type-font-stack);
@@ -94,6 +95,7 @@
 
 .rds-alert--neutral {
   --_background: var(--alert-neutral-background);
+  --_border: var(--alert-neutral-border);
   --_foreground: var(--alert-neutral-foreground);
 }
 .rds-alert--info {

@@ -157,6 +157,25 @@ describe('Alert icon and layout', () => {
     expect(getComputedStyle(plain.querySelector('.rds-alert__icon')!).color).toBe(probe(plain, '--alert-neutral-foreground'));
   });
 
+  it('the neutral strip is a card: surface/card with a border/default line; a toned one keeps its fill, no line', async () => {
+    for (const mode of MODES) {
+      const el = await render(
+        <div>
+          <Alert title="Neutro" />
+          <Alert tone="success" title="Salvo" />
+        </div>,
+        mode,
+      );
+      const [neutral, success] = el.querySelectorAll<HTMLElement>('.rds-alert');
+      const n = getComputedStyle(neutral);
+      expect(n.backgroundColor).toBe(probe(neutral, '--surface-card'));
+      expect(n.borderTopColor).toBe(probe(neutral, '--border-default'));
+      expect(n.borderTopWidth).toBe('1px');
+      expect(getComputedStyle(success).borderTopColor).toBe('rgba(0, 0, 0, 0)');
+      expect(getComputedStyle(success).backgroundColor).toBe(probe(success, '--alert-success-background'));
+    }
+  });
+
   it('iconTone does nothing on a toned Alert: the icon keeps the tone colour', async () => {
     const el = await render(<Alert tone="danger" iconTone="success" title="Falhou" />);
     const alert = el.querySelector<HTMLElement>('.rds-alert')!;
