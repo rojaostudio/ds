@@ -14,12 +14,15 @@ import { emitRdsCss, type RdsTheme } from '@rojaostudio/ds-core/generate';
 export type Mode = 'light' | 'dark' | 'plate' | 'print';
 export const MODES: Mode[] = ['light', 'dark', 'plate', 'print'];
 
-/** WCAG AA: 4.5:1 for text, 3:1 for what is not text (a field border, an icon, a logo) and for large text. */
-export const MIN = { t: 4.5, u: 3 } as const;
+/**
+ * WCAG AA: 4.5:1 for text (t), 3:1 for what is not text (u: a field border, an icon, a logo) and for large text (l:
+ * 24px and up, or 18.66px and up in bold, the accent of a large title).
+ */
+export const MIN = { t: 4.5, u: 3, l: 3 } as const;
 export type Kind = keyof typeof MIN;
 
 /**
- * A pair: the foreground token, what it sits on, and the kind. The background is a component token, a theme role
+ * A pair: the foreground token, what it sits on, and the kind (t text, l large text, u not text). The background is a component token, a theme role
  * (`role:<var>`), `@ctx` (the surfaces a component is placed on: surface/page and surface/card of the mode) or
  * `@inverse` (the brand band the inverse Spinner is drawn for: colors/primary/default). `<token>@<n>` is the token
  * mixed at n% over what is below (`color-mix(... n%, transparent)` in the component CSS). A background is itself
@@ -135,7 +138,7 @@ export const PAIRS: Pair[] = [
   ['--pricing-plan-recommended-text', '--pricing-plan-recommended-background', 't'],
   ['--pricing-plan-recommended-check', '--pricing-plan-recommended-background', 'u'],
   ['--pricing-plan-recommended-cta-label', '--pricing-plan-recommended-cta-background', 't'],
-  ['--heading-default', CTX, 't'], ['--pageheader-title', CTX, 't'], ['--pageheader-description', CTX, 't'],
+  ['--heading-default', CTX, 't'], ['--heading-accent', CTX, 'l'], ['--pageheader-title', CTX, 't'], ['--pageheader-description', CTX, 't'],
   ['--empty-title', CTX, 't'], ['--empty-description', CTX, 't'], ['--item-title', CTX, 't'], ['--item-description', CTX, 't'],
   ['--item-description', '--item-muted-background', 't'],
   ['--item-title', '--item-selected-background', 't'], ['--item-description', '--item-selected-background', 't'],
