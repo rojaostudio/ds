@@ -4515,8 +4515,9 @@ input:focus-visible + .rds-checkbox__box {
 /* @tokens fab */
 /*
  * FAB (Actions collection, fab/cta/*): a 56 pill, 16 inside, 8 between icon (24) and text, in the
- * brand colour and raised by elevation/overlay. The FAB has no active, disabled or ring token of its
- * own: active reuses hover, disabled and the ring borrow the Button's (the nearest component).
+ * brand colour and raised by elevation/raised; on hover the fill holds and the shadow rises to
+ * elevation/overlay. The FAB has no active, disabled or ring token of its own: active reuses hover,
+ * disabled and the ring borrow the Button's (the nearest component).
  */
 .rds-fab {
   box-sizing: border-box;
@@ -4531,7 +4532,7 @@ input:focus-visible + .rds-checkbox__box {
   border: 0;
   border-radius: var(--radius-full);
   background: var(--fab-cta-background-default);
-  box-shadow: var(--elevation-overlay);
+  box-shadow: var(--elevation-raised);
   color: var(--fab-cta-text);
   font-family: var(--type-font-stack);
   font-size: var(--type-button-size);
@@ -4546,11 +4547,13 @@ input:focus-visible + .rds-checkbox__box {
 @media (hover: hover) {
   .rds-fab:hover {
     background: var(--fab-cta-background-hover);
+    box-shadow: var(--elevation-overlay);
   }
 }
 
 .rds-fab:active {
   background: var(--fab-cta-background-hover);
+  box-shadow: var(--elevation-overlay);
 }
 
 .rds-fab:focus-visible {
@@ -4578,13 +4581,13 @@ input:focus-visible + .rds-checkbox__box {
   align-items: center;
   justify-content: center;
   min-width: var(--size-24);
-  height: var(--size-24);
+  height: var(--size-20);
   padding: 0 var(--space-8);
   border-radius: var(--radius-full);
   background: color-mix(in srgb, var(--fab-count-background) 20%, transparent);
   color: var(--fab-count-text);
-  font-size: var(--type-caption-size);
-  line-height: var(--type-caption-line);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
@@ -4594,6 +4597,7 @@ input:focus-visible + .rds-checkbox__box {
 .rds-fab[aria-disabled='true']:hover,
 .rds-fab[aria-disabled='true']:active {
   background: var(--button-disabled-fill-background);
+  box-shadow: var(--elevation-raised);
   color: var(--button-disabled-fill-label);
   cursor: not-allowed;
 }
