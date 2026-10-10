@@ -5,7 +5,7 @@
  * Compact (below 1024, Figma 06/10: the viewport mode, layout/compact): a sheet stuck to the bottom, the screen's
  * width up to 560 in every size (layout/dialog/<size>/width), no bottom corners (layout/sheet/radius-end) and no
  * bottom border, 12 above for the handle (layout/sheet/padding-top), the default Cancel gone and the action full
- * width (layout/sheet/action-min-width). Up to 85% of the screen, only the content scrolls. It rises by --_kb (the
+ * width (layout/sheet/action-min-width). Up to the screen's height less 48, only the content scrolls. It rises by --_kb (the
  * on-screen keyboard, set by the Dialog) and clears the safe area.
  */
 .rds-dialog__scrim {
