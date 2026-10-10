@@ -1,4 +1,4 @@
-# [RDS] Components · collection Content · file w64JuUL45DO4jGu3WEy9HU · extracted 2026-10-07
+# [RDS] Components · collection Content · file w64JuUL45DO4jGu3WEy9HU · extracted 2026-10-10
 # DO NOT EDIT. Figma is the source: publish in Figma, run the extraction, save the output here.
 # Format: name|type (C colour, F number, S string, B boolean)|@collection:target (alias) OR raw value|WEB codeSyntax ("=" when it is the path with hyphens)[|obsolete]
 # obsolete: the Figma description starts with "Obsoleto"; the token stays for old code and no stylesheet has to read it.
@@ -189,7 +189,7 @@ choice-list/item/trailing/default|C|@theme:text/body|=
 choice-list/item/trailing/disabled|C|@theme:text/disabled|=
 choice-list/focus/ring|C|@theme:focus/ring|=
 heading/default|C|@theme:text/heading|=
-heading/accent|C|@theme:colors/accent/default|=
+heading/accent|C|@theme:text/accent|=
 choice-list/item/description/selected|C|@theme:text/on/tint|=
 choice-list/item/avatar/background|C|@theme:surface/muted-strong|=
 choice-list/item/avatar/selected|C|@theme:surface/card|=

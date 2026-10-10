@@ -2,7 +2,10 @@ import type { HTMLAttributes, ReactNode } from 'react';
 
 /** The [RDS] type scale for titles: band 36/48, heading 24/30, value 20/30. */
 export type HeadingLevel = 'band' | 'heading' | 'value';
-/** neutral: text/heading (navy on light in Rojão, white on dark and on the brand plate). accent: the logo orange. */
+/**
+ * neutral: text/heading (navy on light in Rojão, white on dark and on the brand plate). accent: text/accent, the accent
+ * as text (in Rojão a darker orange on light, the logo orange on dark), 3:1 on page and card.
+ */
 export type HeadingTone = 'neutral' | 'accent';
 /** The element in the page outline. The visual level never decides it: the order of the page does. */
 export type HeadingElement = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
@@ -38,8 +41,11 @@ export function HeadingMark({ className, children, ...rest }: HeadingMarkProps) 
 
 /**
  * Heading — Figma [RDS] Content/Heading. A title in the brand pair: one colour, or both in the same title with a
- * Heading.Mark. The colour is chosen per screen; tone=neutral is the rule. Orange on white fails contrast even for
- * a large title (2.9:1 in Rojão): tone=accent belongs on dark or on the brand plate. Styles: heading.css.
+ * Heading.Mark. The colour is chosen per screen; tone=neutral is the rule.
+ *
+ * The accent (tone=accent, or the Mark of a neutral Heading) is text/accent, which only clears 3:1, the contrast of
+ * large text: use it only in a large title, 24px and up, or 18.66px and up in bold (every level of the Heading is
+ * bold and 20px or more). Never in a label or in running text. Styles: heading.css.
  */
 function HeadingRoot({ level = 'heading', tone = 'neutral', as: Tag = 'h2', className, children, ...rest }: HeadingProps) {
   return (

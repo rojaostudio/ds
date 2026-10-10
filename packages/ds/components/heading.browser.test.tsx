@@ -1,8 +1,14 @@
 import { afterEach, describe, expect, it } from 'vitest';
+import { emitRdsCss, generateRdsTheme, type BrandDef, type RdsTheme } from '@rojaostudio/ds-core/generate';
 import { Heading, type HeadingLevel } from './heading';
 import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
-afterEach(cleanup);
+let brandStyle: HTMLStyleElement | null = null;
+afterEach(() => {
+  brandStyle?.remove();
+  brandStyle = null;
+  cleanup();
+});
 
 const rgb = (hex: string) => {
   const n = parseInt(hex.slice(1), 16);
@@ -10,9 +16,9 @@ const rgb = (hex: string) => {
 };
 
 // [RDS] rojao: heading/default → text/heading (navy-900 on light, zinc-50 on dark, white on the plate);
-// heading/accent → colors/accent/default (flare-700 on light, flare-300 on dark and on the plate).
+// heading/accent → text/accent (flare-800 on light, flare-700 on dark, flare-300 on the plate).
 const DEFAULT = { light: '#1b2a4a', dark: '#fafafa' } as const;
-const ACCENT = { light: '#ff6a00', dark: '#ffb066' } as const;
+const ACCENT = { light: '#d95a00', dark: '#ff6a00' } as const;
 
 const LEVELS: Array<[HeadingLevel, string, string]> = [
   ['band', '36px', '48px'],
@@ -25,11 +31,6 @@ const title = (tone: 'neutral' | 'accent' = 'neutral') => (
     Entregas da <Heading.Mark>semana</Heading.Mark>
   </Heading>
 );
-
-// A violation of the Figma itself, pinned with it.fails below: the orange (heading/accent → colors/accent/default,
-// flare-700) is 2.9:1 on white, under the 3:1 of a large title. On light, the accent tone and the mark of a
-// default Heading are for dark backgrounds and the brand plate only, as the spec's "Não faça" says.
-const KNOWN_LIGHT_ORANGE = (mode: string) => (mode === 'light' ? ['.rds-heading__mark'] : []);
 
 describe.each(MODES)('Heading (%s)', (mode) => {
   it('is an h2 by default, in heading/default (tone neutral), and passes axe', async () => {
@@ -49,9 +50,9 @@ describe.each(MODES)('Heading (%s)', (mode) => {
     expect(getComputedStyle(accent.querySelector('.rds-heading__mark')!).color).toBe(rgb(DEFAULT[mode]));
   });
 
-  it('a default Heading with a mark passes axe (the orange mark aside on light)', async () => {
-    const el = await render(title('neutral'), mode);
-    expect(await axeViolations(el, KNOWN_LIGHT_ORANGE(mode))).toEqual([]);
+  it('a default Heading with a mark, and an accent one, pass axe', async () => {
+    const el = await render(<div>{title('neutral')}{title('accent')}</div>, mode);
+    expect(await axeViolations(el)).toEqual([]);
   });
 
   it.each(LEVELS)('level=%s follows the type scale, bold', async (level, size, line) => {
@@ -64,7 +65,7 @@ describe.each(MODES)('Heading (%s)', (mode) => {
 });
 
 describe('Heading on dark and on the plate', () => {
-  it('tone=accent passes axe on dark (flare-300 on zinc-900)', async () => {
+  it('tone=accent passes axe on dark (flare-700 on the dark page)', async () => {
     const el = await render(title('accent'), 'dark');
     expect(await axeViolations(el)).toEqual([]);
   });
@@ -82,8 +83,54 @@ describe('Heading on dark and on the plate', () => {
     expect(await axeViolations(el)).toEqual([]);
   });
 
-  it.fails('the orange on white passes axe (tone=accent, or the mark, on the rojao light theme: 2.9:1)', async () => {
-    const el = await render(<div>{title('neutral')}{title('accent')}</div>, 'light');
+});
+
+// heading/accent → text/accent: the accent as large text, 3:1 or more on surface/page and surface/card, in light and
+// dark, with the house theme and with generated themes whose accent is light (a yellow, a cyan: under 3:1 on white
+// as they are, so text/accent goes down their ramp).
+type Rgb = [number, number, number];
+const parse = (c: string): Rgb => c.match(/\d+(\.\d+)?/g)!.slice(0, 3).map(Number) as Rgb;
+const lum = ([r, g, b]: Rgb) => {
+  const ch = (v: number) => ((v /= 255) <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
+  return 0.2126 * ch(r) + 0.7152 * ch(g) + 0.0722 * ch(b);
+};
+const ratio = (a: Rgb, b: Rgb) => {
+  const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p);
+  return (x + 0.05) / (y + 0.05);
+};
+/** A theme role resolved to its computed colour, inside `el`. */
+const resolveIn = (el: Element, v: string) => {
+  const probe = document.createElement('span');
+  probe.style.color = `var(${v})`;
+  el.append(probe);
+  const c = getComputedStyle(probe).color;
+  probe.remove();
+  return c;
+};
+const accentTheme = (accent: string) =>
+  generateRdsTheme(
+    { name: 'accent', brand: { primary: '#1b2a4a', secondary: '#1b2a4a', accent }, fonts: { body: 'inter' } } as BrandDef,
+    { warn: () => {} },
+  );
+
+describe.each([
+  ['house theme', null],
+  ['generated yellow accent #ffd200', accentTheme('#ffd200')],
+  ['generated cyan accent #00aeef', accentTheme('#00aeef')],
+] as Array<[string, RdsTheme | null]>)('Heading accent contrast (%s)', (_, theme) => {
+  it.each(MODES)('%s: tone=accent and the mark are text/accent, 3:1 or more on page and card, and pass axe', async (mode) => {
+    if (theme) {
+      brandStyle = document.createElement('style');
+      brandStyle.textContent = emitRdsCss(theme);
+      document.head.appendChild(brandStyle);
+    }
+    const el = await render(<div>{title('neutral')}{title('accent')}</div>, mode);
+    const [plain, accent] = el.querySelectorAll<HTMLElement>('.rds-heading');
+    const text = resolveIn(el, '--text-accent');
+    expect(getComputedStyle(accent).color).toBe(text);
+    expect(getComputedStyle(plain.querySelector('.rds-heading__mark')!).color).toBe(text);
+    for (const surface of ['--surface-page', '--surface-card'])
+      expect(ratio(parse(text), parse(resolveIn(el, surface))), surface).toBeGreaterThanOrEqual(3);
     expect(await axeViolations(el)).toEqual([]);
   });
 });

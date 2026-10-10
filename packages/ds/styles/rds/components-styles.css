@@ -5426,8 +5426,8 @@ input:focus-visible + .rds-checkbox__box {
 /* @tokens heading */
 /*
  * Heading (Content collection, heading/*): a title in the brand pair. heading/default is text/heading, heading/accent
- * the logo orange; .heading/mark paints a stretch in the other one. level follows the type scale (band, heading,
- * value), all bold.
+ * text/accent (the accent as text, 3:1 on page and card: large titles only, 24px and up or 18.66px and up in bold);
+ * .heading/mark paints a stretch in the other one. level follows the type scale (band, heading, value), all bold.
  */
 .rds-heading {
   margin: 0;
