@@ -9462,6 +9462,8 @@ input:focus-visible + .rds-radio__circle {
  * The count (.sidebar/count): the number on the right in sidebar/count/neutral or danger; in the rail, an 8 dot in
  * the icon's corner in sidebar/dot/neutral or danger, with a 2 ring in the panel's colour. A group never shows a
  * number; in the rail its dot takes the worst state of its entries.
+ * The state (.sidebar/item `showStatus`, exclusive with the count): a Status sm on the right; in the rail, the same
+ * 8 dot in sidebar/dot/<tone> (the Status's tones).
  * The rail's flyout is the DropdownMenu's shell (internal/menu.css), 240 wide, beside the group's icon.
  * Below 1024 (Figma viewport: layout/nav-button/visible) the Sidebar is the drawer: fixed on the left, over the page
  * and its veil (drawer/scrim), out of view and inert while closed.
@@ -9662,6 +9664,24 @@ input:focus-visible + .rds-radio__circle {
 
 .rds-sidebar__dot--danger {
   background: var(--sidebar-dot-danger);
+}
+
+/* A state's dot (SidebarItem `status`), in the Status's tones. */
+.rds-sidebar__dot--success {
+  background: var(--sidebar-dot-success);
+}
+
+.rds-sidebar__dot--warning {
+  background: var(--sidebar-dot-warning);
+}
+
+.rds-sidebar__dot--info {
+  background: var(--sidebar-dot-info);
+}
+
+/* The state (SidebarItem `status`): a Status sm on the right, where a count would be. */
+.rds-sidebar__status {
+  flex: none;
 }
 
 @media (hover: hover) {

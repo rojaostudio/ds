@@ -303,6 +303,107 @@ describe('Sidebar rail', () => {
   });
 });
 
+function Caixa(props: Partial<SidebarProps> & { open?: boolean }) {
+  const { open = true, ...rest } = props;
+  return (
+    <Sidebar module="Loja" currentPath="/painel" {...rest}>
+      <SidebarItem icon={<InfoIcon />} href="/painel">
+        Painel
+      </SidebarItem>
+      <SidebarItem icon={<CalendarIcon />} href="/caixa" status={open ? { tone: 'success', label: 'aberto' } : { tone: 'danger', label: 'fechado' }}>
+        Caixa
+      </SidebarItem>
+    </Sidebar>
+  );
+}
+
+describe.each(SCHEMES)('Sidebar item status (%s)', (scheme) => {
+  it('open and in the rail, aberto and fechado, passes axe', async () => {
+    const el = await renderIn(
+      <div style={{ display: 'flex', gap: 16, height: 400 }}>
+        <Caixa aria-label="Aberta, caixa aberto" />
+        <Caixa aria-label="Aberta, caixa fechado" open={false} />
+        <Caixa aria-label="Recolhida, caixa aberto" collapsed />
+        <Caixa aria-label="Recolhida, caixa fechado" collapsed open={false} />
+      </div>,
+      scheme,
+    );
+    expect(await axeViolations(el)).toEqual([]);
+  });
+});
+
+describe('Sidebar item status', () => {
+  it('open: a Status sm on the right in the tone, no count; the label joins the name', async () => {
+    const el = await render(<Caixa />);
+    await expect.element(page.getByRole('link', { name: 'Caixa, aberto', exact: true })).toBeInTheDocument();
+    const entry = el.querySelector<HTMLElement>('a[href="/caixa"]')!;
+    const status = entry.querySelector<HTMLElement>('.rds-sidebar__status')!;
+    expect(status.classList).toContain('rds-status--sm');
+    expect(status.classList).toContain('rds-status--success-outline');
+    expect(status.textContent).toBe('aberto');
+    expect(status.getAttribute('aria-hidden')).toBe('true');
+    expect(status.getBoundingClientRect().height).toBe(24);
+    // On the right: after the label, flush with the entry's end (12 inside).
+    const label = entry.querySelector<HTMLElement>('.rds-sidebar__label')!;
+    expect(status.getBoundingClientRect().left).toBeGreaterThanOrEqual(label.getBoundingClientRect().right);
+    expect(Math.round(entry.getBoundingClientRect().right - status.getBoundingClientRect().right)).toBe(12);
+    expect(entry.querySelector('.rds-sidebar__count')).toBeNull();
+    expect(entry.querySelector('.rds-sidebar__dot')).toBeNull();
+
+    cleanup();
+    const closed = await render(<Caixa open={false} />);
+    await expect.element(page.getByRole('link', { name: 'Caixa, fechado', exact: true })).toBeInTheDocument();
+    expect(closed.querySelector('.rds-sidebar__status')!.classList).toContain('rds-status--danger-outline');
+  });
+
+  it('in the rail: an 8 dot in the icon corner in the tone colour, no Status; the name keeps the label', async () => {
+    for (const [open, tone, label] of [
+      [true, 'success', 'aberto'],
+      [false, 'danger', 'fechado'],
+    ] as const) {
+      cleanup();
+      const el = await render(<Caixa collapsed open={open} />);
+      await expect.element(page.getByRole('link', { name: `Caixa, ${label}`, exact: true })).toBeInTheDocument();
+      const entry = el.querySelector<HTMLElement>('a[href="/caixa"]')!;
+      expect(entry.querySelector('.rds-sidebar__status')).toBeNull();
+      const dot = entry.querySelector<HTMLElement>(`.rds-sidebar__icon .rds-sidebar__dot--${tone}`)!;
+      expect(dot.getBoundingClientRect().width).toBe(8);
+      expect(getComputedStyle(dot).backgroundColor).toBe(colour(dot, `--sidebar-dot-${tone}`));
+    }
+  });
+
+  it('every Status tone has its dot colour', async () => {
+    const tones = ['neutral', 'info', 'success', 'warning', 'danger'] as const;
+    const el = await render(
+      <Sidebar collapsed>
+        {tones.map((tone) => (
+          <SidebarItem key={tone} icon={<InfoIcon />} href={`/${tone}`} status={{ tone, label: tone }}>
+            {tone}
+          </SidebarItem>
+        ))}
+      </Sidebar>,
+    );
+    const seen = new Set<string>();
+    for (const tone of tones) {
+      const dot = el.querySelector<HTMLElement>(`a[href="/${tone}"] .rds-sidebar__dot`)!;
+      const bg = getComputedStyle(dot).backgroundColor;
+      expect(bg).not.toBe('rgba(0, 0, 0, 0)');
+      seen.add(bg);
+    }
+    expect(seen.size).toBe(tones.length);
+  });
+
+  it('is exclusive with the count (types)', () => {
+    const both = (
+      // @ts-expect-error: a state and a count do not go together.
+      <SidebarItem status={{ tone: 'success', label: 'aberto' }} count={3}>
+        Caixa
+      </SidebarItem>
+    );
+    expect(both).toBeTruthy();
+  });
+});
+
 function Drawer({ onChange }: { onChange?: (open: boolean) => void }) {
   const [open, setOpen] = useState(false);
   const change = (next: boolean) => {

@@ -197,7 +197,7 @@ export { PageHeader } from './page-header';
 export type { PageHeaderProps, PageHeaderHeading, PageHeaderBack, PageHeaderHelp } from './page-header';
 
 export { Sidebar, SidebarItem, SidebarGroup, SidebarTrigger } from './sidebar';
-export type { SidebarProps, SidebarItemProps, SidebarGroupProps, SidebarTriggerProps, SidebarHeader, SidebarCountTone } from './sidebar';
+export type { SidebarProps, SidebarItemProps, SidebarGroupProps, SidebarTriggerProps, SidebarHeader, SidebarCountTone, SidebarItemStatus } from './sidebar';
 
 export { NavigationMenu } from './navigation-menu';
 export type { NavigationMenuProps, NavigationMenuEntry, NavigationMenuLink, NavigationMenuLinkComponent } from './navigation-menu';
