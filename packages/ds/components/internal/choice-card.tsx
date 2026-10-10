@@ -2,6 +2,7 @@
 // The ChoiceCard (always a radio) and its group, behind choice-card.tsx. Not exported from the package.
 // Styles: choice-card.css.
 import { createContext, useContext, useId, useState, type InputHTMLAttributes, type ReactNode } from 'react';
+import { Media } from '../media';
 import { CheckIcon, ImageIcon } from './icons';
 
 /** row: the line with the radio; tile: a grid cell, icon on top; preview: an image on top. */
@@ -94,11 +95,9 @@ export function ChoiceCardControl({
       />
       {kind === 'preview' ? (
         <span className="rds-choice-card__preview" aria-hidden="true">
-          {preview ?? (
-            <span className="rds-choice-card__placeholder">
-              <ImageIcon />
-            </span>
-          )}
+          <Media decorative ratio="16:9" className="rds-choice-card__media" fallback={<ImageIcon />}>
+            {preview}
+          </Media>
           {check}
         </span>
       ) : (

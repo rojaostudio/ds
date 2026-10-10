@@ -152,10 +152,58 @@ describe('ChoiceCard layouts behaviour', () => {
     expect(chosen.querySelector('.rds-choice-card__preview .swatch')).not.toBeNull();
     expect(chosen.querySelector('.rds-choice-card__preview .rds-choice-card__check')).not.toBeNull();
     expect(getComputedStyle(chosen).borderTopWidth).toBe('2px');
-    expect(other.querySelector('.rds-choice-card__placeholder svg')).not.toBeNull();
+    expect(other.querySelector('.rds-choice-card__preview .rds-media__fallback svg')).not.toBeNull();
     expect(getComputedStyle(other).borderTopWidth).toBe('1px');
     const preview = other.querySelector('.rds-choice-card__preview')!.getBoundingClientRect();
     expect(Math.round((preview.width / preview.height) * 9)).toBe(16);
+  });
+
+  it('preview parity: the same measures and colours as before Media', async () => {
+    const el = await render(
+      <div style={{ width: 240 }}>
+        <ChoiceCard layout="preview" name="tema" selected preview={<span className="swatch" />}>
+          Escuro
+        </ChoiceCard>
+        <ChoiceCard layout="preview" name="tema">
+          Claro
+        </ChoiceCard>
+      </div>,
+    );
+    const round = (n: number) => Math.round(n * 100) / 100;
+    const probe = document.createElement('div');
+    el.appendChild(probe);
+    const colour = (v: string) => {
+      probe.style.color = `var(${v})`;
+      return getComputedStyle(probe).color;
+    };
+    const [chosen, other] = el.querySelectorAll<HTMLElement>('.rds-choice-card');
+    for (const card of [chosen!, other!]) {
+      const c = card.getBoundingClientRect();
+      const box = card.querySelector<HTMLElement>('.rds-choice-card__preview')!;
+      const b = box.getBoundingClientRect();
+      // The bordered box: its own border, or the Media inside it when it has none.
+      const framed = getComputedStyle(box).borderTopWidth === '0px' ? box.firstElementChild as HTMLElement : box;
+      const f = framed.getBoundingClientRect();
+      expect([round(b.left - c.left), round(b.top - c.top), round(b.width), round(b.height)]).toEqual(
+        [8, 8, 224, 126],
+      );
+      expect([round(f.width), round(f.height)]).toEqual([224, 126]);
+      const style = getComputedStyle(framed);
+      expect(style.borderTopWidth).toBe('1px');
+      expect(style.borderTopColor).toBe(colour('--choice-card-preview-border'));
+      expect(style.borderTopLeftRadius).toBe(getComputedStyle(document.documentElement).getPropertyValue('--radius-container').trim());
+      expect(style.backgroundColor).toBe(colour('--choice-card-preview-background'));
+      expect(style.overflow).toBe('hidden');
+      expect(round(c.height)).toBe(174);
+    }
+    const swatch = chosen!.querySelector<HTMLElement>('.swatch')!.getBoundingClientRect();
+    expect([round(swatch.width), round(swatch.height)]).toEqual([222, 124]);
+    const icon = other!.querySelector<SVGElement>('.rds-choice-card__preview svg')!;
+    expect([icon.getBoundingClientRect().width, icon.getBoundingClientRect().height]).toEqual([24, 24]);
+    expect(getComputedStyle(icon).color).toBe(colour('--choice-card-preview-icon'));
+    const preview = chosen!.querySelector<HTMLElement>('.rds-choice-card__preview')!.getBoundingClientRect();
+    const check = chosen!.querySelector<HTMLElement>('.rds-choice-card__check')!.getBoundingClientRect();
+    expect([preview.right - check.right, preview.bottom - check.bottom, check.width, check.height]).toEqual([7, 7, 20, 20]);
   });
 });
 
