@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { userEvent } from 'vitest/browser';
 import { FAB, FABProvider, FABRoot, usePageFAB, type FABConfig } from './fab';
 import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
@@ -30,6 +31,30 @@ describe.each(MODES)('FAB (%s)', (mode) => {
 });
 
 describe('FAB behaviour', () => {
+  it('on hover the fill holds and the shadow rises from elevation/raised to elevation/overlay', async () => {
+    const el = await render(
+      <div style={{ padding: 32 }}>
+        <FAB icon={<Plus />}>Novo pedido</FAB>
+      </div>,
+    );
+    const b = el.querySelector('button')!;
+    const shadow = (v: string) => {
+      const probe = document.createElement('div');
+      el.append(probe);
+      probe.style.boxShadow = `var(${v})`;
+      const s = getComputedStyle(probe).boxShadow;
+      probe.remove();
+      return s;
+    };
+    const rest = getComputedStyle(b);
+    const fill = rest.backgroundColor;
+    expect(rest.boxShadow).toBe(shadow('--elevation-raised'));
+    await userEvent.hover(b);
+    await vi.waitFor(() => expect(getComputedStyle(b).boxShadow).toBe(shadow('--elevation-overlay')));
+    expect(getComputedStyle(b).backgroundColor).toBe(fill);
+    await userEvent.unhover(b);
+  });
+
   it('the label is the accessible name; the icon is hidden', async () => {
     const el = await render(<FAB icon={<Plus />}>Novo pedido</FAB>);
     expect(el.querySelector('button')!.textContent).toBe('Novo pedido');
@@ -95,14 +120,23 @@ describe.each(MODES)('FAB count (%s)', (mode) => {
     expect(await axeViolations(el)).toEqual([]);
   });
 
-  it('the number on its pill reaches 4.5:1 over the FAB fill', async () => {
+  it('the number on its pill reaches 4.5:1 over the FAB fill, at rest and on hover', async () => {
     const el = await render(<FAB icon={<Plus />} count={12}>Carrinho</FAB>, mode);
-    const fill = getComputedStyle(el.querySelector('button')!).backgroundColor;
     const p = pill(el)!;
-    // The pill is fab/count/background at 20% over the fill; the number sits on that composite.
-    const under = paint('#ffffff', fill, getComputedStyle(p).backgroundColor);
-    const number = paint('#ffffff', fill, getComputedStyle(p).backgroundColor, getComputedStyle(p).color);
-    expect(ratio(number, under)).toBeGreaterThanOrEqual(4.5);
+    const probe = (v: string) => {
+      const span = document.createElement('span');
+      el.append(span);
+      span.style.color = `var(${v})`;
+      const c = getComputedStyle(span).color;
+      span.remove();
+      return c;
+    };
+    for (const fill of [getComputedStyle(el.querySelector('button')!).backgroundColor, probe('--fab-cta-background-hover')]) {
+      // The pill is fab/count/background at 20% over the fill; the number sits on that composite.
+      const under = paint('#ffffff', fill, getComputedStyle(p).backgroundColor);
+      const number = paint('#ffffff', fill, getComputedStyle(p).backgroundColor, getComputedStyle(p).color);
+      expect(ratio(number, under)).toBeGreaterThanOrEqual(4.5);
+    }
   });
 });
 
@@ -119,6 +153,13 @@ describe('FAB count', () => {
     expect(style.display).not.toBe('none');
     expect(style.fontWeight).toBe('700');
     expect(style.fontVariantNumeric).toBe('tabular-nums');
+    // type/small (14/20) on a 20 pill: 24 minimum, 8 on each side.
+    expect(style.fontSize).toBe('14px');
+    expect(style.lineHeight).toBe('20px');
+    expect(style.paddingLeft).toBe('8px');
+    expect(style.paddingRight).toBe('8px');
+    expect(p.getBoundingClientRect().height).toBe(20);
+    expect(p.getBoundingClientRect().width).toBeGreaterThanOrEqual(24);
     expect(p.getBoundingClientRect().width).toBeGreaterThan(0);
     // After the label, inside the 56 pill.
     const label = b.childNodes[1];

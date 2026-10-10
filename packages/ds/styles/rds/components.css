@@ -68,7 +68,7 @@
   --toggle-border-disabled: var(--border-default);
   --bottom-bar-text: var(--text-on-primary);
   --fab-cta-background-default: var(--colors-primary-default);
-  --fab-cta-background-hover: var(--colors-primary-active);
+  --fab-cta-background-hover: var(--colors-primary-default);
   --fab-cta-text: var(--text-on-primary);
   --fab-count-background: var(--text-on-primary);
   --fab-count-text: var(--text-on-primary);
