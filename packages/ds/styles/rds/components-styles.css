@@ -1777,6 +1777,7 @@ button.rds-breadcrumb__link:focus-visible {
  * ghost IconButtons around the month (16/24 medium); weekdays 12/16 medium in rows of 32; days of 44 × 44,
  * 14/20, radius/control (Figma: .calendar/day). today: a 1px outline in colors/primary, medium; selected: a
  * plate in colors/primary, medium; outside: days of other months, faded; disabled: 40% and struck through.
+ * range: start and end are the selected plate, the days between a band in surface/tint/default.
  */
 .rds-calendar {
   box-sizing: border-box;
@@ -1822,6 +1823,23 @@ button.rds-breadcrumb__link:focus-visible {
 
 .rds-calendar__cell {
   padding: 0;
+}
+
+/*
+ * range (Figma 10/10, .calendar/day `range`): the band is on the cells, so it runs on with no gap and no corners
+ * (calendar/day/background/range); start and end keep the selected plate on their button and carry the band on
+ * their inner half only.
+ */
+.rds-calendar__cell--range-middle {
+  background: var(--calendar-day-background-range);
+}
+
+.rds-calendar__cell--range-start {
+  background: linear-gradient(to right, transparent 50%, var(--calendar-day-background-range) 50%);
+}
+
+.rds-calendar__cell--range-end {
+  background: linear-gradient(to left, transparent 50%, var(--calendar-day-background-range) 50%);
 }
 
 .rds-calendar__day {
@@ -1891,6 +1909,11 @@ button.rds-breadcrumb__link:focus-visible {
 
   .rds-calendar__day--today {
     border-color: CanvasText;
+  }
+
+  /* Backgrounds are dropped in forced colours: the days between keep a frame. */
+  .rds-calendar__day--range {
+    border-color: Highlight;
   }
 
   .rds-calendar__day--disabled {
@@ -3978,6 +4001,135 @@ input:focus-visible + .rds-checkbox__box {
 
 .rds-date-picker__popover .rds-calendar {
   box-shadow: var(--elevation-overlay);
+}
+
+/* components/date-range-picker.css */
+/* @tokens date-range-picker */
+/*
+ * DateRangePicker (Figma 10/10): no tokens of its own (the Input's, the Calendar's and the menu's). The field is the
+ * Input's box (internal/field.css) holding one button, the span in tabular figures and the calendar icon at the end.
+ * The panel opens 4 under the box, aligned to its start: one block in the Calendar's colours with the overlay
+ * shadow, the presets on the left (the .menu/radio-item: 44 tall, 12 inside, a check column of 20, menu/item/*)
+ * past a hairline, then the Calendar in range, borderless inside it. Compact: the Dialog's sheet, the presets as
+ * FilterChips on top and the Calendar centred below, 16 apart.
+ */
+.rds-date-range-picker .rds-field__box {
+  padding: 0;
+}
+
+.rds-date-range-picker__trigger.rds-field__control {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  align-self: stretch;
+  padding: 0 var(--space-12);
+  text-align: start;
+  cursor: pointer;
+}
+
+.rds-date-range-picker__trigger:disabled {
+  cursor: not-allowed;
+}
+
+.rds-date-range-picker__value {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-variant-numeric: tabular-nums;
+}
+
+.rds-date-range-picker__trigger--empty .rds-date-range-picker__value {
+  color: var(--_placeholder);
+}
+
+.rds-date-range-picker__popover {
+  z-index: var(--_layer-floating, var(--z-dropdown));
+  outline: none;
+}
+
+.rds-date-range-picker__panel {
+  display: flex;
+  border: var(--border-width) solid var(--calendar-border);
+  border-radius: var(--radius-container);
+  background: var(--calendar-background);
+  box-shadow: var(--elevation-overlay);
+  font-family: var(--type-font-stack);
+}
+
+.rds-date-range-picker__panel .rds-calendar {
+  border: 0;
+  background: none;
+}
+
+.rds-date-range-picker__presets {
+  display: flex;
+  flex-direction: column;
+  min-width: 180px;
+  padding: var(--space-12) var(--space-4);
+  border-inline-end: var(--border-width) solid var(--calendar-border);
+}
+
+.rds-date-range-picker__preset {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  min-height: calc(var(--space-12) * 2 + var(--size-20));
+  padding: 0 var(--space-12);
+  border-radius: var(--radius-xs);
+  color: var(--menu-item-label);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  cursor: pointer;
+  outline: none;
+  user-select: none;
+}
+
+.rds-date-range-picker__preset:focus-visible {
+  background: var(--menu-item-background-hover);
+  outline: var(--focus-ring-width) solid var(--button-focus-ring);
+  outline-offset: calc(var(--focus-ring-width) * -1);
+}
+
+@media (hover: hover) {
+  .rds-date-range-picker__preset:hover {
+    background: var(--menu-item-background-hover);
+  }
+}
+
+.rds-date-range-picker__check {
+  display: inline-flex;
+  flex: none;
+  width: var(--size-20);
+  height: var(--size-20);
+  color: var(--menu-item-icon);
+}
+
+.rds-date-range-picker__check > svg {
+  width: 100%;
+  height: 100%;
+}
+
+.rds-date-range-picker__sheet {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+}
+
+.rds-date-range-picker__sheet .rds-calendar {
+  align-self: center;
+}
+
+@media (forced-colors: active) {
+  .rds-date-range-picker__panel {
+    border-color: CanvasText;
+  }
+
+  .rds-date-range-picker__preset:focus-visible {
+    outline-color: Highlight;
+  }
 }
 
 /* components/delta.css */

@@ -283,7 +283,7 @@ export type { SliderProps } from './slider';
 export { Listbox, ListboxOption } from './listbox';
 export type { ListboxProps, ListboxOptionProps } from './listbox';
 export { Calendar } from './calendar';
-export type { CalendarProps, IsoDate } from './calendar';
+export type { CalendarProps, CalendarSingleProps, CalendarRangeProps, DateRange, IsoDate } from './calendar';
 export { FileInput, formatFileSize } from './file-input';
 export type { FileInputProps, FileInputLayout } from './file-input';
 export { NumberInput } from './number-input';
@@ -296,6 +296,9 @@ export type { ComboboxProps, ComboboxSingleProps, ComboboxMultipleProps, Combobo
 
 export { DatePicker } from './date-picker';
 export type { DatePickerProps } from './date-picker';
+
+export { DateRangePicker, dateRangePresets } from './date-range-picker';
+export type { DateRangePickerProps, DateRangePreset } from './date-range-picker';
 
 export { TimePicker, parseTime, formatTime } from './time-picker';
 export type { TimePickerProps, TimeFormat } from './time-picker';

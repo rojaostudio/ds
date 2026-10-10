@@ -201,6 +201,7 @@ export const PAIRS: Pair[] = [
   ['--calendar-title', '--calendar-background', 't'], ['--calendar-weekday', '--calendar-background', 't'],
   ['--calendar-day-label-default', '--calendar-background', 't'], ['--calendar-day-label-default', '--calendar-day-background-hover', 't'],
   ['--calendar-day-label-selected', '--calendar-day-background-selected', 't'],
+  ['--calendar-day-label-default', '--calendar-day-background-range', 't'],
   ['--choice-card-label-color-default', '--choice-card-container-background-default', 't'],
   ['--choice-card-description-color-default', '--choice-card-container-background-default', 't'],
   ['--choice-card-label-color-selected', '--choice-card-container-background-selected', 't'],

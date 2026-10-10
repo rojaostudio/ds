@@ -59,6 +59,12 @@ const monthTitle = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'nume
 /** The full date in pt-BR words ("30 de setembro de 2026"): the name a screen reader hears for a day. */
 export const dayName = (date: Date) => longDate.format(date);
 
+/** The first day of the date's month. */
+export const startOfMonth = (date: Date) => new Date(date.getFullYear(), date.getMonth(), 1);
+
+/** The last day of the date's month. */
+export const endOfMonth = (date: Date) => new Date(date.getFullYear(), date.getMonth() + 1, 0);
+
 /** "Setembro de 2026". */
 export function monthName(date: Date) {
   const text = monthTitle.format(date);

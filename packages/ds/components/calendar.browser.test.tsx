@@ -85,3 +85,58 @@ describe('Calendar behaviour', () => {
     await vi.waitFor(() => expect(el.querySelector('.rds-calendar__title')?.textContent).toBe('Setembro de 2026'));
   });
 });
+
+describe.each(MODES)('Calendar range (%s)', (mode) => {
+  it('a span with start, middle days (some outside and disabled) and end passes axe', async () => {
+    const el = await render(
+      <Calendar mode="range" today={TODAY} defaultValue={{ from: '2026-09-24', to: '2026-10-02' }} isDateDisabled={weekend} />,
+      mode,
+    );
+    expect(await axeViolations(el)).toEqual([]);
+  });
+});
+
+describe('Calendar range', () => {
+  it('start and end are the plate, the days between the band; the band runs with no gap and no corners', async () => {
+    const el = await render(<Calendar mode="range" today={TODAY} defaultValue={{ from: '2026-09-08', to: '2026-09-11' }} />);
+    // The September grid starts on Sunday 30/08: day n of September is cell n + 1.
+    const cell = (day: number) => el.querySelectorAll<HTMLElement>('.rds-calendar__cell')[day + 1];
+    expect(cell(8).className).toContain('rds-calendar__cell--range-start');
+    expect(cell(9).className).toContain('rds-calendar__cell--range-middle');
+    expect(cell(10).className).toContain('rds-calendar__cell--range-middle');
+    expect(cell(11).className).toContain('rds-calendar__cell--range-end');
+    expect(cell(8).querySelector('.rds-calendar__day--selected')).not.toBeNull();
+    expect(cell(11).querySelector('.rds-calendar__day--selected')).not.toBeNull();
+    expect(cell(9).querySelector('.rds-calendar__day--selected')).toBeNull();
+    const probe = document.createElement('span');
+    probe.style.color = 'var(--surface-tint-default)';
+    el.append(probe);
+    const band = getComputedStyle(cell(9));
+    expect(band.backgroundColor).toBe(getComputedStyle(probe).color);
+    expect(band.borderTopLeftRadius).toBe('0px');
+    expect(cell(10).getBoundingClientRect().left).toBe(cell(9).getBoundingClientRect().right);
+    expect(el.querySelectorAll('[aria-selected="true"]')).toHaveLength(4);
+    expect(cell(8).querySelector('button')?.getAttribute('aria-label')).toBe('8 de setembro de 2026, início do período');
+    expect(cell(11).querySelector('button')?.getAttribute('aria-label')).toBe('11 de setembro de 2026, fim do período');
+  });
+
+  it('by keyboard: the first Enter is the start, the second the end; an earlier day swaps them; a third starts over', async () => {
+    const onValueChange = vi.fn();
+    const el = await render(<Calendar mode="range" today={TODAY} defaultMonth="2026-09-15" onValueChange={onValueChange} />);
+    el.querySelector<HTMLButtonElement>('.rds-calendar__day[tabindex="0"]')!.focus();
+    await userEvent.keyboard('{Enter}');
+    expect(onValueChange).toHaveBeenLastCalledWith({ from: '2026-09-15' });
+    expect(el.querySelectorAll('.rds-calendar__day--selected')).toHaveLength(1);
+    await userEvent.keyboard('{ArrowLeft}{ArrowLeft}{Enter}');
+    expect(onValueChange).toHaveBeenLastCalledWith({ from: '2026-09-13', to: '2026-09-15' });
+    expect(el.querySelectorAll('.rds-calendar__cell--range-middle')).toHaveLength(1);
+    await userEvent.keyboard('{ArrowDown}{Enter}');
+    expect(onValueChange).toHaveBeenLastCalledWith({ from: '2026-09-20' });
+  });
+
+  it('a span of one day is the plate alone, with no band', async () => {
+    const el = await render(<Calendar mode="range" today={TODAY} defaultValue={{ from: '2026-09-10', to: '2026-09-10' }} />);
+    expect(el.querySelectorAll('.rds-calendar__day--selected')).toHaveLength(1);
+    expect(el.querySelector('[class*="rds-calendar__cell--range"]')).toBeNull();
+  });
+});

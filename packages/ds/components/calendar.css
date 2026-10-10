@@ -4,6 +4,7 @@
  * ghost IconButtons around the month (16/24 medium); weekdays 12/16 medium in rows of 32; days of 44 × 44,
  * 14/20, radius/control (Figma: .calendar/day). today: a 1px outline in colors/primary, medium; selected: a
  * plate in colors/primary, medium; outside: days of other months, faded; disabled: 40% and struck through.
+ * range: start and end are the selected plate, the days between a band in surface/tint/default.
  */
 .rds-calendar {
   box-sizing: border-box;
@@ -49,6 +50,23 @@
 
 .rds-calendar__cell {
   padding: 0;
+}
+
+/*
+ * range (Figma 10/10, .calendar/day `range`): the band is on the cells, so it runs on with no gap and no corners
+ * (calendar/day/background/range); start and end keep the selected plate on their button and carry the band on
+ * their inner half only.
+ */
+.rds-calendar__cell--range-middle {
+  background: var(--calendar-day-background-range);
+}
+
+.rds-calendar__cell--range-start {
+  background: linear-gradient(to right, transparent 50%, var(--calendar-day-background-range) 50%);
+}
+
+.rds-calendar__cell--range-end {
+  background: linear-gradient(to left, transparent 50%, var(--calendar-day-background-range) 50%);
 }
 
 .rds-calendar__day {
@@ -118,6 +136,11 @@
 
   .rds-calendar__day--today {
     border-color: CanvasText;
+  }
+
+  /* Backgrounds are dropped in forced colours: the days between keep a frame. */
+  .rds-calendar__day--range {
+    border-color: Highlight;
   }
 
   .rds-calendar__day--disabled {
