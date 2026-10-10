@@ -191,4 +191,6 @@ choice-list/focus/ring|C|@theme:focus/ring|=
 heading/default|C|@theme:text/heading|=
 heading/accent|C|@theme:colors/accent/default|=
 choice-list/item/description/selected|C|@theme:text/on/tint|=
+choice-list/item/avatar/background|C|@theme:surface/muted-strong|=
+choice-list/item/avatar/selected|C|@theme:surface/card|=
 card/tint/title|C|@theme:text/on/tint|=

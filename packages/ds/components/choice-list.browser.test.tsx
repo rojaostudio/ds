@@ -48,6 +48,26 @@ describe.each(MODES)('ChoiceList (%s)', (mode) => {
 });
 
 describe('ChoiceList behaviour', () => {
+  it("the avatar's disc follows the row: muted-strong on a plain row, the card on the chosen one", async () => {
+    const el = await render(
+      <ChoiceList aria-label="Clientes" defaultValue="bruno" style={{ maxWidth: 400 }}>
+        {clients()}
+      </ChoiceList>,
+    );
+    const disc = (r: HTMLElement) => getComputedStyle(r.querySelector('.rds-avatar__fallback')!).backgroundColor;
+    const probe = (v: string) => {
+      const d = document.createElement('div');
+      el.append(d);
+      d.style.backgroundColor = `var(${v})`;
+      const c = getComputedStyle(d).backgroundColor;
+      d.remove();
+      return c;
+    };
+    const [ana, bruno] = rows(el);
+    expect(disc(ana)).toBe(probe('--surface-muted-strong'));
+    expect(disc(bruno)).toBe(probe('--surface-card'));
+  });
+
   it('every row has the line at the bottom but the last: the container closes the list; heights stay 60 and 44', async () => {
     const el = await render(
       <ChoiceList aria-label="Clientes" style={{ maxWidth: 400 }}>
