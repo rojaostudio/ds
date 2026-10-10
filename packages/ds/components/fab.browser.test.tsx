@@ -49,8 +49,15 @@ describe('FAB behaviour', () => {
     const rest = getComputedStyle(b);
     const fill = rest.backgroundColor;
     expect(rest.boxShadow).toBe(shadow('--elevation-raised'));
-    await userEvent.hover(b);
-    await vi.waitFor(() => expect(getComputedStyle(b).boxShadow).toBe(shadow('--elevation-overlay')));
+    // The pointer is shared by the test files running in parallel: hover again on every retry, so another file
+    // moving the mouse cannot leave this one waiting on a hover it lost.
+    await vi.waitFor(
+      async () => {
+        await userEvent.hover(b);
+        expect(getComputedStyle(b).boxShadow).toBe(shadow('--elevation-overlay'));
+      },
+      { timeout: 5000, interval: 100 },
+    );
     expect(getComputedStyle(b).backgroundColor).toBe(fill);
     await userEvent.unhover(b);
   });
