@@ -1,5 +1,11 @@
 # @rojaostudio/ds
 
+## 2.0.0-next.44
+
+### Patch Changes
+
+- 1b98652: DataTableHeader: os filtros rápidos abraçam os chips e a busca fica com a sobra (antes dividiam meio a meio e o último chip saía cortado). Quando não cabem ao lado da busca, descem para a própria linha e rolam.
+
 ## 2.0.0-next.43
 
 ### Patch Changes
