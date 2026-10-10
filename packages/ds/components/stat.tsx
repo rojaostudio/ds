@@ -28,6 +28,12 @@ export interface StatProps extends Omit<HTMLAttributes<HTMLDivElement>, 'childre
    * default: the cell of the strip, no border.
    */
   framed?: boolean;
+  /**
+   * On the brand's dark fill (Figma: `inverse`), for the one number that leads a page: background surface/inverse,
+   * value in text/on-inverse, label and caption in text/on-inverse-subtle, and the Delta inside turns inverse by
+   * itself. Only framed, with tone neutral and not muted (the Figma draws no other); otherwise it is ignored.
+   */
+  inverse?: boolean;
 }
 
 /** Set by the SummaryBar: a Stat inside it is a cell (framed=false) unless it says otherwise. */
@@ -37,11 +43,37 @@ export const StatFramedDefault = createContext(true);
  * Stat — Figma [RDS] Content/Stat. A number that matters, with its label, the change (Delta) and, when it helps,
  * the trend (Sparkline). Alone it is a card; in a SummaryBar it is a cell. Styles: stat.css.
  */
-export function Stat({ label, value, tone = 'neutral', muted = false, caption, delta, sparkline, framed, className, ...rest }: StatProps) {
+export function Stat({
+  label,
+  value,
+  tone = 'neutral',
+  muted = false,
+  caption,
+  delta,
+  sparkline,
+  framed,
+  inverse = false,
+  className,
+  ...rest
+}: StatProps) {
   const framedDefault = useContext(StatFramedDefault);
   const isFramed = framed ?? framedDefault;
+  const isInverse = inverse && isFramed && tone === 'neutral' && !muted;
+  if (inverse && !isInverse) console.warn('[@rojaostudio/ds] Stat inverse needs framed, tone="neutral" and no muted: ignored.');
   return (
-    <div {...rest} className={['rds-stat', `rds-stat--${tone}`, muted && 'rds-stat--muted', isFramed && 'rds-stat--framed', className].filter(Boolean).join(' ')}>
+    <div
+      {...rest}
+      className={[
+        'rds-stat',
+        `rds-stat--${tone}`,
+        muted && 'rds-stat--muted',
+        isFramed && 'rds-stat--framed',
+        isInverse && 'rds-stat--inverse',
+        className,
+      ]
+        .filter(Boolean)
+        .join(' ')}
+    >
       <div className="rds-stat__pair">
         <span className="rds-stat__label">{label}</span>
         <span className="rds-stat__row">

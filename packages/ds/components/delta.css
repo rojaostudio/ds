@@ -36,3 +36,8 @@
 .rds-delta--danger {
   --_color: var(--delta-danger);
 }
+
+/* inverse (Figma 10/10): on the dark fill (a Stat inverse), arrow and value in delta/inverse, whatever the meaning. */
+.rds-delta--inverse {
+  --_color: var(--delta-inverse);
+}

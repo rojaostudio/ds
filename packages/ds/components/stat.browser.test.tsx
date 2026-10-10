@@ -1,8 +1,8 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { Stat, type StatTone } from './stat';
 import { Delta } from './delta';
 import { Sparkline } from './sparkline';
-import { MODES, axeViolations, cleanup, render } from './__tests__/render';
+import { MODES, axeViolations, cleanup, render, setMedia } from './__tests__/render';
 
 afterEach(cleanup);
 
@@ -102,5 +102,88 @@ describe('Stat vocabulary', () => {
     expect(pos).toBe(resolved('--stat-value-positive'));
     expect(neg).toBe(resolved('--stat-value-negative'));
     expect(plain).toBe(resolved('--stat-value-default'));
+  });
+});
+
+// inverse: the brand's dark fill (stat/inverse/*), the Delta inside in delta/inverse. Measured in light, dark and
+// print (Chromium in the print media type), each text at least 4.5:1 on the fill.
+const rgba = (c: string) => {
+  const m = c.match(/rgba?\(([^)]+)\)/)!;
+  const [r, g, b, a = 1] = m[1].split(/[\s,/]+/).filter(Boolean).map(Number);
+  return [r, g, b, a] as const;
+};
+const lum = ([r, g, b]: readonly number[]) => {
+  const ch = (v: number) => ((v /= 255) <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
+  return 0.2126 * ch(r) + 0.7152 * ch(g) + 0.0722 * ch(b);
+};
+const contrast = (fg: string, bg: string) => {
+  const [r, g, b, a] = rgba(fg);
+  const back = rgba(bg);
+  const front = [r * a + back[0] * (1 - a), g * a + back[1] * (1 - a), b * a + back[2] * (1 - a)];
+  const [x, y] = [lum(front), lum(back)].sort((p, q) => q - p);
+  return (x + 0.05) / (y + 0.05);
+};
+
+describe.each(['light', 'dark', 'print'] as const)('Stat inverse (%s)', (mode) => {
+  afterEach(() => setMedia(null));
+
+  it('passes axe; fill surface/inverse, value text/on-inverse, label and caption text/on-inverse-subtle, the Delta inverse, all AA', async () => {
+    if (mode === 'print') await setMedia('print');
+    const el = await render(
+      <div style={{ width: 280 }}>
+        <Stat
+          inverse
+          label="Saldo do mês"
+          value="R$ 48.320"
+          caption="vs. R$ 41.200 em setembro"
+          delta={
+            <Delta direction="down" tone="danger">
+              3%
+            </Delta>
+          }
+        />
+      </div>,
+      mode === 'dark' ? 'dark' : 'light',
+    );
+    expect(await axeViolations(el)).toEqual([]);
+    const root = el.querySelector<HTMLElement>('.rds-stat')!;
+    const s = getComputedStyle(root);
+    const color = (sel: string) => getComputedStyle(root.querySelector<HTMLElement>(sel)!).color;
+    expect(s.backgroundColor).toBe(resolved('--surface-inverse'));
+    expect(s.borderTopColor).toBe('rgba(0, 0, 0, 0)');
+    expect(color('.rds-stat__value')).toBe(resolved('--text-on-inverse'));
+    expect(color('.rds-stat__label')).toBe(resolved('--text-on-inverse-subtle'));
+    expect(color('.rds-stat__caption')).toBe(resolved('--text-on-inverse-subtle'));
+    // A danger Delta still reads: inside the inverse Stat it takes delta/inverse by itself.
+    expect(color('.rds-delta')).toBe(resolved('--text-on-inverse'));
+    for (const sel of ['.rds-stat__value', '.rds-stat__label', '.rds-stat__caption', '.rds-delta'])
+      expect(contrast(color(sel), s.backgroundColor), sel).toBeGreaterThanOrEqual(4.5);
+    if (mode === 'print') expect(s.backgroundColor).not.toBe('rgb(255, 255, 255)');
+  });
+});
+
+describe('Stat inverse rules', () => {
+  it('Delta tone="inverse" paints arrow and value in delta/inverse', async () => {
+    const el = await render(
+      <div style={{ background: 'var(--surface-inverse)', padding: 8 }}>
+        <Delta tone="inverse">24%</Delta>
+      </div>,
+    );
+    expect(getComputedStyle(el.querySelector('.rds-delta')!).color).toBe(resolved('--delta-inverse'));
+    expect(await axeViolations(el)).toEqual([]);
+  });
+
+  it('is ignored, with a warning, unframed, with another tone or muted', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const el = await render(
+      <div>
+        <Stat inverse framed={false} label="A" value="1" />
+        <Stat inverse tone="success" label="B" value="2" />
+        <Stat inverse muted label="C" value="0" />
+      </div>,
+    );
+    expect(el.querySelector('.rds-stat--inverse')).toBeNull();
+    expect(warn).toHaveBeenCalled();
+    warn.mockRestore();
   });
 });
