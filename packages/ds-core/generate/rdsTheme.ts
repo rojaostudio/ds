@@ -105,6 +105,8 @@ const on = (bg: string) => onColor(bg);
 const AA = 4.5;
 /** WCAG 1.4.11 for what is not text (a field border, a chart mark). */
 const NON_TEXT = 3;
+/** WCAG 1.4.3 for large text (24px and up, or 18.66px and up in bold): the large titles of text/accent. */
+const LARGE_TEXT = 3;
 const readsOn = (fg: string, bgs: string[], min = AA) => bgs.every((bg) => contrastRatio(fg, bg) >= min);
 
 /**
@@ -279,7 +281,7 @@ export const ROLES: ReadonlyArray<readonly [string, "l" | "d" | "p", "l" | "d" |
   ["text/on/primary-subtle", "d", "b"], ["surface/tint/subtle", "d", "b"], ["border/error", "d", "d"],
   ["surface/attention/low", "p", "p"], ["surface/attention/medium", "p", "p"], ["surface/attention/high", "p", "p"],
   ["surface/inverse", "d", "d"], ["text/on-inverse", "d", "d"], ["text/on-inverse-subtle", "d", "d"],
-  ["text/on/success-strong", "d", "d"], ["text/selected", "d", "b"],
+  ["text/on/success-strong", "d", "d"], ["text/selected", "d", "b"], ["text/accent", "d", "d"],
 ];
 
 /**
@@ -299,6 +301,15 @@ const coal = palettes.coal as Record<number, string>;
  */
 const selectedOn = (primary: string, scale: Scale, tints: string[], fallback: string) =>
   readableFrom(primary, scale, tints, awayFrom(tints[0]), fallback);
+
+/**
+ * text/accent: the accent as text, only in large titles (24px and up, or 18.66px and up in bold; never a label or
+ * running text). Figma points it at colors/accent/default of each mode. An accent under 3:1 (large text, WCAG 1.4.3) on
+ * surface/page or surface/card (an orange, a yellow or a cyan on white) goes down its own ramp, away from the
+ * surfaces, to the first step that clears it.
+ */
+const accentTextOn = (accent: string, scale: Scale, surfaces: string[], fallback: string) =>
+  readableFrom(accent, scale, surfaces, awayFrom(surfaces[surfaces.length - 1]), fallback, LARGE_TEXT);
 
 /**
  * surface/inverse (the inverse Card): the brand's primary in light (and print) when white text reads AA on it,
@@ -500,6 +511,7 @@ export function generateRdsTheme(def: BrandDef, opts: RdsThemeOptions = {}): Rds
   l["logo/accent-2"] = l["colors/secondary/default"];
   l["logo/accent-3"] = l["colors/accent/default"];
   l["text/selected"] = selectedOn(l["colors/primary/default"], K, [l["surface/tint/default"], l["surface/tint/subtle"]], BLACK);
+  l["text/accent"] = accentTextOn(l["colors/accent/default"], A.scale, [l["surface/page"], l["surface/card"]], BLACK);
 
   // base — dark/… tokens.
   const d: Record<string, string> = {
@@ -568,6 +580,7 @@ export function generateRdsTheme(def: BrandDef, opts: RdsThemeOptions = {}): Rds
   d["border/error"] = readableFrom(red[400], red, [d["surface/card"]], awayFrom(d["surface/card"]), WHITE, NON_TEXT);
   d["chart/series/1"] = readableFrom(P.scale[400], P.scale, [d["surface/card"]], awayFrom(d["surface/card"]), WHITE, NON_TEXT);
   d["text/selected"] = selectedOn(d["colors/primary/default"], K, [d["surface/tint/default"], d["surface/tint/subtle"]], WHITE);
+  d["text/accent"] = accentTextOn(d["colors/accent/default"], A.scale, [d["surface/page"], d["surface/card"]], WHITE);
 
   // base — brand/… tokens: the "plate" of the brand, a section painted with the brand colour itself (the primary as
   // given, not the neutral ink). Figma draws it for dark brands (white ink over the plate). The ink is picked by
@@ -670,6 +683,9 @@ export function generateRdsTheme(def: BrandDef, opts: RdsThemeOptions = {}): Rds
   // neutral Toast's icon): 3:1, walking the neutral ramp away from the plate.
   plateOwn["colors/state/neutral-strong"] = readableFrom(d["colors/state/neutral-strong"], N, plateBgs, awayFrom(plate), ink, NON_TEXT);
   for (const logo of ["logo/primary", "logo/signature", "logo/accent", "logo/mono", "social/ink"]) plateOwn[logo] = ink;
+  // text/accent on the plate: the plate's colors/accent/default (the dark one), down its ramp until 3:1 on the plate
+  // and its card (a light plate under a dark ink takes a darker step).
+  plateOwn["text/accent"] = accentTextOn(d["colors/accent/default"], A.scale, plateBgs, ink);
 
   // Roles that point straight at a primitive in dark and on the plate (`p` in ROLES), the same for every brand.
   // error-strong is the hover of the danger Button under text/on/error (white on red/600): red/700 carries it at AA.
@@ -912,17 +928,28 @@ export const RDS_NON_TEXT_PAIRS: ReadonlyArray<readonly [string, string]> = [
   ["text/on/success-strong", "colors/state/success-strong"],
 ];
 
-/** A pair below its minimum: 4.5:1 for text (RDS_CONTRAST_PAIRS), 3:1 for the rest (RDS_NON_TEXT_PAIRS). */
+/**
+ * Large text (24px and up, or 18.66px and up in bold), 3:1 (WCAG 1.4.3): text/accent, the accent of the large titles,
+ * on the surfaces it is placed on.
+ */
+export const RDS_LARGE_TEXT_PAIRS: ReadonlyArray<readonly [string, string]> = [
+  ["text/accent", "surface/page"], ["text/accent", "surface/card"],
+];
+
+/**
+ * A pair below its minimum: 4.5:1 for text (RDS_CONTRAST_PAIRS), 3:1 for large text (RDS_LARGE_TEXT_PAIRS) and for
+ * the rest (RDS_NON_TEXT_PAIRS).
+ */
 export type RdsContrastFailure = { mode: RdsMode; fg: string; bg: string; ratio: number; min: number };
 
 /**
- * The pairs of RDS_CONTRAST_PAIRS below WCAG AA (4.5:1) and of RDS_NON_TEXT_PAIRS below 3:1, mode by mode. Empty
- * means every pair passes. A pair with an alpha colour is skipped (rdsContrast).
+ * The pairs of RDS_CONTRAST_PAIRS below WCAG AA (4.5:1) and of RDS_LARGE_TEXT_PAIRS and RDS_NON_TEXT_PAIRS below 3:1,
+ * mode by mode. Empty means every pair passes. A pair with an alpha colour is skipped (rdsContrast).
  */
 export function rdsContrastReport(theme: RdsTheme): RdsContrastFailure[] {
   const out: RdsContrastFailure[] = [];
   for (const mode of ["light", "dark", "brand"] as RdsMode[])
-    for (const [pairs, min] of [[RDS_CONTRAST_PAIRS, AA], [RDS_NON_TEXT_PAIRS, NON_TEXT]] as const)
+    for (const [pairs, min] of [[RDS_CONTRAST_PAIRS, AA], [RDS_LARGE_TEXT_PAIRS, LARGE_TEXT], [RDS_NON_TEXT_PAIRS, NON_TEXT]] as const)
       for (const [fg, bg] of pairs) {
         const ratio = rdsContrast(theme, mode, fg, bg);
         if (ratio !== null && ratio < min) out.push({ mode, fg, bg, ratio: Math.round(ratio * 100) / 100, min });
@@ -970,6 +997,8 @@ const ADDED_ROLES: Record<string, Record<RdsMode, string>> = {
   "border/error": { light: "colors/state/error", dark: "colors/state/error-strong", brand: "text/error" },
   // Figma: colors/primary/default of each mode (base colors/primary/default, dark/…, brand/…).
   "text/selected": { light: "colors/primary/default", dark: "colors/primary/default", brand: "colors/primary/default" },
+  // Figma: colors/accent/default of each mode (base colors/accent/default, dark/…; the plate the dark one).
+  "text/accent": { light: "colors/accent/default", dark: "colors/accent/default", brand: "colors/accent/default" },
 };
 
 /**
@@ -1071,7 +1100,7 @@ export function rdsThemeFromTable(table: RdsBrandTable, opts: RdsThemeOptions = 
   const fails = rdsContrastReport(out);
   if (fails.length)
     warn(
-      `${where}: ${fails.length} pair(s) below WCAG (4.5:1 text, 3:1 non-text)\n  ` +
+      `${where}: ${fails.length} pair(s) below WCAG (4.5:1 text, 3:1 large text and non-text)\n  ` +
         fails.map((f) => `${f.mode}: ${f.fg} on ${f.bg} ${f.ratio}:1 (min ${f.min}:1)`).join("\n  "),
     );
   return out;

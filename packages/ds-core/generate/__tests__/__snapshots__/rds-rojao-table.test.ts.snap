@@ -24,6 +24,7 @@ exports[`rojao: the Figma table > generateRdsTheme(recipes.rojao) against the ta
   "dark text/on/cover: generator #000000, Figma #ffffff (white/a100)",
   "dark colors/accent/mark: generator #ffb066, Figma #8cc6ff (blue/300)",
   "dark surface/tint/subtle: generator #8a3900, Figma #002445 (blue/900)",
+  "dark text/accent: generator #ffb066, Figma #ff6a00 (flare/700)",
   "brand colors/accent/highlight: generator #b34b00, Figma #3a465f (navy/700)",
   "brand surface/cover: generator #ff6a00, Figma #00518d (blue/700)",
   "brand text/on/cover: generator #000000, Figma #ffffff (white/a100)",

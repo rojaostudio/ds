@@ -61,6 +61,7 @@ const ROLE_DOCS: { role: string; use: string }[] = [
   { role: "border/strong", use: "control borders, emphasis" },
   { role: "focus/ring", use: "focus ring" },
   { role: "text/heading", use: "headings" },
+  { role: "text/accent", use: "accent text, large titles only (24px+, or 18.66px+ bold): never labels or body text" },
   { role: "text/body", use: "body text" },
   { role: "text/muted", use: "supporting text" },
   { role: "text/subtle", use: "captions, metadata" },
