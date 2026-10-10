@@ -139,6 +139,11 @@
   --banner-background: var(--surface-muted);
   --banner-highlight: var(--text-heading);
   --banner-text: var(--text-body);
+  --banner-attention-low-background: var(--surface-warning);
+  --banner-attention-low-text: var(--text-warning);
+  --banner-attention-medium-text: var(--text-on-warning);
+  --banner-attention-high-background: var(--colors-state-warning);
+  --banner-attention-high-text: var(--text-on-warning);
   --benefits-background: var(--surface-card);
   --benefits-eyebrow: var(--text-muted);
   --benefits-text: var(--text-muted);

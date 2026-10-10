@@ -327,7 +327,7 @@ export type { DangerZoneProps, DangerZoneItemProps } from './danger-zone';
 // 2.0 (#17): Blocks follow the Figma [RDS]. Each block adapts to its container's width (container query), not the
 // viewport's: the Figma `screen` desktop · mobile. Logos always by slot.
 export { Banner } from './banner';
-export type { BannerProps } from './banner';
+export type { BannerProps, BannerTone, BannerLevel } from './banner';
 export { Benefits, BenefitsItem } from './benefits';
 export type { BenefitsProps, BenefitsItemProps } from './benefits';
 export { Contact } from './contact';
