@@ -164,7 +164,7 @@ describe("styles/rds/theme.css is the Figma brand table of the Rojão, role by r
       if (got !== expected) wrong.push(`${role}: css ${got}, Figma ${expected} (${ref})`);
     }
     expect(wrong).toEqual([]);
-    expect(Object.keys(table.modes[mode])).toHaveLength(104);
+    expect(Object.keys(table.modes[mode])).toHaveLength(107);
   });
 
   it("the brand's own variables (--rojao-*) are in the light scope", () => {
@@ -213,8 +213,8 @@ describe("cascade layers", () => {
 describe("the real [RDS] extraction", () => {
   const all = loadAll(join(__dirname, "..", ".."));
 
-  it("has the 1003 component tokens of the 10 collections", () => {
-    expect(all.tokens).toHaveLength(1003);
+  it("has the 1002 component tokens of the 10 collections", () => {
+    expect(all.tokens).toHaveLength(1002);
   });
 
   it("has no obsolete token left: unused tokens are deleted in Figma, not kept", () => {

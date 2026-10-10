@@ -105,6 +105,9 @@
   --text-on-primary-subtle: #ffffff4d;
   --surface-tint-subtle: #f4f6f9;
   --border-error: #c50003;
+  --surface-attention-low: #fff2d6;
+  --surface-attention-medium: #ffe3ab;
+  --surface-attention-high: #ffc107;
   --rojao-primary: #1b2a4a;
   --rojao-secondary: #1b2a4a;
   --rojao-accent: #ff6a00;

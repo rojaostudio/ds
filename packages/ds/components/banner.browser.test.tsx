@@ -147,6 +147,36 @@ describe.each(MODES)('Banner attention (%s)', (mode) => {
 });
 
 describe('Banner attention behaviour', () => {
+  it('the backgrounds are surface/attention/<level> and the text is text/on/warning, the same in light and dark', async () => {
+    const seen: Record<string, string[]> = {};
+    for (const mode of MODES) {
+      const el = await render(
+        <InContainer width={1024}>
+          {trial('low')}
+          {trial('medium')}
+          {trial('high')}
+        </InContainer>,
+        mode,
+      );
+      const probe = (v: string) => {
+        const span = document.createElement('span');
+        el.append(span);
+        span.style.color = `var(${v})`;
+        const c = getComputedStyle(span).color;
+        span.remove();
+        return c;
+      };
+      el.querySelectorAll<HTMLElement>('.rds-banner').forEach((banner, i) => {
+        const level = LEVELS[i];
+        const style = getComputedStyle(banner);
+        expect(style.backgroundColor).toBe(probe(`--surface-attention-${level}`));
+        expect(style.color).toBe(probe('--text-on-warning'));
+        (seen[level] ??= []).push(style.backgroundColor, style.color);
+      });
+    }
+    for (const level of LEVELS) expect(seen[level].slice(0, 2)).toEqual(seen[level].slice(2));
+  });
+
   it('the CTA is outline in low and medium, fill in high, whatever variant the consumer gave', async () => {
     for (const level of LEVELS) {
       cleanup();

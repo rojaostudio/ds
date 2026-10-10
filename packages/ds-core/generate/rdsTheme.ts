@@ -276,7 +276,19 @@ export const ROLES: ReadonlyArray<readonly [string, "l" | "d" | "p", "l" | "d" |
   ["logo/inverse", "l", "l"], ["logo/inverse-signature", "l", "l"], ["social/ink", "d", "d"],
   ["colors/state/info-strong", "d", "d"], ["colors/state/neutral-strong", "d", "d"],
   ["text/on/primary-subtle", "d", "b"], ["surface/tint/subtle", "d", "b"], ["border/error", "d", "d"],
+  ["surface/attention/low", "p", "p"], ["surface/attention/medium", "p", "p"], ["surface/attention/high", "p", "p"],
 ];
+
+/**
+ * surface/attention/* (Figma: amber/100, 200 and 400 of the [RDS] Primitives): the same in light, dark and on the
+ * plate, for every brand. Something to act on soon, never an error; text/on/warning (black) sits on all three.
+ */
+const amber = palettes.amber as Record<number, string>;
+const ATTENTION: Record<string, string> = {
+  "surface/attention/low": amber[100],
+  "surface/attention/medium": amber[200],
+  "surface/attention/high": amber[400],
+};
 
 /** Toward the side of the ramp that contrasts with a background: darker on a light one, lighter on a dark one. */
 const awayFrom = (bg: string): "darker" | "lighter" => (contrastRatio(bg, BLACK) >= contrastRatio(bg, WHITE) ? "darker" : "lighter");
@@ -356,6 +368,7 @@ export function generateRdsTheme(def: BrandDef, opts: RdsThemeOptions = {}): Rds
     "shadow/ambient": black(5), "shadow/key": black(10), "shadow/strong": black(20),
     "type/font/mono": "Roboto Mono",
     "logo/mono": BLACK, "logo/inverse": WHITE, "logo/inverse-signature": WHITE, "social/ink": BLACK,
+    ...ATTENTION,
   };
   // The neutral ink: colors/primary/* is the fill of the neutral Button and Badge, the bars, the Tooltip, the selected
   // day. A recipe with a secondary drew its own primary (Rojão: navy, an ink already) and it is kept. With one colour
@@ -572,7 +585,8 @@ export function generateRdsTheme(def: BrandDef, opts: RdsThemeOptions = {}): Rds
 
   // Roles that point straight at a primitive in dark and on the plate (`p` in ROLES), the same for every brand.
   // error-strong is the hover of the danger Button under text/on/error (white on red/600): red/700 carries it at AA.
-  const fixed: Record<string, string> = { "colors/state/error-strong": red[700] };
+  // surface/attention/* (the attention Banner's three levels, text/on/warning on them) is amber in every mode.
+  const fixed: Record<string, string> = { "colors/state/error-strong": red[700], ...ATTENTION };
   const out: RdsTheme = { light: {}, dark: {}, brand: {} };
   const pick = (src: "l" | "d" | "b" | "p", role: string) => {
     const table = src === "l" ? l : src === "d" ? d : src === "p" ? fixed : br;
@@ -723,6 +737,9 @@ export const RDS_CONTRAST_PAIRS: ReadonlyArray<readonly [string, string]> = [
   ["text/error", "surface/card"], ["text/error", "surface/page"], ["text/error", "surface/error-strong"],
   ["text/success", "surface/success"], ["text/success", "surface/card"], ["text/info", "surface/info"],
   ["text/warning", "surface/warning"], ["text/neutral", "surface/neutral"],
+  // The attention Banner: text/on/warning on its three levels.
+  ["text/on/warning", "surface/attention/low"], ["text/on/warning", "surface/attention/medium"],
+  ["text/on/warning", "surface/attention/high"],
 ];
 
 /**
@@ -774,7 +791,8 @@ const isColourRef = (v: string) => /^[a-z][a-z0-9-]*\/[a-z]?\d+$/i.test(v);
 /**
  * Roles added to the [RDS] theme after tables were already exported, with the role each mode aliases in Figma.
  * A table without one still loads: the role is taken from that same mode's alias (the colour Figma resolves),
- * with a warning to export the table again. Any other missing role fails.
+ * with a warning to export the table again. The roles of ATTENTION (one colour for every brand) are taken from it
+ * the same way. Any other missing role fails.
  */
 const ADDED_ROLES: Record<string, Record<RdsMode, string>> = {
   // Figma: light → base colors/state/error, dark → base dark/colors/state/error-strong, brand → base dark/text/error.
@@ -824,6 +842,12 @@ export function rdsThemeFromTable(table: RdsBrandTable, opts: RdsThemeOptions = 
         ref = roles[added];
         derived.add(role);
       }
+      // A role added later that is one colour for every brand (surface/attention/*): its fixed colour.
+      if (ref === undefined && ATTENTION[role] !== undefined) {
+        out[mode][roleVar(role)] = ATTENTION[role];
+        derived.add(role);
+        continue;
+      }
       if (ref === undefined) problems.push(`${mode}: role "${role}" is missing`);
       else if (isColourRef(ref)) {
         const value = table.primitives[ref];
@@ -853,7 +877,13 @@ export function rdsThemeFromTable(table: RdsBrandTable, opts: RdsThemeOptions = 
     warn(
       `${where}: the table was exported before ${[...derived].map((r) => `"${r}"`).join(", ")} ` +
         `existed in the [RDS] theme. Taken from the tokens Figma aliases it to (` +
-        [...derived].map((r) => Object.entries(ADDED_ROLES[r]).map(([m, src]) => `${m}: ${src}`).join(", ")).join("; ") +
+        [...derived]
+          .map((r) =>
+            ADDED_ROLES[r]
+              ? Object.entries(ADDED_ROLES[r]).map(([m, src]) => `${m}: ${src}`).join(", ")
+              : `${r}: ${ATTENTION[r]} in every mode`,
+          )
+          .join("; ") +
         `). Export the table again with figma/export-brand.js.`,
     );
   const fails = rdsContrastReport(out);

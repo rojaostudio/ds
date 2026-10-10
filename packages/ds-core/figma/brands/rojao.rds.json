@@ -2,6 +2,9 @@
   "$schema": "rds-brand-table/1",
   "name": "rojao",
   "primitives": {
+    "amber/100": "#fff2d6",
+    "amber/200": "#ffe3ab",
+    "amber/400": "#ffc107",
     "black/a10": "#0000001a",
     "black/a100": "#000000",
     "black/a20": "#00000033",
@@ -186,7 +189,10 @@
       "colors/state/neutral-strong": "zinc/600",
       "text/on/primary-subtle": "white/a30",
       "surface/tint/subtle": "navy/50",
-      "border/error": "red/600"
+      "border/error": "red/600",
+      "surface/attention/low": "amber/100",
+      "surface/attention/medium": "amber/200",
+      "surface/attention/high": "amber/400"
     },
     "dark": {
       "colors/primary/light": "navy/400",
@@ -292,7 +298,10 @@
       "colors/state/neutral-strong": "zinc/400",
       "text/on/primary-subtle": "black/a30",
       "surface/tint/subtle": "blue/900",
-      "border/error": "red/400"
+      "border/error": "red/400",
+      "surface/attention/low": "amber/100",
+      "surface/attention/medium": "amber/200",
+      "surface/attention/high": "amber/400"
     },
     "brand": {
       "colors/primary/light": "navy/300",
@@ -398,7 +407,10 @@
       "colors/state/neutral-strong": "zinc/400",
       "text/on/primary-subtle": "white/a30",
       "surface/tint/subtle": "white/a5",
-      "border/error": "red/300"
+      "border/error": "red/300",
+      "surface/attention/low": "amber/100",
+      "surface/attention/medium": "amber/200",
+      "surface/attention/high": "amber/400"
     }
   },
   "vars": {
