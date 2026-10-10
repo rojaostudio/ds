@@ -198,7 +198,8 @@
       "surface/inverse": "navy/900",
       "text/on-inverse": "white/a100",
       "text/on-inverse-subtle": "white/a70",
-      "text/on/success-strong": "white/a100"
+      "text/on/success-strong": "white/a100",
+      "text/selected": "navy/900"
     },
     "dark": {
       "colors/primary/light": "navy/400",
@@ -311,7 +312,8 @@
       "surface/inverse": "white/a100",
       "text/on-inverse": "coal/900",
       "text/on-inverse-subtle": "coal/600",
-      "text/on/success-strong": "black/a100"
+      "text/on/success-strong": "black/a100",
+      "text/selected": "navy/200"
     },
     "brand": {
       "colors/primary/light": "navy/300",
@@ -424,7 +426,8 @@
       "surface/inverse": "white/a100",
       "text/on-inverse": "coal/900",
       "text/on-inverse-subtle": "coal/600",
-      "text/on/success-strong": "black/a100"
+      "text/on/success-strong": "black/a100",
+      "text/selected": "white/a100"
     }
   },
   "vars": {

@@ -278,7 +278,7 @@ export const ROLES: ReadonlyArray<readonly [string, "l" | "d" | "p", "l" | "d" |
   ["text/on/primary-subtle", "d", "b"], ["surface/tint/subtle", "d", "b"], ["border/error", "d", "d"],
   ["surface/attention/low", "p", "p"], ["surface/attention/medium", "p", "p"], ["surface/attention/high", "p", "p"],
   ["surface/inverse", "d", "d"], ["text/on-inverse", "d", "d"], ["text/on-inverse-subtle", "d", "d"],
-  ["text/on/success-strong", "d", "d"],
+  ["text/on/success-strong", "d", "d"], ["text/selected", "d", "b"],
 ];
 
 /**
@@ -288,6 +288,16 @@ export const ROLES: ReadonlyArray<readonly [string, "l" | "d" | "p", "l" | "d" |
 const SUCCESS_STRONG_ON = { light: WHITE, dark: BLACK } as const;
 
 const coal = palettes.coal as Record<number, string>;
+
+/**
+ * text/selected: the text and icon of a selected item (the pressed Toggle, the current page of a Pagination), also
+ * the pressed Toggle's border. Figma points it at colors/primary/default in every mode. A primary that does not read
+ * AA on the selection tints under it (surface/tint/default and surface/tint/subtle: a light primary, a cyan, over its
+ * own light tint) falls to the nearest step of its own ramp away from the tint (a darker one in light; Figma draws
+ * the cyan brand with its 800), as text/heading does.
+ */
+const selectedOn = (primary: string, scale: Scale, tints: string[], fallback: string) =>
+  readableFrom(primary, scale, tints, awayFrom(tints[0]), fallback);
 
 /**
  * surface/inverse (the inverse Card): the brand's primary in light (and print) when white text reads AA on it,
@@ -447,6 +457,7 @@ export function generateRdsTheme(def: BrandDef, opts: RdsThemeOptions = {}): Rds
   l["logo/accent"] = l["colors/accent/logo"];
   l["logo/accent-2"] = l["colors/secondary/default"];
   l["logo/accent-3"] = l["colors/accent/default"];
+  l["text/selected"] = selectedOn(l["colors/primary/default"], K, [l["surface/tint/default"], l["surface/tint/subtle"]], BLACK);
 
   // base — dark/… tokens.
   const d: Record<string, string> = {
@@ -514,6 +525,7 @@ export function generateRdsTheme(def: BrandDef, opts: RdsThemeOptions = {}): Rds
   // In dark, border/error starts from error-strong (red/400) and series 1 from the primary's 400.
   d["border/error"] = readableFrom(red[400], red, [d["surface/card"]], awayFrom(d["surface/card"]), WHITE, NON_TEXT);
   d["chart/series/1"] = readableFrom(P.scale[400], P.scale, [d["surface/card"]], awayFrom(d["surface/card"]), WHITE, NON_TEXT);
+  d["text/selected"] = selectedOn(d["colors/primary/default"], K, [d["surface/tint/default"], d["surface/tint/subtle"]], WHITE);
 
   // base — brand/… tokens: the "plate" of the brand, a section painted with the brand colour itself (the primary as
   // given, not the neutral ink). Figma draws it for dark brands (white ink over the plate). The ink is picked by
@@ -578,6 +590,8 @@ export function generateRdsTheme(def: BrandDef, opts: RdsThemeOptions = {}): Rds
     "surface/muted-strong": ov(20), "border/strong": fieldBorder,
     "border/strong-hover": fieldAlpha + 20 < 100 ? inkA(fieldAlpha + 20) : ink,
     "text/on/primary-subtle": inkA(30),
+    // The selected item on the plate: the ink, which the plate's overlays (ov) are drawn to carry at AA.
+    "text/selected": ink,
   };
   // On the plate the fills are the ink and their text is the plate: hover and active have to carry the plate colour
   // (a light plate has a black ink, so the template's near-white steps would hide its text). colors/primary/dark is
@@ -830,6 +844,7 @@ export const RDS_CONTRAST_PAIRS: ReadonlyArray<readonly [string, string]> = [
   ["colors/primary/default", "surface/tint/default"], ["text/heading", "surface/muted-strong"],
   ["text/heading", "colors/accent/highlight"], ["text/body", "surface/tint/default"], ["text/muted", "surface/tint/default"],
   ["text/on/tint", "surface/tint/subtle"], ["text/action", "surface/action/strong"],
+  ["text/selected", "surface/tint/default"], ["text/selected", "surface/tint/subtle"],
   ["text/muted", "surface/page"], ["text/muted", "surface/panel"], ["text/subtle", "surface/card"], ["text/subtle", "surface/panel"],
   ["text/error", "surface/card"], ["text/error", "surface/page"], ["text/error", "surface/error-strong"],
   ["text/success", "surface/success"], ["text/success", "surface/card"], ["text/info", "surface/info"],
@@ -911,6 +926,8 @@ const isColourRef = (v: string) => /^[a-z][a-z0-9-]*\/[a-z]?\d+$/i.test(v);
 const ADDED_ROLES: Record<string, Record<RdsMode, string>> = {
   // Figma: light → base colors/state/error, dark → base dark/colors/state/error-strong, brand → base dark/text/error.
   "border/error": { light: "colors/state/error", dark: "colors/state/error-strong", brand: "text/error" },
+  // Figma: colors/primary/default of each mode (base colors/primary/default, dark/…, brand/…).
+  "text/selected": { light: "colors/primary/default", dark: "colors/primary/default", brand: "colors/primary/default" },
 };
 
 /**

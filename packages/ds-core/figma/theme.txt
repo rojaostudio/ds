@@ -113,3 +113,4 @@ surface/inverse|C|--surface-inverse|@base:surface/inverse|@base:dark/surface/inv
 text/on-inverse|C|--text-on-inverse|@base:text/on-inverse|@base:dark/text/on-inverse|@base:dark/text/on-inverse
 text/on-inverse-subtle|C|--text-on-inverse-subtle|@base:text/on-inverse-subtle|@base:dark/text/on-inverse-subtle|@base:dark/text/on-inverse-subtle
 text/on/success-strong|C|--text-on-success-strong|@base:text/on/success-strong|@base:dark/text/on/success-strong|@base:dark/text/on/success-strong
+text/selected|C|--text-selected|@base:text/selected|@base:dark/text/selected|@base:brand/text/selected
