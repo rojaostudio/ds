@@ -98,3 +98,81 @@ describe('IconButton with Tooltip behaviour', () => {
     }
   });
 });
+
+// #53 item 5: the bell of a top bar, with the unread count in the corner.
+describe.each(MODES)('IconButton count (%s)', (mode) => {
+  it('the pill in every tone and variant passes axe', async () => {
+    const el = await render(
+      <div style={{ padding: 32, display: 'flex', gap: 24 }}>
+        <IconButton icon={<Plus />} label="Notificações" count={3} countLabel="não lidas" tone="neutral" variant="ghost" />
+        <IconButton icon={<Plus />} label="Pedidos" count={120} />
+        <IconButton icon={<Plus />} label="Alertas" count={9} tone="danger" variant="outline" size="sm" />
+      </div>,
+      mode,
+    );
+    expect(await axeViolations(el)).toEqual([]);
+  });
+});
+
+describe('IconButton count', () => {
+  const bell = (count?: number) => (
+    <IconButton icon={<Plus />} label="Notificações" count={count} countLabel="não lidas" tone="neutral" variant="ghost" />
+  );
+  const pill = (el: HTMLElement) => el.querySelector<HTMLElement>('.rds-button__count');
+  const colour = (host: Element, v: string) => {
+    const probe = document.createElement('span');
+    host.append(probe);
+    probe.style.color = `var(${v})`;
+    const c = getComputedStyle(probe).color;
+    probe.remove();
+    return c;
+  };
+
+  it('a danger pill in the top right corner; the number joins the name', async () => {
+    const el = await render(<div style={{ padding: 32 }}>{bell(3)}</div>);
+    const button = el.querySelector('button')!;
+    expect(button.getAttribute('aria-label')).toBe('Notificações, 3 não lidas');
+    const p = pill(el)!;
+    expect(p.textContent).toBe('3');
+    expect(p.getAttribute('aria-hidden')).toBe('true');
+    expect(getComputedStyle(p).backgroundColor).toBe(colour(p, '--button-count-background'));
+    expect(getComputedStyle(p).color).toBe(colour(p, '--button-count-label'));
+    const b = button.getBoundingClientRect();
+    const r = p.getBoundingClientRect();
+    // Over the corner: 4 past the top and the right edge, a 20 circle for one figure.
+    expect(r.height).toBe(20);
+    expect(r.width).toBe(20);
+    expect(Math.round(b.top - r.top)).toBe(4);
+    expect(Math.round(r.right - b.right)).toBe(4);
+  });
+
+  it('"99+" above 99, the real number in the name; without countLabel the name is "label, N"', async () => {
+    let el = await render(bell(120));
+    expect(pill(el)!.textContent).toBe('99+');
+    expect(el.querySelector('button')!.getAttribute('aria-label')).toBe('Notificações, 120 não lidas');
+    cleanup();
+    el = await render(<IconButton icon={<Plus />} label="Notificações" count={99} />);
+    expect(pill(el)!.textContent).toBe('99');
+    expect(el.querySelector('button')!.getAttribute('aria-label')).toBe('Notificações, 99');
+  });
+
+  it('gone with 0 or undefined: no pill, the plain label', async () => {
+    for (const count of [0, undefined]) {
+      cleanup();
+      const el = await render(bell(count));
+      expect(pill(el)).toBeNull();
+      expect(el.querySelector('button')!.getAttribute('aria-label')).toBe('Notificações');
+    }
+  });
+
+  it('with asChild the link carries the pill and the counted name', async () => {
+    const el = await render(
+      <IconButton asChild icon={<Plus />} label="Notificações" count={5} countLabel="não lidas">
+        <a href="/notificacoes" />
+      </IconButton>,
+    );
+    const link = el.querySelector('a')!;
+    expect(link.getAttribute('aria-label')).toBe('Notificações, 5 não lidas');
+    expect(link.querySelector('.rds-button__count')!.textContent).toBe('5');
+  });
+});

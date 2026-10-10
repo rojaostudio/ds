@@ -36,7 +36,18 @@ export interface IconButtonProps extends Omit<ComponentPropsWithRef<'button'>, '
   loadingLabel?: string;
   /** Only with `asChild`: the link element; the icon is placed inside it. */
   children?: ReactNode;
+  /**
+   * A number in the top right corner, such as unread notifications (Figma: `showCount` + `count`): a danger pill,
+   * "99+" above 99. Gone with 0 or undefined. The number joins the accessible name after `label`: "Notificações, 3".
+   */
+  count?: number;
+  /** What the number counts, said after it in the name: "não lidas" → "Notificações, 3 não lidas". */
+  countLabel?: string;
 }
+
+/** The accessible name with the count: "Notificações, 3 não lidas". */
+const countedName = (label: string, count: number | undefined, countLabel?: string) =>
+  count !== undefined && count > 0 ? `${label}, ${count}${countLabel ? ` ${countLabel}` : ''}` : label;
 
 /**
  * IconButton — Figma [RDS] Actions/IconButton. A square of 36, 44 (default) or 52, same tones, sizes and tokens as
@@ -67,21 +78,36 @@ export function IconButton({
   className,
   onClick,
   children,
+  count,
+  countLabel,
   ...rest
 }: IconButtonProps) {
   const Root = asChild ? Slot : 'button';
+  const hasCount = count !== undefined && count > 0;
   const iconNode = (
-    <span className={loading ? 'rds-button__icon rds-button__loader' : 'rds-button__icon'} aria-hidden="true">
-      {loading ? <Loader /> : icon}
-    </span>
+    <>
+      <span className={loading ? 'rds-button__icon rds-button__loader' : 'rds-button__icon'} aria-hidden="true">
+        {loading ? <Loader /> : icon}
+      </span>
+      {hasCount && (
+        <span className="rds-button__count" aria-hidden="true">
+          {count > 99 ? '99+' : count}
+        </span>
+      )}
+    </>
   );
   useLoadingAnnouncement(loading, loadingLabel);
   return (
     <Root
       {...rest}
       type={asChild ? undefined : type}
-      aria-label={label}
-      className={buttonClassName(tone, variant, size, ['rds-button--icon-only', className].filter(Boolean).join(' '))}
+      aria-label={countedName(label, count, countLabel)}
+      className={buttonClassName(
+        tone,
+        variant,
+        size,
+        ['rds-button--icon-only', hasCount && 'rds-button--counted', className].filter(Boolean).join(' '),
+      )}
       aria-disabled={disabled || undefined}
       aria-busy={loading || undefined}
       onClick={blockWhenDisabled(disabled || loading, onClick)}
