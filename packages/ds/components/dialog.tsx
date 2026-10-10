@@ -28,7 +28,7 @@ export interface DialogProps extends ModalProps {
  * the veil close it, and the page behind doesn't scroll. Something with no way back is the AlertDialog; a long
  * form is the Sheet.
  * On a compact screen (below 1024; Figma: the viewport mode, layout/compact) the same Dialog is a sheet stuck to the
- * bottom: the handle on top (dragging it down closes), up to 85% of the screen with only the content scrolling, the
+ * bottom: the handle on top (dragging it down closes), up to the screen's height less 48 (100dvh − 48) with only the content scrolling, the
  * default Cancel gone (the handle, the veil, Escape and the × close it) and the main action full width; it rises
  * above the on-screen keyboard and clears the safe area. A custom `footer` stacks full width, the last (the main
  * action) on top. Styles: internal/modal.css and dialog.css.
