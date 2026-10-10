@@ -383,6 +383,9 @@
   --media-tile-media: var(--surface-muted);
   --media-tile-fallback: var(--text-subtle);
   --media-tile-label: var(--text-body);
+  --media-background: var(--surface-muted);
+  --media-fallback: var(--text-subtle);
+  --media-radius: var(--radius-card);
   --choice-card-check-background-tile: var(--colors-primary-default);
   --choice-card-check-icon-tile: var(--text-on-primary);
   --choice-card-check-background-preview: var(--colors-primary-default);
