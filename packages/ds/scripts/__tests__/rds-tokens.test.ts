@@ -153,7 +153,19 @@ describe("styles/rds/theme.css is the Figma brand table of the Rojão, role by r
 
   it("is the build output of the table (rebuild with pnpm build:rds)", () => {
     expect(css).toBe(emitThemeCss(table, () => {}));
-    expect(blocks).toHaveLength(3);
+    // light, dark, plate and the `@media print` block (#42).
+    expect(blocks).toHaveLength(4);
+  });
+
+  it("print: light with white backgrounds and clear shadows, every role, inside the rds.theme layer", () => {
+    const print = blocks[3];
+    expect(css.indexOf("@media print {")).toBeGreaterThan(css.indexOf("@layer rds.theme {"));
+    expect(print["--surface-page"]).toBe("#ffffff");
+    expect(print["--shadow-key"]).toBe("#00000000");
+    expect(print["--text-body"]).toBe(resolved.light["--text-body"]);
+    expect(print["--media-type-body-size"]).toBe("10pt");
+    expect(resolved.light["--media-type-body-size"]).toBe("var(--type-body-size, 16px)");
+    expect(Object.keys(print).filter((k) => !k.startsWith("--media-type-"))).toHaveLength(111);
   });
 
   it.each(["light", "dark", "brand"] as const)("%s: every role is the colour of the primitive Figma points to", (mode) => {
@@ -164,7 +176,7 @@ describe("styles/rds/theme.css is the Figma brand table of the Rojão, role by r
       if (got !== expected) wrong.push(`${role}: css ${got}, Figma ${expected} (${ref})`);
     }
     expect(wrong).toEqual([]);
-    expect(Object.keys(table.modes[mode])).toHaveLength(107);
+    expect(Object.keys(table.modes[mode])).toHaveLength(111);
   });
 
   it("the brand's own variables (--rojao-*) are in the light scope", () => {
@@ -213,8 +225,8 @@ describe("cascade layers", () => {
 describe("the real [RDS] extraction", () => {
   const all = loadAll(join(__dirname, "..", ".."));
 
-  it("has the 1004 component tokens of the 10 collections", () => {
-    expect(all.tokens).toHaveLength(1004);
+  it("has the 1007 component tokens of the 10 collections", () => {
+    expect(all.tokens).toHaveLength(1007);
   });
 
   it("has no obsolete token left: unused tokens are deleted in Figma, not kept", () => {

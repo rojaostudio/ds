@@ -241,8 +241,8 @@
   --tile-info-fill-icon: var(--text-on-info);
   --tile-info-soft-background: var(--surface-info);
   --tile-info-soft-icon: var(--text-info);
-  --tile-success-fill-background: var(--colors-state-success);
-  --tile-success-fill-icon: var(--text-on-success);
+  --tile-success-fill-background: var(--colors-state-success-strong);
+  --tile-success-fill-icon: var(--text-on-success-strong);
   --tile-success-soft-background: var(--surface-success);
   --tile-success-soft-icon: var(--text-success);
   --tile-warning-fill-background: var(--colors-state-warning);
@@ -259,6 +259,9 @@
   --card-title: var(--text-heading);
   --card-description: var(--text-muted);
   --card-tint-background: var(--surface-tint-default);
+  --card-inverse-background: var(--surface-inverse);
+  --card-inverse-title: var(--text-on-inverse);
+  --card-inverse-description: var(--text-on-inverse-subtle);
   --kbd-background: var(--surface-muted);
   --kbd-border: var(--border-default);
   --kbd-label: var(--text-body);

@@ -8,12 +8,17 @@ const heads = (css: string) => [...css.matchAll(/^([^\n{]+) \{$/gm)].map((m) => 
 
 describe("emitRdsCss scopes", () => {
   it("the default covers the classes and the generic attributes", () => {
+    const dark =
+      ':root.dark, .dark, :root[data-rds-mode="dark"], [data-rds-mode="dark"], .ds-scope.dark, .dark .ds-scope, ' +
+      '.ds-scope[data-rds-mode="dark"], [data-rds-mode="dark"] .ds-scope, [data-rds-scope].dark, .dark [data-rds-scope], ' +
+      '[data-rds-scope][data-rds-mode="dark"], [data-rds-mode="dark"] [data-rds-scope]';
     expect(heads(emitRdsCss(theme))).toEqual([
       ":root, .ds-scope, [data-rds-scope]",
-      ':root.dark, .dark, :root[data-rds-mode="dark"], [data-rds-mode="dark"], .ds-scope.dark, .dark .ds-scope, ' +
-        '.ds-scope[data-rds-mode="dark"], [data-rds-mode="dark"] .ds-scope, [data-rds-scope].dark, .dark [data-rds-scope], ' +
-        '[data-rds-scope][data-rds-mode="dark"], [data-rds-mode="dark"] [data-rds-scope]',
+      dark,
       ".ds-plate, [data-rds-plate]",
+      // Print (#42): every selector above, light forced.
+      "@media print",
+      `:root, .ds-scope, [data-rds-scope], ${dark}, .ds-plate, [data-rds-plate]`,
     ]);
   });
 
@@ -35,6 +40,9 @@ describe("emitRdsCss scopes", () => {
       ".my-scope[data-rds-scope]",
       '.my-scope[data-rds-scope][data-rds-mode="dark"], [data-rds-mode="dark"] .my-scope[data-rds-scope]',
       ".ds-plate, [data-rds-plate]",
+      "@media print",
+      '.my-scope[data-rds-scope], .my-scope[data-rds-scope][data-rds-mode="dark"], ' +
+        '[data-rds-mode="dark"] .my-scope[data-rds-scope], .ds-plate, [data-rds-plate]',
     ]);
     expect(() => emitRdsCss(theme, { scope: '[data-rds-scope="my-brand"]' })).not.toThrow();
   });

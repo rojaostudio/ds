@@ -23,6 +23,8 @@
     "blue/700": "#00518d",
     "blue/800": "#003966",
     "blue/900": "#002445",
+    "coal/600": "#2d3240",
+    "coal/900": "#0f1115",
     "flare/100": "#ffe2c6",
     "flare/200": "#ffca96",
     "flare/300": "#ffb066",
@@ -192,7 +194,11 @@
       "border/error": "red/600",
       "surface/attention/low": "amber/100",
       "surface/attention/medium": "amber/200",
-      "surface/attention/high": "amber/400"
+      "surface/attention/high": "amber/400",
+      "surface/inverse": "navy/900",
+      "text/on-inverse": "white/a100",
+      "text/on-inverse-subtle": "white/a70",
+      "text/on/success-strong": "white/a100"
     },
     "dark": {
       "colors/primary/light": "navy/400",
@@ -301,7 +307,11 @@
       "border/error": "red/400",
       "surface/attention/low": "amber/100",
       "surface/attention/medium": "amber/200",
-      "surface/attention/high": "amber/400"
+      "surface/attention/high": "amber/400",
+      "surface/inverse": "white/a100",
+      "text/on-inverse": "coal/900",
+      "text/on-inverse-subtle": "coal/600",
+      "text/on/success-strong": "black/a100"
     },
     "brand": {
       "colors/primary/light": "navy/300",
@@ -410,7 +420,11 @@
       "border/error": "red/300",
       "surface/attention/low": "amber/100",
       "surface/attention/medium": "amber/200",
-      "surface/attention/high": "amber/400"
+      "surface/attention/high": "amber/400",
+      "surface/inverse": "white/a100",
+      "text/on-inverse": "coal/900",
+      "text/on-inverse-subtle": "coal/600",
+      "text/on/success-strong": "black/a100"
     }
   },
   "vars": {

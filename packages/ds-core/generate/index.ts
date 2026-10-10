@@ -7,6 +7,7 @@ export { generateTheme, resolveTheme } from "./generateTheme";
 export {
   generateRdsTheme, rdsThemeFromTable, emitRdsCss, rdsContrast, rdsContrastReport, roleVar, ROLES as RDS_ROLES,
   RDS_CONTRAST_PAIRS, RDS_NON_TEXT_PAIRS, RDS_SCOPE_SELECTORS, RDS_TOKEN_SCOPE,
+  rdsPrintMode, RDS_PRINT_WHITE, RDS_PRINT_TRANSPARENT, RDS_PRINT_ON_WHITE, RDS_MEDIA_TYPE,
 } from "./rdsTheme";
 export type { RdsTheme, RdsMode, RdsCssOptions, RdsBrandTable, RdsThemeOptions, RdsContrastFailure } from "./rdsTheme";
 export type { TokenMap, GenResult, ResolvedTheme } from "./generateTheme";

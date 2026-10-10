@@ -11,8 +11,8 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { emitRdsCss, type RdsTheme } from '@rojaostudio/ds-core/generate';
 
-export type Mode = 'light' | 'dark' | 'plate';
-export const MODES: Mode[] = ['light', 'dark', 'plate'];
+export type Mode = 'light' | 'dark' | 'plate' | 'print';
+export const MODES: Mode[] = ['light', 'dark', 'plate', 'print'];
 
 /** WCAG AA: 4.5:1 for text, 3:1 for what is not text (a field border, an icon, a logo) and for large text. */
 export const MIN = { t: 4.5, u: 3 } as const;
@@ -124,6 +124,7 @@ export const PAIRS: Pair[] = [
   ]),
   ['--card-title', '--card-background', 't'], ['--card-description', '--card-background', 't'],
   ['--card-tint-title', '--card-tint-background', 't'],
+  ['--card-inverse-title', '--card-inverse-background', 't'], ['--card-inverse-description', '--card-inverse-background', 't'],
   // Blocks.
   ...block('--faq'), ...block('--contact'), ...block('--benefits'), ...block('--testimonial'),
   ...block('--pricing'), ...block('--newsletter', ['title', 'text', 'note']), ...block('--footer', ['legal', 'link', 'tagline', 'title']),
@@ -277,15 +278,18 @@ export const ratio = (a: Rgba, b: Rgba) => {
 // ---------------------------------------------------------------------------------------------------------------
 // The emitted stylesheet, per mode.
 
-/** The three blocks of `emitRdsCss` (light, dark, plate) as maps; dark and plate inherit light, as in the cascade. */
+/**
+ * The blocks of `emitRdsCss` (light, dark, plate, then the `@media print` one) as maps; dark and plate inherit light, as
+ * in the cascade. The print block carries every role (it overrides dark and plate too).
+ */
 export function emittedModes(theme: RdsTheme): Record<Mode, Record<string, string>> {
   const css = emitRdsCss(theme);
-  const blocks = [...css.matchAll(/\{([^}]*)\}/g)].map((m) =>
+  const blocks = [...css.matchAll(/\{([^{}]*)\}/g)].map((m) =>
     Object.fromEntries([...m[1].matchAll(/(--[a-z0-9-]+):\s*([^;]+);/g)].map((d) => [d[1], d[2].trim()])),
   );
-  if (blocks.length !== 3) throw new Error(`emitRdsCss: expected 3 blocks, got ${blocks.length}`);
-  const [light, dark, plate] = blocks;
-  return { light, dark: { ...light, ...dark }, plate: { ...light, ...plate } };
+  if (blocks.length !== 4) throw new Error(`emitRdsCss: expected 4 blocks, got ${blocks.length}`);
+  const [light, dark, plate, print] = blocks;
+  return { light, dark: { ...light, ...dark }, plate: { ...light, ...plate }, print };
 }
 
 /** A component token (or a theme role) down to its colour in one mode. */

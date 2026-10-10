@@ -5,9 +5,12 @@ import { IconButton } from './icon-button';
 import { MoreVerticalIcon, InfoIcon } from './internal/icons';
 import { Tile } from './tile';
 import { Switch } from './switch';
-import { MODES, SCHEMES, axeViolations, cleanup, render, renderIn } from './__tests__/render';
+import { MODES, SCHEMES, axeViolations, cleanup, render, renderIn, setMedia } from './__tests__/render';
 
-afterEach(cleanup);
+afterEach(async () => {
+  await setMedia(null);
+  cleanup();
+});
 
 const SIZES: CardSize[] = ['md', 'sm'];
 const SURFACES: CardVariant[] = ['surface', 'outline', 'soft'];
@@ -207,5 +210,67 @@ describe.each(SCHEMES)('Card header action (%s)', (scheme) => {
       scheme,
     );
     expect(await axeViolations(el)).toEqual([]);
+  });
+});
+
+// variant="inverse": the brand's dark fill (surface/inverse), text and icons in text/on-inverse, the description in
+// text/on-inverse-subtle. Measured in light, dark and print (Chromium in the print media type).
+const rgba = (c: string) => {
+  const m = c.match(/rgba?\(([^)]+)\)/)!;
+  const [r, g, b, a = 1] = m[1].split(/[\s,/]+/).filter(Boolean).map(Number);
+  return [r, g, b, a] as const;
+};
+const lum = ([r, g, b]: readonly number[]) => {
+  const ch = (v: number) => ((v /= 255) <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
+  return 0.2126 * ch(r) + 0.7152 * ch(g) + 0.0722 * ch(b);
+};
+/** Contrast of a (possibly translucent) colour over an opaque one. */
+const contrast = (fg: string, bg: string) => {
+  const [r, g, b, a] = rgba(fg);
+  const back = rgba(bg);
+  const front = [r * a + back[0] * (1 - a), g * a + back[1] * (1 - a), b * a + back[2] * (1 - a)];
+  const [x, y] = [lum(front), lum(back)].sort((p, q) => q - p);
+  return (x + 0.05) / (y + 0.05);
+};
+const inverse = (
+  <Card variant="inverse">
+    <CardHeader title="Saldo do mês" description="Atualizado agora" />
+    <CardContent>
+      <p style={{ margin: 0 }}>
+        <span className="probe-icon" aria-hidden="true" style={{ display: 'inline-block', width: 16, height: 16 }}>
+          <InfoIcon />
+        </span>{' '}
+        R$ 12.400,00 em 38 pedidos.
+      </p>
+    </CardContent>
+    <CardFooter note="Fecha no dia 30.">{null}</CardFooter>
+  </Card>
+);
+
+describe.each(['light', 'dark', 'print'] as const)('Card variant="inverse" (%s)', (mode) => {
+  it('passes axe; title, content, icon and note in text/on-inverse, the description in text/on-inverse-subtle, AA on the fill', async () => {
+    if (mode === 'print') await setMedia('print');
+    const el = await render(<div style={{ maxWidth: 400 }}>{inverse}</div>, mode === 'dark' ? 'dark' : 'light');
+    expect(await axeViolations(el)).toEqual([]);
+    const card = el.querySelector<HTMLElement>('.rds-card')!;
+    const s = getComputedStyle(card);
+    const probe = document.createElement('span');
+    card.append(probe);
+    const resolve = (v: string) => {
+      probe.style.color = `var(${v})`;
+      return getComputedStyle(probe).color;
+    };
+    expect(s.backgroundColor).toBe(resolve('--surface-inverse'));
+    expect(s.borderTopColor).toBe('rgba(0, 0, 0, 0)');
+    expect(s.boxShadow).toBe('none');
+    const on = resolve('--text-on-inverse');
+    const color = (sel: string) => getComputedStyle(card.querySelector<HTMLElement>(sel)!).color;
+    for (const sel of ['.rds-card__title', '.rds-card__content', '.probe-icon', '.rds-card__note']) expect(color(sel), sel).toBe(on);
+    expect(color('.rds-card__description')).toBe(resolve('--text-on-inverse-subtle'));
+    for (const sel of ['.rds-card__title', '.rds-card__description', '.rds-card__note'])
+      expect(contrast(color(sel), s.backgroundColor), sel).toBeGreaterThanOrEqual(4.5);
+    if (mode === 'dark') expect(s.backgroundColor).toBe('rgb(255, 255, 255)');
+    // Print keeps the fill: a full fill, not a background the print mode turns white.
+    if (mode === 'print') expect(s.backgroundColor).not.toBe('rgb(255, 255, 255)');
   });
 });

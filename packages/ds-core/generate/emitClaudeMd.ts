@@ -12,7 +12,7 @@
  * exported from Figma (`rdsThemeFromTable`). Colours in the table are the theme's own hex values,
  * so the AI "sees" the brand. Pure (no I/O).
  */
-import { generateRdsTheme, rdsThemeFromTable, roleVar, type RdsBrandTable, type RdsTheme } from "./rdsTheme";
+import { generateRdsTheme, RDS_MEDIA_TYPE, rdsThemeFromTable, roleVar, type RdsBrandTable, type RdsTheme } from "./rdsTheme";
 import type { BrandDef } from "../tokens/recipe.schema";
 import { assertSafeTheme, oneLine, preview } from "./validate";
 
@@ -156,6 +156,10 @@ ${themeImport}
 - Dark mode: \`class="dark"\` on \`<html>\` (or any element). Light AND dark are first-class.
 - Brand plate: \`class="ds-plate"\` on a section paints it with the brand color; the roles inside
   flip so text and components stay legible.
+- Print: the theme already carries \`@media print\` (light forced, white backgrounds, no shadows, even
+  under \`.dark\` or \`.ds-plate\`). Components keep their type; for your printed sheet use
+  \`--media-type-<role>-size\` / \`--media-type-<role>-line\` (${RDS_MEDIA_TYPE.map((m) => `\`${m.role}\``).join(" · ")}):
+  the screen type on screen, points on paper.
 
 ## Components first
 Use the design system components before writing your own markup. Import each from its own path:

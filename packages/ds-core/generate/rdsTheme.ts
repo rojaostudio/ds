@@ -277,7 +277,35 @@ export const ROLES: ReadonlyArray<readonly [string, "l" | "d" | "p", "l" | "d" |
   ["colors/state/info-strong", "d", "d"], ["colors/state/neutral-strong", "d", "d"],
   ["text/on/primary-subtle", "d", "b"], ["surface/tint/subtle", "d", "b"], ["border/error", "d", "d"],
   ["surface/attention/low", "p", "p"], ["surface/attention/medium", "p", "p"], ["surface/attention/high", "p", "p"],
+  ["surface/inverse", "d", "d"], ["text/on-inverse", "d", "d"], ["text/on-inverse-subtle", "d", "d"],
+  ["text/on/success-strong", "d", "d"],
 ];
+
+/**
+ * text/on/success-strong: the icon on colors/state/success-strong (the success fill Tile). White on the light green/600,
+ * black on the dark green/300 (dark and plate).
+ */
+const SUCCESS_STRONG_ON = { light: WHITE, dark: BLACK } as const;
+
+const coal = palettes.coal as Record<number, string>;
+
+/**
+ * surface/inverse (the inverse Card): the brand's primary in light (and print) when white text reads AA on it,
+ * otherwise coal/900 (a light brand, as Figma draws it per brand); white in dark and on the plate. Its texts:
+ * text/on-inverse white, text/on-inverse-subtle white at 70% (more when the fill asks, inverseSubtle) in light; coal/900 and coal/600 in dark and on the plate.
+ */
+const inverseOf = (primary: string) => (contrastRatio(WHITE, primary) >= AA ? primary : coal[900]);
+/**
+ * text/on-inverse-subtle in light: white at 70% as Figma draws it, more opaque 5% at a time until it reads AA on the
+ * fill (a mid primary, a violet or a green, leaves 70% near 3.5:1).
+ */
+function inverseSubtle(fill: string): string {
+  for (let p = 70; p < 100; p += 5) if (contrastRatio(over(white(p), fill), fill) >= AA) return white(p);
+  return WHITE;
+}
+const INVERSE_DARK: Record<string, string> = {
+  "surface/inverse": WHITE, "text/on-inverse": coal[900], "text/on-inverse-subtle": coal[600],
+};
 
 /**
  * surface/attention/* (Figma: amber/100, 200 and 400 of the [RDS] Primitives): the same in light, dark and on the
@@ -368,6 +396,8 @@ export function generateRdsTheme(def: BrandDef, opts: RdsThemeOptions = {}): Rds
     "shadow/ambient": black(5), "shadow/key": black(10), "shadow/strong": black(20),
     "type/font/mono": "Roboto Mono",
     "logo/mono": BLACK, "logo/inverse": WHITE, "logo/inverse-signature": WHITE, "social/ink": BLACK,
+    "surface/inverse": inverseOf(P.base), "text/on-inverse": WHITE, "text/on-inverse-subtle": inverseSubtle(inverseOf(P.base)),
+    "text/on/success-strong": SUCCESS_STRONG_ON.light,
     ...ATTENTION,
   };
   // The neutral ink: colors/primary/* is the fill of the neutral Button and Badge, the bars, the Tooltip, the selected
@@ -449,6 +479,8 @@ export function generateRdsTheme(def: BrandDef, opts: RdsThemeOptions = {}): Rds
     "logo/primary": WHITE, "logo/accent": WHITE, "logo/signature": WHITE, "logo/mono": WHITE, "social/ink": WHITE,
     "colors/state/info-strong": L[300], "colors/state/neutral-strong": N[400],
     "text/on/primary-subtle": black(30),
+    ...INVERSE_DARK,
+    "text/on/success-strong": SUCCESS_STRONG_ON.dark,
   };
   // The neutral ink in dark: a light neutral (one colour only), the one of the neutral steps far enough from the
   // action fill. See the light mode.
@@ -620,6 +652,65 @@ export const RDS_SCOPE_SELECTORS = [
 /** RDS_SCOPE_SELECTORS as one selector list, as the component token layer is emitted. */
 export const RDS_TOKEN_SCOPE = RDS_SCOPE_SELECTORS.join(", ");
 
+/**
+ * The print mode of the [RDS] theme (issue #42): the light mode with two swaps, as Figma draws it. Every background
+ * turns white (paper, and no ink spent on fills; the borders and texts of light stay, so a box keeps its outline) and
+ * every shadow turns transparent. emitRdsCss writes it in an `@media print` block over every scope, dark and plate.
+ */
+export const RDS_PRINT_WHITE = [
+  "surface/page", "surface/card", "surface/panel", "surface/cover", "surface/muted", "surface/muted-strong",
+  "surface/tint/default", "surface/tint/strong", "surface/tint/subtle", "surface/band/base",
+  "surface/neutral", "surface/info", "surface/success", "surface/warning", "surface/error", "surface/error-strong",
+  "surface/attention/low", "surface/attention/medium", "surface/attention/high",
+] as const;
+/** The shadows the print mode clears. */
+export const RDS_PRINT_TRANSPARENT = ["shadow/ambient", "shadow/key", "shadow/strong"] as const;
+
+/**
+ * The text that sits on a background the print mode turns white: picked for the coloured fill (white on a dark
+ * cover), it would vanish on paper. In print it is the light body text, the text of the page.
+ */
+export const RDS_PRINT_ON_WHITE = ["text/on/cover", "text/on/tint", "text/on/band-base"] as const;
+
+/**
+ * The theme roles in print: light, the backgrounds of RDS_PRINT_WHITE white, the text on them (RDS_PRINT_ON_WHITE)
+ * the light text/body, the shadows of RDS_PRINT_TRANSPARENT clear.
+ */
+export function rdsPrintMode(theme: RdsTheme): Record<string, string> {
+  const out = { ...theme.light };
+  for (const role of RDS_PRINT_WHITE) out[roleVar(role)] = WHITE;
+  for (const role of RDS_PRINT_ON_WHITE) out[roleVar(role)] = theme.light[roleVar("text/body")];
+  for (const role of RDS_PRINT_TRANSPARENT) out[roleVar(role)] = black(0);
+  return out;
+}
+
+/**
+ * The media type variables of the [RDS] Base Tokens (Figma `media/type/<role>/{size,line}`, issue #42): on screen an
+ * alias of a type style (title → type/heading), on paper a closed scale in points. Only the variables exist: the
+ * components keep the type tokens, and the consumer's printed sheet reads `--media-type-<role>-size` / `-line`.
+ */
+export const RDS_MEDIA_TYPE: ReadonlyArray<{
+  role: string; screen: string; size: number; line: number; print: readonly [size: number, line: number];
+}> = [
+  { role: "caption", screen: "caption", size: 12, line: 16, print: [8, 10] },
+  { role: "small", screen: "small", size: 14, line: 20, print: [9, 12] },
+  { role: "body", screen: "body", size: 16, line: 24, print: [10, 14] },
+  { role: "label", screen: "label", size: 16, line: 24, print: [12, 16] },
+  { role: "title", screen: "heading", size: 24, line: 30, print: [18, 24] },
+];
+
+/** The media type variables as declarations: the screen alias (its px value as fallback) or, in print, points. */
+function mediaTypeLines(print: boolean): string[] {
+  return RDS_MEDIA_TYPE.flatMap(({ role, screen, size, line, print: [ps, pl] }) =>
+    print
+      ? [`  --media-type-${role}-size: ${ps}pt;`, `  --media-type-${role}-line: ${pl}pt;`]
+      : [
+          `  --media-type-${role}-size: var(--type-${screen}-size, ${size}px);`,
+          `  --media-type-${role}-line: var(--type-${screen}-line, ${line}px);`,
+        ],
+  );
+}
+
 export type RdsCssOptions = {
   /** Scope of the light mode. Default `:root, .ds-scope, [data-rds-scope]`. */
   scope?: string;
@@ -650,7 +741,9 @@ const covered = (sel: string) => {
 
 /**
  * The theme as CSS. Dark and plate only carry what differs from light: they inherit the rest
- * through the cascade, like the [RDS] modes that point back to the plain token.
+ * through the cascade, like the [RDS] modes that point back to the plain token. An `@media print` block closes the
+ * sheet with the print mode (rdsPrintMode) over every one of those selectors. The light scope also declares the media
+ * type variables (RDS_MEDIA_TYPE), which the print block turns into points.
  *
  * Throws when a selector would leave the components of @rojaostudio/ds on the root colours (see
  * RDS_SCOPE_SELECTORS), unless `allowUncovered`.
@@ -668,11 +761,11 @@ export function emitRdsCss(theme: RdsTheme, opts: RdsCssOptions = {}): string {
   const scopes = split(opts.scope ?? ":root, .ds-scope, [data-rds-scope]");
   const darks = split(opts.dark ?? '.dark, [data-rds-mode="dark"]');
   const plates = split(opts.plate ?? ".ds-plate, [data-rds-plate]");
-  const block = (sels: string[], map: Record<string, string>, only?: Record<string, string>) => {
+  const block = (sels: string[], map: Record<string, string>, only?: Record<string, string>, extra: string[] = []) => {
     const lines = Object.entries(map)
       .filter(([k, v]) => !only || only[k] !== v)
       .map(([k, v]) => `  ${k}: ${k === "--type-font-mono" ? `"${v}", monospace` : v};`);
-    return `${sels.join(", ")} {\n${lines.join("\n")}\n}`;
+    return `${sels.join(", ")} {\n${[...lines, ...extra].join("\n")}\n}`;
   };
   const darkSels = scopes.flatMap((s) =>
     darks.flatMap((d) => {
@@ -692,10 +785,14 @@ export function emitRdsCss(theme: RdsTheme, opts: RdsCssOptions = {}): string {
           `Pass allowUncovered: true only for a theme without the components.`,
       );
   }
+  // Print (issue #42): the print mode in full on every scope, dark and plate included, so a page printed from dark
+  // mode or a plate comes out on white paper. Same selectors as the blocks above, later in the sheet: it wins.
+  const print = block([...new Set([...scopes, ...darkSels, ...plates])], rdsPrintMode(theme), undefined, mediaTypeLines(true));
   return [
-    block(scopes, { ...theme.light, ...theme.vars }),
+    block(scopes, { ...theme.light, ...theme.vars }, undefined, mediaTypeLines(false)),
     block(darkSels, theme.dark, theme.light),
     block(plates, theme.brand, theme.light),
+    `@media print {\n${print}\n}`,
   ].join("\n\n") + "\n";
 }
 
@@ -737,6 +834,8 @@ export const RDS_CONTRAST_PAIRS: ReadonlyArray<readonly [string, string]> = [
   ["text/error", "surface/card"], ["text/error", "surface/page"], ["text/error", "surface/error-strong"],
   ["text/success", "surface/success"], ["text/success", "surface/card"], ["text/info", "surface/info"],
   ["text/warning", "surface/warning"], ["text/neutral", "surface/neutral"],
+  // The inverse Card: its text on its fill.
+  ["text/on-inverse", "surface/inverse"],
   // The attention Banner: text/on/warning on its three levels.
   ["text/on/warning", "surface/attention/low"], ["text/on/warning", "surface/attention/medium"],
   ["text/on/warning", "surface/attention/high"],
@@ -752,6 +851,8 @@ export const RDS_NON_TEXT_PAIRS: ReadonlyArray<readonly [string, string]> = [
   ["logo/primary", "surface/card"], ["logo/primary", "surface/page"], ["logo/primary", "surface/panel"],
   ["chart/series/1", "surface/card"], ["chart/series/1", "surface/page"],
   ["colors/state/neutral-strong", "surface/panel"], ["colors/state/neutral-strong", "surface/card"],
+  // The icon of the success fill Tile on its fill.
+  ["text/on/success-strong", "colors/state/success-strong"],
 ];
 
 /** A pair below its minimum: 4.5:1 for text (RDS_CONTRAST_PAIRS), 3:1 for the rest (RDS_NON_TEXT_PAIRS). */
@@ -785,6 +886,19 @@ export type RdsBrandTable = {
   /** The brand's own variables of the `brand` collection, by Figma path ("marca/ciano") → primitive or value. */
   vars?: Record<string, string>;
 };
+
+/**
+ * A role a table exported before it existed (the inverse roles, text/on/success-strong): the generator's rule, the
+ * inverse fill from the table's light primary.
+ */
+function laterFallback(role: string, mode: RdsMode, primary: string | undefined): string | undefined {
+  if (role === "text/on/success-strong") return mode === "light" ? SUCCESS_STRONG_ON.light : SUCCESS_STRONG_ON.dark;
+  if (!(role in INVERSE_DARK)) return undefined;
+  if (mode !== "light") return INVERSE_DARK[role];
+  const fill = primary && /^#[0-9a-f]{6}$/i.test(primary) ? inverseOf(primary) : coal[900];
+  if (role === "surface/inverse") return fill;
+  return role === "text/on-inverse" ? WHITE : inverseSubtle(fill);
+}
 
 const isColourRef = (v: string) => /^[a-z][a-z0-9-]*\/[a-z]?\d+$/i.test(v);
 
@@ -848,6 +962,13 @@ export function rdsThemeFromTable(table: RdsBrandTable, opts: RdsThemeOptions = 
         derived.add(role);
         continue;
       }
+      // Roles added later (inverse, text/on/success-strong): the generator's rule (laterFallback).
+      const later = ref === undefined ? laterFallback(role, mode, out[mode][roleVar("colors/primary/default")]) : undefined;
+      if (later !== undefined) {
+        out[mode][roleVar(role)] = later;
+        derived.add(role);
+        continue;
+      }
       if (ref === undefined) problems.push(`${mode}: role "${role}" is missing`);
       else if (isColourRef(ref)) {
         const value = table.primitives[ref];
@@ -881,7 +1002,9 @@ export function rdsThemeFromTable(table: RdsBrandTable, opts: RdsThemeOptions = 
           .map((r) =>
             ADDED_ROLES[r]
               ? Object.entries(ADDED_ROLES[r]).map(([m, src]) => `${m}: ${src}`).join(", ")
-              : `${r}: ${ATTENTION[r]} in every mode`,
+              : ATTENTION[r]
+                ? `${r}: ${ATTENTION[r]} in every mode`
+                : `${r}: ${out.light[roleVar(r)]} in light, ${out.dark[roleVar(r)]} in dark and on the plate`,
           )
           .join("; ") +
         `). Export the table again with figma/export-brand.js.`,
