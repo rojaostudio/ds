@@ -44,7 +44,7 @@ Components, styles and the React Native target live in
 
 | Entry | What's in it |
 |---|---|
-| `@rojaostudio/ds-core/generate` | `generateRdsTheme`, `rdsThemeFromTable`, `emitRdsCss`, `emitClaudeMd`, `generateTheme`/`emitCss` (1.x), `buildScale`, `contrastRatio` |
+| `@rojaostudio/ds-core/generate` | `generateRdsTheme`, `rdsThemeFromTable`, `emitRdsCss`, `emitClaudeMd`, `rdsBrandColors`, `deriveAccent`, `generateTheme`/`emitCss` (1.x), `buildScale`, `contrastRatio` |
 | `@rojaostudio/ds-core/tokens` | `primitives` — the raw palettes and scales |
 | `@rojaostudio/ds-core/recipes` | the reference brand definition |
 | `@rojaostudio/ds-core/themes` | the preset catalogue: a starting palette per niche |

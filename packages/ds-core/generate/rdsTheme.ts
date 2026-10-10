@@ -19,6 +19,7 @@ import {
   type Scale, type ScaleStep,
 } from "./scale";
 import { assertSafeTheme, collector, isSafeSelectorList, preview } from "./validate";
+import { deriveAccent } from "./derive";
 
 export type RdsMode = "light" | "dark" | "brand";
 export type RdsTheme = Record<RdsMode, Record<string, string>> & {
@@ -338,6 +339,49 @@ const lighterStep = (s: ScaleStep): ScaleStep => (s >= 200 ? ((s - 100) as Scale
 /** CSS custom property of a role: the Figma path with hyphens (the [RDS] codeSyntax rule). */
 export const roleVar = (role: string) => `--${role.replaceAll("/", "-")}`;
 
+/**
+ * The three brand ramps of a recipe. A secondary the recipe does not name is the primary itself (the action is the
+ * colour chosen); an accent it does not name is derived from the primary (derive.ts). Named colours are used as given.
+ */
+function brandRamps(b: BrandDef["brand"], own?: CustomPalettes) {
+  const P = ramp(b.primary, own);
+  const S = b.secondary ? ramp(b.secondary, own) : P;
+  const A = b.accent ? ramp(b.accent, own) : ramp(deriveAccent(P.base.toLowerCase()));
+  return { P, S, A };
+}
+
+/** The brand colours a theme is drawn from, as #rrggbb, and where each came from (rdsBrandColors). */
+export type RdsBrandColors = {
+  primary: string;
+  secondary: string;
+  accent: string;
+  /**
+   * Where the secondary and the accent came from: the recipe, or, when it names none, the primary itself (the
+   * secondary) or a colour derived from the primary (the accent).
+   */
+  source: { secondary: "recipe" | "primary"; accent: "recipe" | "derived" };
+};
+
+/**
+ * The primary, secondary and accent generateRdsTheme draws the theme from: the recipe's own (palette refs resolved),
+ * or, where the recipe names none, the primary as secondary and the accent derived from it. For a generator to show
+ * them in its fields.
+ */
+export function rdsBrandColors(def: BrandDef): RdsBrandColors {
+  const where = `rdsBrandColors(${preview(def?.name)})`;
+  if (!def?.brand || typeof def.brand !== "object") throw new Error(`${where}: brand is missing`);
+  checkPalettes(def.palettes, where);
+  const { P, S, A } = brandRamps(def.brand, def.palettes);
+  const out: RdsBrandColors = {
+    primary: P.base.toLowerCase(), secondary: S.base.toLowerCase(), accent: A.base.toLowerCase(),
+    source: { secondary: def.brand.secondary ? "recipe" : "primary", accent: def.brand.accent ? "recipe" : "derived" },
+  };
+  const c = collector(where);
+  for (const k of ["primary", "secondary", "accent"] as const) c.color(k, out[k]);
+  c.done();
+  return out;
+}
+
 export function generateRdsTheme(def: BrandDef, opts: RdsThemeOptions = {}): RdsTheme {
   const warn = opts.warn ?? defaultWarn;
   const where = `generateRdsTheme(${preview(def?.name)})`;
@@ -345,9 +389,7 @@ export function generateRdsTheme(def: BrandDef, opts: RdsThemeOptions = {}): Rds
   checkPalettes(def.palettes, where);
   const b = def.brand;
   const own = def.palettes;
-  const P = ramp(b.primary, own);
-  const S = b.secondary ? ramp(b.secondary, own) : P;
-  const A = b.accent ? ramp(b.accent, own) : P;
+  const { P, S, A } = brandRamps(b, own);
   const N = def.text && (own?.[def.text] || (palettes[def.text] && typeof palettes[def.text] !== "string"))
     ? palette(def.text, own)
     : palette("zinc");
@@ -411,8 +453,8 @@ export function generateRdsTheme(def: BrandDef, opts: RdsThemeOptions = {}): Rds
     ...ATTENTION,
   };
   // The neutral ink: colors/primary/* is the fill of the neutral Button and Badge, the bars, the Tooltip, the selected
-  // day. A recipe with a secondary drew its own primary (Rojão: navy, an ink already) and it is kept. With one colour
-  // only (the showroom's "your colour"), that colour is the action (colors/secondary/*) and the accent; the neutral
+  // day. A recipe with a secondary drew its own primary (Rojão: navy, an ink already) and it is kept. Without one (the
+  // showroom's "your colour"), that colour is the action (colors/secondary/*), the accent is derived from it, and the neutral
   // roles take a neutral ink from the text ramp instead, never the brand colour, far enough from the action fill to
   // tell the two Buttons apart (a near-black brand gets a lighter ink).
   const single = !b.secondary;

@@ -80,7 +80,7 @@ const toLin = (c: number) => { const s = c / 255; return s <= 0.04045 ? s / 12.9
 const toGam = (c: number) => { const s = c <= 0.0031308 ? 12.92 * c : 1.055 * c ** (1 / 2.4) - 0.055; return Math.round(Math.max(0, Math.min(1, s)) * 255); };
 
 /** hex → OKLCH [L (0–1), C (croma), h (radianos)]. */
-function hexToOklch(hex: string): [number, number, number] {
+export function hexToOklch(hex: string): [number, number, number] {
   const m = hex.replace("#", "");
   const r = toLin(parseInt(m.slice(0, 2), 16));
   const g = toLin(parseInt(m.slice(2, 4), 16));
@@ -109,7 +109,7 @@ function oklchToLinRgb(L: number, C: number, h: number): [number, number, number
 const inGamut = (rgb: number[]) => rgb.every((c) => c >= -0.001 && c <= 1.001);
 
 /** OKLCH → hex, reduzindo croma até caber no sRGB (preserva L e h — evita clip que torce o matiz). */
-function oklchToHex(L: number, C: number, h: number): string {
+export function oklchToHex(L: number, C: number, h: number): string {
   if (!inGamut(oklchToLinRgb(L, C, h))) {
     let lo = 0, hi = C;
     for (let i = 0; i < 18; i++) { const mid = (lo + hi) / 2; if (inGamut(oklchToLinRgb(L, mid, h))) lo = mid; else hi = mid; }
