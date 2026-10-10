@@ -84,8 +84,9 @@ describe("[RDS] contrast of the generated theme, for any brand colour", () => {
     expect(generateRdsTheme(brand("#1b2a4a")).light["--text-heading"]).toBe("#1b2a4a");
     const t = generateRdsTheme(brand("#ffd200"));
     // An ochre of the same hue, not the black fallback. Dark enough to also read on the pressed outline Button
-    // (surface/muted-strong) and on the accent highlight of the Badge, where it is a label too.
-    expect(t.light["--text-heading"]).toBe("#855800");
+    // (surface/muted-strong) and on the accent highlight of the Badge, where it is a label too (the highlight of the
+    // accent derived from the yellow, a light blue: #855800 before the derivation, on the yellow's own highlight).
+    expect(t.light["--text-heading"]).toBe("#7a5200");
     expect(rdsContrastReport(t).filter((f) => f.fg === "text/heading")).toEqual([]);
   });
 

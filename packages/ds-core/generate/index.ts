@@ -7,9 +7,13 @@ export { generateTheme, resolveTheme } from "./generateTheme";
 export {
   generateRdsTheme, rdsThemeFromTable, emitRdsCss, rdsContrast, rdsContrastReport, roleVar, ROLES as RDS_ROLES,
   RDS_CONTRAST_PAIRS, RDS_NON_TEXT_PAIRS, RDS_SCOPE_SELECTORS, RDS_TOKEN_SCOPE,
-  rdsPrintMode, RDS_PRINT_WHITE, RDS_PRINT_TRANSPARENT, RDS_PRINT_ON_WHITE, RDS_MEDIA_TYPE,
+  rdsPrintMode, RDS_PRINT_WHITE, RDS_PRINT_TRANSPARENT, RDS_PRINT_ON_WHITE, RDS_MEDIA_TYPE, rdsBrandColors,
 } from "./rdsTheme";
-export type { RdsTheme, RdsMode, RdsCssOptions, RdsBrandTable, RdsThemeOptions, RdsContrastFailure } from "./rdsTheme";
+export type {
+  RdsTheme, RdsMode, RdsCssOptions, RdsBrandTable, RdsThemeOptions, RdsContrastFailure, RdsBrandColors,
+} from "./rdsTheme";
+// The accent a recipe does not name, derived from its primary.
+export { deriveAccent } from "./derive";
 export type { TokenMap, GenResult, ResolvedTheme } from "./generateTheme";
 // The allow lists every emitter checks its input against (a colour, a variable name, a font family).
 export { isSafeColor, isSafeVarName, isSafeFont, RdsValidationError } from "./validate";
