@@ -25,9 +25,9 @@ agreement nobody is on call for:
 
 ## Scope
 
-**In scope:** anything in the published packages `@rojaostudio/ds`, `@rojaostudio/ds-core`,
-`@rojaostudio/ds-codemod` and `rojao-ds` (the CLI, including the files it writes into a project and
-the codemod it runs through `rojao-ds migrate`), the release pipeline, and the generator at ds.rojao.ai.
+**In scope:** anything in the published packages `@rojaostudio/ds`, `@rojaostudio/ds-core` and
+`rojao-ds` (the CLI, including the files it writes into a project), the internal codemod in
+`packages/codemod`, the release pipeline, and the generator at ds.rojao.ai.
 
 **Out of scope:** the vulnerability of a dependency without a path to exploit it here; anything
 that requires an attacker to already control the machine running the build; findings from an

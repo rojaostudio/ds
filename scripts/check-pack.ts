@@ -30,7 +30,7 @@ const REGRAS: Regra[] = [
   { pacote: "@rojaostudio/ds-core", dir: "ds-core", tetoKB: 80 },
   { pacote: "@rojaostudio/ds", dir: "ds", tetoKB: 400 },
   // A CLI é casca fina sobre o ds-core: um arquivo e o README. Se crescer, é domínio vazando pra cá.
-  // O `rojao-ds migrate` chama o codemod por npx justamente para o ts-morph não entrar aqui.
+  // O codemod fica fora dela justamente para o ts-morph não entrar aqui.
   { pacote: "rojao-ds", dir: "cli", tetoKB: 20 },
   // O codemod: o motor e o mapa num arquivo só (~110 KB cru). A única dependência é o ts-morph, que traz o
   // compilador do TypeScript: é por isso que ele é um pacote à parte e não vai na CLI.

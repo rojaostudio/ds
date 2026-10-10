@@ -1,8 +1,9 @@
 /**
  * run.ts — the `rojao-ds-codemod` command: migrates a consumer of `@rojaostudio/ds` from `0.x` or `1.x` straight to
  * `2.0`, or a `2.0.0-next` one to the single prop vocabulary. `main()` is the whole command; ./cli.ts only calls it.
- * Run: npx @rojaostudio/ds-codemod <consumer-path> [--apply] [--from 1.x|next] [--force] [--verbose] [--report <file.json>]
- * (inside this repo: pnpm migrate:consumer <consumer-path> …; `npx rojao-ds migrate` forwards here too)
+ * Internal tool, not published on npm. Run from the root of this repo:
+ *   pnpm migrate:consumer <consumer-path> [--apply] [--from 1.x|next] [--force] [--verbose] [--report <file.json>]
+ * Outside consumers migrate with the guide at https://ds.rojao.ai/migrar.
  *
  * Without `--apply` it is a dry run: it prints the plan and writes nothing in the project.
  *
@@ -60,7 +61,7 @@ const TARGET_VERSION = '^2.0.0';
 export const DEFAULT_EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs', '.mts', '.cts'];
 
 export const USAGE = [
-  'uso: npx @rojaostudio/ds-codemod <pasta-do-projeto> [--apply] [--from 1.x|next] [--force] [--verbose] [--report <arquivo.json>] [--extensions <lista>]',
+  'uso: pnpm migrate:consumer <pasta-do-projeto> [--apply] [--from 1.x|next] [--force] [--verbose] [--report <arquivo.json>] [--extensions <lista>]',
   '',
   '  sem --apply          dry-run: mostra o plano e os casos manuais (arquivo:linha), não escreve nada no projeto',
   '  --apply              escreve as mudanças e um TODO(ds-2.0) acima de cada caso manual',

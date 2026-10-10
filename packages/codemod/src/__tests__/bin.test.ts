@@ -3,7 +3,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-// The published bin (dist/cli.js, built by tsup), the way `npx @rojaostudio/ds-codemod` runs it.
+// The built bin (dist/cli.js, built by tsup). The package is internal (not on npm); this checks the build still runs.
 const PKG = join(__dirname, '..', '..');
 const BIN = join(PKG, 'dist', 'cli.js');
 
@@ -17,6 +17,7 @@ describe('the bin', () => {
   it.skipIf(!existsSync(BIN))('runs from dist with a shebang and prints the usage', () => {
     expect(readFileSync(BIN, 'utf8').startsWith('#!/usr/bin/env node')).toBe(true);
     const out = execFileSync(process.execPath, [BIN, '--help'], { encoding: 'utf8' });
-    expect(out).toContain('npx @rojaostudio/ds-codemod <pasta-do-projeto>');
+    expect(out).toContain('pnpm migrate:consumer <pasta-do-projeto>');
+    expect(out).not.toContain('npx @rojaostudio/ds-codemod');
   });
 });
