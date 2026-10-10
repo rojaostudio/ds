@@ -111,6 +111,7 @@
   --surface-inverse: #1b2a4a;
   --text-on-inverse: #ffffff;
   --text-on-inverse-subtle: #ffffffb3;
+  --text-on-success-strong: #ffffff;
   --rojao-primary: #1b2a4a;
   --rojao-secondary: #1b2a4a;
   --rojao-accent: #ff6a00;
@@ -207,6 +208,7 @@
   --surface-inverse: #ffffff;
   --text-on-inverse: #0f1115;
   --text-on-inverse-subtle: #2d3240;
+  --text-on-success-strong: #000000;
 }
 
 .ds-plate, [data-rds-plate] {
@@ -290,6 +292,7 @@
   --surface-inverse: #ffffff;
   --text-on-inverse: #0f1115;
   --text-on-inverse-subtle: #2d3240;
+  --text-on-success-strong: #000000;
 }
 
 @media print {
@@ -404,6 +407,7 @@
   --surface-inverse: #1b2a4a;
   --text-on-inverse: #ffffff;
   --text-on-inverse-subtle: #ffffffb3;
+  --text-on-success-strong: #ffffff;
   --media-type-caption-size: 8pt;
   --media-type-caption-line: 10pt;
   --media-type-small-size: 9pt;

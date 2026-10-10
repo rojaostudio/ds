@@ -278,7 +278,14 @@ export const ROLES: ReadonlyArray<readonly [string, "l" | "d" | "p", "l" | "d" |
   ["text/on/primary-subtle", "d", "b"], ["surface/tint/subtle", "d", "b"], ["border/error", "d", "d"],
   ["surface/attention/low", "p", "p"], ["surface/attention/medium", "p", "p"], ["surface/attention/high", "p", "p"],
   ["surface/inverse", "d", "d"], ["text/on-inverse", "d", "d"], ["text/on-inverse-subtle", "d", "d"],
+  ["text/on/success-strong", "d", "d"],
 ];
+
+/**
+ * text/on/success-strong: the icon on colors/state/success-strong (the success fill Tile). White on the light green/600,
+ * black on the dark green/300 (dark and plate).
+ */
+const SUCCESS_STRONG_ON = { light: WHITE, dark: BLACK } as const;
 
 const coal = palettes.coal as Record<number, string>;
 
@@ -390,6 +397,7 @@ export function generateRdsTheme(def: BrandDef, opts: RdsThemeOptions = {}): Rds
     "type/font/mono": "Roboto Mono",
     "logo/mono": BLACK, "logo/inverse": WHITE, "logo/inverse-signature": WHITE, "social/ink": BLACK,
     "surface/inverse": inverseOf(P.base), "text/on-inverse": WHITE, "text/on-inverse-subtle": inverseSubtle(inverseOf(P.base)),
+    "text/on/success-strong": SUCCESS_STRONG_ON.light,
     ...ATTENTION,
   };
   // The neutral ink: colors/primary/* is the fill of the neutral Button and Badge, the bars, the Tooltip, the selected
@@ -472,6 +480,7 @@ export function generateRdsTheme(def: BrandDef, opts: RdsThemeOptions = {}): Rds
     "colors/state/info-strong": L[300], "colors/state/neutral-strong": N[400],
     "text/on/primary-subtle": black(30),
     ...INVERSE_DARK,
+    "text/on/success-strong": SUCCESS_STRONG_ON.dark,
   };
   // The neutral ink in dark: a light neutral (one colour only), the one of the neutral steps far enough from the
   // action fill. See the light mode.
@@ -842,6 +851,8 @@ export const RDS_NON_TEXT_PAIRS: ReadonlyArray<readonly [string, string]> = [
   ["logo/primary", "surface/card"], ["logo/primary", "surface/page"], ["logo/primary", "surface/panel"],
   ["chart/series/1", "surface/card"], ["chart/series/1", "surface/page"],
   ["colors/state/neutral-strong", "surface/panel"], ["colors/state/neutral-strong", "surface/card"],
+  // The icon of the success fill Tile on its fill.
+  ["text/on/success-strong", "colors/state/success-strong"],
 ];
 
 /** A pair below its minimum: 4.5:1 for text (RDS_CONTRAST_PAIRS), 3:1 for the rest (RDS_NON_TEXT_PAIRS). */
@@ -876,8 +887,12 @@ export type RdsBrandTable = {
   vars?: Record<string, string>;
 };
 
-/** An inverse role a table exported before it existed: the generator's rule, from the table's light primary. */
-function inverseFallback(role: string, mode: RdsMode, primary: string | undefined): string | undefined {
+/**
+ * A role a table exported before it existed (the inverse roles, text/on/success-strong): the generator's rule, the
+ * inverse fill from the table's light primary.
+ */
+function laterFallback(role: string, mode: RdsMode, primary: string | undefined): string | undefined {
+  if (role === "text/on/success-strong") return mode === "light" ? SUCCESS_STRONG_ON.light : SUCCESS_STRONG_ON.dark;
   if (!(role in INVERSE_DARK)) return undefined;
   if (mode !== "light") return INVERSE_DARK[role];
   const fill = primary && /^#[0-9a-f]{6}$/i.test(primary) ? inverseOf(primary) : coal[900];
@@ -947,10 +962,10 @@ export function rdsThemeFromTable(table: RdsBrandTable, opts: RdsThemeOptions = 
         derived.add(role);
         continue;
       }
-      // The inverse roles, added later: drawn from the table's own primary (inverseOf), as the generator does.
-      const inverse = ref === undefined ? inverseFallback(role, mode, out[mode][roleVar("colors/primary/default")]) : undefined;
-      if (inverse !== undefined) {
-        out[mode][roleVar(role)] = inverse;
+      // Roles added later (inverse, text/on/success-strong): the generator's rule (laterFallback).
+      const later = ref === undefined ? laterFallback(role, mode, out[mode][roleVar("colors/primary/default")]) : undefined;
+      if (later !== undefined) {
+        out[mode][roleVar(role)] = later;
         derived.add(role);
         continue;
       }
@@ -989,7 +1004,7 @@ export function rdsThemeFromTable(table: RdsBrandTable, opts: RdsThemeOptions = 
               ? Object.entries(ADDED_ROLES[r]).map(([m, src]) => `${m}: ${src}`).join(", ")
               : ATTENTION[r]
                 ? `${r}: ${ATTENTION[r]} in every mode`
-                : `${r}: ${out.light[roleVar(r)]} in light, ${INVERSE_DARK[r]} in dark and on the plate`,
+                : `${r}: ${out.light[roleVar(r)]} in light, ${out.dark[roleVar(r)]} in dark and on the plate`,
           )
           .join("; ") +
         `). Export the table again with figma/export-brand.js.`,
