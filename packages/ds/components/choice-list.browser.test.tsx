@@ -48,6 +48,19 @@ describe.each(MODES)('ChoiceList (%s)', (mode) => {
 });
 
 describe('ChoiceList behaviour', () => {
+  it('every row has the line at the bottom but the last: the container closes the list; heights stay 60 and 44', async () => {
+    const el = await render(
+      <ChoiceList aria-label="Clientes" style={{ maxWidth: 400 }}>
+        {clients()}
+      </ChoiceList>,
+    );
+    const all = rows(el);
+    for (const r of all.slice(0, -1)) expect(getComputedStyle(r).borderBottomWidth).not.toBe('0px');
+    const last = all.at(-1)!;
+    expect(getComputedStyle(last).borderBottomWidth).toBe('0px');
+    expect(Math.round(all[0].getBoundingClientRect().height)).toBe(Math.round(last.getBoundingClientRect().height));
+  });
+
   it('is a listbox of options; the title names the row, description and trailing describe it; media is hidden', async () => {
     const el = await render(<ChoiceList aria-label="Clientes">{clients()}</ChoiceList>);
     expect(list(el).getAttribute('tabindex')).toBe('0');
