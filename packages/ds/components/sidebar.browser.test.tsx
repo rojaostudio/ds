@@ -454,6 +454,64 @@ describe('Sidebar rail takes the open Sidebar entries', () => {
   });
 });
 
+describe('Sidebar account entry', () => {
+  // #53 item 3: the entry of the account block is the product's (icon, label, href, current), through `footer`.
+  const Plano = (props: Partial<SidebarProps>) => (
+    <Sidebar
+      module="Loja"
+      user="Ana Lima"
+      footer={
+        <SidebarItem icon={<CalendarIcon />} href="/billing">
+          Plano e consumo
+        </SidebarItem>
+      }
+      {...props}
+    >
+      <SidebarItem icon={<InfoIcon />} href="/painel">
+        Painel
+      </SidebarItem>
+    </Sidebar>
+  );
+
+  it('takes its icon, label and href; the route makes it the current page, the only one', async () => {
+    const el = await render(<Plano currentPath="/billing/consumo" />);
+    const entry = el.querySelector<HTMLElement>('.rds-sidebar__account a[href="/billing"]')!;
+    expect(entry.textContent).toBe('Plano e consumo');
+    expect(entry.querySelector('.rds-sidebar__icon svg')).not.toBeNull();
+    expect(entry.getAttribute('aria-current')).toBe('page');
+    expect(el.querySelectorAll('[aria-current="page"]')).toHaveLength(1);
+    expect(getComputedStyle(entry).backgroundColor).toBe(colour(entry, '--sidebar-item-background-active'));
+  });
+
+  it('its own `current` counts when no href matches; in the rail it keeps its name and Tooltip', async () => {
+    let el = await render(
+      <Sidebar footer={<SidebarItem icon={<CalendarIcon />} current>Plano e consumo</SidebarItem>}>
+        <SidebarItem icon={<InfoIcon />} href="/painel">
+          Painel
+        </SidebarItem>
+      </Sidebar>,
+    );
+    expect(el.querySelector('.rds-sidebar__account button')!.getAttribute('aria-current')).toBe('page');
+    cleanup();
+    el = await render(<Plano collapsed currentPath="/billing" />);
+    await expect.element(page.getByRole('link', { name: 'Plano e consumo', exact: true })).toHaveAttribute('aria-current', 'page');
+    el.querySelector<HTMLElement>('a[href="/painel"]')!.focus();
+    await userEvent.keyboard('{Tab}');
+    await settle();
+    await expect.element(page.getByRole('tooltip')).toHaveTextContent('Plano e consumo');
+  });
+
+  it('passes axe, open and in the rail', async () => {
+    const el = await render(
+      <div style={{ display: 'flex', gap: 16, height: 400 }}>
+        <Plano aria-label="Aberta" currentPath="/billing" />
+        <Plano aria-label="Recolhida" currentPath="/billing" collapsed />
+      </div>,
+    );
+    expect(await axeViolations(el)).toEqual([]);
+  });
+});
+
 function Drawer({ onChange }: { onChange?: (open: boolean) => void }) {
   const [open, setOpen] = useState(false);
   const change = (next: boolean) => {
