@@ -741,6 +741,7 @@
   --calendar-border: var(--border-default);
   --calendar-day-background-hover: var(--surface-muted);
   --calendar-day-background-selected: var(--colors-primary-default);
+  --calendar-day-background-range: var(--surface-tint-default);
   --calendar-day-border-today: var(--colors-primary-default);
   --calendar-day-label-default: var(--text-body);
   --calendar-day-label-selected: var(--text-on-primary-strong);

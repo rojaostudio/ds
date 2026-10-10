@@ -191,6 +191,7 @@ calendar/background|C|@theme:surface/card|=
 calendar/border|C|@theme:border/default|=
 calendar/day/background/hover|C|@theme:surface/muted|=
 calendar/day/background/selected|C|@theme:colors/primary/default|=
+calendar/day/background/range|C|@theme:surface/tint/default|=
 calendar/day/border/today|C|@theme:colors/primary/default|=
 calendar/day/label/default|C|@theme:text/body|=
 calendar/day/label/selected|C|@theme:text/on/primary-strong|=
