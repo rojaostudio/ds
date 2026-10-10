@@ -37,6 +37,12 @@ export default defineConfig({
             headless: true,
             provider: playwright({}),
             instances: [{ browser: 'chromium' }],
+            commands: {
+              // Print (#42): switch the page's CSS media type, as Chromium does when it prints.
+              emulateMedia: async (ctx, media: 'print' | 'screen' | null) => {
+                await ctx.page.emulateMedia({ media });
+              },
+            },
           },
         },
       },

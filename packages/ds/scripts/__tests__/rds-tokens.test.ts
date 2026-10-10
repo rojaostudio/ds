@@ -153,7 +153,19 @@ describe("styles/rds/theme.css is the Figma brand table of the Rojão, role by r
 
   it("is the build output of the table (rebuild with pnpm build:rds)", () => {
     expect(css).toBe(emitThemeCss(table, () => {}));
-    expect(blocks).toHaveLength(3);
+    // light, dark, plate and the `@media print` block (#42).
+    expect(blocks).toHaveLength(4);
+  });
+
+  it("print: light with white backgrounds and clear shadows, every role, inside the rds.theme layer", () => {
+    const print = blocks[3];
+    expect(css.indexOf("@media print {")).toBeGreaterThan(css.indexOf("@layer rds.theme {"));
+    expect(print["--surface-page"]).toBe("#ffffff");
+    expect(print["--shadow-key"]).toBe("#00000000");
+    expect(print["--text-body"]).toBe(resolved.light["--text-body"]);
+    expect(print["--media-type-body-size"]).toBe("10pt");
+    expect(resolved.light["--media-type-body-size"]).toBe("var(--type-body-size, 16px)");
+    expect(Object.keys(print).filter((k) => !k.startsWith("--media-type-"))).toHaveLength(107);
   });
 
   it.each(["light", "dark", "brand"] as const)("%s: every role is the colour of the primitive Figma points to", (mode) => {
