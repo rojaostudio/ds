@@ -371,6 +371,9 @@
   --stat-value-negative: var(--text-error);
   --stat-value-warning: var(--text-warning);
   --stat-value-muted: var(--text-muted);
+  --stat-inverse-background: var(--surface-inverse);
+  --stat-inverse-value: var(--text-on-inverse);
+  --stat-inverse-label: var(--text-on-inverse-subtle);
   --summary-bar-background: var(--surface-card);
   --summary-bar-border: var(--border-default);
   --summary-bar-divider: var(--border-default);
@@ -919,6 +922,7 @@
   --delta-neutral: var(--text-body);
   --delta-success: var(--text-success);
   --delta-danger: var(--text-error);
+  --delta-inverse: var(--text-on-inverse);
   --progress-track: var(--surface-tint-strong);
   --progress-fill: var(--chart-series-1);
   --progress-fill-success: var(--colors-state-success-strong);

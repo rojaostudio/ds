@@ -67,6 +67,7 @@ status/danger/soft/dot|C|@theme:colors/state/error|=
 delta/neutral|C|@theme:text/body|=
 delta/success|C|@theme:text/success|=
 delta/danger|C|@theme:text/error|=
+delta/inverse|C|@theme:text/on-inverse|=
 progress/track|C|@theme:surface/tint/strong|=
 progress/fill|C|@theme:chart/series/1|=
 progress/fill/success|C|@theme:colors/state/success-strong|=

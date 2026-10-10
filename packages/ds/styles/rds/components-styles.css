@@ -4172,6 +4172,11 @@ input:focus-visible + .rds-checkbox__box {
   --_color: var(--delta-danger);
 }
 
+/* inverse (Figma 10/10): on the dark fill (a Stat inverse), arrow and value in delta/inverse, whatever the meaning. */
+.rds-delta--inverse {
+  --_color: var(--delta-inverse);
+}
+
 /* components/description-list.css */
 /* @tokens description-list */
 /*
@@ -10739,6 +10744,27 @@ input:focus-visible + .rds-radio__circle {
   color: var(--stat-caption);
   font-size: var(--type-caption-size);
   line-height: var(--type-caption-line);
+}
+
+/*
+ * inverse (Figma 10/10, framed only, tone neutral, not muted): the brand's dark fill (stat/inverse/background), no
+ * border colour of its own; the value in stat/inverse/value, label and caption in stat/inverse/label, and the Delta
+ * inside in delta/inverse whatever its tone.
+ */
+.rds-stat--inverse {
+  --_value: var(--stat-inverse-value);
+
+  border-color: transparent;
+  background: var(--stat-inverse-background);
+}
+
+.rds-stat--inverse .rds-stat__label,
+.rds-stat--inverse .rds-stat__caption {
+  color: var(--stat-inverse-label);
+}
+
+.rds-stat--inverse .rds-delta {
+  --_color: var(--delta-inverse);
 }
 
 @media (forced-colors: active) {

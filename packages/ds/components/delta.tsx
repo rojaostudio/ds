@@ -2,8 +2,11 @@ import type { HTMLAttributes, ReactNode } from 'react';
 import { ArrowDownIcon, ArrowUpIcon, MinusIcon } from './internal/icons';
 
 export type DeltaDirection = 'up' | 'down' | 'flat';
-/** Whether the change is good (success), bad (danger) or just information (neutral). Not the direction. */
-export type DeltaTone = 'neutral' | 'success' | 'danger';
+/**
+ * Whether the change is good (success), bad (danger) or just information (neutral). Not the direction. inverse is
+ * the Delta on a dark fill (a Stat inverse): arrow and value in text/on-inverse.
+ */
+export type DeltaTone = 'neutral' | 'success' | 'danger' | 'inverse';
 
 export interface DeltaProps extends Omit<HTMLAttributes<HTMLSpanElement>, 'children'> {
   /** How much it changed, with the unit (Figma: `value`): "24%", "3,5 pp". */

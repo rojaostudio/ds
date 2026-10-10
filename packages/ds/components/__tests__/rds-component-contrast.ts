@@ -160,6 +160,8 @@ export const PAIRS: Pair[] = [
   ['--stat-label', '--stat-background', 't'], ['--stat-caption', '--stat-background', 't'],
   ...['default', 'positive', 'negative', 'warning', 'muted'].map((v): Pair => [`--stat-value-${v}`, '--stat-background', 't']),
   ['--delta-neutral', CTX, 't'], ['--delta-success', CTX, 't'], ['--delta-danger', CTX, 't'],
+  ['--stat-inverse-value', '--stat-inverse-background', 't'], ['--stat-inverse-label', '--stat-inverse-background', 't'],
+  ['--delta-inverse', '--stat-inverse-background', 't'],
   ...['alert', 'opportunity', 'tip'].flatMap((v): Pair[] => [
     ['--insight-card-title', `--insight-card-${v}-background`, 't'], ['--insight-card-description', `--insight-card-${v}-background`, 't'],
     ['--insight-card-potential', `--insight-card-${v}-background`, 't'],
