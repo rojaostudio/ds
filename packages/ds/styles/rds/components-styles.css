@@ -8838,6 +8838,19 @@ body:has(.rds-modal) {
   background: var(--progress-fill);
 }
 
+/* tone: only the fill changes (progress/fill/<tone>, 3:1 or more against the track); the track stays. */
+.rds-progress--success .rds-progress__fill {
+  background: var(--progress-fill-success);
+}
+
+.rds-progress--warning .rds-progress__fill {
+  background: var(--progress-fill-warning);
+}
+
+.rds-progress--danger .rds-progress__fill {
+  background: var(--progress-fill-danger);
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .rds-progress__fill {
     transition: width var(--motion-duration-slow) var(--motion-easing-standard);

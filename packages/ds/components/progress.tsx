@@ -5,6 +5,8 @@ import { useId, type HTMLAttributes, type ReactNode } from 'react';
 /** task: something moving to the end (upload, import). measure: a value inside a known range (quota used). */
 export type ProgressKind = 'task' | 'measure';
 export type ProgressSize = 'md' | 'sm';
+/** The fill's colour: neutral (the brand's data colour), or a state (a quota near its end, over it). */
+export type ProgressTone = 'neutral' | 'success' | 'warning' | 'danger';
 
 export interface ProgressProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
   /** 0 to `max` (Figma: `value`, 0 to 100 in steps of 5; the code takes any value). */
@@ -22,6 +24,12 @@ export interface ProgressProps extends Omit<HTMLAttributes<HTMLDivElement>, 'chi
   kind?: ProgressKind;
   /** md: 8px bar (default); sm: 4px, for dense lists (Figma: `size`). */
   size?: ProgressSize;
+  /**
+   * The fill only (Figma: `tone`); the track stays. neutral (default) is progress/fill; success, warning and danger
+   * take progress/fill/<tone>, at least 3:1 against the track in light and dark. The colour adds to the value, it
+   * never replaces it: say the state in the label or the value text too.
+   */
+  tone?: ProgressTone;
 }
 
 /**
@@ -37,6 +45,7 @@ export function Progress({
   valueText,
   kind = 'task',
   size = 'md',
+  tone = 'neutral',
   className,
   ...rest
 }: ProgressProps) {
@@ -45,7 +54,12 @@ export function Progress({
   const percent = max > 0 ? (clamped / max) * 100 : 0;
   const text = valueText ?? `${Math.round(percent)}%`;
   return (
-    <div {...rest} className={['rds-progress', `rds-progress--${size}`, className].filter(Boolean).join(' ')}>
+    <div
+      {...rest}
+      className={['rds-progress', `rds-progress--${size}`, tone !== 'neutral' && `rds-progress--${tone}`, className]
+        .filter(Boolean)
+        .join(' ')}
+    >
       {(showLabel || showValue) && (
         <div className="rds-progress__row">
           {showLabel && (
