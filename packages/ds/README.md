@@ -77,6 +77,18 @@ emitRdsCss(theme, { scope: ".my-scope" });                           // throws: 
 A dark selector anchored at the root (`:root[…]`, `html…`) is used as is, which is where next-themes puts its
 attribute. `allowUncovered: true` skips the check, for a theme read only by your own CSS.
 
+## Print
+
+The theme ends with an `@media print` block: the light mode with every background white and no shadows, on every
+scope, so a page printed from `.dark` or a `.ds-plate` still comes out on white paper. Borders and text stay as in
+light. The components keep their type; for your printed sheet, `--media-type-<role>-size` and `-line` (`caption`,
+`small`, `body`, `label`, `title`) follow the screen type on screen and switch to 8/10, 9/12, 10/14, 12/16 and
+18/24 pt on paper.
+
+```css
+@media print { .invoice h1 { font-size: var(--media-type-title-size); line-height: var(--media-type-title-line); } }
+```
+
 ## Import the component, not the barrel
 
 ```tsx
