@@ -3,8 +3,19 @@
 /** The emphasis (Figma: `variant`): ghost in a toolbar, outline when it stands alone. */
 export type ToggleVariant = 'ghost' | 'outline';
 
-export function toggleClassName(variant: ToggleVariant, extra?: string) {
-  return ['rds-toggle', `rds-toggle--${variant}`, extra].filter(Boolean).join(' ');
+/** md (default) is 44 tall; sm is 32, with a 16 icon (a 32 square when it has only the icon). */
+export type ToggleSize = 'sm' | 'md';
+
+export function toggleClassName(variant: ToggleVariant, size: ToggleSize, iconOnly: boolean, extra?: string) {
+  return [
+    'rds-toggle',
+    `rds-toggle--${variant}`,
+    size === 'sm' && 'rds-toggle--sm',
+    iconOnly && 'rds-toggle--icon-only',
+    extra,
+  ]
+    .filter(Boolean)
+    .join(' ');
 }
 
 /** A toggle without visible text needs a name, or a screen reader only says "toggle button". */
