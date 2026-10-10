@@ -80,7 +80,7 @@ describe('Alert behaviour', () => {
   });
 });
 
-// The Taiq's "you can sell" notice: a neutral strip, a green check, title and description on one line.
+// A "you can sell" notice: a neutral strip, a green check, title and description on one line.
 const Check = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
     <path d="M20 6 9 17l-5-5" />
