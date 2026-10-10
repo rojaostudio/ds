@@ -144,6 +144,48 @@ describe('DropdownMenu behaviour', () => {
     await vi.waitFor(() => expect(el.querySelector('output')!.textContent).toBe('ativos'));
   });
 
+  it('a radio item keeps a 20 column for the check before the label: the labels line up with and without it', async () => {
+    function Idiomas() {
+      const [value, setValue] = useState('pt-BR');
+      return (
+        <DropdownMenu trigger={<button type="button">Idioma</button>} aria-label="Idioma">
+          <DropdownMenuRadioGroup value={value} onValueChange={setValue}>
+            <DropdownMenuRadioItem value="pt-BR">Português</DropdownMenuRadioItem>
+            <DropdownMenuRadioItem value="en">English</DropdownMenuRadioItem>
+            <DropdownMenuRadioItem value="es">Español</DropdownMenuRadioItem>
+          </DropdownMenuRadioGroup>
+        </DropdownMenu>
+      );
+    }
+    const el = await render(<Idiomas />);
+    await open(el);
+    expect(menu()!.querySelector('[role="group"]')).not.toBeNull();
+    const [pt, en, es] = items();
+    for (const item of [pt, en, es]) {
+      const check = item.querySelector<HTMLElement>('.rds-menu__check')!;
+      expect(check.getAttribute('aria-hidden')).toBe('true');
+      expect(check.getBoundingClientRect().width).toBe(20);
+      // The check comes first, the label after it.
+      expect(check.getBoundingClientRect().right).toBeLessThanOrEqual(item.querySelector('.rds-menu__label')!.getBoundingClientRect().left);
+    }
+    expect(pt.querySelector('.rds-menu__check svg')).not.toBeNull();
+    expect(en.querySelector('.rds-menu__check svg')).toBeNull();
+    const left = (item: HTMLElement) => item.querySelector('.rds-menu__label')!.getBoundingClientRect().left;
+    expect(left(en)).toBe(left(pt));
+    expect(left(es)).toBe(left(pt));
+    // Choosing from the keyboard moves the check and closes the menu.
+    en.focus();
+    await userEvent.keyboard('{Enter}');
+    await vi.waitFor(() => expect(menu()).toBeNull());
+    await open(el);
+    const [pt2, en2] = items();
+    expect(en2.getAttribute('aria-checked')).toBe('true');
+    expect(pt2.getAttribute('aria-checked')).toBe('false');
+    expect(en2.querySelector('.rds-menu__check svg')).not.toBeNull();
+    expect(pt2.querySelector('.rds-menu__check svg')).toBeNull();
+    expect(left(en2)).toBe(left(pt2));
+  });
+
   it('a checkbox item is menuitemcheckbox with aria-checked; ticking keeps the menu open, unless closeOnSelect', async () => {
     function Check({ closeOnSelect }: { closeOnSelect?: boolean }) {
       const [on, setOn] = useState(false);
