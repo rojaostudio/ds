@@ -90,6 +90,22 @@ describe("[RDS] theme roles", () => {
     expect(t.brand["--text-heading"]).toBe("#ffffff");
   });
 
+  // surface/attention/* (the attention Banner): amber/100, 200 and 400, the same in every mode and for every brand,
+  // with text/on/warning (black) at 4.5:1 or more on each.
+  it.each(samples)("%s: surface/attention/* is the fixed amber in every mode, black text ≥ 4.5:1", (_, def) => {
+    const t = generateRdsTheme(def);
+    const amber = primitives.color.amber as Record<number, string>;
+    for (const mode of ["light", "dark", "brand"] as RdsMode[]) {
+      expect([t[mode]["--surface-attention-low"], t[mode]["--surface-attention-medium"], t[mode]["--surface-attention-high"]]).toEqual([
+        amber[100],
+        amber[200],
+        amber[400],
+      ]);
+      for (const level of ["low", "medium", "high"])
+        expect(rdsContrast(t, mode, "text/on/warning", `surface/attention/${level}`)).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+
   // surface/tint/subtle (issue #26): one step lighter than the default tint in light (flare/200 →
   // flare/100 for rojao), the default itself in dark (no step below 900), ink at 5% on the plate.
   it("rojao: surface/tint/subtle follows the Figma rule", () => {

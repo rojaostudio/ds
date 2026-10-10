@@ -54,6 +54,22 @@ describe("[RDS] theme from a brand table", () => {
     expect(() => rdsThemeFromTable(t, { warn: () => {} })).toThrow(/dark: role "colors\/state\/error-strong" is missing[\s\S]*dark: role "border\/error" is missing/);
   });
 
+  // surface/attention/* came after tables were exported: one amber for every brand, taken when the table lacks it.
+  it("a table without surface/attention/* takes the fixed amber in every mode, with a warning to export again", () => {
+    const t = table();
+    for (const mode of ["light", "dark", "brand"] as const)
+      for (const level of ["low", "medium", "high"]) delete t.modes[mode][`surface/attention/${level}`];
+    const warnings: string[] = [];
+    const theme = rdsThemeFromTable(t, { warn: (m) => warnings.push(m) });
+    for (const m of [theme.light, theme.dark, theme.brand])
+      expect([m["--surface-attention-low"], m["--surface-attention-medium"], m["--surface-attention-high"]]).toEqual([
+        "#fff2d6",
+        "#ffe3ab",
+        "#ffc107",
+      ]);
+    expect(warnings[0]).toMatch(/exported before "surface\/attention\/low"[\s\S]*Export the table again/);
+  });
+
   it("emits CSS with dark and plate carrying only what differs", () => {
     const css = emitRdsCss(rdsThemeFromTable(table()));
     expect(css).toContain(":root, .ds-scope, [data-rds-scope] {\n");

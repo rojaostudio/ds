@@ -33,8 +33,8 @@ export interface BannerProps extends HTMLAttributes<HTMLDivElement> {
   /** neutral (default) or attention (Figma: `tone`). */
   tone?: BannerTone;
   /**
-   * Only with tone="attention" (Figma: `level`): low (default), medium, high. The background goes from the soft
-   * amber to the full one, the text keeps 4.5:1 on each, in light and dark.
+   * Only with tone="attention" (Figma: `level`): low (default), medium, high. The background is the theme's
+   * surface/attention/<level> (amber/100, 200, 400, the same in light, dark and on the plate), the text black.
    */
   level?: BannerLevel;
 }

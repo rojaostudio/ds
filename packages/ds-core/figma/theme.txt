@@ -106,3 +106,6 @@ colors/state/neutral-strong|C|--colors-state-neutral-strong|@base:colors/state/n
 text/on/primary-subtle|C|--text-on-primary-subtle|@base:text/on/primary-subtle|@base:dark/text/on/primary-subtle|@base:brand/text/on/primary-subtle
 surface/tint/subtle|C|--surface-tint-subtle|@base:surface/tint/subtle|@base:dark/surface/tint/subtle|@base:brand/surface/tint/subtle
 border/error|C|--border-error|@base:colors/state/error|@base:dark/colors/state/error-strong|@base:dark/text/error
+surface/attention/low|C|--surface-attention-low|@color:amber/100|@color:amber/100|@color:amber/100
+surface/attention/medium|C|--surface-attention-medium|@color:amber/200|@color:amber/200|@color:amber/200
+surface/attention/high|C|--surface-attention-high|@color:amber/400|@color:amber/400|@color:amber/400

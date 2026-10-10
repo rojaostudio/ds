@@ -85,28 +85,26 @@
 }
 
 /*
- * tone="attention" (banner/attention/*): something to act on soon (a trial ending), in three levels of amber,
- * never red. low: the soft amber (surface/warning) with the warning text; high: the full amber (colors/state/warning)
- * with the text on it; medium: halfway between the two backgrounds (no theme role sits there), with high's text.
- * The text, the highlight, the icon and the × take the level's text colour (4.5:1 on each level, light and dark).
- * The CTA: outline in low and medium, fill in high (the Banner sets the variant), drawn in the strip's colours.
+ * tone="attention" (banner/attention/*): something to act on soon (a trial ending), in three levels of amber, never
+ * red. The backgrounds are the theme roles surface/attention/low, medium and high (amber/100, 200, 400 in every mode
+ * and brand, Figma [RDS]); the text, the highlight, the icon and the × are banner/attention/text (text/on/warning,
+ * black) on all three. The CTA: outline in low and medium, fill in high (the Banner sets the variant), drawn in the
+ * strip's colours.
  */
 .rds-banner--attention {
   --_banner-background: var(--banner-attention-low-background);
-  --_banner-text: var(--banner-attention-low-text);
+  --_banner-text: var(--banner-attention-text);
 
   background: var(--_banner-background);
   color: var(--_banner-text);
 }
 
 .rds-banner--attention.rds-banner--medium {
-  --_banner-background: color-mix(in srgb, var(--banner-attention-low-background), var(--banner-attention-high-background));
-  --_banner-text: var(--banner-attention-medium-text);
+  --_banner-background: var(--banner-attention-medium-background);
 }
 
 .rds-banner--attention.rds-banner--high {
   --_banner-background: var(--banner-attention-high-background);
-  --_banner-text: var(--banner-attention-high-text);
 }
 
 .rds-banner--attention .rds-banner__icon,
