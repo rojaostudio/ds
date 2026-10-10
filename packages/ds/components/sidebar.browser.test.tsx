@@ -404,6 +404,56 @@ describe('Sidebar item status', () => {
   });
 });
 
+describe('Sidebar rail takes the open Sidebar entries', () => {
+  // #53 item 1: the same children, open and collapsed; nothing fixed in the rail.
+  const names = (el: HTMLElement) =>
+    [...el.querySelectorAll<HTMLElement>('nav > ul > li > a, nav > ul > li > button, nav > ul > li > .rds-sidebar__group-toggle, .rds-sidebar__account a, .rds-sidebar__account button')].map(
+      (e) => e.getAttribute('aria-label') ?? e.textContent,
+    );
+
+  it('the loose entries, one button per group and the foot, each with its name; the groups entries in the flyout', async () => {
+    const entries = (
+      <>
+        <SidebarItem icon={<InfoIcon />} href="/painel">
+          Painel
+        </SidebarItem>
+        <SidebarItem icon={<CalendarIcon />} href="/caixa" status={{ tone: 'success', label: 'aberto' }}>
+          Caixa
+        </SidebarItem>
+        <SidebarGroup label="Financeiro" icon={<SearchIcon />}>
+          <SidebarItem href="/financeiro/contas" count={3} countTone="danger" countLabel="vencidos">
+            Contas a pagar
+          </SidebarItem>
+        </SidebarGroup>
+      </>
+    );
+    const footer = <SidebarItem icon={<UserIcon />}>Sair</SidebarItem>;
+    const open = await render(
+      <Sidebar module="Loja" footer={footer}>
+        {entries}
+      </Sidebar>,
+    );
+    const openNames = names(open);
+    cleanup();
+    const el = await render(
+      <Sidebar module="Loja" footer={footer} collapsed>
+        {entries}
+      </Sidebar>,
+    );
+    expect(names(el)).toEqual(['Painel', 'Caixa, aberto', 'Financeiro, 3 vencidos', 'Sair']);
+    expect(openNames).toEqual(['Painel', 'Caixa, aberto', 'Financeiro', 'Sair']);
+    // Each rail entry is an icon only (44 square), its label in the Tooltip.
+    for (const entry of el.querySelectorAll<HTMLElement>('.rds-sidebar__item--level-1')) {
+      expect(entry.getBoundingClientRect().width).toBe(44);
+    }
+    expect(el.querySelector('.rds-sidebar__flyout a[href="/financeiro/contas"]')).not.toBeNull();
+    el.querySelector<HTMLElement>('a[href="/painel"]')!.focus();
+    await userEvent.keyboard('{Tab}');
+    await settle();
+    await expect.element(page.getByRole('tooltip')).toHaveTextContent('Caixa');
+  });
+});
+
 function Drawer({ onChange }: { onChange?: (open: boolean) => void }) {
   const [open, setOpen] = useState(false);
   const change = (next: boolean) => {
