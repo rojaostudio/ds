@@ -7,7 +7,7 @@
  * A full brand fill is the ToggleGroup's. Disabled is the same card at half opacity (as in Figma).
  * tile: a grid cell, 16 inside, centred: the icon, then the label 14/20 semibold and the description 12/16 (8 below
  * the icon). Selected as the row, with a 16 check (11 glyph) in the brand 8 from the top right corner.
- * preview: 8 inside, the picture on top (16:9, a 1px border, corners radius/container, a 24 placeholder icon), then
+ * preview: 8 inside, the picture on top (a decorative 16:9 Media: a 1px border, radius/container, a 24 icon), then
  * the label 16/24 semibold and the description 14/20, 4 in from the sides. Selected keeps the surface: a 2px border
  * in the brand, the description at full opacity and a 20 check (12 glyph) in the picture's bottom right corner.
  * The group stacks rows 8 apart; tiles and previews go in a grid (cells of at least 160 and 240), 8 apart.
@@ -226,31 +226,21 @@
 
 .rds-choice-card__preview {
   position: relative;
-  box-sizing: border-box;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  aspect-ratio: 16 / 9;
-  overflow: hidden;
-  border: var(--border-width) solid var(--choice-card-preview-border);
-  border-radius: var(--radius-container);
-  background: var(--choice-card-preview-background);
 }
 
-.rds-choice-card__preview > :not(.rds-choice-card__check, .rds-choice-card__placeholder) {
+/* The picture is a decorative 16:9 Media, framed here: the 1px border, radius/container, the choice-card colours. */
+.rds-choice-card__media {
+  --media-radius: var(--radius-container);
+  --media-background: var(--choice-card-preview-background);
+  --media-fallback: var(--choice-card-preview-icon);
+  border: var(--border-width) solid var(--choice-card-preview-border);
+}
+
+.rds-choice-card__media > :not(.rds-media__fallback) {
   width: 100%;
   height: 100%;
   object-fit: cover;
-}
-
-.rds-choice-card__placeholder {
-  display: inline-flex;
-  color: var(--choice-card-preview-icon);
-}
-
-.rds-choice-card__placeholder > svg {
-  width: var(--size-24);
-  height: var(--size-24);
 }
 
 .rds-choice-card--preview .rds-choice-card__text {
@@ -259,8 +249,8 @@
 
 .rds-choice-card--preview .rds-choice-card__check {
   position: absolute;
-  right: 6px;
-  bottom: 6px;
+  right: calc(6px + var(--border-width));
+  bottom: calc(6px + var(--border-width));
   width: var(--size-20);
   height: var(--size-20);
   background: var(--choice-card-check-background-preview);
