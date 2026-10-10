@@ -35,6 +35,12 @@
   user-select: none;
 }
 
+/* The last row has no line: the container's border closes the list. The padding takes the line's width back. */
+.rds-choice-list__item:last-child {
+  padding-bottom: var(--space-12);
+  border-bottom: 0;
+}
+
 @media (hover: hover) {
   .rds-choice-list__item:not([aria-selected='true'], [aria-disabled='true']):hover {
     --_background: var(--choice-list-item-background-hover);
