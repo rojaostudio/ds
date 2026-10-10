@@ -82,7 +82,7 @@
     left: 0;
     width: 100%;
     max-width: 560px;
-    max-height: 85dvh;
+    max-height: calc(100dvh - var(--space-48));
     margin-inline: auto;
     padding-bottom: calc(var(--space-24) + env(safe-area-inset-bottom, 0px));
     border-bottom: 0;

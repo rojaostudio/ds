@@ -250,7 +250,7 @@
     left: 0;
     width: 100%;
     max-width: 560px;
-    max-height: 85dvh;
+    max-height: calc(100dvh - var(--space-48));
     margin-inline: auto;
     padding-bottom: calc(var(--space-24) + env(safe-area-inset-bottom, 0px));
     border-bottom: 0;
@@ -1406,7 +1406,7 @@ button.rds-breadcrumb__link:focus-visible {
   justify-content: center;
   gap: var(--_gap);
   /* Every variant has the 1px border (transparent on fill and ghost) taken out of the padding, so all three
-     variants measure the same: sm 8 + 20 + 8, md 12 + 20 + 12, lg 12 + 24 + 12. */
+     variants measure the same: sm 6 + 20 + 6, md 12 + 20 + 12, lg 12 + 24 + 12. */
   padding: calc(var(--_padding-y) - var(--border-width)) calc(var(--_padding-x) - var(--border-width));
   /* The height is guaranteed, not only the result of the padding sum (lg: 48 of content, 52 minimum). */
   min-height: var(--_height);
@@ -1479,7 +1479,7 @@ button.rds-breadcrumb__link:focus-visible {
   --_text-line: var(--button-size-lg-text-line);
 }
 
-/* IconButton: a square of the size's height (36, 44, 52), the icon-only icon (16, 20, 24) in the middle. */
+/* IconButton: a square of the size's height (32, 44, 52), the icon-only icon (16, 20, 24) in the middle. */
 .rds-button--icon-only {
   --_icon-size: var(--_icon-only-size);
   min-width: var(--_height);
@@ -1487,8 +1487,8 @@ button.rds-breadcrumb__link:focus-visible {
 }
 
 /*
- * Touch target: 44 × 44 in every size. sm is 36, so under a coarse pointer an invisible layer (no paint, no
- * layout, outside the focus ring's drawing) grows the hit area by (44 - 36) / 2 = 4px on each side: vertically
+ * Touch target: 44 × 44 in every size. sm is 32, so under a coarse pointer an invisible layer (no paint, no
+ * layout, outside the focus ring's drawing) grows the hit area by (44 - 32) / 2 = 6px on each side: vertically
  * on the Button, on all four sides on the IconButton. 44 is the md height. Two sm stay 8px or more apart.
  */
 @media (pointer: coarse) {
@@ -4038,7 +4038,7 @@ input:focus-visible + .rds-checkbox__box {
     left: 0;
     width: 100%;
     max-width: 560px;
-    max-height: min(85dvh, calc(100dvh - var(--_kb, 0px) - var(--space-16)));
+    max-height: calc(100dvh - var(--_kb, 0px) - var(--space-48));
     margin-inline: auto;
     padding: var(--space-12) var(--space-24) calc(var(--space-24) + env(safe-area-inset-bottom, 0px));
     border-bottom: 0;

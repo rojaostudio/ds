@@ -11,7 +11,7 @@ const VARIANTS: ButtonVariant[] = ['fill', 'outline', 'ghost'];
 const SIZES: ButtonSize[] = ['sm', 'md', 'lg'];
 // Figma [RDS] Actions/Button and IconButton, size: height, text, Button icon, IconButton icon.
 const MEASURES: Record<ButtonSize, { height: number; textSize: number; line: number; icon: number; iconOnly: number }> = {
-  sm: { height: 36, textSize: 14, line: 20, icon: 16, iconOnly: 16 },
+  sm: { height: 32, textSize: 14, line: 20, icon: 16, iconOnly: 16 },
   md: { height: 44, textSize: 14, line: 20, icon: 16, iconOnly: 20 },
   lg: { height: 52, textSize: 16, line: 24, icon: 20, iconOnly: 24 },
 };
@@ -72,7 +72,7 @@ describe.each(MODES)('Button (%s)', (mode) => {
     expect(await axeViolations(el)).toEqual([]);
   });
 
-  it('is 36, 44 and 52 tall (sm, md, lg) in every variant; the IconButton is a square of the same side', async () => {
+  it('is 32, 44 and 52 tall (sm, md, lg) in every variant; the IconButton is a square of the same side', async () => {
     const el = await render(
       <div style={{ display: 'grid', gap: 8 }}>
         {SIZES.map((size) => (
@@ -194,7 +194,7 @@ describe('Button touch target (sm)', () => {
     </div>
   );
 
-  it('with a fine pointer, sm takes only its own 36', async () => {
+  it('with a fine pointer, sm takes only its own 32', async () => {
     const el = await render(layout);
     expect(matchMedia('(pointer: coarse)').matches).toBe(false);
     const [sm, icon] = el.querySelectorAll('button');
@@ -204,27 +204,27 @@ describe('Button touch target (sm)', () => {
     expect(document.elementFromPoint(i.left - 2, i.top + i.height / 2)).not.toBe(icon);
   });
 
-  it('with a coarse pointer, sm takes the touch 4px around it (44), without moving the layout or the focus ring', async () => {
+  it('with a coarse pointer, sm takes the touch 6px around it (44), without moving the layout or the focus ring', async () => {
     await touch(true);
     const el = await render(layout);
     expect(matchMedia('(pointer: coarse)').matches).toBe(true);
     const [sm, icon, md] = el.querySelectorAll('button');
     const r = sm.getBoundingClientRect();
-    expect(r.height).toBe(36);
+    expect(r.height).toBe(32);
     const x = r.left + r.width / 2;
-    expect(document.elementFromPoint(x, r.top - 3.5)).toBe(sm);
-    expect(document.elementFromPoint(x, r.bottom + 3.5)).toBe(sm);
-    expect(document.elementFromPoint(x, r.top - 5)).not.toBe(sm);
+    expect(document.elementFromPoint(x, r.top - 5.5)).toBe(sm);
+    expect(document.elementFromPoint(x, r.bottom + 5.5)).toBe(sm);
+    expect(document.elementFromPoint(x, r.top - 7)).not.toBe(sm);
     // The Button is already wider than 44: the layer grows it only vertically.
     expect(document.elementFromPoint(r.left - 2, r.top + r.height / 2)).not.toBe(sm);
-    // The IconButton is a 36 square: the layer grows it on every side, to 44 × 44.
+    // The IconButton is a 32 square: the layer grows it on every side, to 44 × 44.
     const i = icon.getBoundingClientRect();
-    expect([i.width, i.height]).toEqual([36, 36]);
+    expect([i.width, i.height]).toEqual([32, 32]);
     const y = i.top + i.height / 2;
-    expect(document.elementFromPoint(i.left - 3.5, y)).toBe(icon);
-    expect(document.elementFromPoint(i.right + 3.5, y)).toBe(icon);
-    expect(document.elementFromPoint(i.left + i.width / 2, i.top - 3.5)).toBe(icon);
-    expect(document.elementFromPoint(i.left - 5, y)).not.toBe(icon);
+    expect(document.elementFromPoint(i.left - 5.5, y)).toBe(icon);
+    expect(document.elementFromPoint(i.right + 5.5, y)).toBe(icon);
+    expect(document.elementFromPoint(i.left + i.width / 2, i.top - 5.5)).toBe(icon);
+    expect(document.elementFromPoint(i.left - 7, y)).not.toBe(icon);
     // md is already 44: no layer.
     expect(getComputedStyle(md, '::after').content).toBe('none');
     // The layer paints nothing; the focus ring stays the button's own outline.
