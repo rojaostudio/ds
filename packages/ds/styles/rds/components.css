@@ -76,9 +76,9 @@
   --chip-label: var(--text-body);
   --chip-icon: var(--text-muted);
   --chip-label-disabled: var(--text-disabled);
-  --button-size-sm-height: 36px;
+  --button-size-sm-height: 32px;
   --button-size-sm-padding-x: var(--space-16);
-  --button-size-sm-padding-y: var(--space-8);
+  --button-size-sm-padding-y: 6px;
   --button-size-sm-gap: var(--space-8);
   --button-size-sm-icon: var(--size-16);
   --button-size-sm-icon-only: var(--size-16);

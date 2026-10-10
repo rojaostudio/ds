@@ -174,7 +174,7 @@ describe('Dialog on a compact screen (the sheet, #45)', () => {
     expect(d.querySelector('[aria-label="Fechar"]')).not.toBeNull();
   });
 
-  it('only the content scrolls, up to 85% of the screen', async () => {
+  it('only the content scrolls, up to the window − 48 (Roger 10/10)', async () => {
     const el = await render(
       <Dialog trigger={<Button>Abrir</Button>} title="Longo" confirmLabel="Salvar">
         {Array.from({ length: 30 }, (_, i) => (
@@ -183,7 +183,7 @@ describe('Dialog on a compact screen (the sheet, #45)', () => {
       </Dialog>,
     );
     const d = await open(el);
-    expect(d.getBoundingClientRect().height).toBeLessThanOrEqual(Math.ceil(844 * 0.85));
+    expect(Math.round(d.getBoundingClientRect().height)).toBe(844 - 48);
     const body = d.querySelector<HTMLElement>('.rds-modal__body')!;
     expect(body.scrollHeight).toBeGreaterThan(body.clientHeight);
     expect(getComputedStyle(body).overscrollBehaviorY).toBe('contain');
@@ -333,5 +333,30 @@ describe('Dialog max height (Roger 09/10: 48 above, 48 below)', () => {
     expect(body.scrollHeight).toBeGreaterThan(body.clientHeight);
     const footer = d.querySelector<HTMLElement>('.rds-modal__footer')!.getBoundingClientRect();
     expect(footer.bottom).toBeLessThanOrEqual(box.bottom);
+  });
+
+  it('on the compact sheet a long form with a total keeps the total and the action in view; only the body scrolls', async () => {
+    await page.viewport(390, 844);
+    await render(
+      <Dialog defaultOpen title="Adesivo" confirmLabel="Adicionar" footerStart={<span>Total · R$ 180,00</span>}>
+        {Array.from({ length: 20 }, (_, i) => (
+          <Input key={i} label={`Campo ${i + 1}`} />
+        ))}
+      </Dialog>,
+    );
+    await settle();
+    const d = dialog()!;
+    const box = d.getBoundingClientRect();
+    expect(Math.round(box.top)).toBe(48);
+    const body = d.querySelector<HTMLElement>('.rds-modal__body')!;
+    expect(body.scrollHeight).toBeGreaterThan(body.clientHeight);
+    const start = d.querySelector<HTMLElement>('.rds-modal__footer-start')!.getBoundingClientRect();
+    const confirm = [...d.querySelectorAll<HTMLElement>('.rds-modal__footer button')]
+      .filter((b) => b.offsetParent !== null)
+      .at(-1)!
+      .getBoundingClientRect();
+    expect(start.top).toBeGreaterThanOrEqual(body.getBoundingClientRect().bottom);
+    expect(confirm.bottom).toBeLessThanOrEqual(844);
+    expect(start.bottom).toBeLessThanOrEqual(confirm.top);
   });
 });
