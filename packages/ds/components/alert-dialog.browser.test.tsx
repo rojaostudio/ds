@@ -50,7 +50,7 @@ describe('AlertDialog behaviour', () => {
     await vi.waitFor(() => expect(document.activeElement?.textContent).toBe('Cancelar'));
   });
 
-  it('keeps the focus inside (Tab cycles) and gives it back to the trigger on Escape', async () => {
+  it('keeps the focus inside (Tab cycles) and gives it back to the trigger on Cancel', async () => {
     const el = await render(<Example />);
     const trigger = el.querySelector('button')!;
     trigger.focus();
@@ -63,7 +63,7 @@ describe('AlertDialog behaviour', () => {
     expect(document.activeElement?.textContent).toBe('Cancelar');
     await userEvent.tab({ shift: true });
     expect(dialog()!.contains(document.activeElement)).toBe(true);
-    await userEvent.keyboard('{Escape}');
+    [...dialog()!.querySelectorAll('button')].find((b) => b.textContent === 'Cancelar')!.click();
     await vi.waitFor(() => expect(dialog()).toBeNull());
     await vi.waitFor(() => expect(document.activeElement).toBe(trigger));
   });
@@ -115,14 +115,15 @@ describe('AlertDialog on a compact screen (the sheet, #45)', () => {
     expect(Math.round(confirm.getBoundingClientRect().width)).toBe(Math.round(footer.width));
   });
 
-  it('the focus opens on Cancel; the veil does not close it, Escape does', async () => {
+  it('the focus opens on Cancel; neither the veil nor Escape closes it (the decision is required)', async () => {
     await openIt();
     await vi.waitFor(() => expect(document.activeElement?.textContent).toBe('Cancelar'));
     await userEvent.click(document.body, { position: { x: 195, y: 8 } });
     await settle();
     expect(dialog()).not.toBeNull();
     await userEvent.keyboard('{Escape}');
-    await vi.waitFor(() => expect(dialog()).toBeNull());
+    await settle();
+    expect(dialog()).not.toBeNull();
   });
 });
 
@@ -139,5 +140,25 @@ describe('AlertDialog on a wide screen', () => {
     expect(Math.round(r.left)).toBe(440);
     const [cancel, confirm] = [...dialog()!.querySelectorAll<HTMLElement>('.rds-alert-dialog__footer button')];
     expect(Math.round(cancel.getBoundingClientRect().top)).toBe(Math.round(confirm.getBoundingClientRect().top));
+  });
+
+  it('stops at the window − 96 (48 above, 48 below); a long text scrolls, the buttons stay in view', async () => {
+    await render(
+      <AlertDialog
+        defaultOpen
+        title="Recusar o orçamento?"
+        description={'O cliente recebe o aviso. '.repeat(120)}
+        confirmLabel="Recusar"
+        onConfirm={() => {}}
+      />,
+    );
+    await vi.waitFor(() => expect(dialog()).not.toBeNull());
+    await settle();
+    const d = dialog()!;
+    expect(Math.round(d.getBoundingClientRect().height)).toBe(800 - 96);
+    const content = d.querySelector<HTMLElement>('.rds-alert-dialog__content')!;
+    expect(content.scrollHeight).toBeGreaterThan(content.clientHeight);
+    const footer = d.querySelector<HTMLElement>('.rds-alert-dialog__footer')!.getBoundingClientRect();
+    expect(footer.bottom).toBeLessThanOrEqual(d.getBoundingClientRect().bottom);
   });
 });

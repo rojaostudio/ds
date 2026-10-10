@@ -266,3 +266,72 @@ describe('Dialog on a compact screen (the sheet, #45)', () => {
     }
   });
 });
+
+describe('Dialog footerStart (Figma 09/10)', () => {
+  afterEach(() => page.viewport(1280, 800));
+
+  function Total({ size }: { size?: DialogSize }) {
+    return (
+      <Dialog
+        defaultOpen
+        size={size}
+        title="Cartão de visita"
+        confirmLabel="Adicionar ao pedido"
+        footerStart={<span>Total · R$ 180,00</span>}
+      >
+        <Input label="Quantidade" />
+      </Dialog>
+    );
+  }
+
+  it('md on a wide screen: the total at the start, on the buttons line, the buttons at the end', async () => {
+    await page.viewport(1280, 800);
+    await render(<Total />);
+    await settle();
+    const d = dialog()!;
+    const start = d.querySelector<HTMLElement>('.rds-modal__footer-start')!.getBoundingClientRect();
+    const confirm = [...d.querySelectorAll<HTMLElement>('.rds-modal__footer button')].at(-1)!.getBoundingClientRect();
+    const footer = d.querySelector<HTMLElement>('.rds-modal__footer')!.getBoundingClientRect();
+    expect(Math.round(start.left)).toBe(Math.round(footer.left));
+    expect(Math.round(confirm.right)).toBe(Math.round(footer.right));
+    expect(start.bottom).toBeGreaterThan(confirm.top);
+    expect(start.right).toBeLessThanOrEqual(confirm.left);
+  });
+
+  it('on the compact sheet: the total above the full-width action', async () => {
+    await page.viewport(390, 844);
+    await render(<Total />);
+    await settle();
+    const d = dialog()!;
+    const start = d.querySelector<HTMLElement>('.rds-modal__footer-start')!.getBoundingClientRect();
+    const confirm = [...d.querySelectorAll<HTMLElement>('.rds-modal__footer button')]
+      .filter((b) => b.offsetParent !== null)
+      .at(-1)!
+      .getBoundingClientRect();
+    expect(start.bottom).toBeLessThanOrEqual(confirm.top);
+    expect(Math.round(confirm.top - start.bottom)).toBe(16);
+  });
+});
+
+describe('Dialog max height (Roger 09/10: 48 above, 48 below)', () => {
+  afterEach(() => page.viewport(1280, 800));
+
+  it('a long form stops at the window − 96; only the body scrolls, the footer stays in view', async () => {
+    await page.viewport(1280, 800);
+    await render(
+      <Dialog defaultOpen title="Apostila sob medida" confirmLabel="Adicionar" footerStart={<span>Total · R$ 180,00</span>}>
+        {Array.from({ length: 20 }, (_, i) => (
+          <Input key={i} label={`Campo ${i + 1}`} />
+        ))}
+      </Dialog>,
+    );
+    await settle();
+    const d = dialog()!;
+    const box = d.getBoundingClientRect();
+    expect(Math.round(box.height)).toBe(800 - 96);
+    const body = d.querySelector<HTMLElement>('.rds-modal__body')!;
+    expect(body.scrollHeight).toBeGreaterThan(body.clientHeight);
+    const footer = d.querySelector<HTMLElement>('.rds-modal__footer')!.getBoundingClientRect();
+    expect(footer.bottom).toBeLessThanOrEqual(box.bottom);
+  });
+});

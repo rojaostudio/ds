@@ -195,8 +195,8 @@
   flex-direction: column;
   gap: var(--space-24);
   width: min(400px, calc(100vw - var(--space-32)));
-  max-height: calc(100dvh - var(--space-32));
-  overflow-y: auto;
+  /* 48 above and 48 below, at most (Roger 09/10; Figma layout/dialog/max-height). */
+  max-height: calc(100dvh - var(--space-48) * 2);
   padding: var(--space-24);
   border: var(--border-width) solid var(--alertdialog-border);
   border-radius: var(--radius-container);
@@ -214,6 +214,9 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-8);
+  /* A long text scrolls here; the buttons stay in view (Figma 09/10). */
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .rds-alert-dialog__title {
@@ -233,6 +236,7 @@
 
 .rds-alert-dialog__footer {
   display: flex;
+  flex: none;
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: var(--space-8);
@@ -3951,7 +3955,8 @@ input:focus-visible + .rds-checkbox__box {
   left: 50%;
   gap: var(--space-16);
   width: min(560px, calc(100vw - var(--space-32)));
-  max-height: calc(100dvh - var(--space-32));
+  /* 48 above and 48 below, at most (Roger 09/10; Figma layout/dialog/max-height). */
+  max-height: calc(100dvh - var(--space-48) * 2);
   border: var(--border-width) solid var(--dialog-border);
   border-radius: var(--radius-container);
   background: var(--dialog-background);
@@ -3976,6 +3981,20 @@ input:focus-visible + .rds-checkbox__box {
 
 .rds-dialog__footer {
   padding-top: var(--space-8);
+}
+
+/*
+ * Figma `footerStart` (09/10): at the start of the footer, taking the free width (at least 120) and centred on the
+ * buttons; when they don't fit beside it, it takes its own line above them, 16 apart.
+ */
+.rds-dialog .rds-modal__footer--start {
+  align-items: center;
+  row-gap: var(--space-16);
+}
+
+.rds-dialog .rds-modal__footer-start {
+  flex: 1 1 120px;
+  min-width: min(120px, 100%);
 }
 
 /* The handle is the sheet's only (compact). */
@@ -4031,6 +4050,20 @@ input:focus-visible + .rds-checkbox__box {
 
   .rds-dialog .rds-modal__footer > * {
     width: 100%;
+  }
+
+  /* footerStart above the buttons, 16 from them (the buttons keep 8); last in a reversed (custom) footer, on top. */
+  .rds-dialog .rds-modal__footer--start {
+    row-gap: var(--space-8);
+  }
+
+  .rds-dialog .rds-modal__footer-start {
+    flex: none;
+    margin-bottom: var(--space-8);
+  }
+
+  .rds-dialog .rds-modal__footer--custom .rds-modal__footer-start {
+    order: 1;
   }
 }
 
