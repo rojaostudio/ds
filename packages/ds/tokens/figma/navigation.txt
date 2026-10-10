@@ -52,4 +52,7 @@ tabs/dot/indicator|C|@theme:colors/state/success|=
 sidebar/count/danger|C|@theme:text/error|=
 sidebar/dot/neutral|C|@theme:colors/state/neutral-strong|=
 sidebar/dot/danger|C|@theme:border/error|=
+sidebar/dot/success|C|@theme:colors/state/success|=
+sidebar/dot/warning|C|@theme:colors/state/warning|=
+sidebar/dot/info|C|@theme:colors/state/info|=
 sidebar/item/label/strong|C|@theme:text/heading|=

@@ -24,11 +24,21 @@ import {
 import { Avatar } from './avatar';
 import { IconButton } from './icon-button';
 import { ChevronDownIcon, MenuIcon } from './internal/icons';
+import { Status, type StatusTone } from './status';
 import { Tooltip } from './tooltip';
 
 export type SidebarHeader = 'mark' | 'logo';
 /** What a count is (Figma .sidebar/count `tone`): neutral for a queue, danger for what is overdue. */
 export type SidebarCountTone = 'neutral' | 'danger';
+/**
+ * A state on the right of an entry (Figma .sidebar/item `showStatus`): the Caixa "aberto" or "fechado". The tones
+ * are the Status's.
+ */
+export interface SidebarItemStatus {
+  tone: StatusTone;
+  /** The state in one word ("aberto"): shown open, said in the entry's name ("Caixa, aberto") in both widths. */
+  label: string;
+}
 
 /** Below lg (1024) the Sidebar is a drawer (Figma viewport: layout/nav-button/visible). */
 const DRAWER_QUERY = '(max-width: 1023px)';
@@ -306,7 +316,7 @@ export function SidebarTrigger({ controls, open, onOpenChange, label = 'Menu', c
   );
 }
 
-export interface SidebarItemProps {
+interface SidebarItemBaseProps {
   /**
    * The entry's name (Figma: `label`). Collapsed, it stays as the accessible name and shows in a Tooltip. With
    * `asChild`, a single link element (an `<a>`, a framework `Link`) whose text is the name.
@@ -322,20 +332,37 @@ export interface SidebarItemProps {
    * aria-current="page" (the longest href wins).
    */
   current?: boolean;
+  /** Render the single child element (a framework `Link`) as the entry, with the entry's classes and content. */
+  asChild?: boolean;
+}
+
+interface SidebarItemCountProps {
   /** A number on the right, such as pending items (Figma: `showCount` + .sidebar/count). In the rail, a dot. */
   count?: number | string;
   /** neutral (default) for a queue, danger for what is overdue (Figma: .sidebar/count `tone`). */
   countTone?: SidebarCountTone;
   /** What the number counts, said after it in the accessible name: "vencidos" → "Contas a pagar, 3 vencidos". */
   countLabel?: string;
-  /** Render the single child element (a framework `Link`) as the entry, with the entry's classes and content. */
-  asChild?: boolean;
+  status?: never;
 }
+
+interface SidebarItemStatusProps {
+  /**
+   * A state on the right, instead of a count (Figma: `showStatus`, exclusive with `showCount`): open, a Status sm
+   * with the label; in the rail, a dot in the icon's corner in the tone's colour. The label joins the name.
+   */
+  status: SidebarItemStatus;
+  count?: never;
+  countTone?: never;
+  countLabel?: never;
+}
+
+export type SidebarItemProps = SidebarItemBaseProps & (SidebarItemCountProps | SidebarItemStatusProps);
 
 const countName = (count: number | string, countLabel?: string) => `${count}${countLabel ? ` ${countLabel}` : ''}`;
 
 /** One entry (Figma: .sidebar/item). Level 1 (loose): 44, icon of 20. Level 2 (inside a group): 40, text only. */
-export function SidebarItem({ children, icon, href, onClick, current, count, countTone = 'neutral', countLabel, asChild }: SidebarItemProps) {
+export function SidebarItem({ children, icon, href, onClick, current, count, countTone = 'neutral', countLabel, status, asChild }: SidebarItemProps) {
   const ctx = useContext(SidebarContext);
   const level = useContext(Level);
   const link = asChild && isValidElement(children) ? (children as ReactElement<{ className?: string; href?: string; children?: ReactNode }>) : null;
@@ -343,29 +370,34 @@ export function SidebarItem({ children, icon, href, onClick, current, count, cou
   const ownHref = href ?? link?.props.href;
   const isCurrent = ownHref !== undefined && ctx.known.has(ownHref) ? ownHref === ctx.currentHref : !!current && ctx.currentHref === undefined;
   const rail = ctx.collapsed && level === 1;
-  const hasCount = count !== undefined && count !== '';
-  // With a count, the name says it: "Contas a pagar, 3 vencidos" (a plain-text label; otherwise a hidden suffix).
+  const hasStatus = status !== undefined && status.label !== '';
+  const hasCount = !hasStatus && count !== undefined && count !== '';
+  // A count or a state joins the name: "Contas a pagar, 3 vencidos", "Caixa, aberto" (a plain-text label; otherwise a
+  // hidden suffix).
+  const said = hasStatus ? status.label : hasCount ? countName(count, countLabel) : undefined;
   const plain = typeof label === 'string' || typeof label === 'number' ? String(label) : undefined;
-  const named = hasCount && plain !== undefined ? `${plain}, ${countName(count, countLabel)}` : undefined;
+  const named = said !== undefined && plain !== undefined ? `${plain}, ${said}` : undefined;
+  const dot = hasStatus ? status.tone : hasCount ? countTone : undefined;
   const content = (
     <>
       {level === 1 && icon && (
         <span className="rds-sidebar__icon" aria-hidden="true">
           {icon}
-          {rail && hasCount && <span className={`rds-sidebar__dot rds-sidebar__dot--${countTone}`} />}
+          {rail && dot && <span className={`rds-sidebar__dot rds-sidebar__dot--${dot}`} />}
         </span>
       )}
       <span className={rail ? 'rds-visually-hidden' : 'rds-sidebar__label'}>{label}</span>
-      {hasCount && (
-        <>
-          {!rail && (
-            <span className={`rds-sidebar__count rds-sidebar__count--${countTone}`} aria-hidden="true">
-              {count}
-            </span>
-          )}
-          {named === undefined && <span className="rds-visually-hidden">{`, ${countName(count, countLabel)}`}</span>}
-        </>
+      {hasCount && !rail && (
+        <span className={`rds-sidebar__count rds-sidebar__count--${countTone}`} aria-hidden="true">
+          {count}
+        </span>
       )}
+      {hasStatus && !rail && (
+        <Status tone={status.tone} size="sm" className="rds-sidebar__status" aria-hidden="true">
+          {status.label}
+        </Status>
+      )}
+      {said !== undefined && named === undefined && <span className="rds-visually-hidden">{`, ${said}`}</span>}
     </>
   );
   const className = ['rds-sidebar__item', `rds-sidebar__item--level-${level}`].join(' ');

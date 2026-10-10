@@ -971,6 +971,9 @@
   --sidebar-count-danger: var(--text-error);
   --sidebar-dot-neutral: var(--colors-state-neutral-strong);
   --sidebar-dot-danger: var(--border-error);
+  --sidebar-dot-success: var(--colors-state-success);
+  --sidebar-dot-warning: var(--colors-state-warning);
+  --sidebar-dot-info: var(--colors-state-info);
   --sidebar-item-label-strong: var(--text-heading);
 
   /* overlays */
