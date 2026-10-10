@@ -6828,10 +6828,22 @@ input:focus-visible + .rds-checkbox__box {
   color: var(--_icon);
 }
 
-.rds-menu__icon > svg,
-.rds-menu__check > svg {
+.rds-menu__icon > svg {
   width: var(--size-20);
   height: var(--size-20);
+}
+
+/* The radio item's check (.menu/radio-item): a column of 20 kept with or without the check, so the labels line up. */
+.rds-menu__check {
+  width: var(--size-20);
+  height: var(--size-20);
+}
+
+.rds-menu__indicator,
+.rds-menu__indicator > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 .rds-menu__label {

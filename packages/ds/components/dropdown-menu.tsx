@@ -119,16 +119,22 @@ export interface DropdownMenuRadioItemProps extends MenuItemContentProps {
   textValue?: string;
 }
 
-/** One option of a DropdownMenuRadioGroup: role="menuitemradio", aria-checked; the chosen one shows a check. */
+/**
+ * One option of a DropdownMenuRadioGroup (Figma .menu/radio-item): role="menuitemradio", aria-checked. The check sits
+ * in a column of 20 before the label, kept on every option, so the labels line up whichever is chosen (the languages
+ * of a UserMenu, a filter). Choosing one (click, Enter or Space) closes the menu.
+ */
 export function DropdownMenuRadioItem({ value, children, icon, count, shortcut, disabled, textValue }: DropdownMenuRadioItemProps) {
   return (
     <Menu.RadioItem value={value} disabled={disabled} textValue={textValue} className={menuItemClassName()}>
+      <span className="rds-menu__check" aria-hidden="true">
+        <Menu.ItemIndicator className="rds-menu__indicator">
+          <CheckIcon />
+        </Menu.ItemIndicator>
+      </span>
       <MenuItemContent icon={icon} count={count} shortcut={shortcut}>
         {children}
       </MenuItemContent>
-      <Menu.ItemIndicator className="rds-menu__check" aria-hidden="true">
-        <CheckIcon />
-      </Menu.ItemIndicator>
     </Menu.RadioItem>
   );
 }
