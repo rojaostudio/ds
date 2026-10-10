@@ -29,7 +29,8 @@ export interface AlertDialogProps {
 /**
  * AlertDialog — Figma [RDS] Feedback/AlertDialog. A question that interrupts before an action with no way back
  * (Radix AlertDialog): role="alertdialog", the focus opens on Cancel and stays inside until it closes, then goes
- * back to what opened it. Escape cancels; clicking outside does not close. Styles: alert-dialog.css.
+ * back to what opened it. The decision is required: no ×, and neither Escape nor a click outside closes it, only
+ * Cancel or the action (house rule; Figma 09/10). Styles: alert-dialog.css.
  */
 export function AlertDialog({
   trigger,
@@ -51,7 +52,7 @@ export function AlertDialog({
         <AlertDialogPrimitive.Overlay
           className={showScrim ? 'rds-alert-dialog__scrim' : 'rds-alert-dialog__scrim rds-alert-dialog__scrim--clear'}
         />
-        <AlertDialogPrimitive.Content className="rds-alert-dialog">
+        <AlertDialogPrimitive.Content className="rds-alert-dialog" onEscapeKeyDown={(event) => event.preventDefault()}>
           <div className="rds-alert-dialog__content">
             <AlertDialogPrimitive.Title className="rds-alert-dialog__title">{title}</AlertDialogPrimitive.Title>
             <AlertDialogPrimitive.Description className="rds-alert-dialog__description">

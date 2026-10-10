@@ -50,6 +50,8 @@ interface ModalShellProps extends ModalProps {
   handle?: ReactNode;
   /** The default footer stacked, the confirm first and full width (the Drawer). */
   stackedFooter?: boolean;
+  /** Something at the start of the footer, before the buttons (the Dialog's `footerStart`). */
+  footerStart?: ReactNode;
   boxStyle?: CSSProperties;
 }
 
@@ -59,6 +61,7 @@ export function ModalShell({
   closeButton = true,
   handle,
   stackedFooter,
+  footerStart,
   boxStyle,
   trigger,
   open,
@@ -142,15 +145,17 @@ export function ModalShell({
             )}
           </div>
           {children != null && <div className={`rds-modal__body ${prefix}__text`}>{children}</div>}
-          {actions && (
+          {(actions || footerStart != null) && (
             <div className={[
                 'rds-modal__footer',
                 `${prefix}__footer`,
                 stackedFooter && 'rds-modal__footer--stacked',
                 footer != null && 'rds-modal__footer--custom',
+                footerStart != null && 'rds-modal__footer--start',
               ]
                 .filter(Boolean)
                 .join(' ')}>
+              {footerStart != null && <div className={`rds-modal__footer-start ${prefix}__text`}>{footerStart}</div>}
               {actions}
             </div>
           )}

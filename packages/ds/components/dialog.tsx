@@ -1,6 +1,6 @@
 'use client';
 
-import type { CSSProperties } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import { ModalClose, ModalShell, type ModalProps } from './internal/modal';
 import { useDragDismiss } from './internal/use-drag-dismiss';
 import { useKeyboardInset } from './internal/use-on-screen-keyboard';
@@ -13,6 +13,12 @@ export interface DialogProps extends ModalProps {
    * `size`). On a compact screen every size is the sheet: the screen's width, up to 560.
    */
   size?: DialogSize;
+  /**
+   * Something that goes with the action, fixed at the start of the footer, before the buttons (a live total: "1.000 un
+   * × R$ 0,18 · R$ 180,00") (Figma: `showFooterStart` + the `footerStart` slot). It doesn't scroll with the content.
+   * When the buttons don't fit beside it (sm, and always on the compact sheet) it goes above them.
+   */
+  footerStart?: ReactNode;
 }
 
 /**
