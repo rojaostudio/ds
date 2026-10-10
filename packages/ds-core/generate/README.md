@@ -86,3 +86,7 @@ No gerador, `text/heading` é a cor da marca quando ela passa sobre `surface/car
 ### Escopo próprio
 
 `emitRdsCss(theme, { scope, dark, plate })` confere cada seletor contra `RDS_SCOPE_SELECTORS`, os seletores em que o `@rojaostudio/ds` redeclara os tokens de componente (`:root`, `.ds-scope`, `[data-rds-scope]`, `.dark`, `[data-rds-mode]`, `.ds-plate`, `[data-rds-plate]`), e lança erro quando um deles deixaria os componentes com as cores da raiz. Use `.meu-escopo[data-rds-scope]`, ou ancore na raiz (`dark: ':root[data-theme="dark"]'`, o next-themes com `attribute="data-theme"`). `allowUncovered: true` pula a conferência, para um tema lido só pelo seu CSS.
+
+### Impressão
+
+O CSS emitido termina num bloco `@media print` com o modo print (`rdsPrintMode`): o claro com os fundos de `RDS_PRINT_WHITE` em branco e as sombras de `RDS_PRINT_TRANSPARENT` transparentes, sobre todos os seletores (escopo, escuro e chapa), então quem imprime do escuro ou de uma chapa sai em papel branco. Bordas e textos ficam como no claro. O escopo claro declara ainda as variáveis `--media-type-<papel>-size|line` (`RDS_MEDIA_TYPE`: caption, small, body, label, title), alias da tipografia de tela fora da impressão e 8/10, 9/12, 10/14, 12/16 e 18/24 pt dentro dela. Os componentes não as leem: são para a folha impressa do consumidor.
