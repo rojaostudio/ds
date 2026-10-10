@@ -4,7 +4,7 @@
 # obsolete: the Figma description starts with "Obsoleto"; the token stays for old code and no stylesheet has to read it.
 badge/neutral/fill/background|C|@theme:colors/primary/default|=
 badge/neutral/fill/label|C|@theme:text/on/primary-strong|=
-badge/neutral/soft/background|C|@theme:surface/muted|=
+badge/neutral/soft/background|C|@theme:surface/muted-strong|=
 badge/neutral/soft/label|C|@theme:text/body|=
 badge/action/fill/background|C|@theme:colors/secondary/default|=
 badge/action/fill/label|C|@theme:text/on/secondary|=

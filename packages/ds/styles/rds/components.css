@@ -864,7 +864,7 @@
   /* indicators */
   --badge-neutral-fill-background: var(--colors-primary-default);
   --badge-neutral-fill-label: var(--text-on-primary-strong);
-  --badge-neutral-soft-background: var(--surface-muted);
+  --badge-neutral-soft-background: var(--surface-muted-strong);
   --badge-neutral-soft-label: var(--text-body);
   --badge-action-fill-background: var(--colors-secondary-default);
   --badge-action-fill-label: var(--text-on-secondary);
