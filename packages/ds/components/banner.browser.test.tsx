@@ -62,7 +62,7 @@ describe('Banner behaviour', () => {
   });
 });
 
-// The Taiq's trial: tone="attention" in three levels of amber.
+// A trial ending: tone="attention" in three levels of amber.
 const LEVELS = ['low', 'medium', 'high'] as const;
 const trial = (level: (typeof LEVELS)[number]) => (
   <Banner

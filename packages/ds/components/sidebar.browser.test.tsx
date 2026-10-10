@@ -86,7 +86,7 @@ describe('Sidebar logo header', () => {
     const el = await render(
       <div>
         <Sidebar aria-label="A" header="logo" logo={<img src={logo(234, 85)} alt="Rojão" />}>{null}</Sidebar>
-        <Sidebar aria-label="B" header="logo" logo={<img src={logo(1128, 144)} alt="Acassius" />}>{null}</Sidebar>
+        <Sidebar aria-label="B" header="logo" logo={<img src={logo(1128, 144)} alt="Marca" />}>{null}</Sidebar>
       </div>,
     );
     await vi.waitFor(() => expect([...el.querySelectorAll('img')].every((i) => i.complete)).toBe(true));
@@ -102,7 +102,7 @@ describe('Sidebar logo header', () => {
   });
 
   it('the product sets the width: an <img width={100}> stays 100, in proportion', async () => {
-    const el = await render(<Sidebar aria-label="C" header="logo" logo={<img src={logo(1128, 144)} width={100} alt="Acassius" />}>{null}</Sidebar>);
+    const el = await render(<Sidebar aria-label="C" header="logo" logo={<img src={logo(1128, 144)} width={100} alt="Marca" />}>{null}</Sidebar>);
     await vi.waitFor(() => expect(el.querySelector('img')!.complete).toBe(true));
     const box = el.querySelector('img')!.getBoundingClientRect();
     expect(box.width).toBe(100);
