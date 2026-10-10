@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { FAB } from './fab';
+import { FAB, FABProvider, FABRoot, usePageFAB, type FABConfig } from './fab';
 import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
 afterEach(cleanup);
@@ -58,5 +58,151 @@ describe('FAB behaviour', () => {
     expect(a.querySelector('.rds-fab__icon')).not.toBeNull();
     expect(el.querySelector('button')).toBeNull();
     expect(await axeViolations(el)).toEqual([]);
+  });
+});
+
+/** CSS colours painted in order on one canvas pixel (alpha composited), read back as sRGB 0-255. */
+function paint(...layers: string[]): [number, number, number] {
+  const ctx = document.createElement('canvas').getContext('2d', { willReadFrequently: true })!;
+  for (const css of layers) {
+    ctx.fillStyle = css;
+    ctx.fillRect(0, 0, 1, 1);
+  }
+  const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
+  return [r, g, b];
+}
+const luminance = ([r, g, b]: [number, number, number]) => {
+  const lin = (c: number) => ((c /= 255) <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+  return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+};
+const ratio = (a: [number, number, number], b: [number, number, number]) => {
+  const [x, y] = [luminance(a), luminance(b)].sort((m, n) => n - m);
+  return (x + 0.05) / (y + 0.05);
+};
+
+const pill = (el: HTMLElement) => el.querySelector<HTMLElement>('.rds-fab__count');
+
+describe.each(MODES)('FAB count (%s)', (mode) => {
+  it('with a count, enabled and disabled, passes axe', async () => {
+    const el = await render(
+      <div style={{ display: 'flex', gap: 16 }}>
+        <FAB icon={<Plus />} count={12} countLabel="itens">Carrinho</FAB>
+        <FAB count={120}>Carrinho</FAB>
+        <FAB icon={<Plus />} count={3} disabled>Carrinho</FAB>
+      </div>,
+      mode,
+    );
+    expect(await axeViolations(el)).toEqual([]);
+  });
+
+  it('the number on its pill reaches 4.5:1 over the FAB fill', async () => {
+    const el = await render(<FAB icon={<Plus />} count={12}>Carrinho</FAB>, mode);
+    const fill = getComputedStyle(el.querySelector('button')!).backgroundColor;
+    const p = pill(el)!;
+    // The pill is fab/count/background at 20% over the fill; the number sits on that composite.
+    const under = paint('#ffffff', fill, getComputedStyle(p).backgroundColor);
+    const number = paint('#ffffff', fill, getComputedStyle(p).backgroundColor, getComputedStyle(p).color);
+    expect(ratio(number, under)).toBeGreaterThanOrEqual(4.5);
+  });
+});
+
+describe('FAB count', () => {
+  it('a pill after the label, the number bold and tabular; the count joins the name', async () => {
+    const el = await render(<FAB icon={<Plus />} count={12} countLabel="itens">Carrinho</FAB>);
+    const b = el.querySelector('button')!;
+    expect(b.getAttribute('aria-label')).toBe('Carrinho, 12 itens');
+    const p = pill(el)!;
+    expect(p.textContent).toBe('12');
+    expect(p.getAttribute('aria-hidden')).toBe('true');
+    expect(b.lastElementChild).toBe(p);
+    const style = getComputedStyle(p);
+    expect(style.display).not.toBe('none');
+    expect(style.fontWeight).toBe('700');
+    expect(style.fontVariantNumeric).toBe('tabular-nums');
+    expect(p.getBoundingClientRect().width).toBeGreaterThan(0);
+    // After the label, inside the 56 pill.
+    const label = b.childNodes[1];
+    const range = document.createRange();
+    range.selectNodeContents(label);
+    expect(p.getBoundingClientRect().left).toBeGreaterThan(range.getBoundingClientRect().right);
+    expect(b.getBoundingClientRect().height).toBe(56);
+  });
+
+  it('"99+" above 99, the real number in the name; without countLabel the name is "label, N"', async () => {
+    let el = await render(<FAB count={120} countLabel="itens">Carrinho</FAB>);
+    expect(pill(el)!.textContent).toBe('99+');
+    expect(el.querySelector('button')!.getAttribute('aria-label')).toBe('Carrinho, 120 itens');
+    cleanup();
+    el = await render(<FAB count={99}>Carrinho</FAB>);
+    expect(pill(el)!.textContent).toBe('99');
+    expect(el.querySelector('button')!.getAttribute('aria-label')).toBe('Carrinho, 99');
+  });
+
+  it('gone with 0 or undefined: no pill, the plain label', async () => {
+    for (const count of [0, undefined]) {
+      cleanup();
+      const el = await render(<FAB count={count} countLabel="itens">Carrinho</FAB>);
+      expect(pill(el)).toBeNull();
+      const b = el.querySelector('button')!;
+      expect(b.hasAttribute('aria-label')).toBe(false);
+      expect(b.textContent).toBe('Carrinho');
+    }
+  });
+
+  it('with asChild the link carries the pill and a hidden suffix for the name', async () => {
+    const el = await render(
+      <FAB asChild icon={<Plus />} count={5} countLabel="itens">
+        <a href="#carrinho">Carrinho</a>
+      </FAB>,
+    );
+    const a = el.querySelector('a')!;
+    expect(pill(el)!.textContent).toBe('5');
+    expect(a.querySelector('.rds-visually-hidden')!.textContent).toBe(', 5 itens');
+    // The name is the text a screen reader reads: the pill is hidden, the suffix is not.
+    const read = [...a.childNodes]
+      .filter((n) => !(n instanceof HTMLElement && n.getAttribute('aria-hidden') === 'true'))
+      .map((n) => n.textContent)
+      .join('');
+    expect(read).toBe('Carrinho, 5 itens');
+    expect(await axeViolations(el)).toEqual([]);
+  });
+});
+
+describe('FABRoot (usePageFAB)', () => {
+  function Page(config: FABConfig) {
+    usePageFAB(config, [config.count, config.icon]);
+    return null;
+  }
+  const page = (config: FABConfig) => (
+    <FABProvider>
+      <Page {...config} />
+      <FABRoot />
+    </FABProvider>
+  );
+  const Cart = () => (
+    <svg viewBox="0 0 24 24" data-icon="cart">
+      <path d="M4 4h16v16H4z" />
+    </svg>
+  );
+
+  it('passes count and countLabel to the FAB, on a button and on a link', async () => {
+    let el = await render(page({ label: 'Carrinho', count: 12, countLabel: 'itens', onClick: () => {} }));
+    await vi.waitFor(() => expect(el.querySelector('.rds-fab__count')?.textContent).toBe('12'));
+    expect(el.querySelector('button.rds-fab')!.getAttribute('aria-label')).toBe('Carrinho, 12 itens');
+    cleanup();
+    el = await render(page({ label: 'Carrinho', count: 120, href: '#carrinho' }));
+    await vi.waitFor(() => expect(el.querySelector('a.rds-fab .rds-fab__count')?.textContent).toBe('99+'));
+    expect(el.querySelector('a.rds-fab .rds-visually-hidden')!.textContent).toBe(', 120');
+  });
+
+  it('a plus by default; a given icon replaces it, with or without a count', async () => {
+    let el = await render(page({ label: 'Novo pedido', onClick: () => {} }));
+    await vi.waitFor(() => expect(el.querySelector('.rds-fab__icon svg')).not.toBeNull());
+    expect(el.querySelector('[data-icon="cart"]')).toBeNull();
+    cleanup();
+    el = await render(page({ label: 'Carrinho', icon: <Cart />, count: 2, onClick: () => {} }));
+    await vi.waitFor(() => expect(el.querySelector('.rds-fab__icon [data-icon="cart"]')).not.toBeNull());
+    expect(el.querySelectorAll('.rds-fab__icon svg')).toHaveLength(1);
+    expect(el.querySelector('.rds-fab__count')!.textContent).toBe('2');
   });
 });

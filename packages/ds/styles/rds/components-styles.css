@@ -4570,6 +4570,25 @@ input:focus-visible + .rds-checkbox__box {
   height: 100%;
 }
 
+/* The count after the label (fab/count/*): a pill of the text colour at 20%, the number bold and tabular. */
+.rds-fab__count {
+  box-sizing: border-box;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--size-24);
+  height: var(--size-24);
+  padding: 0 var(--space-8);
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--fab-count-background) 20%, transparent);
+  color: var(--fab-count-text);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
 /* Disabled = aria-disabled: stays focusable, keeps its place and its elevation; the colour goes. */
 .rds-fab[aria-disabled='true'],
 .rds-fab[aria-disabled='true']:hover,
@@ -4587,6 +4606,10 @@ input:focus-visible + .rds-checkbox__box {
   .rds-fab[aria-disabled='true'] {
     border-color: GrayText;
     color: GrayText;
+  }
+
+  .rds-fab__count {
+    border: var(--border-width) solid currentColor;
   }
 
   .rds-fab:focus-visible {

@@ -30,19 +30,47 @@ export interface FABProps extends ComponentPropsWithRef<'button'> {
    * instead of a `<button>`. Use it when the action navigates.
    */
   asChild?: boolean;
+  /**
+   * A number after the label, such as the items in a cart (Figma: `showCount` + `count`): a pill in the text colour at
+   * 20%, "99+" above 99. Gone with 0 or undefined. The real number joins the accessible name: "Carrinho, 12".
+   */
+  count?: number;
+  /** What the number counts, said after it in the name: "itens" → "Carrinho, 12 itens". */
+  countLabel?: string;
 }
+
+/** What the count adds to the name: "12 itens". */
+const countName = (count: number, countLabel?: string) => `${count}${countLabel ? ` ${countLabel}` : ''}`;
 
 /**
  * FAB — Figma [RDS] Actions/FAB. The floating button of a screen's main action: a 56 pill in the brand
  * colour, raised. One per screen, never beside a visible button that does the same thing. It does not
  * place itself: FABRoot (below) or the page puts it in the corner. Styles: fab.css.
  */
-export function FAB({ children, icon, disabled, asChild, type = 'button', className, onClick, ...rest }: FABProps) {
+export function FAB({
+  children,
+  icon,
+  disabled,
+  asChild,
+  count,
+  countLabel,
+  type = 'button',
+  className,
+  onClick,
+  ...rest
+}: FABProps) {
   const Root = asChild ? Slot : 'button';
+  const hasCount = count !== undefined && count > 0;
+  // The count joins the name: "Carrinho, 12 itens". A plain-text label becomes aria-label; anything else (a Link via
+  // asChild) gets a hidden suffix.
+  const said = hasCount ? countName(count, countLabel) : undefined;
+  const plain = typeof children === 'string' || typeof children === 'number' ? String(children) : undefined;
+  const named = said !== undefined && plain !== undefined ? `${plain}, ${said}` : undefined;
   return (
     <Root
       {...rest}
       type={asChild ? undefined : type}
+      aria-label={named ?? rest['aria-label']}
       className={['rds-fab', className].filter(Boolean).join(' ')}
       aria-disabled={disabled || undefined}
       onClick={blockWhenDisabled(disabled, onClick)}
@@ -53,6 +81,12 @@ export function FAB({ children, icon, disabled, asChild, type = 'button', classN
         </span>
       )}
       <Slottable>{children}</Slottable>
+      {hasCount && (
+        <span className="rds-fab__count" aria-hidden="true">
+          {count > 99 ? '99+' : count}
+        </span>
+      )}
+      {said !== undefined && named === undefined && <span className="rds-visually-hidden">{`, ${said}`}</span>}
     </Root>
   );
 }
@@ -63,6 +97,10 @@ export type FABConfig = {
   label: string;
   /** The FAB's icon. Defaults to a plus. */
   icon?: ReactNode;
+  /** A number after the label, "99+" above 99; gone with 0 or undefined (see FAB `count`). */
+  count?: number;
+  /** What the number counts, said after it in the accessible name: "itens" → "Carrinho, 12 itens". */
+  countLabel?: string;
   /** Navigates with a plain `<a>`. For client-side routing, render <FAB asChild><Link/></FAB> yourself. */
   href?: string;
   onClick?: () => void;
@@ -173,11 +211,17 @@ export function FABRoot() {
   return (
     <div className={wrapCls} style={bottomStyle}>
       {config.href ? (
-        <FAB asChild icon={icon} disabled={config.disabled}>
+        <FAB asChild icon={icon} disabled={config.disabled} count={config.count} countLabel={config.countLabel}>
           <a href={config.href}>{config.label}</a>
         </FAB>
       ) : (
-        <FAB icon={icon} disabled={config.disabled} onClick={config.onClick}>
+        <FAB
+          icon={icon}
+          disabled={config.disabled}
+          count={config.count}
+          countLabel={config.countLabel}
+          onClick={config.onClick}
+        >
           {config.label}
         </FAB>
       )}
