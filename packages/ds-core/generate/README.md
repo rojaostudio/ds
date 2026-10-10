@@ -69,7 +69,7 @@ O tema da Rojão publicado em `@rojaostudio/ds/styles/rds/theme.css` sai assim, 
 
 ### Contraste
 
-`rdsContrastReport(theme)` mede os pares de texto (`RDS_CONTRAST_PAIRS`, 4,5:1) e os que não são texto (`RDS_NON_TEXT_PAIRS`, 3:1: borda do campo, borda de erro, anel de foco, logo, série 1 do gráfico) nos três modos e devolve os que ficam abaixo, cada um com o seu `min`. Os pares de texto cobrem o que os componentes juntam: o rótulo do Button e do Badge neutros sobre o preenchimento e os hovers, a tinta da marca como texto sobre o card, o Button outline pressionado, o destaque do Badge, a entrada selecionada, texto discreto e texto de estado onde ficam. Cor com alfa não é medida. `rdsThemeFromTable` roda o relatório e só avisa (`opts.warn`, padrão `console.warn`): a tabela é o Figma um para um.
+`rdsContrastReport(theme)` mede os pares de texto (`RDS_CONTRAST_PAIRS`, 4,5:1) o texto grande (`RDS_LARGE_TEXT_PAIRS`, 3:1: `text/accent` sobre page e card) e os que não são texto (`RDS_NON_TEXT_PAIRS`, 3:1: borda do campo, borda de erro, anel de foco, logo, série 1 do gráfico) nos três modos e devolve os que ficam abaixo, cada um com o seu `min`. Os pares de texto cobrem o que os componentes juntam: o rótulo do Button e do Badge neutros sobre o preenchimento e os hovers, a tinta da marca como texto sobre o card, o Button outline pressionado, o destaque do Badge, a entrada selecionada, texto discreto e texto de estado onde ficam. Cor com alfa não é medida. `rdsThemeFromTable` roda o relatório e só avisa (`opts.warn`, padrão `console.warn`): a tabela é o Figma um para um.
 
 O pacote `@rojaostudio/ds` mede o mesmo nos tokens de componente: `components/__tests__/rds-generated-contrast.test.ts` gera o tema de uma cor para nove cores difíceis, emite o CSS, resolve cada token de componente até a cor final (alfa composto sobre o fundo) e falha abaixo de 4,5:1 (texto) ou 3:1 (borda, ícone, logo), em claro, escuro e chapa.
 
@@ -82,6 +82,8 @@ A chapa é pintada com a cor da marca. Quando ela não deixa folga para a tinta 
 Marcas que não são texto pedem 3:1 (WCAG 1.4.11). No gerador, `border/error` (a borda do campo com erro) parte do vermelho de estado no claro, de `error-strong` no escuro e do vermelho claro na chapa, e anda na rampa vermelha até passar 3:1 sobre `surface/card`, que é o fundo do campo. `chart/series/1` parte do 600 da primária (400 no escuro) e anda na rampa da primária até passar 3:1 sobre o card. Na chapa, `surface/card` é o 800 da primária quando ele carrega a tinta da chapa em 4,5:1; senão, o degrau mais perto da chapa que carrega.
 
 No gerador, `text/heading` é a cor da marca quando ela passa sobre `surface/card`, `surface/page`, `surface/muted-strong` (o Button outline pressionado) e `colors/accent/highlight` (o destaque do Badge); quando não passa (um amarelo), é o degrau da própria rampa mais perto dela, escurecendo, que passa. No escuro, o mesmo clareando. Um `BrandDef.brand.heading` explícito que reprova fica como foi dado, com aviso. Os `text/on/*` são escolhidos por contraste.
+
+`text/accent` é o destaque como texto, só em título grande (24px ou mais, ou 18,66px ou mais em negrito; nunca rótulo nem texto corrido). No gerador ele é `colors/accent/default` de cada modo; quando não dá 3:1 sobre `surface/page` e `surface/card` (um laranja, um amarelo ou um ciano no claro), desce pela rampa do destaque, afastando-se das superfícies, até o primeiro degrau que passa. Na chapa parte do destaque da chapa e mede sobre a chapa e o card dela.
 
 ### Escopo próprio
 

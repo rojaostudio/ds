@@ -1,4 +1,4 @@
-# [RDS] Base Tokens · collection theme · file 1Xn5IkLiq5Yhas680rJQf6 · extracted 2026-10-04
+# [RDS] Base Tokens · collection theme · file 1Xn5IkLiq5Yhas680rJQf6 · extracted 2026-10-10
 # DO NOT EDIT. Figma is the source: publish in Figma, run the extraction, save the output here.
 # Modes: light|dark|brand. Each role points to a token of the base collection (drawn per brand).
 # Format: name|type (C colour, F number, S string, B boolean)|WEB codeSyntax|light|dark|brand
@@ -114,3 +114,4 @@ text/on-inverse|C|--text-on-inverse|@base:text/on-inverse|@base:dark/text/on-inv
 text/on-inverse-subtle|C|--text-on-inverse-subtle|@base:text/on-inverse-subtle|@base:dark/text/on-inverse-subtle|@base:dark/text/on-inverse-subtle
 text/on/success-strong|C|--text-on-success-strong|@base:text/on/success-strong|@base:dark/text/on/success-strong|@base:dark/text/on/success-strong
 text/selected|C|--text-selected|@base:text/selected|@base:dark/text/selected|@base:brand/text/selected
+text/accent|C|--text-accent|@base:text/accent|@base:dark/text/accent|@base:dark/colors/accent/default
