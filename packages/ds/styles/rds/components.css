@@ -276,6 +276,8 @@
   --item-description: var(--text-muted);
   --item-border: var(--border-default);
   --item-muted-background: var(--surface-panel);
+  --item-selected-background: var(--surface-tint-subtle);
+  --item-selected-indicator: var(--text-action);
   --table-background: var(--surface-card);
   --table-header-background: var(--surface-panel);
   --table-header-label: var(--text-muted);
