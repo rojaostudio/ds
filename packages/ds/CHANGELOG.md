@@ -1,5 +1,14 @@
 # @rojaostudio/ds
 
+## 2.0.0-next.41
+
+### Patch Changes
+
+- 97e22b2: ChoiceList: a última linha não tem o fio embaixo (a borda do container fecha a lista); a altura da linha não muda.
+- 3c3c88d: `toggle/label/pressed`, `toggle/border/pressed` e `pagination/item/label/current` passam a apontar para `text/selected`. No tema padrão nada muda de cor (vale `colors/primary/default`); num tema gerado com primária clara, o texto, o ícone e a borda do Toggle pressionado e o número da página atual descem para um degrau escuro da primária e passam 4,5:1 sobre o tint da seleção.
+- Updated dependencies [67fe858]
+  - @rojaostudio/ds-core@1.1.0-next.15
+
 ## 2.0.0-next.40
 
 ### Minor Changes
