@@ -7759,7 +7759,8 @@ body:has(.rds-modal) {
 /* components/media-tile.css */
 /* @tokens media-tile */
 /*
- * MediaTile (Content collection, media-tile/*): a 1px border in radius/container around the media (1:1 or 16:9,
+ * MediaTile (Content collection, media-tile/*): 100% of the parent's width, no fixed width and no min or max; the
+ * media keeps its proportion by aspect-ratio, so the height follows the width. A 1px border in radius/container around the media (1:1 or 16:9,
  * media-tile/media behind it) and the label row (8 inside, 12/16 medium, cut at two lines). The fallback is the
  * 20 image-off icon, centred. As a link, hover and keyboard focus draw a 2px outline in media-tile/border/hover,
  * inside the corners, over the media (Figma: state=hover).
@@ -7768,6 +7769,7 @@ body:has(.rds-modal) {
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
+  width: 100%;
   min-width: 0;
   overflow: hidden;
   border: var(--border-width) solid var(--media-tile-border-default);
@@ -7820,28 +7822,12 @@ body:has(.rds-modal) {
   -webkit-line-clamp: 2;
 }
 
-/* size=sm: 96 wide; the label on one line with an ellipsis. */
-.rds-media-tile--sm {
-  flex: none;
-  width: 96px;
-}
-
+/* size=sm: only the label changes, one line with an ellipsis. The width stays the parent's. */
 .rds-media-tile--sm .rds-media-tile__label {
   display: block;
   overflow-wrap: normal;
   white-space: nowrap;
   text-overflow: ellipsis;
-}
-
-/* fluid: from 72 up to 100 in a flex row (four in a 480 card); the media stays square (aspect-ratio). */
-.rds-media-tile--fluid {
-  flex: 1 1 72px;
-  width: auto;
-  max-width: 100px;
-}
-
-.rds-media-tile--fluid .rds-media-tile__media {
-  aspect-ratio: 1;
 }
 
 .rds-media-tile--link {
