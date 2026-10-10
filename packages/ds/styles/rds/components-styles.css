@@ -7857,6 +7857,76 @@ body:has(.rds-modal) {
   }
 }
 
+/* components/media.css */
+/* @tokens media */
+/*
+ * Media (Content collection, media/*): 100% of the parent's width, the height by aspect-ratio (1:1, 4:3, 3:4, 16:9,
+ * 9:16), rounded in media/radius with overflow hidden, so the image is cut at the corners and never distorts
+ * (object-fit cover or contain). media/background sits behind it: the fallback, and the bands of contain. The
+ * fallback is the broken-image icon, 24, centred, in media/fallback.
+ */
+.rds-media {
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: var(--media-radius);
+  background: var(--media-background);
+}
+
+.rds-media--4-3 {
+  aspect-ratio: 4 / 3;
+}
+
+.rds-media--3-4 {
+  aspect-ratio: 3 / 4;
+}
+
+.rds-media--16-9 {
+  aspect-ratio: 16 / 9;
+}
+
+.rds-media--9-16 {
+  aspect-ratio: 9 / 16;
+}
+
+/* The image, or the caller's own element, fills the box; object-fit keeps its proportion. */
+.rds-media > img,
+.rds-media > video,
+.rds-media > picture,
+.rds-media > picture > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.rds-media--contain > img,
+.rds-media--contain > video,
+.rds-media--contain > picture > img {
+  object-fit: contain;
+}
+
+.rds-media__fallback {
+  display: inline-flex;
+  color: var(--media-fallback);
+}
+
+.rds-media__fallback > svg {
+  width: var(--size-24);
+  height: var(--size-24);
+}
+
+@media (forced-colors: active) {
+  .rds-media__fallback {
+    color: CanvasText;
+  }
+}
+
 /* components/message-scroller.css */
 /* @tokens scroller */
 /*
