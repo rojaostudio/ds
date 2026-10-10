@@ -1,5 +1,33 @@
 # @rojaostudio/ds-core
 
+## 1.1.0-next.14
+
+### Minor Changes
+
+- c337b76: Papéis novos no tema, para o Card inverso: `surface/inverse`, `text/on-inverse` e `text/on-inverse-subtle` (`--surface-inverse`, `--text-on-inverse`, `--text-on-inverse-subtle`).
+
+  - **Claro e print:** o fundo é a primária da marca quando o branco passa 4,5:1 sobre ela; senão (uma marca clara, como um ciano), coal/900. Texto branco; subtítulo branco a 70%, mais opaco de 5 em 5% quando 70% não passa 4,5:1 sobre o fundo (um violeta, um verde médio).
+  - **Escuro e chapa:** fundo branco, texto coal/900, subtítulo coal/600.
+  - Na Rojão: navy/900 no claro. A tabela `rojao.rds.json` ganha os três papéis; uma tabela exportada antes deles continua carregando, com os papéis tirados da mesma regra e um aviso pedindo a reexportação.
+  - O par `text/on-inverse` sobre `surface/inverse` entra no relatório de contraste. O tema passa de 107 para 110 papéis.
+
+- e7f2453: Modo print do tema, como no Figma [RDS] (issue #42, item 5).
+
+  - **`emitRdsCss` fecha o CSS com um bloco `@media print`:** o claro com os fundos em branco (`surface/page`, `card`, `panel`, `cover`, `muted`, `muted-strong`, `tint/*`, `band/base`, as superfícies de estado e `attention/*`) e as sombras (`shadow/ambient|key|strong`) transparentes. Bordas e textos ficam como no claro. O bloco vale para todos os seletores do tema, escopo, escuro e chapa: quem imprime de `.dark` ou de `.ds-plate` sai em papel branco.
+  - **Variáveis de tipografia de mídia:** o escopo claro declara `--media-type-<papel>-size` e `--media-type-<papel>-line` (`caption`, `small`, `body`, `label`, `title`), alias da tipografia de tela (`title` → `type/heading`) fora da impressão e 8/10, 9/12, 10/14, 12/16 e 18/24 pt dentro dela. Os componentes não as leem; são para a folha impressa do consumidor.
+  - **Exportados novos:** `rdsPrintMode(theme)`, `RDS_PRINT_WHITE`, `RDS_PRINT_TRANSPARENT` e `RDS_MEDIA_TYPE`.
+  - **`emitClaudeMd`** ganha uma linha sobre o modo print e as variáveis de mídia.
+
+  Quem lê o CSS emitido por bloco: agora são quatro (claro, escuro, chapa e o `@media print`), não três.
+
+- a7088d8: Papel novo `text/on/success-strong` (`--text-on-success-strong`): branco no claro e no print, preto no escuro e na chapa, o ícone sobre `colors/state/success-strong`. O par entra no relatório de contraste de não-texto (3:1). A tabela `rojao.rds.json` ganha o papel; uma tabela exportada antes dele continua carregando, com aviso. O tema passa a 111 papéis.
+
+  Muda aparência: o Tile `tone="success" variant="fill"` passa a usar o fundo `colors/state/success-strong` (green/600 no claro, green/300 no escuro) e o ícone `text/on/success-strong`, com 3:1 ou mais em claro, escuro, chapa e print.
+
+### Patch Changes
+
+- 7193688: Print: o texto sobre um fundo que vira branco na impressão (`text/on/cover`, `text/on/tint`, `text/on/band-base`) passa a ser o `text/body` do claro, como no Figma [RDS]. Antes, uma capa de acento escuro levava texto branco sobre a capa branca (1:1). Os textos sobre preenchimento cheio (`on/primary`, `secondary`, `accent`, `success`, `warning`, `error`, `info`, `neutral`) não mudam. Novo exportado `RDS_PRINT_ON_WHITE`.
+
 ## 1.1.0-next.13
 
 ### Minor Changes
