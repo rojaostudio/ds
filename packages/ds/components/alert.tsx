@@ -7,6 +7,10 @@ import { focusAfter } from './internal/focus-after';
 import { AlertIcon, CircleCheckIcon, CloseIcon, InfoIcon, TriangleAlertIcon } from './internal/icons';
 
 export type AlertTone = 'neutral' | 'info' | 'success' | 'warning' | 'danger';
+/** The icon's own colour on a neutral Alert (Figma: `iconTone`). */
+export type AlertIconTone = 'info' | 'success' | 'warning' | 'danger';
+/** stacked (default): the description under the title. inline: one run of text, the description after the title. */
+export type AlertLayout = 'stacked' | 'inline';
 
 const ICONS: Record<AlertTone, () => ReactNode> = {
   neutral: InfoIcon,
@@ -25,6 +29,18 @@ export interface AlertProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title'
   description?: ReactNode;
   /** The tone's icon (Figma: `showIcon`). Decorative: the title says the same in words. */
   showIcon?: boolean;
+  /** Your own icon in place of the tone's (Figma: `icon`), such as a check. Decorative. */
+  icon?: ReactNode;
+  /**
+   * Only with tone="neutral": paints the icon alone in a state's colour (the tone's alert/<tone>/foreground), the
+   * strip stays neutral. "Você já pode vender" with a green check: `icon={<CheckIcon />} iconTone="success"`.
+   */
+  iconTone?: AlertIconTone;
+  /**
+   * stacked (default): the description under the title. inline: the title and the description on one line, as one
+   * sentence that wraps where the words do when it does not fit (Figma: `layout`).
+   */
+  layout?: AlertLayout;
   /**
    * One way out (Figma: `showAction`), usually a neutral outline `size="sm"` Button or a link rendered with Button
    * asChild. Below lg 1024 it sits under the description; from 1024 it moves to the right of the text, centred.
@@ -54,6 +70,9 @@ export function Alert({
   title,
   description,
   showIcon = true,
+  icon,
+  iconTone,
+  layout = 'stacked',
   action,
   onClose,
   closeLabel = 'Fechar aviso',
@@ -70,16 +89,23 @@ export function Alert({
       ref={ref}
       role={announce === 'none' ? undefined : announce}
       {...rest}
-      className={['rds-alert', `rds-alert--${tone}`, className].filter(Boolean).join(' ')}
+      className={['rds-alert', `rds-alert--${tone}`, layout === 'inline' && 'rds-alert--inline', className]
+        .filter(Boolean)
+        .join(' ')}
     >
       {showIcon && (
-        <span className="rds-alert__icon" aria-hidden="true">
-          <Icon />
+        <span
+          className={['rds-alert__icon', tone === 'neutral' && iconTone && `rds-alert__icon--${iconTone}`].filter(Boolean).join(' ')}
+          aria-hidden="true"
+        >
+          {icon ?? <Icon />}
         </span>
       )}
       <div className="rds-alert__content">
         <div className="rds-alert__text">
           <p className="rds-alert__title">{title}</p>
+          {/* inline: the space between the title and the description (a flex container drops it when stacked). */}
+          {description && ' '}
           {description && <div className="rds-alert__description">{description}</div>}
         </div>
         {action && <div className="rds-alert__action">{action}</div>}

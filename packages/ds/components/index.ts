@@ -1,6 +1,6 @@
 // 2.0 (#15): Feedback follows the Figma [RDS] (Alert, AlertDialog, HoverCard, Popover, Toast, Tooltip).
 export { Alert } from './alert';
-export type { AlertProps, AlertTone } from './alert';
+export type { AlertProps, AlertTone, AlertIconTone, AlertLayout } from './alert';
 export { AlertDialog } from './alert-dialog';
 export type { AlertDialogProps, AlertDialogTone } from './alert-dialog';
 export { HoverCard } from './hover-card';

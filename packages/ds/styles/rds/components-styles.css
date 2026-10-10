@@ -415,6 +415,31 @@
   --_foreground: var(--alert-danger-foreground);
 }
 
+/* iconTone (neutral only): the icon alone in the state's colour; the strip, the title and the text stay neutral. */
+.rds-alert--neutral .rds-alert__icon--info {
+  color: var(--alert-info-foreground);
+}
+.rds-alert--neutral .rds-alert__icon--success {
+  color: var(--alert-success-foreground);
+}
+.rds-alert--neutral .rds-alert__icon--warning {
+  color: var(--alert-warning-foreground);
+}
+.rds-alert--neutral .rds-alert__icon--danger {
+  color: var(--alert-danger-foreground);
+}
+
+/* layout=inline: the title and the description run as one sentence and wrap where the words do. */
+.rds-alert--inline .rds-alert__text {
+  display: block;
+}
+
+.rds-alert--inline .rds-alert__title,
+.rds-alert--inline .rds-alert__description,
+.rds-alert--inline .rds-alert__description > p {
+  display: inline;
+}
+
 @media (forced-colors: active) {
   .rds-alert {
     border-color: CanvasText;
