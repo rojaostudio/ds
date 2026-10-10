@@ -4,6 +4,7 @@ O codemod do [Rojão DS](https://ds.rojao.ai): leva um projeto do `@rojaostudio/
 direto para a 2.0.
 
 **Uso interno.** Não é publicado no npm: roda de dentro deste repositório, nos projetos do Rojão Studio.
+Quem é de fora migra pelo guia [Migrar da 1.x](https://ds.rojao.ai/migrar).
 
 ```bash
 cd C:/_ww2/ds
