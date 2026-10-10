@@ -307,7 +307,7 @@
   --text-on-primary: #ffffff;
   --text-on-secondary: #ffffff;
   --text-on-accent: #1b2a4a;
-  --text-on-tint: #1b2a4a;
+  --text-on-tint: #27272a;
   --colors-state-error: #c50003;
   --colors-state-error-strong: #6f0000;
   --surface-tint-strong: #ffffff;
@@ -327,7 +327,7 @@
   --surface-band-action: #e2f0ff;
   --surface-band-base: #ffffff;
   --text-on-band-action: #000000;
-  --text-on-band-base: #000000;
+  --text-on-band-base: #27272a;
   --text-on-primary-strong: #ffffff;
   --colors-accent-logo: #ffb066;
   --surface-band-mark-action: #2196f3;
@@ -337,7 +337,7 @@
   --text-on-success: #000000;
   --colors-state-success-strong: #0a7e1c;
   --surface-cover: #ffffff;
-  --text-on-cover: #ffffff;
+  --text-on-cover: #27272a;
   --text-subtle: #52525b;
   --surface-muted: #ffffff;
   --surface-error: #ffffff;
