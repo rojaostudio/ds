@@ -7,7 +7,7 @@ direto para a 2.0.
 Quem é de fora migra pelo guia [Migrar da 1.x](https://ds.rojao.ai/migrar).
 
 ```bash
-cd C:/_ww2/ds
+cd ds                                         # a raiz deste repositório
 pnpm migrate:consumer ../meu-app            # dry-run: mostra o plano, não escreve nada
 pnpm migrate:consumer ../meu-app --apply    # escreve
 ```
