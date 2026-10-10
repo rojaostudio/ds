@@ -49,6 +49,8 @@ describe('FAB behaviour', () => {
     const rest = getComputedStyle(b);
     const fill = rest.backgroundColor;
     expect(rest.boxShadow).toBe(shadow('--elevation-raised'));
+    // The hover rule sits behind @media (hover: hover), which a headless runner may not match (as in CI).
+    if (!matchMedia('(hover: hover)').matches) return;
     // The pointer is shared by the test files running in parallel: hover again on every retry, so another file
     // moving the mouse cannot leave this one waiting on a hover it lost.
     await vi.waitFor(
