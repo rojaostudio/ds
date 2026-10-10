@@ -3349,6 +3349,15 @@ input:focus-visible + .rds-checkbox__box {
   flex: none;
 }
 
+/* The avatar's disc follows the row (Figma 10/10): muted-strong on a plain row, the card on the chosen tint. */
+.rds-choice-list__media .rds-avatar__fallback {
+  background: var(--choice-list-item-avatar-background);
+}
+
+.rds-choice-list__item[aria-selected='true'] .rds-choice-list__media .rds-avatar__fallback {
+  background: var(--choice-list-item-avatar-selected);
+}
+
 .rds-choice-list__item[aria-disabled='true'] .rds-choice-list__media {
   opacity: 0.5;
 }

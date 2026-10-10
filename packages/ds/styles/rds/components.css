@@ -412,6 +412,8 @@
   --heading-default: var(--text-heading);
   --heading-accent: var(--colors-accent-default);
   --choice-list-item-description-selected: var(--text-on-tint);
+  --choice-list-item-avatar-background: var(--surface-muted-strong);
+  --choice-list-item-avatar-selected: var(--surface-card);
   --card-tint-title: var(--text-on-tint);
 
   /* external */
