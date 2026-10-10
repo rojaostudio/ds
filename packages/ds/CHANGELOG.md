@@ -1,5 +1,52 @@
 # @rojaostudio/ds
 
+## 2.0.0-next.38
+
+### Minor Changes
+
+- 757e6e8: Card `variant="inverse"`: o fundo escuro da marca (`surface/inverse`; branco no escuro e na chapa), sem borda e sem sombra. Título, conteúdo, nota do rodapé e ícones em `currentColor` usam `text/on-inverse`; a descrição, `text/on-inverse-subtle`. No print o fundo se mantém (é preenchimento cheio). Tokens novos na coleção Content: `--card-inverse-background`, `--card-inverse-title` e `--card-inverse-description`.
+- 9164583: DateRangePicker e Calendar em intervalo, como no Figma [RDS] de 10/10 (#42, item 4).
+
+  - **Calendar** ganha `mode="single" | "range"` (single é o padrão; tipos `CalendarSingleProps`, `CalendarRangeProps` e `DateRange`). No range, a primeira escolha é o início e a segunda o fim (um dia anterior troca os dois; a terceira recomeça), e `onValueChange` recebe `{ from, to }`. O dia em range é start, middle ou end: start e end são a chapa de selecionado, middle é só a faixa contínua, sem cantos. Todos os dias do intervalo ficam `aria-selected` e as pontas dizem isso no nome ("1 de outubro de 2026, início do período").
+  - **DateRangePicker** novo: `value={{ from, to }}`, `onValueChange` (só com o intervalo inteiro) e `presets` (padrão Hoje, Últimos 7 dias, Este mês e Mês passado, de `dateRangePresets(today)`; aceita presets próprios `{ label, range }`). O campo mostra o intervalo; o painel abre com os presets à esquerda (escolha única, com o check, como o DropdownMenuRadioItem) e o Calendar em range. No compacto (abaixo de 1024) o painel vira o sheet do Dialog, com os presets como FilterChips no topo e o Calendar embaixo.
+  - Teclado: os presets são um listbox (setas movem, Enter ou Espaço escolhem), Tab leva ao calendário, Escape fecha sem mudar. O intervalo escolhido é anunciado ("Período escolhido: de … a …") e fica na descrição do campo; o início escolhido no calendário é anunciado dentro do painel.
+  - Token novo: `--calendar-day-background-range` (surface/tint/default).
+
+- 95191b8: Item ganha a lista densa e a seleção, como no Figma [RDS] de 10/10 (#4).
+
+  - `variant="row"`: sem cantos, só o separador embaixo (`item/border`), recuo 12 × 16 no md e 8 × 16 no sm, mídia numa caixa de 48 ou 32, título e descrição numa linha cada com reticências; o valor vai no `trailing`. Para dezenas de linhas num painel lateral ou numa busca de cliente.
+  - `selected?: boolean`, em qualquer variante: fundo `item/selected/background` (surface/tint/subtle) e faixa de 3px no começo da linha em `item/selected/indicator` (text/action).
+  - `onSelect?: () => void`: a linha vira pressionável. O título é um `<button>` com a área de clique esticada sobre a linha toda, descrito pela descrição, com `aria-pressed` quando há `selected`; o anel de foco é desenhado na linha e o `action` continua um controle à parte. `aria-pressed` e não `listbox`/`option` porque cada linha segue um botão comum numa lista comum (a lista e o tamanho dela continuam anunciados), pode manter o próprio `action` e dispensa foco itinerante.
+  - Tokens novos: `--item-selected-background` e `--item-selected-indicator`.
+
+- c337b76: Papéis novos no tema, para o Card inverso: `surface/inverse`, `text/on-inverse` e `text/on-inverse-subtle` (`--surface-inverse`, `--text-on-inverse`, `--text-on-inverse-subtle`).
+
+  - **Claro e print:** o fundo é a primária da marca quando o branco passa 4,5:1 sobre ela; senão (uma marca clara, como um ciano), coal/900. Texto branco; subtítulo branco a 70%, mais opaco de 5 em 5% quando 70% não passa 4,5:1 sobre o fundo (um violeta, um verde médio).
+  - **Escuro e chapa:** fundo branco, texto coal/900, subtítulo coal/600.
+  - Na Rojão: navy/900 no claro. A tabela `rojao.rds.json` ganha os três papéis; uma tabela exportada antes deles continua carregando, com os papéis tirados da mesma regra e um aviso pedindo a reexportação.
+  - O par `text/on-inverse` sobre `surface/inverse` entra no relatório de contraste. O tema passa de 107 para 110 papéis.
+
+- 07963a7: Modo print no tema publicado (issue #42, item 5). `styles/rds/theme.css` ganha o bloco `@media print` do `ds-core`: na impressão, fundos brancos, sem sombra, bordas e textos do claro, inclusive em `.dark` e `.ds-plate`. Entram as variáveis `--media-type-<papel>-size|line` (`caption`, `small`, `body`, `label`, `title`), a tipografia de tela na tela e 8/10, 9/12, 10/14, 12/16 e 18/24 pt no papel, para a folha impressa do consumidor. Os componentes mantêm a própria tipografia.
+- cd4b06b: Stat ganha `inverse` e Delta ganha `tone="inverse"`, como no Figma [RDS] de 10/10.
+
+  - **Stat** `<Stat framed inverse>` (só com `framed`, `tone="neutral"` e sem `muted`; fora disso é ignorado, com aviso no console): fundo `stat/inverse/background` (surface/inverse), valor em `stat/inverse/value` (text/on-inverse), rótulo e legenda em `stat/inverse/label` (text/on-inverse-subtle). O Delta dentro dele vira inverse sozinho, qualquer que seja o tom. Legível (≥ 4,5:1) no claro, no escuro e na impressão.
+  - **Delta** `tone="inverse"`: seta e valor em `delta/inverse` (text/on-inverse), para um fundo escuro.
+  - Tokens novos: `--stat-inverse-background`, `--stat-inverse-value`, `--stat-inverse-label` e `--delta-inverse`.
+
+- a7088d8: Papel novo `text/on/success-strong` (`--text-on-success-strong`): branco no claro e no print, preto no escuro e na chapa, o ícone sobre `colors/state/success-strong`. O par entra no relatório de contraste de não-texto (3:1). A tabela `rojao.rds.json` ganha o papel; uma tabela exportada antes dele continua carregando, com aviso. O tema passa a 111 papéis.
+
+  Muda aparência: o Tile `tone="success" variant="fill"` passa a usar o fundo `colors/state/success-strong` (green/600 no claro, green/300 no escuro) e o ícone `text/on/success-strong`, com 3:1 ou mais em claro, escuro, chapa e print.
+
+### Patch Changes
+
+- bc090a1: Dialog: o JSDoc e o comentário do CSS diziam que o sheet do compacto vai até 85% da tela; o CSS usa a altura da tela menos 48 (`100dvh − 48`). O texto agora diz isso.
+- 7193688: Print: o texto sobre um fundo que vira branco na impressão (`text/on/cover`, `text/on/tint`, `text/on/band-base`) passa a ser o `text/body` do claro, como no Figma [RDS]. Antes, uma capa de acento escuro levava texto branco sobre a capa branca (1:1). Os textos sobre preenchimento cheio (`on/primary`, `secondary`, `accent`, `success`, `warning`, `error`, `info`, `neutral`) não mudam. Novo exportado `RDS_PRINT_ON_WHITE`.
+- Updated dependencies [c337b76]
+- Updated dependencies [e7f2453]
+- Updated dependencies [7193688]
+- Updated dependencies [a7088d8]
+  - @rojaostudio/ds-core@1.1.0-next.14
+
 ## 2.0.0-next.37
 
 ### Patch Changes
