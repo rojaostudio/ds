@@ -165,7 +165,7 @@ describe("styles/rds/theme.css is the Figma brand table of the Rojão, role by r
     expect(print["--text-body"]).toBe(resolved.light["--text-body"]);
     expect(print["--media-type-body-size"]).toBe("10pt");
     expect(resolved.light["--media-type-body-size"]).toBe("var(--type-body-size, 16px)");
-    expect(Object.keys(print).filter((k) => !k.startsWith("--media-type-"))).toHaveLength(107);
+    expect(Object.keys(print).filter((k) => !k.startsWith("--media-type-"))).toHaveLength(110);
   });
 
   it.each(["light", "dark", "brand"] as const)("%s: every role is the colour of the primitive Figma points to", (mode) => {
@@ -176,7 +176,7 @@ describe("styles/rds/theme.css is the Figma brand table of the Rojão, role by r
       if (got !== expected) wrong.push(`${role}: css ${got}, Figma ${expected} (${ref})`);
     }
     expect(wrong).toEqual([]);
-    expect(Object.keys(table.modes[mode])).toHaveLength(107);
+    expect(Object.keys(table.modes[mode])).toHaveLength(110);
   });
 
   it("the brand's own variables (--rojao-*) are in the light scope", () => {

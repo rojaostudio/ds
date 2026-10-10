@@ -109,3 +109,6 @@ border/error|C|--border-error|@base:colors/state/error|@base:dark/colors/state/e
 surface/attention/low|C|--surface-attention-low|@color:amber/100|@color:amber/100|@color:amber/100
 surface/attention/medium|C|--surface-attention-medium|@color:amber/200|@color:amber/200|@color:amber/200
 surface/attention/high|C|--surface-attention-high|@color:amber/400|@color:amber/400|@color:amber/400
+surface/inverse|C|--surface-inverse|@base:surface/inverse|@base:dark/surface/inverse|@base:dark/surface/inverse
+text/on-inverse|C|--text-on-inverse|@base:text/on-inverse|@base:dark/text/on-inverse|@base:dark/text/on-inverse
+text/on-inverse-subtle|C|--text-on-inverse-subtle|@base:text/on-inverse-subtle|@base:dark/text/on-inverse-subtle|@base:dark/text/on-inverse-subtle
