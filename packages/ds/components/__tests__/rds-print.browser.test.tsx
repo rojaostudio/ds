@@ -4,19 +4,12 @@
  * emulateMedia command of vitest.config.ts) and a Card is measured in light, dark and on the plate.
  */
 import { afterEach, describe, expect, it } from 'vitest';
-import { commands } from 'vitest/browser';
 import { act } from 'react';
 import { Card, CardContent } from '../card';
-import { cleanup, render, renderIn, type Scheme } from './render';
-
-declare module 'vitest/browser' {
-  interface BrowserCommands {
-    emulateMedia: (media: 'print' | 'screen' | null) => Promise<void>;
-  }
-}
+import { cleanup, render, renderIn, setMedia, type Scheme } from './render';
 
 afterEach(async () => {
-  await commands.emulateMedia(null);
+  await setMedia(null);
   act(() => cleanup());
 });
 
@@ -38,7 +31,7 @@ async function lightOnScreen() {
 describe('the print mode, in the browser', () => {
   it('matches print and not screen', async () => {
     expect(matchMedia('print').matches).toBe(false);
-    await commands.emulateMedia('print');
+    await setMedia('print');
     expect(matchMedia('print').matches).toBe(true);
   });
 
@@ -47,7 +40,7 @@ describe('the print mode, in the browser', () => {
       const light = await lightOnScreen();
       const onScreen = await renderIn(sample, scheme);
       const screenShadow = card(onScreen).boxShadow;
-      await commands.emulateMedia('print');
+      await setMedia('print');
       const el = await renderIn(sample, scheme);
       const s = card(el);
       expect(s.backgroundColor).toBe('rgb(255, 255, 255)');
@@ -66,7 +59,7 @@ describe('the print mode, in the browser', () => {
     const v = (name: string) => role(el, name);
     expect(v('--media-type-body-size')).toBe('16px');
     expect(v('--media-type-title-line')).toBe('30px');
-    await commands.emulateMedia('print');
+    await setMedia('print');
     const sizes = ['caption', 'small', 'body', 'label', 'title'].map((r) => `${v(`--media-type-${r}-size`)}/${v(`--media-type-${r}-line`)}`);
     expect(sizes).toEqual(['8pt/10pt', '9pt/12pt', '10pt/14pt', '12pt/16pt', '18pt/24pt']);
   });

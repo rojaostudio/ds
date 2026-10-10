@@ -124,6 +124,7 @@ export const PAIRS: Pair[] = [
   ]),
   ['--card-title', '--card-background', 't'], ['--card-description', '--card-background', 't'],
   ['--card-tint-title', '--card-tint-background', 't'],
+  ['--card-inverse-title', '--card-inverse-background', 't'], ['--card-inverse-description', '--card-inverse-background', 't'],
   // Blocks.
   ...block('--faq'), ...block('--contact'), ...block('--benefits'), ...block('--testimonial'),
   ...block('--pricing'), ...block('--newsletter', ['title', 'text', 'note']), ...block('--footer', ['legal', 'link', 'tagline', 'title']),

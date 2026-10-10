@@ -7,6 +7,17 @@ import axe from 'axe-core';
 import type { ReactNode } from 'react';
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
+import { commands } from 'vitest/browser';
+
+declare module 'vitest/browser' {
+  interface BrowserCommands {
+    /** page.emulateMedia (vitest.config.ts): the CSS media type of the page, `null` back to the default. */
+    emulateMedia: (media: 'print' | 'screen' | null) => Promise<void>;
+  }
+}
+
+/** Switches the page to the print media type (`'print'`), or back (`null`), as Chromium does when it prints. */
+export const setMedia = (media: 'print' | null) => commands.emulateMedia(media);
 
 export type Mode = 'light' | 'dark';
 export const MODES: Mode[] = ['light', 'dark'];
