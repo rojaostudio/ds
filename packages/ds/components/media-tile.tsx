@@ -4,7 +4,7 @@ import { useState, type HTMLAttributes, type ReactNode } from 'react';
 import { ImageOffIcon } from './internal/icons';
 
 export type MediaTileAspect = 'square' | 'video';
-/** md (default): fills its column, 160 in the Figma, label of two lines. sm: 96 wide, label of one line. */
+/** Changes only the label: md (default) on two lines, sm in caption on one line. The width is the parent's. */
 export type MediaTileSize = 'md' | 'sm';
 
 export interface MediaTileProps extends Omit<HTMLAttributes<HTMLElement>, 'children'> {
@@ -23,20 +23,16 @@ export interface MediaTileProps extends Omit<HTMLAttributes<HTMLElement>, 'child
   /** square (1:1) or video (16:9) (Figma: `aspect`). */
   aspect?: MediaTileAspect;
   /**
-   * md (default): fills its column (160 in the Figma), the label cut at two lines. sm: 96 wide, the label in
-   * caption 12/16 on one line with an ellipsis (Figma: `size`).
+   * Changes only the label (Figma: `size`): md (default) cut at two lines, sm in caption 12/16 on one line with an
+   * ellipsis. The tile always takes the parent's width; give a wrapper the width you want (e.g. flex 1 1 72px and
+   * max-width 100px for a row of thumbnails).
    */
   size?: MediaTileSize;
-  /**
-   * A fluid width for a row of thumbnails: the tile grows and shrinks from 72 up to 100 (flex 1 1 72px), the media
-   * always square (even with aspect="video"). Four per row in a 480 card. Put the tiles in a flex row with a gap.
-   */
-  fluid?: boolean;
 }
 
 /**
  * MediaTile — Figma [RDS] Content/MediaTile. A thumbnail of a product or image with an optional label, for lists
- * and grids. A link when it has `href`, otherwise a plain box. Styles: media-tile.css.
+ * and grids. It takes 100% of its parent's width; the media keeps its proportion by aspect-ratio. A link when it has `href`, otherwise a plain box. Styles: media-tile.css.
  */
 export function MediaTile({
   src,
@@ -47,7 +43,6 @@ export function MediaTile({
   fallback,
   aspect = 'square',
   size = 'md',
-  fluid,
   className,
   ...rest
 }: MediaTileProps) {
@@ -57,7 +52,6 @@ export function MediaTile({
     'rds-media-tile',
     `rds-media-tile--${aspect}`,
     size === 'sm' && 'rds-media-tile--sm',
-    fluid && 'rds-media-tile--fluid',
     href && 'rds-media-tile--link',
     className,
   ]

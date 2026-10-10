@@ -24,12 +24,18 @@ describe.each(MODES)('MediaTile (%s)', (mode) => {
     expect(await axeViolations(el)).toEqual([]);
   });
 
-  it('sm and fluid, plain and link, pass axe', async () => {
+  it('sm in wrappers, plain and link, pass axe', async () => {
     const el = await render(
       <div style={{ display: 'flex', gap: 8, width: 432 }}>
-        <MediaTile size="sm" src={PIXEL} alt="" label="Camiseta básica algodão" />
-        <MediaTile size="sm" fluid label="Sem imagem" href="#produto" />
-        <MediaTile fluid src={PIXEL} alt="Camiseta azul" href="#produto" />
+        <div style={{ flex: '1 1 72px', maxWidth: 100 }}>
+          <MediaTile size="sm" src={PIXEL} alt="" label="Camiseta básica algodão" />
+        </div>
+        <div style={{ flex: '1 1 72px', maxWidth: 100 }}>
+          <MediaTile size="sm" label="Sem imagem" href="#produto" />
+        </div>
+        <div style={{ flex: '1 1 72px', maxWidth: 100 }}>
+          <MediaTile src={PIXEL} alt="Camiseta azul" href="#produto" />
+        </div>
       </div>,
       mode,
     );
@@ -53,42 +59,65 @@ describe('MediaTile behaviour', () => {
     expect(getComputedStyle(label).marginTop).toBe('8px');
   });
 
-  it('md stays as it was: fills its column, the label on two lines', async () => {
-    const el = await render(
-      <div style={{ width: 160 }}>
-        <MediaTile label={LONG} />
-      </div>,
-    );
-    expect(el.querySelector<HTMLElement>('.rds-media-tile')!.getBoundingClientRect().width).toBe(160);
-    expect(el.querySelector<HTMLElement>('.rds-media-tile__label')!.getBoundingClientRect().height).toBe(32);
+  it('takes the width of its parent (140 and 200), the square tile with a square media', async () => {
+    for (const width of [140, 200]) {
+      cleanup();
+      const el = await render(
+        <div style={{ width }}>
+          <MediaTile label={LONG} />
+        </div>,
+      );
+      const tile = el.querySelector<HTMLElement>('.rds-media-tile')!;
+      expect(tile.getBoundingClientRect().width).toBe(width);
+      const media = el.querySelector<HTMLElement>('.rds-media-tile__media')!.getBoundingClientRect();
+      expect(media.width).toBe(width - 2);
+      expect(media.height).toBeCloseTo(media.width, 1);
+    }
   });
 
-  it('sm: 96 wide, square media, the label in caption 12/16 on one line with an ellipsis', async () => {
+  it('takes the parent width in a flex row too: no fixed width, no min or max', async () => {
     const el = await render(
       <div style={{ display: 'flex', width: 480 }}>
-        <MediaTile size="sm" label={LONG} />
+        <MediaTile size="sm" label="Foto" />
       </div>,
     );
-    const tile = el.querySelector<HTMLElement>('.rds-media-tile')!;
-    expect(tile.getBoundingClientRect().width).toBe(96);
-    const media = el.querySelector<HTMLElement>('.rds-media-tile__media')!.getBoundingClientRect();
-    expect(media.height).toBe(media.width);
-    const label = el.querySelector<HTMLElement>('.rds-media-tile__label')!;
-    const style = getComputedStyle(label);
+    const style = getComputedStyle(el.querySelector<HTMLElement>('.rds-media-tile')!);
+    expect(el.querySelector<HTMLElement>('.rds-media-tile')!.getBoundingClientRect().width).toBe(480);
+    expect(style.maxWidth).toBe('none');
+    expect(style.minWidth).toBe('0px');
+  });
+
+  it('sm and md have the same width; sm changes only the label (caption 12/16, one line with an ellipsis)', async () => {
+    const el = await render(
+      <div style={{ width: 160 }}>
+        <MediaTile size="sm" label={LONG} />
+        <MediaTile size="md" label={LONG} />
+      </div>,
+    );
+    const [sm, md] = el.querySelectorAll<HTMLElement>('.rds-media-tile');
+    expect(sm.getBoundingClientRect().width).toBe(160);
+    expect(md.getBoundingClientRect().width).toBe(160);
+    const [smMedia, mdMedia] = el.querySelectorAll<HTMLElement>('.rds-media-tile__media');
+    expect(smMedia.getBoundingClientRect().height).toBe(mdMedia.getBoundingClientRect().height);
+    const [smLabel, mdLabel] = el.querySelectorAll<HTMLElement>('.rds-media-tile__label');
+    const style = getComputedStyle(smLabel);
     expect(style.fontSize).toBe('12px');
     expect(style.lineHeight).toBe('16px');
     expect(style.textOverflow).toBe('ellipsis');
     expect(style.whiteSpace).toBe('nowrap');
-    expect(label.getBoundingClientRect().height).toBe(16);
-    expect(label.scrollWidth).toBeGreaterThan(label.clientWidth);
+    expect(smLabel.getBoundingClientRect().height).toBe(16);
+    expect(smLabel.scrollWidth).toBeGreaterThan(smLabel.clientWidth);
+    expect(mdLabel.getBoundingClientRect().height).toBe(32);
   });
 
-  it('fluid: four in a row in a 480 card, each from 72 up to 100, the media always square', async () => {
+  it('a wrapper sets the width of a row of thumbnails (flex 1 1 72px, max-width 100px)', async () => {
     const tiles = (width: number) => (
       <div style={{ width, padding: 24, boxSizing: 'border-box' }}>
         <div style={{ display: 'flex', gap: 8 }}>
           {['A', 'B', 'C', 'D'].map((n) => (
-            <MediaTile key={n} fluid size="sm" aspect={n === 'D' ? 'video' : 'square'} label={`Foto ${n}`} />
+            <div key={n} style={{ flex: '1 1 72px', maxWidth: 100, minWidth: 0 }}>
+              <MediaTile size="sm" label={`Foto ${n}`} />
+            </div>
           ))}
         </div>
       </div>
@@ -99,13 +128,8 @@ describe('MediaTile behaviour', () => {
     ] as const) {
       cleanup();
       const el = await render(tiles(width));
-      const all = [...el.querySelectorAll<HTMLElement>('.rds-media-tile')];
-      expect(new Set(all.map((t) => Math.round(t.getBoundingClientRect().top))).size).toBe(1);
-      for (const tile of all) {
-        const w = tile.getBoundingClientRect().width;
-        expect(w).toBeCloseTo(expected, 0);
-        expect(w).toBeGreaterThanOrEqual(72);
-        expect(w).toBeLessThanOrEqual(100);
+      for (const tile of el.querySelectorAll<HTMLElement>('.rds-media-tile')) {
+        expect(tile.getBoundingClientRect().width).toBeCloseTo(expected, 0);
         const media = tile.querySelector<HTMLElement>('.rds-media-tile__media')!.getBoundingClientRect();
         expect(media.height).toBeCloseTo(media.width, 1);
       }
