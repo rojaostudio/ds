@@ -1,5 +1,79 @@
 # @rojaostudio/ds
 
+## 2.0.0-next.34
+
+### Minor Changes
+
+- 8c2b000: Alert: a ação vai para a direita do texto na tela larga, como no Figma [RDS] de 07/10.
+
+  - Abaixo de lg 1024 continua embaixo da descrição; de 1024 em diante fica à direita da coluna de texto, centralizada na vertical, antes do ×.
+  - O texto (título + descrição) ganha o invólucro `.rds-alert__text`, que leva o respiro do título: um Alert só com título fica na linha do ícone mesmo ao lado de uma ação de 36.
+  - A ação recomendada passa a ser Button `tone="neutral" variant="outline" size="sm"` (era ghost): embaixo, o contorno alinha com o texto; à direita, não some na chapa.
+
+- 03f8d9f: AlertDialog não fecha mais no Esc: a decisão é obrigatória, só Cancelar ou a ação fecham (regra da casa, como no Figma [RDS]). Antes o Esc cancelava.
+- 5524dc7: Button e IconButton `size="sm"` passam de 36 para 32 (padding vertical 6). A barra do DataTableHeader fica toda em 32, junto com o Input sm e o FilterChip. O alvo de toque segue 44 no ponteiro grosso (camada invisível de 6 px).
+- 8c2b000: Card: o conteúdo empilha os blocos com o mesmo espaço do padding (24 no md, 16 no sm), como o gap do slot `cardContent` no Figma [RDS] de 07/10. Alert + lista dentro do Card não precisam mais de espaçador.
+- 8c2b000: Chart `type="bar"` pinta todas as barras com a primeira cor de série: é um ranking, a cor categórica por linha não dizia nada (Figma [RDS] 09/10, pedido do [GRA]).
+- 8c2b000: ChoiceCard: o selecionado fica leve, como no Figma [RDS] de 07/10. Antes era uma chapa cheia na cor da marca, que brigava com o botão primário do diálogo.
+
+  - Selecionado = borda de 2 px na marca + fundo `surface/tint/subtle`, título e descrição nos tons normais, ícone na marca sobre `surface/card`, radio (anel e ponto) na marca.
+  - Vale para os três layouts; o check do tile passa a ser cheio na marca com o glifo em `text/on/primary`.
+  - Tokens `choice-card/*/selected`, `choice-card/radio/dot` e `choice-card/check/*/tile` mudam de alvo; a chapa cheia fica só para o ToggleGroup.
+
+- ccacba9: `DescriptionList` + `DescriptionItem`: pares rótulo → valor (`<dl>`, cada par num `<div>` com `<dt>` e `<dd>`), item 2 da #42. Figma [RDS] 07/10: Content/DescriptionList.
+
+  - `layout`: `stacked` (rótulo em cima, o padrão) ou `inline` (rótulo numa coluna de 160, ou 104 no `sm`; no compacto, abaixo de 1024, vira empilhado).
+  - `density`: `md` (tela) ou `sm` (folha impressa, 12/16).
+  - `columns`: `1` (um par por linha) ou `'auto'` (colunas de no mínimo 300 que quebram: 1 no celular, 2 num card).
+  - O valor aceita texto ou componente (Status, Badge, link).
+  - Tokens novos `--description-list-label`, `--description-list-value`, `--description-list-label-width-md` e `--description-list-label-width-sm`.
+
+- 03f8d9f: Dialog ganha `footerStart`: conteúdo fixo no começo do rodapé, antes dos botões (um total ao vivo), que não rola com o conteúdo. Quando os botões não cabem ao lado (sm, e sempre no sheet do compacto) ele sobe para cima deles. Só no Dialog (Figma [RDS] 09/10, pedido do [GRA]).
+- 6e6f8ca: Dialog e AlertDialog viram sheet ancorado embaixo no compacto (abaixo de 1024), com a mesma API (#45). Figma [RDS] 06/10: pelo modo viewport, sem variante.
+
+  - **Dialog**: encosta embaixo, com a largura da tela até 560 em qualquer `size`; ganha a alça (arrastar para baixo fecha), sobe acima do teclado da tela e respeita a área segura. O Cancelar padrão sai (fecham a alça, o véu, o Escape e o ×) e a ação ocupa a largura. Um `footer` próprio empilha em largura cheia, o último (a ação principal) em cima.
+  - **AlertDialog**: também vira sheet, sem alça e sem fechar no véu; as duas ações ficam, em largura cheia, a de confirmar em cima. O foco continua abrindo no Cancelar.
+  - **Drawer**: o rodapé passa a respeitar a área segura (`env(safe-area-inset-bottom)`).
+  - Token novo `--dialog-handle`.
+
+- cccda9a: `FilterChipMenu`: filtro em pílula com menu de múltipla escolha, para uma categoria com muitas opções numa barra de lista (#47). Figma [RDS] 06/10: Forms/FilterChipMenu.
+
+  - A pílula é o FilterChip (32 de altura, 44 de toque, os mesmos tokens e o estado ligado) com um chevron; fechada mostra o valor: "Processo: Todos", "Processo: Laser", "Processo · 2". Liga enquanto há algo marcado.
+  - O menu (DropdownMenu) traz uma opção marcável por item, com a contagem à direita, e "Limpar" no fim. Marcar não fecha; Limpar desmarca tudo, fecha e devolve o foco à pílula.
+  - Acessível: `aria-haspopup="menu"` e `aria-expanded` na pílula, o valor no nome; itens `menuitemcheckbox`.
+  - `DropdownMenuCheckboxItem` novo (`checked`, `onCheckedChange`, `count`, `closeOnSelect`), e `count` também no `DropdownMenuItem` e no `DropdownMenuRadioItem`.
+  - Nenhum token novo.
+
+- 8c2b000: Input ganha `size` (`md` 44, padrão; `sm` 32) para barras densas, como a busca ao lado dos FilterChips. No `sm` o texto continua 16/24 (o iOS não dá zoom), os ícones vão a 16 e o limpar a 24; não tem label flutuante. Figma [RDS] 07/10.
+- 8c2b000: Item ganha `trailing`: a meta da linha entre o texto e a ação (Status ou Badge sm, ou um valor), como o slot `trailing` do Figma [RDS] de 07/10. Estado vai aí, não no fim da descrição.
+- 8c2b000: Sidebar `header="logo"`: o cabeçalho tem 64 (8 em cima e embaixo) e o `logo` mantém a proporção dele, até 48 de altura e nunca mais largo que o cabeçalho (`max-height: 48px; max-width: 100%`; a largura fica com o produto, ex. `<img width={100}>`); logo muito horizontal fica limitado pela largura e sai mais baixo. No Figma [RDS] de 07/10 o logo virou slot.
+- 8c2b000: Switch: o rótulo passa de 16/24 regular para 14/20 medium, o mesmo do label do Input, para Switch e Input do mesmo formulário parecerem da mesma família (`--switch-text-size`/`--switch-text-line` agora apontam para `type/small`). A linha continua com 44 (sm 24): o respiro sai do trilho de 24, e a primeira linha do rótulo fica no meio dele. Figma [RDS] 07/10.
+- ccacba9: `TableFooter`: a linha de totais no fim da Table (`tfoot`), item 1 da #42. Figma [RDS] 06/10: `.table/cell` `type=footer`.
+
+  - 48 de altura, fundo de painel, texto mais forte que o corpo (600), uma linha em cima e nenhuma embaixo.
+  - O rótulo vai num `TableHead scope="row"` ("Total"); as somas em `TableCell align="end"` (tabular).
+  - Tokens novos `--table-footer-background` e `--table-footer-label`.
+
+- ccacba9: `TabsTrigger` ganha `icon`: um ícone decorativo de 16 antes do rótulo, na cor do rótulo em cada estado, para abas que trocam de visão (#49). Figma [RDS] 06/10: `.tabs/tab` `showIcon` + `icon`.
+- 5b427f3: `Timeline`, `TimelineDay` e `TimelineItem`: o histórico de um registro, quem fez o quê e quando, agrupado por dia (item 3 da #42). Figma [RDS] 07/10: Content/Timeline.
+
+  - Cada dia é uma `<ol>` nomeada pelo rótulo, que é um `<h3>` ("Hoje", "06/10") em peso de subtítulo, com 24 de respiro em cima; cada hora é um `<time dateTime>`.
+  - O item: Avatar sm com anel e a linha até o próximo (some no último do dia), ator em medium e ação na mesma linha, a hora numa coluna de 48 à direita (caption) e a mudança opcional ("Aberto → Em produção").
+  - Tokens novos `--timeline-line`, `--timeline-actor`, `--timeline-action`, `--timeline-meta`, `--timeline-day` e `--timeline-avatar-border`.
+
+- 74bf719: PageHeader ganha `titleAddon`: um selo logo depois do título (e da ajuda), centrado na linha do título; no estreito quebra para baixo dele, 4 abaixo. Status ganha `dotColor`: com `tone="neutral"`, o ponto aceita cor própria para categoria ou etapa, com chapa e texto neutros. Figma [RDS] 06/10: `showTitleAddon` + slot `titleAddon` no PageHeader; descrição do Status com a exceção do ponto.
+
+  No mesmo PageHeader: o título e o "?" andam juntos (no estreito quebra o texto do título e o "?" fica ao lado, nunca sozinho na linha de baixo), e a prop nova `compactTitle="inline" | "bar"` (#50): com `bar`, abaixo de 1024 o voltar, o título e o "?" saem (a barra do app passa a ser a dona deles; o `<h1>` continua para leitores de tela) e ficam o selo, a descrição, as abas e as ações. Padrão `inline`: nada muda para quem já usa.
+
+### Patch Changes
+
+- 8c2b000: Avatar: as iniciais do fallback passam de `text/subtle` para `text/muted` (`--avatar-fallback-label`), para lerem sobre `surface/muted`. Figma [RDS] 07/10.
+- 03f8d9f: Dialog e AlertDialog param em `100dvh − 96px` (48 em cima, 48 embaixo; antes, 32 no total). No Dialog só o corpo rola; no AlertDialog o texto rola e os botões ficam à vista. (Figma [RDS] 09/10, pedido do [GRA]).
+- 8c2b000: DataTableHeader: os filtros rápidos ficam numa linha só e rolam de lado, em vez de quebrar. No celular a fileira descia cortada; agora ocupa a linha e rola (Figma [RDS] 09/10).
+- 8c2b000: Campos: o hint e a mensagem de erro deixam de começar 4 px para dentro e alinham com o label e a borda do campo (Input, Select, Textarea, PasswordInput, NumberInput, ChipInput, ColorInput, FileInput, InputOTP, DatePicker). Figma [RDS] 07/10.
+- 8c2b000: PixIcon vira ícone de linha, como o icon/finance/pix do Figma [RDS] Icons de 08/10: o contorno do símbolo em traço (1,5 a 24), em currentColor. Cheio, ele não pegava a cor onde os ícones de linha são recoloridos.
+- 5524dc7: Dialog e AlertDialog no compacto (sheet): altura máxima 100dvh − 48 no topo (antes 85dvh). Cabeçalho e rodapé fixos; só o conteúdo rola, então o total do `footerStart` e a ação ficam sempre à vista.
+
 ## 2.0.0-next.33
 
 ### Minor Changes
