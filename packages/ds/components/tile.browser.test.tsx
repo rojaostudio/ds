@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
+import type { CSSProperties } from 'react';
 import { Tile, type TileSize, type TileTone, type TileVariant } from './tile';
 import { InfoIcon } from './internal/icons';
 import { MODES, axeViolations, cleanup, render } from './__tests__/render';
@@ -38,5 +39,30 @@ describe.each(MODES)('Tile (%s)', (mode) => {
     );
     const widths = [...el.querySelectorAll<HTMLElement>('.rds-tile')].map((t) => t.getBoundingClientRect().width);
     expect(widths).toEqual([32, 48, 64]);
+  });
+
+  it('the corners follow the brand control radius (radius/control, 8 on the rojao theme), not a circle', async () => {
+    const el = await render(
+      <div>
+        {SIZES.map((size) => (
+          <Tile key={size} icon={<InfoIcon />} size={size} />
+        ))}
+      </div>,
+      mode,
+    );
+    const control = getComputedStyle(document.documentElement).getPropertyValue('--radius-control').trim();
+    expect(control).toBe('8px');
+    for (const tile of el.querySelectorAll<HTMLElement>('.rds-tile')) expect(getComputedStyle(tile).borderTopLeftRadius).toBe(control);
+  });
+});
+
+describe('Tile radius', () => {
+  it('a brand scope with another control radius repaints the corners', async () => {
+    const el = await render(
+      <div data-rds-scope="" style={{ '--radius-control': '2px' } as CSSProperties}>
+        <Tile icon={<InfoIcon />} />
+      </div>,
+    );
+    expect(getComputedStyle(el.querySelector('.rds-tile')!).borderTopLeftRadius).toBe('2px');
   });
 });

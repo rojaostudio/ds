@@ -6,9 +6,10 @@
  * The × and the tile's buttons sit above it.
  *
  * dropzone and tile (Forms collection, file-input/*): the box becomes a dashed area. "hover" in the Figma is a file
- * dragged over it (the --dragging class), not the mouse. dropzone: radius/card, 24 × 16 inside, 12 apart: a 40 circle
- * with the upload icon, the call 16/24 medium and the hint 14/20 inside the area. Filled, 16 inside: the file row in
- * file-input/file/background (radius/field, 8 inside, 12 apart): the clip circle, name 16/24 and size 14/20, the ×.
+ * dragged over it (the --dragging class), not the mouse. dropzone: radius/card, 24 × 16 inside, 12 apart: a 40 plate
+ * (file-input/area/icon-radius, the brand's radius/control) with the upload icon, the call 16/24 medium and the
+ * hint 14/20 inside the area. Filled, 16 inside: the file row in file-input/file/background (radius/field, 8 inside,
+ * 12 apart): the clip on the same plate, name 16/24 and size 14/20, the ×.
  * tile: a 112 square, radius/field, 8 on the sides, 4 apart: the image-plus icon 24 and the text 14/20 medium.
  * Filled, the preview fills it (file-input/tile/preview/background behind it) and the swap and remove buttons sit
  * in the corner on file-input/tile/action/*.
@@ -123,7 +124,7 @@
   place-items: center;
   width: var(--size-40);
   height: var(--size-40);
-  border-radius: var(--radius-full);
+  border-radius: var(--file-input-area-icon-radius);
   background: var(--_circle);
   color: var(--_area-icon);
 }

@@ -1,5 +1,8 @@
 /* @tokens tile */
-/* Tile: an icon in a circle (Content collection, tile/<tone>/<style>/*). sm 32, default 48, lg 64; icon 16, 24, 32. */
+/*
+ * Tile: an icon on a plate (Content collection, tile/<tone>/<style>/*). sm 32, default 48, lg 64; icon 16, 24, 32. The
+ * corners are tile/radius, the brand's radius/control (8 on the rojao theme), not a circle: a person is the Avatar.
+ */
 .rds-tile {
   --_size: var(--size-48);
   --_icon: var(--size-24);
@@ -11,7 +14,7 @@
   justify-content: center;
   width: var(--_size);
   height: var(--_size);
-  border-radius: var(--radius-full);
+  border-radius: var(--tile-radius);
   background: var(--_background);
   color: var(--_icon-color);
 }
