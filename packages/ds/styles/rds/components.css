@@ -100,6 +100,8 @@
   --button-size-lg-icon-only: var(--size-24);
   --button-size-lg-text-size: var(--type-body-size);
   --button-size-lg-text-line: var(--type-body-line);
+  --button-count-background: var(--colors-state-error);
+  --button-count-label: var(--text-on-error);
   --bottom-bar-focus-ring: var(--text-on-primary);
   --bottom-bar-button-fill-background: var(--text-on-primary);
   --bottom-bar-button-fill-label: var(--colors-primary-default);

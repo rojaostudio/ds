@@ -1626,6 +1626,44 @@ button.rds-breadcrumb__link:focus-visible {
   }
 }
 
+/*
+ * IconButton `count` (Figma: `showCount` + `count`): a danger pill in the top right corner, over the square's edge.
+ * Caption bold, at least 20 across and 20 tall (a circle for one figure), 4 inside, figures of one width; "99+".
+ */
+.rds-button--counted {
+  position: relative;
+}
+
+.rds-button__count {
+  position: absolute;
+  /* 4 past the outer edge: the offset counts from inside the 1px border. */
+  top: calc((var(--space-4) + var(--border-width)) * -1);
+  inset-inline-end: calc((var(--space-4) + var(--border-width)) * -1);
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--size-20);
+  height: var(--size-20);
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-full);
+  background: var(--button-count-background);
+  color: var(--button-count-label);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+
+@media (forced-colors: active) {
+  .rds-button__count {
+    forced-color-adjust: none;
+    background: CanvasText;
+    color: Canvas;
+  }
+}
+
 /* loading: the loader in the icon's place, turning; slower with reduced motion. Without an icon, the label
    turns transparent (it still holds the width and the name) and the loader sits over it, centered. */
 .rds-button--loading {
