@@ -19,7 +19,7 @@ import { emitCss } from '@rojaostudio/ds-core/generate';
 // e um import estatico faria o typecheck de la falhar num script que nem se aplica. Falha com
 // mensagem, nao com stack. Mesmo padrao do build-native.ts.
 const req = createRequire(import.meta.url);
-let brands: Record<string, any>;
+let brands: Record<string, Parameters<typeof emitCss>[0]>;
 try {
   brands = req("../private/brands").brands;
 } catch {

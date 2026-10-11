@@ -375,7 +375,16 @@ export function PhoneInput({
       {compact ? (
         <>
           {trigger}
-          <Drawer open={open} onOpenChange={openChange} title="País">
+          <Drawer
+            open={open}
+            onOpenChange={openChange}
+            title="País"
+            returnFocus={() => {
+              if (!picked.current) return null;
+              picked.current = false;
+              return inputRef.current;
+            }}
+          >
             {panel}
           </Drawer>
         </>

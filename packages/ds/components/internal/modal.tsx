@@ -38,6 +38,8 @@ export interface ModalProps {
   closeLabel?: string;
   /** Where the layer is portaled (default document.body): a themed subtree keeps its theme. */
   container?: HTMLElement | null;
+  /** Where the focus goes when it closes, when not back to what opened it (the PhoneInput sends it to the number after a pick). Return nothing to keep the default. */
+  returnFocus?: () => HTMLElement | null | undefined;
   className?: string;
 }
 
@@ -78,6 +80,7 @@ export function ModalShell({
   closeLabel = 'Fechar',
   container,
   className,
+  returnFocus,
 }: ModalShellProps) {
   // Controlled without a trigger (opened by a button the shell doesn't own, like a control in a bar's leading slot): Radix
   // would give the focus back to its trigger, which there isn't. Keep what had the focus when it opened instead.
@@ -119,6 +122,12 @@ export function ModalShell({
             }
           }}
           onCloseAutoFocus={(event) => {
+            const target = returnFocus?.();
+            if (target?.isConnected) {
+              event.preventDefault();
+              target.focus();
+              return;
+            }
             if (trigger || !opener.current?.isConnected) return;
             event.preventDefault();
             opener.current.focus();

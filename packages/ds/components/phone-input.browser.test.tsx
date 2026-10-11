@@ -213,6 +213,10 @@ describe('PhoneInput country list', () => {
       expect(dialog.querySelector('input[aria-label="Buscar país"]')).not.toBeNull();
       const row = dialog.querySelector<HTMLElement>('[role="option"]')!;
       expect(row.getBoundingClientRect().height).toBeGreaterThanOrEqual(48);
+      await userEvent.type(search()!, 'portugal');
+      await userEvent.keyboard('{Enter}');
+      await vi.waitFor(() => expect(document.querySelector('[role="dialog"]')).toBeNull());
+      await vi.waitFor(() => expect(document.activeElement).toBe(numberInput(el)));
     } finally {
       await page.viewport(1280, 800);
     }
