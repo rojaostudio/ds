@@ -30,7 +30,7 @@
   --_icon-disabled: var(--number-input-step-icon-disabled);
 }
 
-.rds-number-input__box {
+.rds-field__box.rds-number-input__box {
   gap: var(--space-4);
   padding: 0 var(--space-4);
 }
