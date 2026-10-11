@@ -4737,7 +4737,7 @@ input:focus-visible + .rds-checkbox__box {
  * (file-input/area/icon-radius, the brand's radius/control) with the upload icon, the call 16/24 medium and the
  * hint 14/20 inside the area. Filled, 16 inside: the file row in file-input/file/background (radius/field, 8 inside,
  * 12 apart): the clip on the same plate, name 16/24 and size 14/20, the ×.
- * tile: a 112 square, radius/field, 8 on the sides, 4 apart: the image-plus icon 24 and the text 14/20 medium.
+ * tile: a 112 square (or 168 by 112 at ratio 3:2), radius/field, 8 on the sides, 4 apart: the image-plus icon 24 and the text 14/20 medium.
  * Filled, the preview fills it (file-input/tile/preview/background behind it) and the swap and remove buttons sit
  * in the corner on file-input/tile/action/*.
  */
@@ -4926,6 +4926,11 @@ input:focus-visible + .rds-checkbox__box {
   padding: 0 var(--space-8);
   overflow: hidden;
   border-radius: var(--radius-field);
+}
+
+/* 3:2, a cover: 168 by 112. */
+.rds-field__box.rds-file-input__tile.rds-file-input__tile--3x2 {
+  width: calc(var(--size-56) * 3);
 }
 
 .rds-file-input__tile-icon {
@@ -7518,6 +7523,13 @@ body:has(.rds-modal) {
 
 .rds-item-group:has(> .rds-item--row) {
   gap: 0;
+}
+
+/* No line (showDivider off, or the last row of an ItemGroup): the padding takes the border's pixel, same height. */
+.rds-item--row.rds-item--no-divider,
+.rds-item-group > .rds-item--row:last-child {
+  padding-bottom: var(--_pad-y);
+  border-bottom-width: 0;
 }
 
 .rds-item--row .rds-item__media {

@@ -24,6 +24,8 @@ export interface FileInputProps
    * the image's preview, for a photo or a logo.
    */
   layout?: FileInputLayout;
+  /** tile only (Figma: `ratio`): 1:1 (default), a 112 square, or 3:2, 168 by 112, for a cover. The preview fills it, cropped. */
+  ratio?: '1:1' | '3:2';
   /** Controlled: the name shown (Figma: `fileName`). By default, the chosen file's name. */
   fileName?: string;
   /** Controlled: the size beside the name in the dropzone (Figma: `fileSize`). By default, the chosen file's, as "1,2 MB". */
@@ -81,6 +83,7 @@ export function formatFileSize(bytes: number): string {
  */
 export function FileInput({
   layout = 'field',
+  ratio = '1:1',
   label,
   hint,
   error,
@@ -280,6 +283,7 @@ export function FileInput({
     layout === 'field' && showClear && 'rds-field__box--action',
     layout === 'dropzone' && 'rds-file-input__area',
     layout === 'tile' && 'rds-file-input__area rds-file-input__tile',
+    layout === 'tile' && ratio === '3:2' && 'rds-file-input__tile--3x2',
     layout !== 'field' && filled && 'rds-file-input__area--filled',
     layout !== 'field' && dragging && 'rds-file-input__area--dragging',
   ]

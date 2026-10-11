@@ -35,6 +35,11 @@ export interface ItemProps extends Omit<HTMLAttributes<HTMLElement>, 'title' | '
    */
   selected?: boolean;
   /**
+   * row only (Figma: `showDivider`, on by default): the line below. Off on the last row of a list, where the card's
+   * border closes it; inside an ItemGroup the last row already goes without it.
+   */
+  showDivider?: boolean;
+  /**
    * Makes the row pressable: the title becomes a button whose hit area covers the whole row (described by the
    * description); the `action` stays a separate control beside it. With `selected` the button carries aria-pressed.
    */
@@ -63,6 +68,7 @@ export function Item({
   variant = 'ghost',
   size = 'md',
   selected,
+  showDivider = true,
   onSelect,
   className,
   ...rest
@@ -78,6 +84,7 @@ export function Item({
         `rds-item--${variant}`,
         size === 'sm' && 'rds-item--sm',
         selected && 'rds-item--selected',
+        !showDivider && 'rds-item--no-divider',
         pressable && 'rds-item--pressable',
         className,
       ]
@@ -116,7 +123,10 @@ export interface ItemGroupProps extends HTMLAttributes<HTMLUListElement> {
   children: ReactNode;
 }
 
-/** The list the Items go in (<ul>). ghost rows get a line between them, row rows a line below each; outline and soft rows a gap of 8. */
+/**
+ * The list the Items go in (<ul>). ghost rows get a line between them, row rows a line below each but the last (the
+ * card's border closes the list); outline and soft rows a gap of 8.
+ */
 export function ItemGroup({ className, children, ...rest }: ItemGroupProps) {
   return (
     <InGroup.Provider value={true}>
