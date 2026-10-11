@@ -1,5 +1,11 @@
 # @rojaostudio/ds
 
+## 2.9.1
+
+### Patch Changes
+
+- 870c3e7: ChipInput, NumberInput and the multiple Combobox: the box keeps its own padding and gap again. The shared field rule (same specificity, later in the stylesheet) overrode them, so the ChipInput's Chips touched the border (padding 0 instead of 4 on top, 8 on the left; rows 8 apart instead of 4).
+
 ## 2.9.0
 
 ### Minor Changes
