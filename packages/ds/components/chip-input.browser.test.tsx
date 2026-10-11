@@ -312,4 +312,10 @@ describe('ChipInput list behaviour', () => {
     expect(el.querySelectorAll('.rds-chip-input__add')).toHaveLength(0);
     expect(el.querySelectorAll('.rds-chip[tabindex]')).toHaveLength(0);
   });
+
+  it('size md: the Chips and the "+" are 44 (list on a phone)', async () => {
+    const el = await render(<ChipInput label="Cor" layout="list" size="md" addLabel="Opção" defaultValue={OPTIONS} />);
+    const pills = Array.from(el.querySelectorAll<HTMLElement>('.rds-chip'));
+    expect(pills.map((p) => p.getBoundingClientRect().height)).toEqual([44, 44, 44, 44]);
+  });
 });
