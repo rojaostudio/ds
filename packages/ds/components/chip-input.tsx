@@ -57,6 +57,8 @@ export interface ChipInputProps extends Omit<FieldTextProps, 'labelPosition'> {
    * secondary text ("Branco · 2"), `tooltip` says what it means ("Usada em 2 produtos") and makes the Chip focusable.
    */
   getChipProps?: (value: string) => { locked?: boolean; count?: ReactNode; tooltip?: string };
+  /** list only: the Chips' and the "+"'s height (Figma: Chip and .chip-input/add `size`), sm 32 or md 44 (on a phone). */
+  size?: 'sm' | 'md';
   /** The form field name: one hidden input per value. */
   name?: string;
   disabled?: boolean;
@@ -100,6 +102,7 @@ export function ChipInput({
   reorderable,
   editable,
   getChipProps,
+  size = 'sm',
   name,
   disabled,
   id,
@@ -117,6 +120,7 @@ export function ChipInput({
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const list = layout === 'list';
+  const md = list && size === 'md';
   /** list: the "+" became the field. */
   const [adding, setAdding] = useState(false);
   /** The value whose name is being edited, and the draft. */
@@ -338,7 +342,7 @@ export function ChipInput({
             if (editing === item) {
               return (
                 <li key={item} data-reorder-item={item}>
-                  <span className="rds-chip rds-chip--editing">
+                  <span className={md ? 'rds-chip rds-chip--md rds-chip--editing' : 'rds-chip rds-chip--editing'}>
                     <input
                       className="rds-chip__input"
                       aria-label={`Editar ${item}`}
@@ -371,6 +375,7 @@ export function ChipInput({
             const focusable = !disabled && (movable || renamable || Boolean(meta.tooltip));
             const chip = (
               <Chip
+                size={md ? 'md' : 'sm'}
                 ref={(node: HTMLSpanElement | null) => {
                   if (node) chipRefs.current.set(item, node);
                   else chipRefs.current.delete(item);
@@ -409,7 +414,7 @@ export function ChipInput({
           {list && !full && !disabled && (
             <li className="rds-chip-input__add-item">
               {adding ? (
-                <span className="rds-chip rds-chip-input__add rds-chip-input__add--editing">
+                <span className={['rds-chip rds-chip-input__add rds-chip-input__add--editing', md && 'rds-chip--md'].filter(Boolean).join(' ')}>
                   <input
                     ref={input}
                     id={controlId}
@@ -436,7 +441,7 @@ export function ChipInput({
                   />
                 </span>
               ) : (
-                <button ref={addButton} type="button" className="rds-chip rds-chip-input__add" onClick={() => setAdding(true)}>
+                <button ref={addButton} type="button" className={md ? 'rds-chip rds-chip--md rds-chip-input__add' : 'rds-chip rds-chip-input__add'} onClick={() => setAdding(true)}>
                   <span className="rds-chip__icon" aria-hidden="true">
                     <PlusIcon />
                   </span>
