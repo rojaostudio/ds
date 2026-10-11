@@ -421,6 +421,11 @@
   --choice-list-item-avatar-background: var(--surface-muted-strong);
   --choice-list-item-avatar-selected: var(--surface-card);
   --card-tint-title: var(--text-on-tint);
+  --media-grid-scrim: var(--surface-scrim);
+  --media-grid-action-background: var(--surface-card);
+  --media-grid-status-background: var(--surface-card);
+  --media-grid-status-text: var(--text-body);
+  --media-grid-error-icon: var(--text-error);
 
   /* external */
   --google-button-light-background: #ffffff;

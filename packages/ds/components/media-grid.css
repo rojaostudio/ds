@@ -1,0 +1,190 @@
+/* @tokens media-grid */
+/*
+ * MediaGrid (Content collection, media-grid/*): the field's label, hint and error (internal/field.css) around a grid
+ * of square tiles, at least 112 wide, 8 apart (3 columns on a phone). Each tile is a Media 1:1 with the cover seal
+ * (Badge) on the first, the "⋯" on media-grid/action/background in the top-right corner (32 to see, 44 to touch),
+ * and, while uploading or in error, a veil (media-grid/scrim) with a status panel at the bottom. The last tile adds:
+ * dashed edge, the native file input over it. Being moved: raised (elevation-raised).
+ */
+.rds-field.rds-media-grid .rds-media-grid__box {
+  display: block;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.rds-media-grid__list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(calc(var(--space-56) * 2), 1fr));
+  gap: var(--space-8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rds-media-grid__item {
+  position: relative;
+  aspect-ratio: 1;
+  min-width: 0;
+}
+
+.rds-media-grid__tile {
+  position: relative;
+  height: 100%;
+  border-radius: var(--media-radius);
+  outline: none;
+}
+
+.rds-media-grid__media {
+  height: 100%;
+}
+
+.rds-media-grid__tile--movable {
+  cursor: grab;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.rds-media-grid__tile--movable img {
+  -webkit-user-drag: none;
+  pointer-events: none;
+}
+
+.rds-media-grid__tile:focus-visible {
+  outline: var(--focus-ring-width) solid var(--button-focus-ring);
+  outline-offset: var(--focus-ring-width);
+}
+
+.rds-media-grid__tile--dragging {
+  z-index: 1;
+  box-shadow: var(--elevation-raised);
+  cursor: grabbing;
+}
+
+.rds-media-grid__cover {
+  position: absolute;
+  top: var(--space-8);
+  left: var(--space-8);
+}
+
+.rds-media-grid__menu {
+  position: absolute;
+  top: var(--space-8);
+  right: var(--space-8);
+  border-radius: var(--radius-full);
+  background: var(--media-grid-action-background);
+}
+
+/* Uploading and error: a veil over the photo, the status on a panel at the bottom. */
+.rds-media-grid__tile--uploading::after,
+.rds-media-grid__tile--error::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--media-grid-scrim);
+}
+
+.rds-media-grid__status {
+  position: absolute;
+  right: var(--space-8);
+  bottom: var(--space-8);
+  left: var(--space-8);
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: var(--space-24);
+  padding: var(--space-4) var(--space-8);
+  border-radius: var(--space-8);
+  background: var(--media-grid-status-background);
+  color: var(--media-grid-status-text);
+  font-family: var(--type-font-stack);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+  font-weight: 500;
+}
+
+.rds-media-grid__status .rds-progress {
+  flex: 1;
+}
+
+.rds-media-grid__status--error {
+  padding-inline-end: 0;
+}
+
+.rds-media-grid__status-icon {
+  display: inline-flex;
+  flex: none;
+  width: var(--size-16);
+  height: var(--size-16);
+  color: var(--media-grid-error-icon);
+}
+
+.rds-media-grid__status-icon > svg {
+  width: 100%;
+  height: 100%;
+}
+
+.rds-media-grid__status-text {
+  flex: 1;
+  min-width: 0;
+}
+
+/* The add tile: the native input lies transparent over it, so a click, Enter or Space open the chooser. */
+.rds-media-grid__add {
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  height: 100%;
+  border: var(--border-width) dashed var(--chip-input-add-border);
+  border-radius: var(--media-radius);
+  color: var(--chip-input-add-label);
+  font-family: var(--type-font-stack);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+  font-weight: 500;
+}
+
+.rds-media-grid__add-icon {
+  display: inline-flex;
+  width: var(--size-24);
+  height: var(--size-24);
+}
+
+.rds-media-grid__add-icon > svg {
+  width: 100%;
+  height: 100%;
+}
+
+.rds-media-grid__input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .rds-media-grid__add:hover {
+    border-color: var(--chip-input-add-border-hover);
+    background: var(--chip-background-hover);
+  }
+}
+
+.rds-media-grid__add:has(.rds-media-grid__input:focus-visible) {
+  outline: var(--focus-ring-width) solid var(--button-focus-ring);
+  outline-offset: var(--focus-ring-width);
+}
+
+@media (forced-colors: active) {
+  .rds-media-grid__add {
+    border-color: CanvasText;
+  }
+}
