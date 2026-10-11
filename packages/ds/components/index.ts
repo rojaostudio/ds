@@ -247,7 +247,7 @@ export type { SeparatorProps, SeparatorOrientation } from './separator';
 
 // 2.0: Heading follows the Figma [RDS] Content/Heading: a title in the brand pair, with Heading.Mark.
 export { Heading, HeadingMark } from './heading';
-export type { HeadingProps, HeadingMarkProps, HeadingLevel, HeadingTone, HeadingElement } from './heading';
+export type { HeadingProps, HeadingMarkProps, HeadingLevel, HeadingTone, HeadingElement, HeadingAlign } from './heading';
 
 export { Avatar, AvatarGroup, initials } from './avatar';
 export type { AvatarProps, AvatarGroupProps, AvatarSize, AvatarGroupSize, AvatarType, AvatarContent } from './avatar';

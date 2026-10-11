@@ -152,4 +152,20 @@ describe('Heading behaviour', () => {
     expect(el.querySelector('h2')!.textContent).toBe('Entregas da semana');
     expect(el.querySelector('.rds-heading__mark')!.tagName).toBe('SPAN');
   });
+
+  it('align="center" wraps a long title centred (an access card, 376 wide)', async () => {
+    const el = await render(
+      <div style={{ width: 376 }}>
+        <Heading align="center">Quer começar com um catálogo pronto?</Heading>
+      </div>,
+    );
+    const h = el.querySelector('h2')!;
+    expect(getComputedStyle(h).textAlign).toBe('center');
+    expect(h.getBoundingClientRect().height).toBeGreaterThan(30);
+  });
+
+  it('starts aligned to the start by default', async () => {
+    const el = await render(<Heading>Pedidos</Heading>);
+    expect(getComputedStyle(el.querySelector('h2')!).textAlign).toBe('start');
+  });
 });
