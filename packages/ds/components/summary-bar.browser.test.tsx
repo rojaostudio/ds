@@ -66,4 +66,17 @@ describe('SummaryBar behaviour', () => {
     expect(c.width).toBe(360);
   });
 
+  it('grid follows a narrow parent (310, a Card on a phone): two equal columns, no hole', async () => {
+    const el = await render(
+      <div style={{ width: 312 }}>
+        <SummaryBar layout="grid">{stats}</SummaryBar>
+      </div>,
+    );
+    const [a, b, c] = [...el.querySelectorAll<HTMLElement>('.rds-summary-bar__cell')].map((n) => n.getBoundingClientRect());
+    expect(a.top).toBe(b.top);
+    expect(a.width).toBeCloseTo(b.width, 0);
+    expect(Math.round(a.width + b.width + 1)).toBe(310);
+    expect(c.width).toBe(310);
+  });
+
 });

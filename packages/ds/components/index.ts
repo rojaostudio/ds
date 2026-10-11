@@ -97,8 +97,8 @@ export type { CheckboxGroupProps } from './checkbox-group';
 
 export { Input } from './input';
 export type { InputProps, FieldLabelPosition } from './input';
-export { PasswordInput } from './password-input';
-export type { PasswordInputProps } from './password-input';
+export { PasswordInput, passwordStrength } from './password-input';
+export type { PasswordInputProps, PasswordStrength } from './password-input';
 
 export { Radio } from './radio';
 export type { RadioProps } from './radio';

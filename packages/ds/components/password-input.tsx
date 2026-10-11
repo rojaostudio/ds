@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type ComponentPropsWithRef } from 'react';
+import { useEffect, useRef, useState, type ChangeEvent, type ComponentPropsWithRef } from 'react';
 import { announce } from './internal/announce';
 import { FieldAction, FieldShell, hasContent, useFieldIds, warnIfUnlabelled, type FieldTextProps } from './internal/field';
 import { EyeIcon, EyeOffIcon } from './internal/icons';
@@ -20,12 +20,42 @@ export interface PasswordInputProps
   /** Said to screen readers when the password shows and when it hides again. */
   revealedMessage?: string;
   hiddenMessage?: string;
+  /** Shows the strength meter under the field (Figma: `showStrength`). Use it to create a password, never to sign in. */
+  showStrength?: boolean;
+  /** The level, when the product scores it (a server rule, zxcvbn). Without it the meter scores by itself. */
+  strength?: PasswordStrength;
+}
+
+export type PasswordStrength = 'none' | 'weak' | 'fair' | 'good' | 'strong';
+
+const LIT: Record<PasswordStrength, number> = { none: 0, weak: 1, fair: 2, good: 3, strong: 4 };
+
+const STRENGTH_WORD: Record<Exclude<PasswordStrength, 'none'>, string> = {
+  weak: 'Fraca',
+  fair: 'Razoável',
+  good: 'Boa',
+  strong: 'Forte',
+};
+
+/**
+ * The meter's own rule: empty is none; under 8 characters is weak; otherwise one point per kind of character
+ * (lowercase, uppercase, digit, symbol), plus one at 12 characters: 1 weak, 2 fair, 3 good, 4 or more strong.
+ * A guide for the person typing, not a security policy: the product validates on its own.
+ */
+export function passwordStrength(value: string): PasswordStrength {
+  if (!value) return 'none';
+  if (value.length < 8) return 'weak';
+  const kinds = [/[a-z]/, /[A-Z]/, /\d/, /[^A-Za-z0-9]/].filter((re) => re.test(value)).length;
+  const score = kinds + (value.length >= 12 ? 1 : 0);
+  return score <= 1 ? 'weak' : score === 2 ? 'fair' : score === 3 ? 'good' : 'strong';
 }
 
 /**
  * PasswordInput — Figma [RDS] Forms/PasswordInput. A password field with the eye built in, so the person
  * can check what they typed. The eye is a toggle button (aria-pressed) and the change is announced.
- * Same field as the Input (styles: internal/field.css).
+ * showStrength adds the strength meter under the field, scored as the person types (passwordStrength) or by the
+ * strength prop, with the level announced when it changes.
+ * Same field as the Input (styles: internal/field.css; the meter: password-input.css).
  */
 export function PasswordInput({
   label,
@@ -45,6 +75,8 @@ export function PasswordInput({
   revealLabel = 'Mostrar senha',
   revealedMessage = 'Senha visível',
   hiddenMessage = 'Senha oculta',
+  showStrength = false,
+  strength: strengthProp,
   ...input
 }: PasswordInputProps) {
   warnIfUnlabelled('PasswordInput', label, input['aria-label'], input['aria-labelledby']);
@@ -52,6 +84,23 @@ export function PasswordInput({
   const [ownRevealed, setOwnRevealed] = useState(defaultRevealed);
   const revealed = revealedProp ?? ownRevealed;
   const floating = labelPosition === 'floating' && hasContent(label);
+  const [typed, setTyped] = useState(String(input.value ?? input.defaultValue ?? ''));
+  const value = input.value !== undefined ? String(input.value) : typed;
+  const strength = strengthProp ?? passwordStrength(value);
+  const strengthId = `${controlId}-strength`;
+
+  // Say the level when it changes, not on every key.
+  const said = useRef(strength);
+  useEffect(() => {
+    if (!showStrength || strength === said.current) return;
+    said.current = strength;
+    if (strength !== 'none') announce(`Força da senha: ${STRENGTH_WORD[strength].toLowerCase()}`);
+  }, [showStrength, strength]);
+
+  function change(event: ChangeEvent<HTMLInputElement>) {
+    setTyped(event.target.value);
+    input.onChange?.(event);
+  }
 
   function toggle() {
     const next = !revealed;
@@ -74,6 +123,30 @@ export function PasswordInput({
       required={required}
       disabled={disabled}
       boxClassName="rds-field__box--action"
+      afterBox={
+        showStrength ? (
+          <div id={strengthId} className={`rds-password-input__strength rds-password-input__strength--${strength}`}>
+            <span className="rds-password-input__bar" aria-hidden="true">
+              {[1, 2, 3, 4].map((n) => (
+                <span
+                  key={n}
+                  className={
+                    n <= LIT[strength] ? 'rds-password-input__segment rds-password-input__segment--lit' : 'rds-password-input__segment'
+                  }
+                />
+              ))}
+            </span>
+            <span className="rds-password-input__word">
+              {strength !== 'none' && (
+                <>
+                  <span className="rds-visually-hidden">Força da senha: </span>
+                  {STRENGTH_WORD[strength]}
+                </>
+              )}
+            </span>
+          </div>
+        ) : undefined
+      }
       className={className}
       style={style}
     >
@@ -88,7 +161,8 @@ export function PasswordInput({
         required={required}
         disabled={disabled}
         aria-invalid={invalid || undefined}
-        aria-describedby={[describedBy, input['aria-describedby']].filter(Boolean).join(' ') || undefined}
+        onChange={change}
+        aria-describedby={[describedBy, showStrength && strengthId, input['aria-describedby']].filter(Boolean).join(' ') || undefined}
         placeholder={floating ? ' ' : input.placeholder}
       />
       <FieldAction
