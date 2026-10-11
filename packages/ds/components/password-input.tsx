@@ -9,8 +9,9 @@ export interface PasswordInputProps
   extends FieldTextProps,
     Omit<ComponentPropsWithRef<'input'>, 'type' | 'children' | 'prefix' | 'size'> {
   /**
-   * An action on the label's line, on the right (Figma: `showLabelAction` + the exposed Link): a <Link>, such as
-   * "Esqueci a senha". Outside the <label>; the Tab reaches it after the field.
+   * An action on the label's line, on the right (Figma: `showLabelAction` + the exposed Button): a Button variant
+   * ghost size sm, such as "Esqueci a senha". A loose action is a Button, not a Link (a Link lives inside a sentence).
+   * Outside the <label>; the Tab reaches it after the field, and the label line does not grow.
    */
   labelAction?: ReactNode;
   /** current-password to sign in, new-password to create one: the password manager fills or suggests. */

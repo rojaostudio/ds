@@ -17,8 +17,9 @@ export interface LinkProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
 /**
  * Link — Figma [RDS] Actions/Link. A text link inside a sentence: "Ainda não tem conta? Criar conta grátis",
  * "Esqueci a senha". No padding and no control height: it takes the font of the sentence around it (Figma `size`
- * only picks the type in the design). Always underlined, so colour is never the only cue. Not for the main action
- * of a screen (that is the Button). Styles: link.css.
+ * only picks the type in the design). Always underlined, so colour is never the only cue.
+ * Link or Button ghost: a word inside a sentence is a Link; a loose action on its own line or slot ("Esqueci a senha",
+ * "Voltar pro login") is a Button variant="ghost", even when it goes to another page. Styles: link.css.
  */
 export function Link({ tone = 'action', asChild, className, ...rest }: LinkProps) {
   const Root = asChild ? Slot : 'a';
