@@ -26,6 +26,20 @@
   vertical-align: middle;
 }
 
+.rds-status__icon {
+  display: inline-flex;
+  flex: none;
+}
+
+.rds-status__icon svg {
+  width: var(--_icon-size, var(--size-16));
+  height: var(--_icon-size, var(--size-16));
+}
+
+.rds-status--sm .rds-status__icon svg {
+  --_icon-size: var(--space-12);
+}
+
 .rds-status__dot {
   flex: none;
   width: var(--_dot-size);

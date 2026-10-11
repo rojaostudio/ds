@@ -80,6 +80,8 @@ export function foundationCss(f: Foundation): string {
         `${x}px ${y}px ${b}px ${sp}px var(${pathVar(role)})`))
       .join(", ");
   if (f.name.startsWith("motion/duration")) return `${f.value}ms`;
+  // Figma binds layer opacity in percent (50); CSS wants a fraction (0.5).
+  if (f.name.startsWith("opacity/")) return String(Number(f.value) / 100);
   if (f.name.startsWith("z/") || f.name.endsWith("/weight")) return f.value;
   return `${f.value}px`;
 }

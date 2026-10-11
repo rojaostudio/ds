@@ -80,7 +80,7 @@
   --_stroke: var(--filter-chip-stroke-disabled);
   --_text: color-mix(in srgb, var(--filter-chip-text-disabled) 40%, transparent);
 
-  opacity: 0.5;
+  opacity: var(--opacity-disabled);
   cursor: not-allowed;
 }
 

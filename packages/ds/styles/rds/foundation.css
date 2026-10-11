@@ -55,6 +55,9 @@
   --size-48: 48px;
   --size-56: 56px;
   --blur-backdrop: 16px;
+  --opacity-50: 0.5;
+  --opacity-disabled: 0.5;
+  --opacity-dimmed: 0.5;
   --motion-duration-fast: 100ms;
   --motion-duration-base: 200ms;
   --motion-duration-slow: 300ms;

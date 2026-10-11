@@ -56,6 +56,9 @@ size/40|F|40|--size-40
 size/48|F|48|--size-48
 size/56|F|56|--size-56
 blur/backdrop|F|16|--blur-backdrop
+opacity/50|F|50|--opacity-50
+opacity/disabled|F|50|--opacity-disabled
+opacity/dimmed|F|50|--opacity-dimmed
 motion/duration/fast|F|100|--motion-duration-fast
 motion/duration/base|F|200|--motion-duration-base
 motion/duration/slow|F|300|--motion-duration-slow

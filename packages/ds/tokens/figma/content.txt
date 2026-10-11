@@ -167,6 +167,7 @@ media-tile/label|C|@theme:text/body|=
 media/background|C|@theme:surface/muted|=
 media/fallback|C|@theme:text/subtle|=
 media/radius|F|@base:radius/card|=
+media/dimmed/opacity|F|@scale:opacity/dimmed|=
 choice-card/check/background/tile|C|@theme:colors/primary/default|=
 choice-card/check/icon/tile|C|@theme:text/on/primary|=
 choice-card/check/background/preview|C|@theme:colors/primary/default|=
