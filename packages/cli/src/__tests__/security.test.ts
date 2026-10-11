@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { RDS_ROLES as ROLES } from "@rojaostudio/ds-core/generate";
 import { BLOCK_END, BLOCK_START, mergeRulesBlock, RulesBlockError, run, type Io } from "../init";
+import { onTag } from "../prerelease";
 
 let root: string;
 let dir: string;
@@ -218,7 +219,7 @@ describe("CLAUDE.md — comando de instalação", () => {
   it("usa o mesmo comando do terminal (gerenciador do lockfile e @next em pré-versão)", async () => {
     write("package-lock.json", "{}");
     expect(await run(["init", "-c", "#7C3AED"], io().io)).toBe(0);
-    expect(read("CLAUDE.md")).toContain("\nnpm install @rojaostudio/ds@next\n");
+    expect(read("CLAUDE.md")).toContain(`\nnpm install ${onTag("@rojaostudio/ds")}\n`);
   });
 });
 
