@@ -8751,35 +8751,163 @@ body:has(.rds-modal) {
 /* components/phone-input.css */
 /* @tokens phone-input */
 /*
- * PhoneInput: no tokens of its own; the Combobox and the Input bring theirs. The country (208 wide) and the number
- * side by side, 8 apart. The label, the hint and the error are the number's: with a label, the country drops by
- * the label's height (its line + 4 under it + the field's 4 gap), so both boxes line up. Below 480 the country narrows to 136.
+ * PhoneInput (Figma [RDS] Forms/PhoneInput, 11/10): no tokens of its own. One field, the Input's box (rds-field,
+ * rds-input): the country button (flag 20, the dial code in the affix colour, the chevron) fills the box's height on
+ * the left, a hairline in the border colour, then the number. The label, the hint and the error are the field's.
+ * The country list is the Command's anatomy (search fixed on top, groups with a name, rows of the menu item) in a
+ * popover the field's width, 4 under it; below 1024 it is a Drawer.
  */
-.rds-phone-input {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-8);
-  width: 100%;
-  min-width: 0;
+.rds-phone-input .rds-field__box {
+  gap: var(--space-12);
 }
 
 .rds-phone-input__country {
+  display: inline-flex;
   flex: none;
-  width: calc(var(--space-64) * 3 + var(--space-16));
+  align-self: stretch;
+  align-items: center;
+  gap: var(--space-8);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--_value);
+  font: inherit;
+  cursor: pointer;
 }
 
-.rds-phone-input--labelled .rds-phone-input__country {
-  margin-top: calc(var(--input-support-line) + var(--space-8));
+.rds-phone-input__country:focus-visible {
+  outline: var(--focus-ring-width) solid var(--button-focus-ring);
+  outline-offset: calc(var(--focus-ring-width) * -1);
+  border-radius: var(--radius-xs);
+}
+
+.rds-phone-input__country:disabled {
+  cursor: not-allowed;
+}
+
+.rds-phone-input__flag {
+  display: inline-flex;
+  flex: none;
+}
+
+.rds-phone-input__flag img,
+.rds-phone-input__flag svg {
+  width: var(--size-20);
+  height: auto;
+  border-radius: 2px;
+}
+
+.rds-phone-input__trigger-dial {
+  color: var(--input-affix-default);
+}
+
+.rds-field--disabled .rds-phone-input__trigger-dial {
+  color: var(--input-affix-disabled);
+}
+
+.rds-phone-input__chevron {
+  display: inline-flex;
+  color: var(--input-affix-default);
+}
+
+.rds-phone-input__chevron > svg {
+  width: var(--size-20);
+  height: var(--size-20);
+}
+
+.rds-field--sm .rds-phone-input__chevron > svg {
+  width: var(--size-16);
+  height: var(--size-16);
+}
+
+.rds-phone-input__divider {
+  flex: none;
+  align-self: center;
+  width: var(--border-width);
+  height: var(--size-24);
+  background: var(--input-border-default);
 }
 
 .rds-phone-input__number {
   flex: 1;
+  min-width: 0;
 }
 
-@media (max-width: 480px) {
-  .rds-phone-input__country {
-    width: calc(var(--space-64) * 2 + var(--space-8));
-  }
+/* ── the country list ───────────────────────────────────────────────────────────────────────────────────── */
+.rds-phone-input__popover {
+  z-index: var(--_layer-floating, var(--z-dropdown));
+  box-sizing: border-box;
+  display: flex;
+  min-width: 320px;
+  max-height: min(420px, var(--radix-popover-content-available-height, 60vh));
+  overflow: hidden;
+  border: var(--border-width) solid var(--command-border);
+  border-radius: var(--radius-container);
+  background: var(--command-background);
+  box-shadow: var(--elevation-overlay);
+  font-family: var(--type-font-stack);
+}
+
+.rds-phone-input__panel {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+.rds-phone-input__results {
+  margin: 0;
+  list-style: none;
+}
+
+.rds-phone-input__group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rds-phone-input__option {
+  gap: var(--space-8);
+  cursor: pointer;
+}
+
+.rds-phone-input__name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rds-phone-input__dial {
+  color: var(--command-group-label);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The check keeps its place on every row, so the dial codes line up. */
+.rds-phone-input__check {
+  display: inline-flex;
+  flex: none;
+  width: var(--size-16);
+}
+
+.rds-phone-input__check > svg {
+  width: var(--size-16);
+  height: var(--size-16);
+}
+
+/* In the Drawer the list fills it and scrolls under the search; rows are 48 to the touch. */
+.rds-drawer .rds-phone-input__panel {
+  margin: 0 calc(var(--space-24) * -1);
+}
+
+.rds-drawer .rds-phone-input__option {
+  min-height: var(--size-48);
 }
 
 /* components/phone.css */
