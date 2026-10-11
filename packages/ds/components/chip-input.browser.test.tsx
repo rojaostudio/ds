@@ -335,5 +335,22 @@ describe('ChipInput list behaviour', () => {
     expect(onChange).toHaveBeenLastCalledWith(['Azul', 'Branco', 'Amarelo']);
     expect(el.querySelector('.rds-chip--dragging')).toBeNull();
   });
+
+  it('field: the Chips keep the box padding (4 on top, 8 on the left) when they wrap; field.css does not override it', async () => {
+    const el = await render(
+      <div style={{ width: 430 }}>
+        <ChipInput label="Etiquetas" defaultValue={['Presente', 'ascal', 'mnbsgsh', 'jhs', 'jhsjhsj']} />
+      </div>,
+    );
+    const box = el.querySelector<HTMLElement>('.rds-field__box')!;
+    const b = box.getBoundingClientRect();
+    const first = box.querySelector<HTMLElement>('.rds-chip')!.getBoundingClientRect();
+    const last = Array.from(box.querySelectorAll<HTMLElement>('.rds-chip')).at(-1)!.getBoundingClientRect();
+    // 1 border + 4 padding.
+    expect(Math.round(first.top - b.top)).toBe(5);
+    expect(Math.round(first.left - b.left)).toBe(9);
+    expect(getComputedStyle(box).rowGap).toBe('4px');
+    expect(Math.round(b.bottom - Math.max(last.bottom, box.querySelector('input')!.getBoundingClientRect().bottom))).toBeGreaterThanOrEqual(5);
+  });
 });
 

@@ -41,7 +41,7 @@
 }
 
 /* multiple: the chosen values as Chips before the text; the box grows in rows. */
-.rds-combobox__box--multiple {
+.rds-field__box.rds-combobox__box--multiple {
   flex-wrap: wrap;
   row-gap: var(--space-4);
   padding-block: var(--space-4);
