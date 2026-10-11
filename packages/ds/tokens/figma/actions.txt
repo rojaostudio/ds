@@ -1,4 +1,4 @@
-# [RDS] Components · collection Actions · file w64JuUL45DO4jGu3WEy9HU · extracted 2026-10-04
+# [RDS] Components · collection Actions · file w64JuUL45DO4jGu3WEy9HU · extracted 2026-10-11
 # DO NOT EDIT. Figma is the source: publish in Figma, run the extraction, save the output here.
 # Format: name|type (C colour, F number, S string, B boolean)|@collection:target (alias) OR raw value|WEB codeSyntax ("=" when it is the path with hyphens)[|obsolete]
 # obsolete: the Figma description starts with "Obsoleto"; the token stays for old code and no stylesheet has to read it.
@@ -116,3 +116,6 @@ bottom-bar/floating/radius|F|@base:radius/container|=
 bottom-bar/floating/margin|F|@scale:space/24|=
 bottom-bar/floating/padding-y|F|@scale:space/8|=
 bottom-bar/floating/padding-x|F|@scale:space/12|=
+link/action/label|C|@theme:text/link|=
+link/neutral/label|C|@theme:text/body|=
+link/focus/ring|C|@theme:focus/ring|=

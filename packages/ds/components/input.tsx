@@ -16,6 +16,11 @@ import { CloseIcon } from './internal/icons';
 export type { FieldLabelPosition };
 
 export interface InputProps extends FieldTextProps, Omit<ComponentPropsWithRef<'input'>, 'prefix' | 'children' | 'size'> {
+  /**
+   * An action on the label's line, on the right (Figma: `showLabelAction` + the exposed Link): a <Link>, such as
+   * "Esqueci a senha". Outside the <label>; the Tab reaches it after the field.
+   */
+  labelAction?: ReactNode;
   /** An icon on the left, such as a magnifier on a search (Figma: `showLeadingIcon` + `leadingIcon`). Decorative. */
   leadingIcon?: ReactNode;
   /** Text before the value, such as R$ (Figma: `showPrefix` + `prefix`). Not read with the value: if it matters, say it in the label. */
@@ -65,6 +70,7 @@ export function Input({
   style,
   onChange,
   ref,
+  labelAction,
   ...input
 }: InputProps) {
   warnIfUnlabelled('Input', label, input['aria-label'], input['aria-labelledby']);
@@ -102,6 +108,7 @@ export function Input({
       required={required}
       disabled={disabled}
       boxClassName={showClear ? 'rds-field__box--action' : undefined}
+      labelAction={labelAction}
       className={[size === 'sm' && 'rds-field--sm', className].filter(Boolean).join(' ') || undefined}
       style={style}
     >

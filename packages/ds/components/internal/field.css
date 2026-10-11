@@ -51,6 +51,38 @@
   font-weight: 500;
 }
 
+/*
+ * labelAction: on the label's line, on the right (grid: the label and the action share the first row; everything
+ * else spans both columns). It follows the box in the DOM, so Tab goes field, then action. Floating: no label line,
+ * the action sits under the box, on the right.
+ */
+.rds-field--label-action {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: var(--space-8);
+}
+
+.rds-field--label-action > * {
+  grid-column: 1 / -1;
+}
+
+.rds-field--label-action > .rds-field__label {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.rds-field--label-action > .rds-field__label-action {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: start;
+}
+
+.rds-field__label-action {
+  align-self: flex-end;
+  font-size: var(--_support-size);
+  line-height: var(--_support-line);
+}
+
 .rds-field__required {
   color: var(--_required);
 }

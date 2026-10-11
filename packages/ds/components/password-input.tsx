@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, type ChangeEvent, type ComponentPropsWithRef } from 'react';
+import { useEffect, useRef, useState, type ChangeEvent, type ComponentPropsWithRef, type ReactNode } from 'react';
 import { announce } from './internal/announce';
 import { FieldAction, FieldShell, hasContent, useFieldIds, warnIfUnlabelled, type FieldTextProps } from './internal/field';
 import { EyeIcon, EyeOffIcon } from './internal/icons';
@@ -8,6 +8,11 @@ import { EyeIcon, EyeOffIcon } from './internal/icons';
 export interface PasswordInputProps
   extends FieldTextProps,
     Omit<ComponentPropsWithRef<'input'>, 'type' | 'children' | 'prefix' | 'size'> {
+  /**
+   * An action on the label's line, on the right (Figma: `showLabelAction` + the exposed Link): a <Link>, such as
+   * "Esqueci a senha". Outside the <label>; the Tab reaches it after the field.
+   */
+  labelAction?: ReactNode;
   /** current-password to sign in, new-password to create one: the password manager fills or suggests. */
   autoComplete?: 'current-password' | 'new-password';
   /** Controlled (Figma: `revealed`): the password shows as text. */
@@ -77,6 +82,7 @@ export function PasswordInput({
   hiddenMessage = 'Senha oculta',
   showStrength = false,
   strength: strengthProp,
+  labelAction,
   ...input
 }: PasswordInputProps) {
   warnIfUnlabelled('PasswordInput', label, input['aria-label'], input['aria-labelledby']);
@@ -123,6 +129,7 @@ export function PasswordInput({
       required={required}
       disabled={disabled}
       boxClassName="rds-field__box--action"
+      labelAction={labelAction}
       afterBox={
         showStrength ? (
           <div id={strengthId} className={`rds-password-input__strength rds-password-input__strength--${strength}`}>

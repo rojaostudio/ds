@@ -62,6 +62,11 @@ export interface FieldShellProps {
   boxClassName?: string;
   /** What goes between the box and the hint or error (the NumberInput's named steps). */
   afterBox?: ReactNode;
+  /**
+   * An action on the label's line, on the right ("Esqueci a senha", a <Link>). It comes after the box in the DOM, so
+   * the Tab order is the field, then the action; with the label floating it sits under the box, on the right.
+   */
+  labelAction?: ReactNode;
   /** Event handlers on the box (the FileInput's drag and drop). */
   boxProps?: Omit<HTMLAttributes<HTMLDivElement>, 'className' | 'role' | 'children'>;
   className?: string;
@@ -97,6 +102,7 @@ export function FieldShell({
   children,
   boxClassName,
   afterBox,
+  labelAction,
   boxProps,
   className,
   style,
@@ -111,6 +117,7 @@ export function FieldShell({
         kind,
         floating && 'rds-field--floating',
         invalid && 'rds-field--error',
+        labelAction && !floating && 'rds-field--label-action',
         disabled && 'rds-field--disabled',
         className,
       ]
@@ -138,6 +145,7 @@ export function FieldShell({
         )}
         {children}
       </div>
+      {labelAction && <div className="rds-field__label-action">{labelAction}</div>}
       {afterBox}
       {errorId ? (
         <span id={errorId} className="rds-field__support rds-field__error-message">

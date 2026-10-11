@@ -253,6 +253,8 @@ export { Avatar, AvatarGroup, initials } from './avatar';
 export type { AvatarProps, AvatarGroupProps, AvatarSize, AvatarGroupSize, AvatarType, AvatarContent } from './avatar';
 
 export { IconButton } from './icon-button';
+export { Link } from './link';
+export type { LinkProps, LinkTone } from './link';
 export type { IconButtonProps } from './icon-button';
 
 export { ButtonGroup } from './button-group';

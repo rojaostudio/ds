@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act } from 'react';
 import { userEvent } from 'vitest/browser';
 import { PasswordInput, passwordStrength } from './password-input';
+import { Link } from './link';
 import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
 afterEach(cleanup);
@@ -123,5 +124,38 @@ describe('PasswordInput strength', () => {
   it('strength from the product wins over the meter', async () => {
     const el = await render(<PasswordInput label="Senha" showStrength strength="weak" defaultValue="Abcd1234!" />);
     expect(el.querySelectorAll('.rds-password-input__segment--lit')).toHaveLength(1);
+  });
+});
+
+describe('PasswordInput labelAction', () => {
+  it('sits on the label line, on the right, outside the label, and comes after the field in Tab order', async () => {
+    const el = await render(
+      <div style={{ width: 360 }}>
+        <PasswordInput label="Senha" labelAction={<Link href="/forgot">Esqueci a senha</Link>} />
+      </div>,
+    );
+    const label = el.querySelector('label')!;
+    const action = el.querySelector('a')!;
+    expect(label.contains(action)).toBe(false);
+    const field = el.querySelector('.rds-field')!.getBoundingClientRect();
+    const lr = label.getBoundingClientRect(), ar = el.querySelector('.rds-field__label-action')!.getBoundingClientRect();
+    expect(Math.round(ar.top)).toBe(Math.round(lr.top));
+    expect(Math.round(ar.right)).toBe(Math.round(field.right));
+    const input = el.querySelector('input')!;
+    expect(input.compareDocumentPosition(action) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(el.querySelector('.rds-field__box')!.getBoundingClientRect().top - lr.bottom).toBeGreaterThanOrEqual(4);
+    expect(await axeViolations(el)).toEqual([]);
+  });
+
+  it('floating: the action goes under the field, on the right', async () => {
+    const el = await render(
+      <div style={{ width: 360 }}>
+        <PasswordInput label="Senha" labelPosition="floating" labelAction={<Link href="/forgot">Esqueci a senha</Link>} />
+      </div>,
+    );
+    const box = el.querySelector('.rds-field__box')!.getBoundingClientRect();
+    const ar = el.querySelector('.rds-field__label-action')!.getBoundingClientRect();
+    expect(ar.top).toBeGreaterThanOrEqual(box.bottom);
+    expect(Math.round(ar.right)).toBe(Math.round(box.right));
   });
 });
