@@ -318,4 +318,22 @@ describe('ChipInput list behaviour', () => {
     const pills = Array.from(el.querySelectorAll<HTMLElement>('.rds-chip'));
     expect(pills.map((p) => p.getBoundingClientRect().height)).toEqual([44, 44, 44, 44]);
   });
+
+  it('without dragging (WCAG 2.5.7): hold a chip still, let go, then tap where it goes', async () => {
+    const onChange = vi.fn();
+    const el = await render(<Options onChange={onChange} />);
+    const azul = chip(el, 'Azul');
+    const box = azul.getBoundingClientRect();
+    azul.dispatchEvent(new PointerEvent('pointerdown', { clientX: box.left + 4, clientY: box.top + 8, pointerId: 9, pointerType: 'touch', button: 0, bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 450));
+    window.dispatchEvent(new PointerEvent('pointerup', { clientX: box.left + 4, clientY: box.top + 8, pointerId: 9, pointerType: 'touch', button: 0, bubbles: true }));
+    await wait();
+    expect(chip(el, 'Azul').classList.contains('rds-chip--dragging')).toBe(true);
+    const branco = chip(el, 'Branco');
+    branco.dispatchEvent(new PointerEvent('pointerdown', { pointerId: 10, pointerType: 'touch', button: 0, bubbles: true }));
+    await wait();
+    expect(onChange).toHaveBeenLastCalledWith(['Azul', 'Branco', 'Amarelo']);
+    expect(el.querySelector('.rds-chip--dragging')).toBeNull();
+  });
 });
+
