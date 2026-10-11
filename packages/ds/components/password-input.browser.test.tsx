@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act } from 'react';
 import { userEvent } from 'vitest/browser';
 import { PasswordInput, passwordStrength } from './password-input';
-import { Link } from './link';
+import { Button } from './button';
 import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
 afterEach(cleanup);
@@ -131,11 +131,11 @@ describe('PasswordInput labelAction', () => {
   it('sits on the label line, on the right, outside the label, and comes after the field in Tab order', async () => {
     const el = await render(
       <div style={{ width: 360 }}>
-        <PasswordInput label="Senha" labelAction={<Link href="/forgot">Esqueci a senha</Link>} />
+        <PasswordInput label="Senha" labelAction={<Button variant="ghost" size="sm">Esqueci a senha</Button>} />
       </div>,
     );
     const label = el.querySelector('label')!;
-    const action = el.querySelector('a')!;
+    const action = el.querySelector('.rds-field__label-action button')!;
     expect(label.contains(action)).toBe(false);
     const field = el.querySelector('.rds-field')!.getBoundingClientRect();
     const lr = label.getBoundingClientRect(), ar = el.querySelector('.rds-field__label-action')!.getBoundingClientRect();
@@ -144,13 +144,19 @@ describe('PasswordInput labelAction', () => {
     const input = el.querySelector('input')!;
     expect(input.compareDocumentPosition(action) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(el.querySelector('.rds-field__box')!.getBoundingClientRect().top - lr.bottom).toBeGreaterThanOrEqual(4);
+    // The 32 tall button does not push the box down: same offset as a field without the action.
+    const withAction = Math.round(el.querySelector('.rds-field__box')!.getBoundingClientRect().top - field.top);
     expect(await axeViolations(el)).toEqual([]);
+    const plain = await render(<div style={{ width: 360 }}><PasswordInput label="Senha" /></div>);
+    const plainField = plain.querySelector('.rds-field')!.getBoundingClientRect();
+    const plainBox = plain.querySelector('.rds-field__box')!.getBoundingClientRect();
+    expect(withAction).toBe(Math.round(plainBox.top - plainField.top));
   });
 
   it('floating: the action goes under the field, on the right', async () => {
     const el = await render(
       <div style={{ width: 360 }}>
-        <PasswordInput label="Senha" labelPosition="floating" labelAction={<Link href="/forgot">Esqueci a senha</Link>} />
+        <PasswordInput label="Senha" labelPosition="floating" labelAction={<Button variant="ghost" size="sm">Esqueci a senha</Button>} />
       </div>,
     );
     const box = el.querySelector('.rds-field__box')!.getBoundingClientRect();

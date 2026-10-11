@@ -6328,6 +6328,11 @@ input:focus-visible + .rds-checkbox__box {
   line-height: var(--_support-line);
 }
 
+/* A Button (ghost sm, 32 tall) centres on the 20 label line without growing it: the extra height overflows evenly. */
+.rds-field__label-action > .rds-button {
+  margin-block: calc((var(--_support-line) - var(--button-size-sm-height)) / 2);
+}
+
 .rds-field__required {
   color: var(--_required);
 }

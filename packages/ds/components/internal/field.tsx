@@ -63,7 +63,7 @@ export interface FieldShellProps {
   /** What goes between the box and the hint or error (the NumberInput's named steps). */
   afterBox?: ReactNode;
   /**
-   * An action on the label's line, on the right ("Esqueci a senha", a <Link>). It comes after the box in the DOM, so
+   * An action on the label's line, on the right ("Esqueci a senha", a Button ghost sm). It comes after the box in the DOM, so
    * the Tab order is the field, then the action; with the label floating it sits under the box, on the right.
    */
   labelAction?: ReactNode;
