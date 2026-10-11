@@ -86,6 +86,23 @@ describe('Item row and selection', () => {
     expect(getComputedStyle(el.querySelector('.rds-item-group')!).rowGap).toBe('0px');
   });
 
+  it('row: the last row of a group has no line, at the same height; showDivider off drops it alone too (ds#87)', async () => {
+    const el = await render(
+      <div style={{ width: 320 }}>
+        <ItemGroup>
+          <Item variant="row" title="Primeiro" />
+          <Item variant="row" title="Último" />
+        </ItemGroup>
+        <Item variant="row" title="Sozinho" showDivider={false} />
+      </div>,
+    );
+    const [first, last, alone] = [...el.querySelectorAll<HTMLElement>('.rds-item')];
+    expect(getComputedStyle(first).borderBottomWidth).toBe('1px');
+    expect(getComputedStyle(last).borderBottomWidth).toBe('0px');
+    expect(getComputedStyle(alone).borderBottomWidth).toBe('0px');
+    expect(last.getBoundingClientRect().height).toBe(first.getBoundingClientRect().height);
+  });
+
   it('row: title and description stay on one line each, with an ellipsis', async () => {
     const long = 'Um nome de cliente muito comprido que não cabe na largura do painel lateral';
     const el = await render(<Item variant="row" style={{ width: 240 }} title={long} description={long} trailing="R$ 9,00" />);

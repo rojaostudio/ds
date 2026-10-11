@@ -209,6 +209,19 @@ describe('FileInput layouts', () => {
     expect(document.activeElement).toBe(input);
   });
 
+  it('tile: ratio 3:2 is 168 by 112, the preview filling it cropped (ds#88)', async () => {
+    const el = await render(
+      <>
+        <FileInput layout="tile" label="Capa" tileText="Enviar capa" ratio="3:2" />
+        <FileInput layout="tile" label="Capa" ratio="3:2" preview={PNG_URL} />
+      </>,
+    );
+    const [empty, filled] = [...el.querySelectorAll<HTMLElement>('.rds-file-input__tile')].map((t) => t.getBoundingClientRect());
+    expect([empty.width, empty.height]).toEqual([168, 112]);
+    expect([filled.width, filled.height]).toEqual([168, 112]);
+    expect(getComputedStyle(el.querySelector('.rds-file-input__preview')!).objectFit).toBe('cover');
+  });
+
   it('tile: `preview` controls the image (a saved one)', async () => {
     const el = await render(<FileInput layout="tile" label="Logo" preview={PNG_URL} previewAlt="Logo da loja" />);
     expect(el.querySelector('img')!.alt).toBe('Logo da loja');

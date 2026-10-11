@@ -74,6 +74,13 @@
   gap: 0;
 }
 
+/* No line (showDivider off, or the last row of an ItemGroup): the padding takes the border's pixel, same height. */
+.rds-item--row.rds-item--no-divider,
+.rds-item-group > .rds-item--row:last-child {
+  padding-bottom: var(--_pad-y);
+  border-bottom-width: 0;
+}
+
 .rds-item--row .rds-item__media {
   justify-content: center;
   align-items: center;
