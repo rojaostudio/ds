@@ -9,7 +9,9 @@ export interface PhoneInputProps
   extends Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'value' | 'defaultValue' | 'size' | 'prefix' | 'type'> {
   /** The number's label (the Input's). Without it, pass aria-label. */
   label?: string;
-  /** A line under the field (the Input's hint). */
+  /** A line under the field (the Input's hint), as on every other field. */
+  hint?: string;
+  /** @deprecated Use `hint` (the name every other field uses). Kept so 2.x code keeps working. */
   helper?: string;
   /** What is wrong with the number (the Input's error message). */
   error?: string;
@@ -39,6 +41,7 @@ function normalizeToE164(raw: string): string {
  */
 export function PhoneInput({
   label,
+  hint,
   helper,
   error,
   required,
@@ -124,7 +127,7 @@ export function PhoneInput({
         placeholder={placeholder}
         required={required}
         disabled={disabled}
-        hint={helper}
+        hint={hint ?? helper}
         errorMessage={error}
       />
       {name && <input type="hidden" name={name} value={displayValue} />}

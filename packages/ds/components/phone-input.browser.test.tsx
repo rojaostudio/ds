@@ -9,7 +9,7 @@ describe.each(MODES)('PhoneInput (%s)', (mode) => {
   it('with label, hint, error and disabled passes axe', async () => {
     const el = await render(
       <div style={{ display: 'grid', gap: 16, maxWidth: 480 }}>
-        <PhoneInput label="WhatsApp" helper="Com DDD" />
+        <PhoneInput label="WhatsApp" hint="Com DDD" />
         <PhoneInput label="WhatsApp" defaultValue="+5511987654321" error="Número incompleto." />
         <PhoneInput label="Telefone" optional disabled />
       </div>,
@@ -34,6 +34,18 @@ describe('PhoneInput behaviour', () => {
     await userEvent.type(el.querySelector<HTMLInputElement>('input[type="tel"]')!, '11987654321');
     expect(onChange).toHaveBeenLastCalledWith('+5511987654321');
     expect(el.querySelector<HTMLInputElement>('input[type="hidden"][name="phone"]')!.value).toBe('+5511987654321');
+  });
+
+  it('hint is the line under the field; the deprecated helper still works', async () => {
+    const el = await render(
+      <>
+        <PhoneInput label="WhatsApp" hint="Com DDD" />
+        <PhoneInput label="Celular" helper="Só números" />
+      </>,
+    );
+    const text = el.textContent ?? '';
+    expect(text).toContain('Com DDD');
+    expect(text).toContain('Só números');
   });
 
   it('says (opcional) after the label', async () => {
