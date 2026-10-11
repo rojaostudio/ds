@@ -1,0 +1,48 @@
+/* @tokens link */
+/*
+ * Link (Actions collection, link/*): a text link inside a sentence ("Ainda não tem conta? Criar conta grátis").
+ * No padding, no control height: it takes the sentence's font. Underlined always, so colour is never the only cue
+ * (thicker on hover). tone action is text/link, neutral text/body. A ::after layer takes the touch target to 24
+ * without changing the line height. Focus: the Button's ring.
+ */
+.rds-link {
+  position: relative;
+  display: inline;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-xs);
+  background: none;
+  color: var(--link-action-label);
+  font: inherit;
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+}
+
+.rds-link--neutral {
+  color: var(--link-neutral-label);
+}
+
+.rds-link:hover {
+  text-decoration-thickness: 2px;
+}
+
+.rds-link::after {
+  content: '';
+  position: absolute;
+  inset: -2px 0;
+}
+
+.rds-link:focus-visible {
+  outline: var(--focus-ring-width) solid var(--link-focus-ring);
+  outline-offset: 2px;
+}
+
+@media (forced-colors: active) {
+  .rds-link {
+    color: LinkText;
+  }
+}

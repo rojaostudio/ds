@@ -116,6 +116,9 @@
   --bottom-bar-floating-margin: var(--space-24);
   --bottom-bar-floating-padding-y: var(--space-8);
   --bottom-bar-floating-padding-x: var(--space-12);
+  --link-action-label: var(--text-link);
+  --link-neutral-label: var(--text-body);
+  --link-focus-ring: var(--focus-ring);
 
   /* blocks */
   --topnav-background: var(--surface-card);
