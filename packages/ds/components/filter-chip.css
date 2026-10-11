@@ -1,6 +1,6 @@
 /* @tokens filter-chip */
 /*
- * FilterChip (Forms collection, filter-chip/*): 32 tall, pill, 12 inside, 4 between icon, label and count;
+ * FilterChip (Forms collection, filter-chip/*): sm 32 tall (default) or md 44 (the Button md height, 16 inside), pill, 12 inside, 4 between icon, label and count;
  * label 14/20 medium. inactive: card fill and a hairline; hover: muted fill, strong hairline; active: the brand
  * at 12% over what is behind, brand border and label; disabled: the whole chip at 50%, the label at 40%.
  * The count reads in the label's colour, at full opacity. Icon 14, in the label's colour.
@@ -15,16 +15,18 @@
   --_surface: var(--filter-chip-surface-inactive);
   --_stroke: var(--filter-chip-stroke-inactive);
   --_text: var(--filter-chip-text-inactive);
+  --_height: var(--size-32);
+  --_padding-x: var(--space-12);
 
   position: relative;
   box-sizing: border-box;
   display: inline-flex;
   align-items: center;
   gap: var(--space-4);
-  min-height: var(--size-32);
+  min-height: var(--_height);
   max-width: 100%;
   margin: 0;
-  padding: 0 var(--space-12);
+  padding: 0 var(--_padding-x);
   border: var(--border-width) solid var(--_stroke);
   border-radius: var(--radius-full);
   background: var(--_surface);
@@ -39,11 +41,18 @@
   vertical-align: middle;
 }
 
-/* 32 visible, 44 to touch: an invisible band above and below that does not push the layout. */
+/* md: 44, the Button md height. A DataTableHeader's quick filters are always md: the bar never mixes heights. */
+.rds-filter-chip--md,
+.rds-data-table-header__quick .rds-filter-chip {
+  --_height: var(--button-size-md-height);
+  --_padding-x: var(--space-16);
+}
+
+/* sm: 32 visible, 44 to touch: an invisible band above and below that does not push the layout (none at md). */
 .rds-filter-chip::before {
   content: '';
   position: absolute;
-  inset: calc((var(--size-32) - (var(--space-12) * 2 + var(--type-button-line))) / 2) 0;
+  inset: min(0px, calc((var(--_height) - (var(--space-12) * 2 + var(--type-button-line))) / 2)) 0;
 }
 
 @media (hover: hover) {

@@ -42,6 +42,14 @@ describe.each(MODES)('FilterChip (%s)', (mode) => {
     expect(chip.getBoundingClientRect().height).toBe(32);
     expect(getComputedStyle(chip, '::before').top).toBe('-6px');
   });
+
+  it('size md: 44 tall, 16 inside, no touch band', async () => {
+    const el = await render(<FilterChip size="md">Todos</FilterChip>, mode);
+    const chip = el.querySelector<HTMLElement>('.rds-filter-chip')!;
+    expect(chip.getBoundingClientRect().height).toBe(44);
+    expect(getComputedStyle(chip).paddingLeft).toBe('16px');
+    expect(getComputedStyle(chip, '::before').top).toBe('0px');
+  });
 });
 
 describe('FilterChip behaviour', () => {

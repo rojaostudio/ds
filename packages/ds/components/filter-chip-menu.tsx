@@ -2,7 +2,7 @@
 
 import { useState, type ComponentPropsWithRef } from 'react';
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuItem, DropdownMenuSeparator } from './dropdown-menu';
-import { filterChipClassName } from './filter-chip';
+import { filterChipClassName, type FilterChipSize } from './filter-chip';
 import { blockWhenDisabled } from './internal/button';
 import { ChevronDownIcon } from './internal/icons';
 
@@ -33,6 +33,8 @@ export interface FilterChipMenuProps
   clearLabel?: string;
   /** Rendered as aria-disabled="true", as the FilterChip: stays in the tab order, does not open. */
   disabled?: boolean;
+  /** The pill's height, as the FilterChip's (Figma: the exposed chip's `size`): sm 32 (default) or md 44. In a DataTableHeader it is 44. */
+  size?: FilterChipSize;
   /** Where the menu lines up with the pill. */
   align?: 'start' | 'end';
   open?: boolean;
@@ -61,6 +63,7 @@ export function FilterChipMenu({
   allLabel = 'Todos',
   clearLabel = 'Limpar',
   disabled,
+  size = 'sm',
   align = 'start',
   open,
   defaultOpen,
@@ -113,7 +116,7 @@ export function FilterChipMenu({
         <button
           {...rest}
           type={type}
-          className={filterChipClassName(on, ['rds-filter-chip-menu', className].filter(Boolean).join(' '))}
+          className={filterChipClassName(on, ['rds-filter-chip-menu', className].filter(Boolean).join(' '), size)}
           aria-label={name}
           aria-disabled={disabled || undefined}
           onClick={blockWhenDisabled(disabled, onClick)}

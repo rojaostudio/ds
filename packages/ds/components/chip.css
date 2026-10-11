@@ -1,5 +1,6 @@
 /* @tokens chip */
-/* Chip: a chosen value that can be removed (Actions collection, chip/*). 32 tall, pill, card fill with a hairline. */
+/* Chip: a chosen value that can be removed (Actions collection, chip/*). sm 32 tall (default) or md 44, pill, card
+   fill with a hairline. */
 .rds-chip {
   box-sizing: border-box;
   display: inline-flex;
@@ -19,9 +20,24 @@
   vertical-align: middle;
 }
 
-/* With the ×, the right side is 8 (Figma): the ×'s own box gives the rest of the air. */
+/* md: 44 (the Button md height), 16 inside (12 on the × side), label 14/20. The active filters of a DataTableHeader
+   are always md. */
+.rds-chip--md,
+.rds-data-table-header__chips .rds-chip {
+  min-height: var(--button-size-md-height);
+  padding-inline: var(--space-16);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+}
+
+/* With the ×, the right side is 8 (Figma): the ×'s own box gives the rest of the air. 12 at md. */
 .rds-chip--removable {
   padding-inline-end: var(--space-8);
+}
+
+.rds-chip--md.rds-chip--removable,
+.rds-data-table-header__chips .rds-chip--removable {
+  padding-inline-end: var(--space-12);
 }
 
 .rds-chip__label {

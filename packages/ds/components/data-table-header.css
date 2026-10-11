@@ -13,11 +13,12 @@
  *   fixed at the end of the FIRST line, on the right, and never goes down.
  * - `active`, only while a filter is on: the `chips` (wrapping, at least 280 before "Limpar filtros" goes down)
  *   and "Limpar filtros" at the end.
- * One height, 32 (Figma 07/10): the search is the Input sm, the triggers Buttons and IconButtons sm, beside the
- * FilterChips; the action and the view control go in sm too.
+ * One height, 44 (Figma 11/10, ds#83; 32 before): the search is the Input md, the triggers Buttons and IconButtons
+ * md, the quick FilterChips and FilterChipMenus md (filter-chip.css sets them whatever their `size` says), the active
+ * Chips md (chip.css) beside "Limpar filtros" md; the action and the view control go in md too.
  * Two arrangements, by the screen width, as the Figma viewport mode (layout/compact below lg 1024; the SavingBar's
  * cut): expanded from 1024 (the __wide parts: the trigger as a Button with its label); compact below it (the __narrow
- * parts: the trigger as an IconButton sm, or a fill Button with the number while a filter is on).
+ * parts: the trigger as an IconButton md, or a fill Button with the number while a filter is on).
  * In the Popover and the Drawer the filters stack 16 apart, each one a caption-sized label over its chips.
  */
 .rds-data-table-header {

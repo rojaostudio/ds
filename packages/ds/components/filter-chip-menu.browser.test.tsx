@@ -214,7 +214,7 @@ describe('FilterChipMenu behaviour', () => {
   it.each([
     [1280, 800],
     [390, 800],
-  ])('in the DataTableHeader quickFilters at %i: in view, 32 tall, the menu opens on a tap inside the screen', async (w, h) => {
+  ])('in the DataTableHeader quickFilters at %i: in view, 44 tall (the bar sets md), the menu opens on a tap inside the screen', async (w, h) => {
     await page.viewport(w, h);
     try {
       const el = await render(
@@ -232,7 +232,8 @@ describe('FilterChipMenu behaviour', () => {
       );
       const p = pill(el);
       expect(p.offsetParent).not.toBeNull();
-      expect(p.getBoundingClientRect().height).toBe(32);
+      expect(p.getBoundingClientRect().height).toBe(44);
+      expect(el.querySelector<HTMLElement>('.rds-filter-chip:not(.rds-filter-chip-menu)')!.getBoundingClientRect().height).toBe(44);
       await open(el);
       const r = menu()!.getBoundingClientRect();
       expect(r.left).toBeGreaterThanOrEqual(0);
