@@ -2786,6 +2786,87 @@ input:focus-visible + .rds-checkbox__box {
   max-height: calc(5 * (var(--space-12) * 2 + var(--type-button-line)) + var(--space-8));
 }
 
+/* list (Figma: layout=list): no box, the Chips wrap 8 apart and the "+" closes the row. */
+.rds-field .rds-chip-input__box--list {
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+  cursor: auto;
+}
+
+.rds-chip-input__box--list .rds-chip-input__chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+.rds-chip-input__chips > li {
+  display: inline-flex;
+  max-width: 100%;
+}
+
+/* The "+": a chip's size, dashed edge, muted text. Pressed, it becomes the field in the same place. */
+.rds-chip-input__add {
+  border-style: dashed;
+  border-color: var(--chip-input-add-border);
+  background: transparent;
+  color: var(--chip-input-add-label);
+  cursor: pointer;
+}
+
+.rds-chip-input__add .rds-chip__icon {
+  color: var(--chip-input-add-label);
+}
+
+@media (hover: hover) {
+  button.rds-chip-input__add:hover {
+    border-color: var(--chip-input-add-border-hover);
+    background: var(--chip-background-hover);
+  }
+}
+
+button.rds-chip-input__add:focus-visible {
+  outline: var(--focus-ring-width) solid var(--button-focus-ring);
+  outline-offset: var(--focus-ring-width);
+}
+
+.rds-chip-input__add--editing {
+  border-style: solid;
+  border-color: var(--chip-input-border-focus);
+  box-shadow: inset 0 0 0 var(--border-width) var(--chip-input-border-focus);
+  background: var(--chip-background);
+  cursor: text;
+}
+
+.rds-chip-input__add .rds-chip__input::placeholder {
+  color: var(--chip-input-placeholder-default);
+  opacity: 1;
+}
+
+/* 32 to see, 44 to touch on a coarse pointer: an invisible margin that does not push the row. */
+@media (pointer: coarse) {
+  .rds-chip-input__add,
+  .rds-chip-input__box--list .rds-chip[tabindex] {
+    position: relative;
+  }
+
+  .rds-chip-input__add::before,
+  .rds-chip-input__box--list .rds-chip[tabindex]::before {
+    content: '';
+    position: absolute;
+    inset: calc((var(--size-32) - var(--button-size-md-height)) / 2) 0;
+  }
+}
+
+@media (forced-colors: active) {
+  .rds-chip-input__add {
+    border-color: CanvasText;
+  }
+}
+
 /* components/chip.css */
 /* @tokens chip */
 /* Chip: a chosen value that can be removed (Actions collection, chip/*). sm 32 tall (default) or md 44, pill, card
@@ -2834,6 +2915,12 @@ input:focus-visible + .rds-checkbox__box {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.rds-chip__count {
+  flex: none;
+  color: var(--chip-count);
+  font-variant-numeric: tabular-nums;
 }
 
 .rds-chip__icon {
@@ -2899,6 +2986,7 @@ input:focus-visible + .rds-checkbox__box {
 }
 
 .rds-chip--disabled,
+.rds-chip--disabled .rds-chip__count,
 .rds-chip--disabled .rds-chip__icon,
 .rds-chip--disabled .rds-chip__remove {
   color: var(--chip-label-disabled);
@@ -2925,6 +3013,48 @@ input:focus-visible + .rds-checkbox__box {
   .rds-chip--disabled .rds-chip__remove {
     color: GrayText;
   }
+}
+
+/* In a ChipInput: a Chip that moves or is renamed in place is focusable; the ring goes around the pill. */
+.rds-chip[tabindex]:focus-visible {
+  outline: var(--focus-ring-width) solid var(--button-focus-ring);
+  outline-offset: var(--focus-ring-width);
+}
+
+.rds-chip--reorderable {
+  cursor: grab;
+  user-select: none;
+  /* The browser must not start a native drag of the text. */
+  -webkit-user-drag: none;
+}
+
+.rds-chip--editable .rds-chip__label {
+  cursor: text;
+}
+
+/* Being moved (Figma: state=dragging): raised above the row. */
+.rds-chip--dragging {
+  position: relative;
+  z-index: 1;
+  box-shadow: var(--elevation-raised);
+  cursor: grabbing;
+}
+
+/* Being renamed (Figma: state=editing): the name becomes a field of the same size, ring-coloured edge, no ×. */
+.rds-chip--editing {
+  border-color: var(--chip-border-editing);
+  box-shadow: inset 0 0 0 var(--border-width) var(--chip-border-editing);
+}
+
+.rds-chip__input {
+  min-width: 2ch;
+  max-width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--chip-label);
+  font: inherit;
+  outline: none;
 }
 
 /* components/choice-card.css */

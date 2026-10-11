@@ -78,6 +78,8 @@
   --chip-label: var(--text-body);
   --chip-icon: var(--text-muted);
   --chip-label-disabled: var(--text-disabled);
+  --chip-count: var(--text-muted);
+  --chip-border-editing: var(--focus-ring);
   --button-size-sm-height: 32px;
   --button-size-sm-padding-x: var(--space-16);
   --button-size-sm-padding-y: 6px;
@@ -819,6 +821,9 @@
   --chip-input-error-message-color: var(--text-error);
   --chip-input-support-size: var(--type-small-size);
   --chip-input-support-line: var(--type-small-line);
+  --chip-input-add-border: var(--border-strong);
+  --chip-input-add-border-hover: var(--border-strong-hover);
+  --chip-input-add-label: var(--text-muted);
   --number-input-background-default: var(--surface-card);
   --number-input-background-disabled: var(--surface-disabled);
   --number-input-border-default: var(--border-strong);

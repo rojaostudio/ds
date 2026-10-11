@@ -47,6 +47,12 @@
   white-space: nowrap;
 }
 
+.rds-chip__count {
+  flex: none;
+  color: var(--chip-count);
+  font-variant-numeric: tabular-nums;
+}
+
 .rds-chip__icon {
   display: inline-flex;
   flex: none;
@@ -110,6 +116,7 @@
 }
 
 .rds-chip--disabled,
+.rds-chip--disabled .rds-chip__count,
 .rds-chip--disabled .rds-chip__icon,
 .rds-chip--disabled .rds-chip__remove {
   color: var(--chip-label-disabled);
@@ -136,4 +143,46 @@
   .rds-chip--disabled .rds-chip__remove {
     color: GrayText;
   }
+}
+
+/* In a ChipInput: a Chip that moves or is renamed in place is focusable; the ring goes around the pill. */
+.rds-chip[tabindex]:focus-visible {
+  outline: var(--focus-ring-width) solid var(--button-focus-ring);
+  outline-offset: var(--focus-ring-width);
+}
+
+.rds-chip--reorderable {
+  cursor: grab;
+  user-select: none;
+  /* The browser must not start a native drag of the text. */
+  -webkit-user-drag: none;
+}
+
+.rds-chip--editable .rds-chip__label {
+  cursor: text;
+}
+
+/* Being moved (Figma: state=dragging): raised above the row. */
+.rds-chip--dragging {
+  position: relative;
+  z-index: 1;
+  box-shadow: var(--elevation-raised);
+  cursor: grabbing;
+}
+
+/* Being renamed (Figma: state=editing): the name becomes a field of the same size, ring-coloured edge, no ×. */
+.rds-chip--editing {
+  border-color: var(--chip-border-editing);
+  box-shadow: inset 0 0 0 var(--border-width) var(--chip-border-editing);
+}
+
+.rds-chip__input {
+  min-width: 2ch;
+  max-width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--chip-label);
+  font: inherit;
+  outline: none;
 }
