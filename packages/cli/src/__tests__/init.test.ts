@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { RDS_ROLES as ROLES } from "@rojaostudio/ds-core/generate";
 import { BLOCK_END, BLOCK_START, mergeRulesBlock, normalizeHex, run, type Io } from "../init";
+import { onTag } from "../prerelease";
 
 let dir: string;
 beforeEach(() => {
@@ -100,7 +101,7 @@ describe("rojao-ds init — modos de entrada", () => {
     expect(md).toContain('@import "./rds-theme.css";');
     expect(t.text()).toContain('@import "@rojaostudio/ds/styles/rds.css";');
     expect(t.text()).toContain('@import "./rds-theme.css";');
-    expect(t.text()).toContain("pnpm add @rojaostudio/ds@next");
+    expect(t.text()).toContain(`pnpm add ${onTag("@rojaostudio/ds")}`);
   });
 
   it("sem cor e com terminal: pergunta até receber um hex válido", async () => {
@@ -341,6 +342,6 @@ describe("rojao-ds init — saída", () => {
     write("package-lock.json", "{}");
     const t = io();
     await run(["init", "-c", "#7C3AED"], t.io);
-    expect(t.text()).toContain("npm install @rojaostudio/ds@next");
+    expect(t.text()).toContain(`npm install ${onTag("@rojaostudio/ds")}`);
   });
 });
