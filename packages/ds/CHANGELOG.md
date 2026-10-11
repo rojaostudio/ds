@@ -1,5 +1,12 @@
 # @rojaostudio/ds
 
+## 2.5.0
+
+### Minor Changes
+
+- 7d7c7c7: Heading ganha `align` (start | center): o cabeçalho centrado de cartão e diálogo de acesso, com o título longo quebrando centrado (ds#100).
+- 895ef64: Link novo: o link de texto dentro de uma frase ("Ainda não tem conta? Criar conta grátis"), sem padding nem altura de controle, sublinhado, tone action ou neutral, asChild para o Link do Next ou um botão (ds#101). Input e PasswordInput ganham `labelAction`: uma ação na linha do rótulo, à direita ("Esqueci a senha"), fora do <label> e depois do campo na ordem do Tab; com o rótulo flutuante, fica embaixo do campo (ds#102).
+
 ## 2.4.0
 
 ### Minor Changes
