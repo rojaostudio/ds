@@ -1,6 +1,6 @@
 'use client';
 
-import type { HTMLAttributes, MouseEvent, ReactNode } from 'react';
+import type { HTMLAttributes, MouseEvent, ReactNode, Ref } from 'react';
 import { announce } from './internal/announce';
 import { CloseIcon } from './internal/icons';
 
@@ -26,6 +26,13 @@ export interface ChipProps extends Omit<HTMLAttributes<HTMLSpanElement>, 'childr
    * filters of a DataTableHeader are always 44.
    */
   size?: 'sm' | 'md';
+  /**
+   * A count after the label, in secondary text inside the pill (Figma: `showCount` + `count`): "Branco · 2". Say
+   * what it counts in a Tooltip around the chip ("Usada em 2 produtos").
+   */
+  count?: ReactNode;
+  /** The pill (a focusable Chip, or the trigger of a Tooltip around it). */
+  ref?: Ref<HTMLSpanElement>;
 }
 
 /**
@@ -40,6 +47,7 @@ export function Chip({
   removedMessage,
   disabled,
   size = 'sm',
+  count,
   className,
   ...rest
 }: ChipProps) {
@@ -72,6 +80,11 @@ export function Chip({
         </span>
       )}
       <span className="rds-chip__label">{children}</span>
+      {count !== undefined && count !== null && (
+        <span className="rds-chip__count">
+          <span aria-hidden="true">·</span> {count}
+        </span>
+      )}
       {onRemove && (
         <button
           type="button"
