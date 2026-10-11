@@ -31,6 +31,10 @@
   color: var(--heading-accent);
 }
 
+.rds-heading--center {
+  text-align: center;
+}
+
 .rds-heading__mark {
   color: var(--heading-accent);
 }
