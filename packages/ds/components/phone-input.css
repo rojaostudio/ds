@@ -41,10 +41,38 @@
 }
 
 .rds-phone-input__flag img,
-.rds-phone-input__flag svg {
+.rds-phone-input__flag > svg {
   width: var(--size-20);
   height: auto;
   border-radius: 2px;
+}
+
+/* The package's flag ([RDS] .phone-input/flag): 20 × 14, corners 2, cropped to fill, a 12% hairline so a white field
+   still reads on the white box. Blank while the rest of the set loads. */
+.rds-flag {
+  position: relative;
+  display: inline-flex;
+  inline-size: var(--size-20);
+  block-size: 14px;
+  overflow: hidden;
+  border-radius: 2px;
+}
+
+.rds-flag svg {
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+.rds-flag::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.12);
+}
+
+.rds-flag--blank {
+  background: var(--input-border-default);
 }
 
 .rds-phone-input__trigger-dial {

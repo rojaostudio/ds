@@ -222,3 +222,32 @@ describe('PhoneInput country list', () => {
     }
   });
 });
+
+describe('PhoneInput flags', () => {
+  it('draws its own flags inline: no <img>, nothing requested outside the page', async () => {
+    await page.viewport(1280, 800);
+    const before = performance.getEntriesByType('resource').length;
+    const el = await render(<PhoneInput label="WhatsApp" />);
+    const trigger = countryButton(el);
+    expect(trigger.querySelector('img')).toBeNull();
+    const svg = trigger.querySelector('.rds-flag svg')!;
+    expect(svg).not.toBeNull();
+    const box = trigger.querySelector('.rds-flag')!.getBoundingClientRect();
+    expect([Math.round(box.width), Math.round(box.height)]).toEqual([20, 14]);
+    await userEvent.click(trigger);
+    await settle();
+    // The rest of the set loads from the package; every option gets a flag, none an <img>.
+    await vi.waitFor(() => expect(document.querySelectorAll('[role="option"] .rds-flag--blank')).toHaveLength(0));
+    expect(document.querySelectorAll('[role="option"] img')).toHaveLength(0);
+    const external = performance
+      .getEntriesByType('resource')
+      .slice(before)
+      .filter((e) => !e.name.startsWith(location.origin));
+    expect(external.map((e) => e.name)).toEqual([]);
+  });
+
+  it('renderFlag still wins', async () => {
+    const el = await render(<PhoneInput label="WhatsApp" renderFlag={(iso2) => <i data-flag={iso2} />} />);
+    expect(countryButton(el).querySelector('[data-flag="br"]')).not.toBeNull();
+  });
+});
