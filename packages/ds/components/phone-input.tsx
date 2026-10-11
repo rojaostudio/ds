@@ -12,7 +12,8 @@ import {
   type ReactNode,
 } from 'react';
 import * as PopoverPrimitive from '@radix-ui/react-popover';
-import { usePhoneInput, defaultCountries, parseCountry, FlagImage, type CountryIso2 } from 'react-international-phone';
+import { usePhoneInput, defaultCountries, parseCountry, type CountryIso2 } from 'react-international-phone';
+import { Flag } from './internal/flags';
 import { Drawer } from './drawer';
 import { FieldShell, hasContent, useFieldIds, warnIfUnlabelled } from './internal/field';
 import { CheckIcon, ChevronDownIcon, SearchIcon } from './internal/icons';
@@ -52,7 +53,7 @@ export interface PhoneInputProps
   countries?: CountryIso2[];
   /** The country button's name for screen readers. By default "País", or "País do <label>". */
   countryLabel?: string;
-  /** Draws a country's flag. By default the library's (twemoji). */
+  /** Draws a country's flag. By default the package's own (SVG inline, no request leaves the page). */
   renderFlag?: (iso2: CountryIso2) => ReactNode;
 }
 
@@ -155,7 +156,7 @@ export function PhoneInput({
   const { controlId, hintId, errorId, invalid, describedBy } = useFieldIds(id, hint ?? helper, Boolean(error) || hasContent(message), message);
   const compact = useCompact();
   const list = useMemo(() => countryList(countries), [countries]);
-  const flag = (iso2: CountryIso2) => renderFlag?.(iso2) ?? <FlagImage iso2={iso2} size="20px" />;
+  const flag = (iso2: CountryIso2) => renderFlag?.(iso2) ?? <Flag key={iso2} iso2={iso2} />;
 
   const controlled = value !== undefined;
   const [internalValue, setInternalValue] = useState(() => normalizeToE164(defaultValue));
