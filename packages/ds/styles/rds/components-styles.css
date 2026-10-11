@@ -2788,7 +2788,8 @@ input:focus-visible + .rds-checkbox__box {
 
 /* components/chip.css */
 /* @tokens chip */
-/* Chip: a chosen value that can be removed (Actions collection, chip/*). 32 tall, pill, card fill with a hairline. */
+/* Chip: a chosen value that can be removed (Actions collection, chip/*). sm 32 tall (default) or md 44, pill, card
+   fill with a hairline. */
 .rds-chip {
   box-sizing: border-box;
   display: inline-flex;
@@ -2808,9 +2809,24 @@ input:focus-visible + .rds-checkbox__box {
   vertical-align: middle;
 }
 
-/* With the ×, the right side is 8 (Figma): the ×'s own box gives the rest of the air. */
+/* md: 44 (the Button md height), 16 inside (12 on the × side), label 14/20. The active filters of a DataTableHeader
+   are always md. */
+.rds-chip--md,
+.rds-data-table-header__chips .rds-chip {
+  min-height: var(--button-size-md-height);
+  padding-inline: var(--space-16);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+}
+
+/* With the ×, the right side is 8 (Figma): the ×'s own box gives the rest of the air. 12 at md. */
 .rds-chip--removable {
   padding-inline-end: var(--space-8);
+}
+
+.rds-chip--md.rds-chip--removable,
+.rds-data-table-header__chips .rds-chip--removable {
+  padding-inline-end: var(--space-12);
 }
 
 .rds-chip__label {
@@ -3829,11 +3845,12 @@ input:focus-visible + .rds-checkbox__box {
  *   fixed at the end of the FIRST line, on the right, and never goes down.
  * - `active`, only while a filter is on: the `chips` (wrapping, at least 280 before "Limpar filtros" goes down)
  *   and "Limpar filtros" at the end.
- * One height, 32 (Figma 07/10): the search is the Input sm, the triggers Buttons and IconButtons sm, beside the
- * FilterChips; the action and the view control go in sm too.
+ * One height, 44 (Figma 11/10, ds#83; 32 before): the search is the Input md, the triggers Buttons and IconButtons
+ * md, the quick FilterChips and FilterChipMenus md (filter-chip.css sets them whatever their `size` says), the active
+ * Chips md (chip.css) beside "Limpar filtros" md; the action and the view control go in md too.
  * Two arrangements, by the screen width, as the Figma viewport mode (layout/compact below lg 1024; the SavingBar's
  * cut): expanded from 1024 (the __wide parts: the trigger as a Button with its label); compact below it (the __narrow
- * parts: the trigger as an IconButton sm, or a fill Button with the number while a filter is on).
+ * parts: the trigger as an IconButton md, or a fill Button with the number while a filter is on).
  * In the Popover and the Drawer the filters stack 16 apart, each one a caption-sized label over its chips.
  */
 .rds-data-table-header {
@@ -4997,7 +5014,7 @@ input:focus-visible + .rds-checkbox__box {
 /* components/filter-chip.css */
 /* @tokens filter-chip */
 /*
- * FilterChip (Forms collection, filter-chip/*): 32 tall, pill, 12 inside, 4 between icon, label and count;
+ * FilterChip (Forms collection, filter-chip/*): sm 32 tall (default) or md 44 (the Button md height, 16 inside), pill, 12 inside, 4 between icon, label and count;
  * label 14/20 medium. inactive: card fill and a hairline; hover: muted fill, strong hairline; active: the brand
  * at 12% over what is behind, brand border and label; disabled: the whole chip at 50%, the label at 40%.
  * The count reads in the label's colour, at full opacity. Icon 14, in the label's colour.
@@ -5012,16 +5029,18 @@ input:focus-visible + .rds-checkbox__box {
   --_surface: var(--filter-chip-surface-inactive);
   --_stroke: var(--filter-chip-stroke-inactive);
   --_text: var(--filter-chip-text-inactive);
+  --_height: var(--size-32);
+  --_padding-x: var(--space-12);
 
   position: relative;
   box-sizing: border-box;
   display: inline-flex;
   align-items: center;
   gap: var(--space-4);
-  min-height: var(--size-32);
+  min-height: var(--_height);
   max-width: 100%;
   margin: 0;
-  padding: 0 var(--space-12);
+  padding: 0 var(--_padding-x);
   border: var(--border-width) solid var(--_stroke);
   border-radius: var(--radius-full);
   background: var(--_surface);
@@ -5036,11 +5055,18 @@ input:focus-visible + .rds-checkbox__box {
   vertical-align: middle;
 }
 
-/* 32 visible, 44 to touch: an invisible band above and below that does not push the layout. */
+/* md: 44, the Button md height. A DataTableHeader's quick filters are always md: the bar never mixes heights. */
+.rds-filter-chip--md,
+.rds-data-table-header__quick .rds-filter-chip {
+  --_height: var(--button-size-md-height);
+  --_padding-x: var(--space-16);
+}
+
+/* sm: 32 visible, 44 to touch: an invisible band above and below that does not push the layout (none at md). */
 .rds-filter-chip::before {
   content: '';
   position: absolute;
-  inset: calc((var(--size-32) - (var(--space-12) * 2 + var(--type-button-line))) / 2) 0;
+  inset: min(0px, calc((var(--_height) - (var(--space-12) * 2 + var(--type-button-line))) / 2)) 0;
 }
 
 @media (hover: hover) {

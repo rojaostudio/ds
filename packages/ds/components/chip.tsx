@@ -21,6 +21,11 @@ export interface ChipProps extends Omit<HTMLAttributes<HTMLSpanElement>, 'childr
   removedMessage?: string;
   /** Rendered as aria-disabled="true": the × stays in the tab order, but pressing it does nothing. */
   disabled?: boolean;
+  /**
+   * The height (Figma: `size`): sm 32 (default, caption label) or md 44 (padding 16 and 12, label 14/20). The active
+   * filters of a DataTableHeader are always 44.
+   */
+  size?: 'sm' | 'md';
 }
 
 /**
@@ -34,6 +39,7 @@ export function Chip({
   removeLabel,
   removedMessage,
   disabled,
+  size = 'sm',
   className,
   ...rest
 }: ChipProps) {
@@ -56,7 +62,7 @@ export function Chip({
       // and the lighter label is exempt from text contrast (WCAG 1.4.3).
       role={disabled ? 'group' : rest.role}
       aria-disabled={disabled || undefined}
-      className={['rds-chip', onRemove && 'rds-chip--removable', disabled && 'rds-chip--disabled', className]
+      className={['rds-chip', size === 'md' && 'rds-chip--md', onRemove && 'rds-chip--removable', disabled && 'rds-chip--disabled', className]
         .filter(Boolean)
         .join(' ')}
     >

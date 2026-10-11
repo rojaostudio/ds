@@ -24,6 +24,22 @@ describe.each(MODES)('Chip (%s)', (mode) => {
     );
     expect(await axeViolations(el)).toEqual([]);
   });
+
+  it('sm is 32 (default); md is 44, 16 inside (12 on the × side), label 14/20, and passes axe', async () => {
+    const el = await render(
+      <ul style={{ display: 'flex', gap: 8, listStyle: 'none', padding: 0 }}>
+        <li><Chip onRemove={() => {}}>Frete grátis</Chip></li>
+        <li><Chip size="md" onRemove={() => {}}>Status: Abertos</Chip></li>
+      </ul>,
+      mode,
+    );
+    const [sm, md] = el.querySelectorAll<HTMLElement>('.rds-chip');
+    expect(sm.getBoundingClientRect().height).toBe(32);
+    expect(md.getBoundingClientRect().height).toBe(44);
+    expect([getComputedStyle(md).paddingLeft, getComputedStyle(md).paddingRight]).toEqual(['16px', '12px']);
+    expect(getComputedStyle(md).fontSize).toBe('14px');
+    expect(await axeViolations(el)).toEqual([]);
+  });
 });
 
 describe('Chip behaviour', () => {

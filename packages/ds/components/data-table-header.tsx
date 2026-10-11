@@ -42,7 +42,7 @@ export type DataTableHeaderProps = {
   /**
    * Quick filters, always in view (Figma: `showQuickFilters` + the `quickFilters` slot): up to three, a
    * FilterChipGroup with its FilterChips; four or more, or more than one ticked, a FilterChipMenu ("Processo: Todos"),
-   * so the whole bar stays at 32.
+   * so the whole bar stays at 44 (the bar sets the FilterChips and FilterChipMenus in it to md).
    * No quick filters: do not pass the slot (Figma: `showQuickFilters` false). Wrapped in a group "Filtros rápidos".
    */
   quickFilters?: ReactNode;
@@ -63,7 +63,7 @@ export type DataTableHeaderProps = {
   count?: ReactNode;
   /**
    * The list's action (Figma: `showActions`, off by default, + the `actions` instance): an IconButton, neutral outline
-   * sm (the whole bar is 32, Figma 07/10), with its Tooltip, such as a gear "Organizar categorias" or exporting. It sits outside the tools, always at the
+   * md (the whole bar is 44, Figma 11/10, ds#83), with its Tooltip, such as a gear "Organizar categorias" or exporting. It sits outside the tools, always at the
    * end of the FIRST line, on the right; the tools wrap, the action never goes down.
    * Creating is NOT an action of the bar: creating is the FAB. The component does not enforce this; it documents it.
    */
@@ -94,7 +94,7 @@ function FilterTrigger({ filter, ...rest }: { filter: DataTableFilterDef } & Omi
       {...rest}
       tone="neutral"
       variant={on ? 'fill' : 'outline'}
-      size="sm"
+      size="md"
       icon={<SlidersIcon />}
       iconPosition="start"
       aria-label={on ? `${filter.label}, ${optionLabel(filter)}` : undefined}
@@ -130,7 +130,7 @@ function FiltersButton({ count, ...rest }: { count: number } & Omit<ComponentPro
       {...rest}
       tone="neutral"
       variant={count > 0 ? 'fill' : 'outline'}
-      size="sm"
+      size="md"
       icon={<SlidersIcon />}
       iconPosition="start"
       data-filter-toggle=""
@@ -203,11 +203,11 @@ function CompactFilterTrigger({
   return (
     <Tooltip text={label}>
       {active > 0 ? (
-        <Button {...rest} tone="neutral" variant="fill" size="sm" icon={<SlidersIcon />} iconPosition="start" aria-label={name} data-filter-toggle="">
+        <Button {...rest} tone="neutral" variant="fill" size="md" icon={<SlidersIcon />} iconPosition="start" aria-label={name} data-filter-toggle="">
           {String(active)}
         </Button>
       ) : (
-        <IconButton {...rest} icon={<SlidersIcon />} label={name} variant="outline" tone="neutral" size="sm" data-filter-toggle="" />
+        <IconButton {...rest} icon={<SlidersIcon />} label={name} variant="outline" tone="neutral" size="md" data-filter-toggle="" />
       )}
     </Tooltip>
   );
@@ -295,7 +295,7 @@ function MobileCollapsedFilters({
  *   line, on the right. The search is always first and takes the free width, at least `--data-table-header-search-min`
  *   (320; 200 below 1024); what does not fit wraps.
  * - `active`, only while a filter is on (one filter too): the active filters as removable Chips ("Status: Abertos"),
- *   wrapping, and "Limpar filtros" (a ghost sm Button, `onClear`) at the end, which gives the focus back to the search.
+ *   wrapping, and "Limpar filtros" (a ghost md Button, `onClear`) at the end, which gives the focus back to the search.
  *
  * Quick filters go in the `quickFilters` slot; 0 quick filters = do not pass the slot. One filter is a Button with a
  * menu; two or more collapse into "Filtros" (a Popover), the count in its label ("Filtros · 2"). No Separator between
@@ -354,7 +354,7 @@ export function DataTableHeader({
               <Input
                 ref={searchRef}
                 type="search"
-                size="sm"
+                size="md"
                 aria-label={search.label ?? 'Buscar'}
                 placeholder={search.placeholder ?? 'Buscar…'}
                 leadingIcon={<SearchIcon />}
@@ -424,13 +424,13 @@ export function DataTableHeader({
         <div className="rds-data-table-header__active">
           <div className="rds-data-table-header__chips">
             {activeFilters.map((f) => (
-              <Chip key={f.key} onRemove={() => f.onChange('')} removeLabel={`Remover filtro ${chipLabel(f)}`}>
+              <Chip key={f.key} size="md" onRemove={() => f.onChange('')} removeLabel={`Remover filtro ${chipLabel(f)}`}>
                 {chipLabel(f)}
               </Chip>
             ))}
           </div>
           {onClear && (
-            <Button tone="neutral" variant="ghost" size="sm" onClick={clear}>
+            <Button tone="neutral" variant="ghost" size="md" onClick={clear}>
               Limpar filtros
             </Button>
           )}

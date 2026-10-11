@@ -322,7 +322,7 @@ describe('DataTableHeader behaviour', () => {
     expect(wideToggle(el).textContent).toBe('Filtros · 2');
   });
 
-  it('the active filters get their own line after the row: Chips and "Limpar filtros" (ghost sm); a Chip removes its filter', async () => {
+  it('the active filters get their own line after the row: Chips and "Limpar filtros" (ghost md); a Chip removes its filter', async () => {
     await page.viewport(1280, 800);
     const el = await render(<Example two />);
     const bar = el.querySelector<HTMLElement>('.rds-data-table-header')!;
@@ -335,7 +335,10 @@ describe('DataTableHeader behaviour', () => {
     expect(chips.querySelector('.rds-chip')!.textContent).toContain('Canal: Site');
     const clear = [...active.querySelectorAll<HTMLButtonElement>('button')].find((b) => b.textContent === 'Limpar filtros')!;
     expect(clear.className).toContain('rds-button--ghost');
-    expect(clear.className).toContain('rds-button--sm');
+    expect(clear.className).toContain('rds-button--md');
+    // The bar never mixes heights (ds#83): the Chips and "Limpar filtros" are 44, as the row.
+    expect(new Set([...chips.querySelectorAll<HTMLElement>('.rds-chip')].map((c) => c.getBoundingClientRect().height))).toEqual(new Set([44]));
+    expect(clear.getBoundingClientRect().height).toBe(44);
     // Chips come before "Limpar filtros", in the DOM (the Tab order) and on screen.
     expect(chips.compareDocumentPosition(clear) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     await userEvent.click(el.querySelector<HTMLElement>('[aria-label="Remover filtro Canal: Site"]')!);
@@ -509,7 +512,7 @@ describe('DataTableHeader behaviour', () => {
 });
 
 describe('DataTableHeader compact (bar below 1024)', () => {
-  it('at 390: the search (200, the token), the filter IconButton and the action on one line, 32 tall (Figma 07/10)', async () => {
+  it('at 390: the search (200, the token), the filter IconButton and the action on one line, 44 tall (Figma 11/10, ds#83)', async () => {
     await page.viewport(390, 800);
     const el = await render(<Produtos />);
     expect(searchMin(el)).toBe('200px');
@@ -521,10 +524,10 @@ describe('DataTableHeader compact (bar below 1024)', () => {
     expect(search.getBoundingClientRect().width).toBeGreaterThanOrEqual(200);
     const tops = [search, toggle, action].map((n) => n.getBoundingClientRect().top);
     expect(new Set(tops).size).toBe(1);
-    expect(row.getBoundingClientRect().height).toBe(32);
+    expect(row.getBoundingClientRect().height).toBe(44);
     expect(toggle.className).toContain('rds-button--outline');
     const box = toggle.getBoundingClientRect();
-    expect([box.width, box.height]).toEqual([32, 32]);
+    expect([box.width, box.height]).toEqual([44, 44]);
     expect(visible(row.querySelector('.rds-data-table-header__wide')!)).toBe(false);
     expect(row.scrollWidth).toBeLessThanOrEqual(row.clientWidth);
   });
@@ -557,7 +560,7 @@ describe('DataTableHeader compact (bar below 1024)', () => {
     expect(toggle.textContent).toBe('1');
     const icon = toggle.querySelector('svg')!;
     expect(icon.getBoundingClientRect().left).toBeLessThan(toggle.getBoundingClientRect().left + toggle.getBoundingClientRect().width / 2);
-    expect(toggle.getBoundingClientRect().height).toBe(32);
+    expect(toggle.getBoundingClientRect().height).toBe(44);
   });
 
   it('several filters: inactive "Filtros"; active, a fill Button with the number, named "Filtros, N ativos"', async () => {

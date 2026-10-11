@@ -4,9 +4,11 @@ import { useState, type ComponentPropsWithRef, type HTMLAttributes, type MouseEv
 import { Slot, Slottable } from '@radix-ui/react-slot';
 import { blockWhenDisabled } from './internal/button';
 
+export type FilterChipSize = 'sm' | 'md';
+
 /** The pill's classes, on or off: shared with the FilterChipMenu, whose button is drawn as a FilterChip. */
-export const filterChipClassName = (on: boolean, extra?: string) =>
-  ['rds-filter-chip', on && 'rds-filter-chip--pressed', extra].filter(Boolean).join(' ');
+export const filterChipClassName = (on: boolean, extra?: string, size: FilterChipSize = 'sm') =>
+  ['rds-filter-chip', size === 'md' && 'rds-filter-chip--md', on && 'rds-filter-chip--pressed', extra].filter(Boolean).join(' ');
 
 export interface FilterChipProps extends Omit<ComponentPropsWithRef<'button'>, 'children'> {
   /** The filter's name (Figma: `label`): Todos, Entradas, Saídas. With `asChild`, the link goes here with it. */
@@ -23,6 +25,11 @@ export interface FilterChipProps extends Omit<ComponentPropsWithRef<'button'>, '
   onPressedChange?: (pressed: boolean) => void;
   /** Rendered as aria-disabled="true": stays in the tab order and takes focus, but does not turn on or navigate. */
   disabled?: boolean;
+  /**
+   * The height (Figma: `size`): sm 32 (default) or md 44, padding 16. Inside a DataTableHeader's quick filters the
+   * chip is always 44, whatever this says: the bar never mixes heights.
+   */
+  size?: FilterChipSize;
   /**
    * Render the single child element (an `<a>`, a framework `Link`) with the chip's classes, for a filter that
    * lives in the URL and should survive back/forward. The link gets aria-current when pressed.
@@ -44,6 +51,7 @@ export function FilterChip({
   defaultPressed,
   onPressedChange,
   disabled,
+  size = 'sm',
   asChild,
   type = 'button',
   className,
@@ -65,7 +73,7 @@ export function FilterChip({
     <Root
       {...rest}
       type={asChild ? undefined : type}
-      className={filterChipClassName(on, className)}
+      className={filterChipClassName(on, className, size)}
       aria-pressed={asChild ? undefined : on}
       aria-current={asChild && on ? 'true' : undefined}
       aria-disabled={disabled || undefined}
