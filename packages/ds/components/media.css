@@ -3,7 +3,7 @@
  * Media (Content collection, media/*): 100% of the parent's width, the height by aspect-ratio (1:1, 4:3, 3:4, 16:9,
  * 9:16), rounded in media/radius with overflow hidden, so the image is cut at the corners and never distorts
  * (object-fit cover or contain). media/background sits behind it: the fallback, and the bands of contain. The
- * fallback is the broken-image icon, 24, centred, in media/fallback.
+ * fallback is the broken-image icon, 24, centred, in media/fallback. dimmed: grey and faded (media/dimmed/opacity).
  */
 .rds-media {
   position: relative;
@@ -16,6 +16,11 @@
   overflow: hidden;
   border-radius: var(--media-radius);
   background: var(--media-background);
+}
+
+.rds-media--dimmed {
+  filter: grayscale(1);
+  opacity: var(--media-dimmed-opacity);
 }
 
 .rds-media--4-3 {

@@ -19,6 +19,11 @@ interface MediaBaseProps extends Omit<HTMLAttributes<HTMLSpanElement>, 'children
   children?: ReactNode;
   /** What shows when there is no image. Defaults to the broken-image icon, centred. */
   fallback?: ReactNode;
+  /**
+   * Dimmed (Figma: `dimmed`): grey and faded (media/dimmed/opacity), for something switched off that is still there
+   * and clickable, such as an inactive product in a list. Say it in words too ("Inativo"): colour is not enough.
+   */
+  dimmed?: boolean;
 }
 
 interface MediaWithAlt extends MediaBaseProps {
@@ -57,6 +62,7 @@ export function Media({
   fit = 'cover',
   children,
   fallback,
+  dimmed = false,
   className,
   ...rest
 }: MediaProps) {
@@ -75,7 +81,7 @@ export function Media({
     <span
       {...semantics}
       {...rest}
-      className={['rds-media', `rds-media--${RATIO_CLASS[ratio]}`, `rds-media--${fit}`, className].filter(Boolean).join(' ')}
+      className={['rds-media', `rds-media--${RATIO_CLASS[ratio]}`, `rds-media--${fit}`, dimmed && 'rds-media--dimmed', className].filter(Boolean).join(' ')}
     >
       {hasChildren
         ? children

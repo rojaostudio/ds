@@ -63,3 +63,27 @@ describe('Status behaviour', () => {
     expect(custom.style.marginLeft).toBe('4px');
   });
 });
+
+describe('Status icon', () => {
+  it('takes the dot\'s place, 16 in md and 12 in sm, hidden from screen readers; md stays 32', async () => {
+    const check = (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path d="M20 6 9 17l-5-5" />
+      </svg>
+    );
+    const el = await render(
+      <div>
+        <Status tone="success" icon={check}>Pago</Status>
+        <Status tone="success" size="sm" icon={check}>Pago</Status>
+      </div>,
+    );
+    const [md, sm] = [...el.querySelectorAll<HTMLElement>('.rds-status')];
+    expect(md.querySelector('.rds-status__dot')).toBeNull();
+    expect(md.querySelector('.rds-status__icon')!.getAttribute('aria-hidden')).toBe('true');
+    expect(Math.round(md.querySelector('svg')!.getBoundingClientRect().width)).toBe(16);
+    expect(Math.round(sm.querySelector('svg')!.getBoundingClientRect().width)).toBe(12);
+    expect(Math.round(md.getBoundingClientRect().height)).toBe(32);
+    expect(md.textContent).toBe('Pago');
+    expect(await axeViolations(el)).toEqual([]);
+  });
+});

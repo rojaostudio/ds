@@ -83,7 +83,7 @@
 }
 
 .rds-choice-list__item[aria-disabled='true'] .rds-choice-list__media {
-  opacity: 0.5;
+  opacity: var(--opacity-disabled);
 }
 
 .rds-choice-list__content {

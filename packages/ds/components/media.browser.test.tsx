@@ -155,3 +155,23 @@ describe('Media behaviour', () => {
     expect(true).toBe(true);
   });
 });
+
+describe('Media dimmed', () => {
+  it('turns grey and fades by the token (0.5), and the fallback too', async () => {
+    const el = await render(
+      <div style={{ width: 120 }}>
+        <Media alt="Camiseta" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" dimmed />
+        <Media alt="Sem foto" dimmed />
+      </div>,
+    );
+    const [a, b] = [...el.querySelectorAll<HTMLElement>('.rds-media')].map((n) => getComputedStyle(n));
+    expect(a.filter).toBe('grayscale(1)');
+    expect(a.opacity).toBe('0.5');
+    expect(b.opacity).toBe('0.5');
+  });
+
+  it('is off by default', async () => {
+    const el = await render(<Media alt="Camiseta" />);
+    expect(getComputedStyle(el.querySelector('.rds-media')!).opacity).toBe('1');
+  });
+});

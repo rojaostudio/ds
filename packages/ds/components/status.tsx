@@ -22,6 +22,11 @@ export interface StatusProps extends Omit<HTMLAttributes<HTMLSpanElement>, 'chil
    * Only with tone="neutral": the plate and the word stay neutral, the colour is an accent (Figma: the `dot` fill).
    */
   dotColor?: string;
+  /**
+   * An icon in place of the dot (Figma: `showIcon` + `iconName`, `showDot` off), such as a check on "Pago". 16 in md,
+   * 12 in sm, in the word's colour. Decorative: the word says the state.
+   */
+  icon?: ReactNode;
 }
 
 /**
@@ -34,6 +39,7 @@ export function Status({
   variant = 'outline',
   size = 'md',
   dotColor,
+  icon,
   children,
   className,
   style,
@@ -47,7 +53,13 @@ export function Status({
         .filter(Boolean)
         .join(' ')}
     >
-      <span className="rds-status__dot" aria-hidden="true" />
+      {icon ? (
+        <span className="rds-status__icon" aria-hidden="true">
+          {icon}
+        </span>
+      ) : (
+        <span className="rds-status__dot" aria-hidden="true" />
+      )}
       {children}
     </span>
   );

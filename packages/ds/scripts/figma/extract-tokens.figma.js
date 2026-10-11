@@ -114,7 +114,7 @@ if (!cols.some((c) => c.name === "theme")) {
   const base = cols.find((c) => c.name === "base");
   const baseMode = base.modes.find((m) => m.name === FOUNDATION_MODE);
   if (!baseMode) throw new Error(`no mode "${FOUNDATION_MODE}" in base`);
-  const GROUPS = ["radius", "border-width", "focus", "type", "space", "size", "blur", "motion", "z", "elevation"];
+  const GROUPS = ["radius", "border-width", "focus", "type", "space", "size", "blur", "opacity", "motion", "z", "elevation"];
   const TYPE_ROLES = ["font", "heading", "lead", "body", "label", "button", "small", "caption", "footer", "value", "band"];
   const TYPE_PROPS = ["family", "stack", "size", "line", "weight"];
   const group = (name) => GROUPS.indexOf(name.split("/")[0].replace(/-strong$/, ""));
