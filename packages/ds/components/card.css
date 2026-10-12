@@ -67,6 +67,15 @@
   padding: var(--_pad) var(--_pad) 0;
 }
 
+/*
+ * align=start without a description (Figma 12/10): the Tile, the title and the action share one centre, so a one-line
+ * title no longer sits on the top edge of the 48 Tile. With a description the row stays on top, the action on the
+ * title's line.
+ */
+.rds-card__header--start:not(:has(.rds-card__description)) {
+  align-items: center;
+}
+
 .rds-card__header--center {
   flex-direction: column;
   align-items: center;

@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
+import { Button } from './button';
 import { Card, CardContent, CardHeader } from './card';
 import { Item, ItemGroup, ItemSkeleton, type ItemSize } from './item';
 import { Sparkline } from './sparkline';
@@ -127,5 +128,49 @@ describe('CardHeader size=lg', () => {
       </Card>,
     );
     expect(el.querySelector('.rds-card__header--lg')).toBeNull();
+  });
+});
+
+describe('ds#127 items 6 and 7', () => {
+  it('a header without description centres the Tile, the title and the action', async () => {
+    const el = await render(
+      <Card style={{ width: 420 }}>
+        <CardHeader title="Vendas" icon={<Tile icon={<InfoIcon />} variant="soft" />} action={<Button variant="ghost">Ver</Button>} />
+      </Card>,
+    );
+    const mid = (s: string) => {
+      const r = el.querySelector(s)!.getBoundingClientRect();
+      return Math.round(r.top + r.height / 2);
+    };
+    expect(mid('.rds-card__title')).toBe(mid('.rds-tile'));
+    expect(mid('.rds-card__action')).toBe(mid('.rds-tile'));
+  });
+
+  it('with a description the action stays on the title line', async () => {
+    const el = await render(
+      <Card style={{ width: 420 }}>
+        <CardHeader title="Vendas" description="Últimos 30 dias" icon={<Tile icon={<InfoIcon />} variant="soft" />} action={<Button variant="ghost">Ver</Button>} />
+      </Card>,
+    );
+    const mid = (s: string) => {
+      const r = el.querySelector(s)!.getBoundingClientRect();
+      return Math.round(r.top + r.height / 2);
+    };
+    expect(mid('.rds-card__action')).toBe(mid('.rds-card__title'));
+  });
+
+  it('the Sparkline turns inverse inside a Stat inverse, and alone with inverse', async () => {
+    const el = await render(
+      <div>
+        <Stat inverse label="Vendas" value="R$ 12.480" sparkline={<Sparkline data={[1, 3, 2, 4]} />} />
+        <Sparkline data={[1, 3, 2, 4]} />
+        <Sparkline inverse data={[1, 3, 2, 4]} />
+      </div>,
+    );
+    const lines = Array.from(el.querySelectorAll<SVGPathElement>('.rds-sparkline__line')).map((p) => getComputedStyle(p).stroke);
+    const value = getComputedStyle(el.querySelector('.rds-stat__value')!).color;
+    expect(lines[0]).toBe(value);
+    expect(lines[1]).not.toBe(value);
+    expect(lines[2]).toBe(value);
   });
 });

@@ -7,6 +7,11 @@ export interface SparklineProps extends Omit<HTMLAttributes<HTMLDivElement>, 'ch
   previous?: number[];
   /** Height in px. The width follows the container. */
   height?: number;
+  /**
+   * On the brand's dark fill (Figma: `inverse`), as in a Card inverse: line and dot in text/on-inverse, the previous
+   * period in text/on-inverse-subtle. Inside a Stat inverse it turns inverse by itself.
+   */
+  inverse?: boolean;
 }
 
 type Point = { x: number; y: number };
@@ -25,7 +30,7 @@ const path = (points: Point[]) => points.map((p, i) => `${i ? 'L' : 'M'}${p.x.to
  * a number. Always aria-hidden: the trend goes into the number's text or a Delta ("subiu 24% na semana").
  * Styles: sparkline.css.
  */
-export function Sparkline({ data, previous, height = 32, className, style, ...rest }: SparklineProps) {
+export function Sparkline({ data, previous, height = 32, inverse = false, className, style, ...rest }: SparklineProps) {
   const all = previous ? [...data, ...previous] : data;
   const min = Math.min(...all);
   const max = Math.max(...all);
@@ -33,7 +38,7 @@ export function Sparkline({ data, previous, height = 32, className, style, ...re
   const current = toPoints(data, min, max, length);
   const last = current[current.length - 1];
   return (
-    <div aria-hidden="true" {...rest} className={['rds-sparkline', className].filter(Boolean).join(' ')} style={{ height, ...style }}>
+    <div aria-hidden="true" {...rest} className={['rds-sparkline', inverse && 'rds-sparkline--inverse', className].filter(Boolean).join(' ')} style={{ height, ...style }}>
       <div className="rds-sparkline__area">
         <svg className="rds-sparkline__svg" viewBox="0 0 100 100" preserveAspectRatio="none" focusable="false">
           {previous && <path className="rds-sparkline__previous" d={path(toPoints(previous, min, max, length))} />}
