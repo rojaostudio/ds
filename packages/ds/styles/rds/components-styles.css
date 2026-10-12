@@ -4609,8 +4609,11 @@ button.rds-chip-input__add:focus-visible {
     overscroll-behavior: contain;
   }
 
-  /* No Cancel on the sheet: the handle, the veil, Escape and the × close it (display none: out of Tab and of the tree). */
-  .rds-dialog .rds-modal__cancel {
+  /*
+   * No Cancel on the sheet: the handle, the veil, Escape and the × close it (display none: out of Tab and of the
+   * tree). Without the × (closeButton={false}, a decision that has to be made) the Cancel stays: it is the exit.
+   */
+  .rds-dialog:not(.rds-dialog--no-close) .rds-modal__cancel {
     display: none;
   }
 

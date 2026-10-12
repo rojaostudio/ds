@@ -10,12 +10,23 @@ afterEach(cleanup);
 
 const dialog = () => document.querySelector<HTMLElement>('[role="dialog"]');
 
-function Example({ size, onConfirm = () => {}, showScrim }: { size?: DialogSize; onConfirm?: () => void; showScrim?: boolean }) {
+function Example({
+  size,
+  onConfirm = () => {},
+  showScrim,
+  closeButton,
+}: {
+  size?: DialogSize;
+  onConfirm?: () => void;
+  showScrim?: boolean;
+  closeButton?: boolean;
+}) {
   return (
     <Dialog
       trigger={<Button>Novo público</Button>}
       size={size}
       showScrim={showScrim}
+      closeButton={closeButton}
       title="Novo público"
       description="Dê um nome e escolha a marca. Os contatos entram depois."
       confirmLabel="Criar público"
@@ -153,6 +164,13 @@ describe('Dialog on a compact screen (the sheet, #45)', () => {
     expect(style.borderBottomLeftRadius).toBe('0px');
     expect(style.borderTopLeftRadius).not.toBe('0px');
     expect(d.querySelector<HTMLElement>('.rds-modal__handle-area')!.offsetParent).not.toBeNull();
+  });
+
+  it('without the × (closeButton={false}) keeps the Cancel as the exit', async () => {
+    const el = await render(<Example closeButton={false} />);
+    const d = await open(el);
+    expect(d.querySelector('.rds-modal__close')).toBeNull();
+    expect(d.querySelector<HTMLElement>('.rds-modal__cancel')!.offsetParent).not.toBeNull();
   });
 
   it('stops at 560 and centres on a tablet', async () => {
