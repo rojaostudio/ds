@@ -2,6 +2,7 @@
 
 import type { ComponentPropsWithRef, ReactNode } from 'react';
 import { Slot, Slottable } from '@radix-ui/react-slot';
+import { ShortcutKeys } from './internal/shortcut';
 import {
   blockWhenDisabled,
   buttonClassName,
@@ -55,6 +56,12 @@ export interface ButtonProps extends ComponentPropsWithRef<'button'> {
    * instead of a `<button>`. Use it for navigation: a link that looks like a button.
    */
   asChild?: boolean;
+  /**
+   * A keyboard shortcut that does the same (ds#153), in the aria-keyshortcuts syntax: "F2", "Control+Enter". Shown
+   * as keys after the label from 1024 up (Figma: `showShortcut` + `shortcut`), hidden on a compact screen, and set
+   * as aria-keyshortcuts. The page still has to listen to the key.
+   */
+  shortcut?: string;
 }
 
 /**
@@ -76,6 +83,7 @@ export function Button({
   loading,
   loadingLabel = 'Carregando…',
   asChild,
+  shortcut,
   type = 'button',
   className,
   onClick,
@@ -99,11 +107,13 @@ export function Button({
       className={buttonClassName(tone, variant, size, [overlay && 'rds-button--loading', className].filter(Boolean).join(' '))}
       aria-disabled={disabled || undefined}
       aria-busy={loading || undefined}
+      aria-keyshortcuts={rest['aria-keyshortcuts'] ?? shortcut}
       onClick={blockWhenDisabled(disabled || loading, onClick)}
     >
       {start && iconNode}
       <Slottable>{children}</Slottable>
       {!start && iconNode}
+      {shortcut && !asChild && <ShortcutKeys shortcut={shortcut} className="rds-button__shortcut" />}
     </Root>
   );
 }

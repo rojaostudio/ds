@@ -8,7 +8,7 @@ import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { Button } from '../button';
 import { IconButton } from '../icon-button';
 import { Tooltip } from '../tooltip';
-import { CloseIcon } from './icons';
+import { ChevronLeftIcon, CloseIcon } from './icons';
 
 export interface ModalProps {
   /** The element that opens it (a Button). Leave it out to control it with `open`. */
@@ -48,6 +48,9 @@ interface ModalShellProps extends ModalProps {
   prefix: string;
   modifiers?: string[];
   closeButton?: boolean;
+  /** A back action before the title (the Dialog's `onBack`, ds#152). */
+  onBack?: () => void;
+  backLabel?: string;
   /** Something above the header (the sheet's handle, from useDragDismiss). */
   handle?: ReactNode;
   /** The default footer stacked, the confirm first and full width (the Drawer). */
@@ -61,6 +64,8 @@ export function ModalShell({
   prefix,
   modifiers = [],
   closeButton = true,
+  onBack,
+  backLabel = 'Voltar',
   handle,
   stackedFooter,
   footerStart,
@@ -137,6 +142,18 @@ export function ModalShell({
         >
           {handle}
           <div className="rds-modal__header">
+            {onBack && (
+              <Tooltip text={backLabel}>
+                <IconButton
+                  icon={<ChevronLeftIcon />}
+                  label={backLabel}
+                  tone="neutral"
+                  variant="ghost"
+                  className="rds-modal__back"
+                  onClick={onBack}
+                />
+              </Tooltip>
+            )}
             <div className="rds-modal__heading">
               <DialogPrimitive.Title className={`rds-modal__title ${prefix}__title`}>{title}</DialogPrimitive.Title>
               {description && (

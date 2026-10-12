@@ -1808,6 +1808,17 @@ button.rds-breadcrumb__link:focus-visible {
   }
 }
 
+/* The shortcut's keys after the label (ds#153), from 1024 up: on a compact screen there is no keyboard to use. */
+.rds-button__shortcut {
+  display: inline-flex;
+}
+
+@media (max-width: 1023px) {
+  .rds-button__shortcut {
+    display: none;
+  }
+}
+
 /* components/calendar.css */
 /* @tokens calendar */
 /*
@@ -6838,6 +6849,18 @@ button.rds-chip-input__add:focus-visible {
 
   .rds-field__action:focus-visible {
     outline-color: Highlight;
+  }
+}
+
+/* The shortcut's key at the end of the field (ds#153), in place of the trailing icon; compact screens hide it. */
+.rds-field__shortcut {
+  display: inline-flex;
+  flex: none;
+}
+
+@media (max-width: 1023px) {
+  .rds-field__shortcut {
+    display: none;
   }
 }
 

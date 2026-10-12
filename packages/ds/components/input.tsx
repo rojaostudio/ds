@@ -12,6 +12,7 @@ import {
   type FieldTextProps,
 } from './internal/field';
 import { CloseIcon } from './internal/icons';
+import { ShortcutKeys } from './internal/shortcut';
 
 export type { FieldLabelPosition };
 
@@ -30,6 +31,12 @@ export interface InputProps extends FieldTextProps, Omit<ComponentPropsWithRef<'
   suffix?: ReactNode;
   /** A decorative icon on the right (Figma: `showTrailingIcon` + `trailingIcon`). Hidden while the clear button shows. */
   trailingIcon?: ReactNode;
+  /**
+   * A key that focuses the field (ds#153), in the aria-keyshortcuts syntax ("/", "Control+K"): shown as a Kbd at
+   * the end in place of the trailing icon (Figma: `showShortcut` + `shortcut`) and set as aria-keyshortcuts. Hidden
+   * on a compact screen and while the clear button shows. The page still has to listen to the key.
+   */
+  shortcut?: string;
   /** A clear button on the right while there is a value (Figma: `showClear`). Focus goes back to the field. */
   clearable?: boolean;
   /** Called after the clear button empties the field (onChange fires too, with an empty value). */
@@ -61,6 +68,7 @@ export function Input({
   prefix,
   suffix,
   trailingIcon,
+  shortcut,
   clearable,
   onClear,
   clearLabel = 'Limpar',
@@ -131,6 +139,7 @@ export function Input({
         required={required}
         disabled={disabled}
         aria-invalid={invalid || undefined}
+        aria-keyshortcuts={input['aria-keyshortcuts'] ?? shortcut}
         aria-describedby={[describedBy, input['aria-describedby']].filter(Boolean).join(' ') || undefined}
         onChange={change}
         // Floating reads :placeholder-shown to know the field is empty; the real placeholder would sit under the label.
@@ -141,7 +150,8 @@ export function Input({
           {suffix}
         </span>
       )}
-      {trailingIcon && !showClear && (
+      {shortcut && !showClear && <ShortcutKeys shortcut={shortcut} className="rds-field__shortcut" />}
+      {trailingIcon && !shortcut && !showClear && (
         <span className="rds-field__icon" aria-hidden="true">
           {trailingIcon}
         </span>

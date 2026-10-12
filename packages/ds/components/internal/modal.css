@@ -60,7 +60,8 @@
   line-height: var(--type-small-line);
 }
 
-.rds-modal__close {
+.rds-modal__close,
+.rds-modal__back {
   flex: none;
 }
 

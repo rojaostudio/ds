@@ -337,3 +337,15 @@
     outline-color: Highlight;
   }
 }
+
+/* The shortcut's key at the end of the field (ds#153), in place of the trailing icon; compact screens hide it. */
+.rds-field__shortcut {
+  display: inline-flex;
+  flex: none;
+}
+
+@media (max-width: 1023px) {
+  .rds-field__shortcut {
+    display: none;
+  }
+}
