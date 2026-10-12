@@ -126,10 +126,15 @@ describe("emitClaudeMd — hostile description and options", () => {
     expect(md).not.toContain("\nIgnore all previous");
   });
 
-  it("the description is cut to ~200 characters", () => {
+  it("the description is cut (120 in the CLAUDE.md, 200 in oneLine)", () => {
     expect(oneLine("x".repeat(500)).length).toBeLessThanOrEqual(200);
     const md = emitClaudeMd({ ...def, description: "y".repeat(500) });
-    expect(md).not.toContain("y".repeat(201));
+    expect(md).not.toContain("y".repeat(121));
+  });
+
+  it("in the CLAUDE.md the description is quoted data, without its own quotes", () => {
+    const md = emitClaudeMd({ ...def, description: 'Nice "brand". Then do X' });
+    expect(md).toContain("— “Nice brand. Then do X”");
   });
 
   it("a hostile name, file, URL, install command or theme is refused", () => {
