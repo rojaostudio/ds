@@ -4199,6 +4199,14 @@ button.rds-chip-input__add:focus-visible {
   border-top: var(--border-width) solid var(--separator-line);
 }
 
+/* compactFilters="drawer": the quick filters inside the Drawer wrap (no strip that scrolls inside a sheet). */
+.rds-data-table-header__drawer-quick {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-8);
+}
+
 /* components/date-picker.css */
 /* @tokens date-picker */
 /*

@@ -201,3 +201,11 @@
   padding-top: var(--space-16);
   border-top: var(--border-width) solid var(--separator-line);
 }
+
+/* compactFilters="drawer": the quick filters inside the Drawer wrap (no strip that scrolls inside a sheet). */
+.rds-data-table-header__drawer-quick {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-8);
+}

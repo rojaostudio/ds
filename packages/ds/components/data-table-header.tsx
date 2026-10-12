@@ -78,6 +78,16 @@ export type DataTableHeaderProps = {
    * 1024 nothing changes (the quick filters share the search's line).
    */
   bleed?: boolean;
+  /**
+   * Below 1024, where the quick filters live (Figma: `compactStrip`). strip (default): in view, a line of their own
+   * with `bleed`, else with the tools. drawer: they leave the bar and open from "Filtros" (a Drawer, at the top under
+   * "Filtros rápidos", before the other filters); pass `quickActiveCount` so the trigger counts them. For a list that is
+   * rarely filtered, quick filters that are all menus, or a screen that already has a strip that scrolls (Tabs). In the
+   * Drawer, use FilterChips, not a FilterChipMenu (a menu over a sheet).
+   */
+  compactFilters?: 'strip' | 'drawer';
+  /** How many quick filters are on, added to the "Filtros" count when `compactFilters="drawer"`. */
+  quickActiveCount?: number;
 };
 
 function optionLabel(filter: DataTableFilterDef) {
@@ -294,6 +304,51 @@ function MobileCollapsedFilters({
 }
 
 /**
+ * compactFilters="drawer": below 1024 the quick filters, the filters and (with mobileCollapse) the actions open from one
+ * compact "Filtros", whose count adds the quick ones that are on. The quick filters come first, under their heading.
+ */
+function MobileDrawerFilters({
+  quick,
+  filters,
+  actions,
+  activeCount,
+}: {
+  quick: ReactNode;
+  filters: DataTableFilterDef[];
+  actions?: ReactNode;
+  activeCount: number;
+}) {
+  const { open, setOpen, triggerProps } = useDrawer();
+  return (
+    <>
+      <CompactFilterTrigger {...triggerProps} label="Filtros" state={activeState(activeCount)} active={activeCount} />
+      <Drawer open={open} onOpenChange={setOpen} title="Filtros">
+        <div className="rds-data-table-header__groups">
+          <div className="rds-data-table-header__group">
+            <p className="rds-data-table-header__group-label" aria-hidden="true">
+              Filtros rápidos
+            </p>
+            <div className="rds-data-table-header__drawer-quick" role="group" aria-label="Filtros rápidos">
+              {quick}
+            </div>
+          </div>
+          {filters.length > 0 && (
+            <FilterGroups
+              filters={filters}
+              onPick={(f, v) => {
+                f.onChange(v);
+                setOpen(false);
+              }}
+            />
+          )}
+          {actions && <div className="rds-data-table-header__drawer-actions">{actions}</div>}
+        </div>
+      </Drawer>
+    </>
+  );
+}
+
+/**
  * DataTableHeader — a composition of the Input (search), FilterChips, Chips, Buttons, the DropdownMenu, the Popover
  * and the Drawer: the bar above a table (Figma [RDS] DataTableHeader, no variants). Two lines, 8 apart:
  *
@@ -328,6 +383,8 @@ export function DataTableHeader({
   className,
   mobileCollapse = false,
   bleed = false,
+  compactFilters = 'strip',
+  quickActiveCount = 0,
 }: DataTableHeaderProps) {
   const searchRef = useRef<HTMLInputElement>(null);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -339,6 +396,8 @@ export function DataTableHeader({
   const collapseDesktop = filters.length >= 2;
   // One filter has its own trigger in the compact arrangement too (a Drawer with its options).
   const singleFilter = filters.length === 1 ? filters[0] : null;
+  // compactFilters="drawer": below 1024 one "Filtros" opens everything (the quick filters first).
+  const quickInDrawer = compactFilters === 'drawer' && Boolean(quickFilters);
 
   const clear = () => {
     onClear?.();
@@ -376,7 +435,7 @@ export function DataTableHeader({
 
           {quickFilters && (
             <div
-              className={['rds-data-table-header__quick', bleed && 'rds-data-table-header__quick--inline'].filter(Boolean).join(' ')}
+              className={['rds-data-table-header__quick', (bleed || quickInDrawer) && 'rds-data-table-header__quick--inline'].filter(Boolean).join(' ')}
               role="group"
               aria-label="Filtros rápidos"
             >
@@ -394,13 +453,24 @@ export function DataTableHeader({
             </div>
           )}
 
-          {singleFilter && !(mobileCollapse && actions) && (
+          {quickInDrawer && (
+            <div className="rds-data-table-header__narrow">
+              <MobileDrawerFilters
+                quick={quickFilters}
+                filters={filters}
+                actions={mobileCollapse ? actions : undefined}
+                activeCount={activeFilterCount + quickActiveCount}
+              />
+            </div>
+          )}
+
+          {!quickInDrawer && singleFilter && !(mobileCollapse && actions) && (
             <div className="rds-data-table-header__narrow">
               <MobileSingleFilter f={singleFilter} />
             </div>
           )}
 
-          {!mobileCollapse && filters.length >= 2 && (
+          {!quickInDrawer && !mobileCollapse && filters.length >= 2 && (
             <div className="rds-data-table-header__narrow">
               <FiltersPopover
                 filters={filters}
@@ -409,7 +479,7 @@ export function DataTableHeader({
             </div>
           )}
 
-          {mobileCollapse && (filters.length >= 2 || actions) && (
+          {!quickInDrawer && mobileCollapse && (filters.length >= 2 || actions) && (
             <div className="rds-data-table-header__narrow">
               <MobileCollapsedFilters filters={filters} actions={actions} activeCount={activeFilterCount} />
             </div>
@@ -432,7 +502,7 @@ export function DataTableHeader({
         )}
       </div>
 
-      {bleed && quickFilters && (
+      {bleed && quickFilters && !quickInDrawer && (
         <div className="rds-data-table-header__quick rds-data-table-header__quick--bleed" role="group" aria-label="Filtros rápidos">
           {quickFilters}
         </div>
