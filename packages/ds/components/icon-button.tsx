@@ -43,6 +43,12 @@ export interface IconButtonProps extends Omit<ComponentPropsWithRef<'button'>, '
   count?: number;
   /** What the number counts, said after it in the name: "não lidas" → "Notificações, 3 não lidas". */
   countLabel?: string;
+  /**
+   * A dot in the top right corner, no number (Figma: `showDot` + the exposed dot's `tone`): a fixed, informative notice,
+   * "there is something here". neutral for a notice, info, danger for an alert. Decorative: say what it means in
+   * `label` ("Serviços fora da tabela, 22"). With `count`, the count wins.
+   */
+  dot?: 'neutral' | 'info' | 'danger';
 }
 
 /** The accessible name with the count: "Notificações, 3 não lidas". */
@@ -80,10 +86,12 @@ export function IconButton({
   children,
   count,
   countLabel,
+  dot,
   ...rest
 }: IconButtonProps) {
   const Root = asChild ? Slot : 'button';
   const hasCount = count !== undefined && count > 0;
+  const hasDot = Boolean(dot) && !hasCount;
   const iconNode = (
     <>
       <span className={loading ? 'rds-button__icon rds-button__loader' : 'rds-button__icon'} aria-hidden="true">
@@ -94,6 +102,7 @@ export function IconButton({
           {count > 99 ? '99+' : count}
         </span>
       )}
+      {hasDot && <span className={`rds-button__dot rds-button__dot--${dot}`} aria-hidden="true" />}
     </>
   );
   useLoadingAnnouncement(loading, loadingLabel);
@@ -106,7 +115,7 @@ export function IconButton({
         tone,
         variant,
         size,
-        ['rds-button--icon-only', hasCount && 'rds-button--counted', className].filter(Boolean).join(' '),
+        ['rds-button--icon-only', (hasCount || hasDot) && 'rds-button--counted', className].filter(Boolean).join(' '),
       )}
       aria-disabled={disabled || undefined}
       aria-busy={loading || undefined}

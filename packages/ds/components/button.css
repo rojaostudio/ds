@@ -260,6 +260,29 @@
   position: relative;
 }
 
+/* showDot (Figma 12/10): an 8 dot in the corner, a little past the edge like the count; no number, decorative. */
+.rds-button__dot {
+  position: absolute;
+  top: calc(var(--space-4) * -0.5);
+  inset-inline-end: calc(var(--space-4) * -0.5);
+  width: var(--space-8);
+  height: var(--space-8);
+  border-radius: var(--radius-full);
+  background: var(--_dot);
+}
+
+.rds-button__dot--neutral {
+  --_dot: var(--icon-button-dot-neutral);
+}
+
+.rds-button__dot--info {
+  --_dot: var(--icon-button-dot-info);
+}
+
+.rds-button__dot--danger {
+  --_dot: var(--icon-button-dot-danger);
+}
+
 .rds-button__count {
   position: absolute;
   /* 4 past the outer edge: the offset counts from inside the 1px border. */
