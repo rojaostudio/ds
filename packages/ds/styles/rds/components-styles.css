@@ -9134,10 +9134,14 @@ body:has(.rds-modal) {
  * (layout/form/max-width) or wide 1536 (the Base's 1536 step, the default). Padded: layout/content/padding-y above and
  * below and layout/content/padding-x at the sides, both by the screen's viewport mode (16 on base; 24 from sm 640; 32
  * from lg 1024; 48 at the sides from 2xl 1536), emitted from the Base's viewport collection. The body's sections are
- * 24 apart.
+ * 24 apart, and the PageHeader is 24 above the body.
  */
+/* The PageHeader and the Body are 24 apart, as the sections (Figma: one content slot, gap 24). */
 .rds-page-shell {
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-24);
   width: 100%;
   margin-inline: auto;
 }

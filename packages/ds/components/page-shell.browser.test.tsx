@@ -73,4 +73,18 @@ describe('PageShell behaviour', () => {
     expect(getComputedStyle(bare).paddingLeft).toBe('0px');
     expect(getComputedStyle(el.querySelector('.rds-page-shell__body')!).rowGap).toBe('24px');
   });
+
+  it('puts the PageHeader 24 above the body', async () => {
+    const el = await render(
+      <PageShell padded={false}>
+        <PageHeader title="Perguntas frequentes" description="O que os lojistas mais perguntam." />
+        <PageShell.Body>
+          <p>a</p>
+        </PageShell.Body>
+      </PageShell>,
+    );
+    const header = el.querySelector('.rds-page-header')!.getBoundingClientRect();
+    const body = el.querySelector('.rds-page-shell__body')!.getBoundingClientRect();
+    expect(Math.round(body.top - header.bottom)).toBe(24);
+  });
 });
