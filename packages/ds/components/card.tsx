@@ -70,13 +70,18 @@ export interface CardHeaderProps extends Omit<HTMLAttributes<HTMLElement>, 'titl
   action?: ReactNode;
   /** start: side by side; center: stacked and centred. */
   align?: 'start' | 'center';
+  /**
+   * lg (Figma `.card/header` size=lg): the title in type/heading, for the section header of a panel whose content has
+   * big numbers (Stat), where the md title would read weaker than them. md and sm come from the Card's size.
+   */
+  size?: 'lg';
 }
 
 /** The card's header (Figma: .card/header). */
-export function CardHeader({ title, titleAs: Title = 'h3', description, icon, action, align = 'start', className, ...rest }: CardHeaderProps) {
+export function CardHeader({ title, titleAs: Title = 'h3', description, icon, action, align = 'start', size, className, ...rest }: CardHeaderProps) {
   const titleId = useContext(TitleId);
   return (
-    <header {...rest} className={['rds-card__header', `rds-card__header--${align}`, className].filter(Boolean).join(' ')}>
+    <header {...rest} className={['rds-card__header', `rds-card__header--${align}`, size === 'lg' && 'rds-card__header--lg', className].filter(Boolean).join(' ')}>
       {icon}
       <div className="rds-card__heading">
         <Title id={titleId} className="rds-card__title">

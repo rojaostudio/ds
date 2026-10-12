@@ -100,6 +100,21 @@
   text-overflow: ellipsis;
 }
 
+/*
+ * ItemSkeleton (Figma 12/10): the row's frame with Skeleton lines in rows as tall as the text (1lh), so it has the
+ * height of the Item row it stands for. The Skeleton never gets wider than its line.
+ */
+.rds-item--skeleton .rds-item__title,
+.rds-item--skeleton .rds-item__description {
+  display: flex;
+  align-items: center;
+  height: 1lh;
+}
+
+.rds-item--skeleton .rds-skeleton {
+  max-width: 100%;
+}
+
 /* selected (Figma 10/10), in any variant: the tint and a 3px band on the start edge. */
 .rds-item--selected {
   background: var(--item-selected-background);

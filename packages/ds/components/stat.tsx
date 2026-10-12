@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, type HTMLAttributes, type ReactNode } from 'react';
+import { Skeleton } from './skeleton';
 
 /**
  * What the number means (Figma: `tone`): neutral (default), money in (success), a loss or a lack (danger), a counter
@@ -34,6 +35,12 @@ export interface StatProps extends Omit<HTMLAttributes<HTMLDivElement>, 'childre
    * itself. Only framed, with tone neutral and not muted (the Figma draws no other); otherwise it is ignored.
    */
   inverse?: boolean;
+  /**
+   * The number has not arrived (Figma: `loading=true`): label, value and caption become Skeleton lines in rows as tall
+   * as the text, so the Stat keeps its height and a grid of them does not jump when the numbers come. aria-busy; the
+   * label stays for screen readers. The caption and sparkline placeholders follow `caption` and `sparkline`.
+   */
+  loading?: boolean;
 }
 
 /** Set by the SummaryBar: a Stat inside it is a cell (framed=false) unless it says otherwise. */
@@ -53,6 +60,7 @@ export function Stat({
   sparkline,
   framed,
   inverse = false,
+  loading = false,
   className,
   ...rest
 }: StatProps) {
@@ -60,6 +68,31 @@ export function Stat({
   const isFramed = framed ?? framedDefault;
   const isInverse = inverse && isFramed && tone === 'neutral' && !muted;
   if (inverse && !isInverse) console.warn('[@rojaostudio/ds] Stat inverse needs framed, tone="neutral" and no muted: ignored.');
+  if (loading) {
+    return (
+      <div
+        aria-busy="true"
+        {...rest}
+        className={['rds-stat', 'rds-stat--loading', isFramed && 'rds-stat--framed', className].filter(Boolean).join(' ')}
+      >
+        <div className="rds-stat__pair">
+          <span className="rds-stat__label">
+            <span className="rds-visually-hidden">{label}</span>
+            <Skeleton width={88} height={14} />
+          </span>
+          <span className="rds-stat__row">
+            <Skeleton width={112} height={24} />
+          </span>
+          {caption && (
+            <span className="rds-stat__caption">
+              <Skeleton width={120} height={12} />
+            </span>
+          )}
+        </div>
+        {sparkline && <Skeleton shape="rect" height={32} />}
+      </div>
+    );
+  }
   return (
     <div
       {...rest}

@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useId, type HTMLAttributes, type ReactNode } from 'react';
+import { Skeleton } from './skeleton';
 
 /** The emphasis (Figma: `variant`); row is the dense list's line. */
 export type ItemVariant = 'ghost' | 'outline' | 'soft' | 'row';
@@ -134,5 +135,72 @@ export function ItemGroup({ className, children, ...rest }: ItemGroupProps) {
         {children}
       </ul>
     </InGroup.Provider>
+  );
+}
+
+export interface ItemSkeletonProps extends HTMLAttributes<HTMLElement> {
+  /** The size of the rows it stands for (Figma: `size`). */
+  size?: ItemSize;
+  /** The media box (Figma: `showMedia`). */
+  showMedia?: boolean;
+  /** The description line (Figma: `showDescription`). */
+  showDescription?: boolean;
+  /** The trailing meta or action (Figma: `showTrailing`). */
+  showTrailing?: boolean;
+  /** The line below (Figma: `showDivider`); the last row of an ItemGroup goes without it, as the Item. */
+  showDivider?: boolean;
+}
+
+/**
+ * ItemSkeleton — Figma [RDS] Content/ItemSkeleton. A row of a list while it loads, in the shape of the Item
+ * variant="row": the same padding, height and line. Hidden from screen readers: put aria-busy on the ItemGroup (or the
+ * region) and a "Carregando…" for screen readers only. Styles: item.css.
+ */
+export function ItemSkeleton({
+  size = 'md',
+  showMedia = true,
+  showDescription = true,
+  showTrailing = true,
+  showDivider = true,
+  className,
+  ...rest
+}: ItemSkeletonProps) {
+  const Root = useContext(InGroup) ? 'li' : 'div';
+  return (
+    <Root
+      aria-hidden="true"
+      {...rest}
+      className={[
+        'rds-item',
+        'rds-item--row',
+        'rds-item--skeleton',
+        size === 'sm' && 'rds-item--sm',
+        !showDivider && 'rds-item--no-divider',
+        className,
+      ]
+        .filter(Boolean)
+        .join(' ')}
+    >
+      {showMedia && (
+        <span className="rds-item__media">
+          <Skeleton shape="rect" width="100%" height="100%" />
+        </span>
+      )}
+      <span className="rds-item__content">
+        <span className="rds-item__title">
+          <Skeleton width={160} height={size === 'sm' ? 14 : 16} />
+        </span>
+        {showDescription && (
+          <span className="rds-item__description">
+            <Skeleton width={280} height={12} />
+          </span>
+        )}
+      </span>
+      {showTrailing && (
+        <span className="rds-item__trailing">
+          <Skeleton width={96} height={24} />
+        </span>
+      )}
+    </Root>
   );
 }
