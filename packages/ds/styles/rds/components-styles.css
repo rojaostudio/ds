@@ -4091,6 +4091,30 @@ button.rds-chip-input__add:focus-visible {
   flex: none;
 }
 
+/*
+ * bleed (Figma 12/10, DataTableHeader bleed=true): below 1024 the quick filters leave the tools and get a line of their
+ * own that takes the page's side padding back (negative margin) and puts it inside, so the first chip lines up with the
+ * content and the scroll cuts at the screen edge. From 1024 they stay inline, next to the search. Only one of the two
+ * copies is ever displayed, so a screen reader meets the group once.
+ */
+.rds-data-table-header__quick--bleed {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .rds-data-table-header__quick--inline {
+    display: none;
+  }
+
+  .rds-data-table-header__quick--bleed {
+    display: flex;
+    min-width: 0;
+    margin-inline: calc(var(--layout-content-padding-x) * -1);
+    padding-inline: var(--layout-content-padding-x);
+    scroll-padding-inline: var(--layout-content-padding-x);
+  }
+}
+
 .rds-data-table-header__view,
 .rds-data-table-header__wide,
 .rds-data-table-header__actions,
@@ -12271,6 +12295,28 @@ tbody > tr:last-child > .rds-table__status {
   min-width: 0;
   overflow-x: auto;
   scrollbar-width: none;
+}
+
+/*
+ * bleed (Figma 12/10, Tabs bleed=true): the bar takes the page's side padding back (negative margin) and the list puts
+ * it inside, so the first tab lines up with the content and the scroll cuts at the screen edge; scroll-padding keeps a
+ * focused tab off the edge. With a trailing slot, the padding at the end goes after it.
+ */
+.rds-tabs__bar--bleed {
+  margin-inline: calc(var(--layout-content-padding-x) * -1);
+}
+
+.rds-tabs__bar--bleed .rds-tabs__list {
+  padding-inline: var(--layout-content-padding-x);
+  scroll-padding-inline: var(--layout-content-padding-x);
+}
+
+.rds-tabs__bar--bleed:has(.rds-tabs__trailing) .rds-tabs__list {
+  padding-inline-end: 0;
+}
+
+.rds-tabs__bar--bleed .rds-tabs__trailing {
+  padding-inline-end: var(--layout-content-padding-x);
 }
 
 .rds-tabs__trailing {

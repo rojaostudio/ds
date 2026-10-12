@@ -40,13 +40,19 @@ export interface TabsListProps {
   children: ReactNode;
   /** A page action at the right end of the strip, outside the tablist: a small Button, a filter (Figma: `trailing`). */
   trailing?: ReactNode;
+  /**
+   * The strip bleeds to the edge of the screen (Figma: `bleed=true`): it takes the page's side padding
+   * (--layout-content-padding-x) back with a negative margin and puts it inside, so the first tab stays aligned with the
+   * content and the scroll cuts at the screen edge, not at the margin. For a strip that scrolls sideways.
+   */
+  bleed?: boolean;
   className?: string;
 }
 
 /** The strip of tabs over the baseline (Figma: the `tabs` slot), with the `trailing` slot on the right. */
-export function TabsList({ children, trailing, className, ...rest }: TabsListProps) {
+export function TabsList({ children, trailing, bleed = false, className, ...rest }: TabsListProps) {
   return (
-    <div className={['rds-tabs__bar', className].filter(Boolean).join(' ')}>
+    <div className={['rds-tabs__bar', bleed && 'rds-tabs__bar--bleed', className].filter(Boolean).join(' ')}>
       <TabsPrimitive.List {...rest} className="rds-tabs__list">
         {children}
       </TabsPrimitive.List>
