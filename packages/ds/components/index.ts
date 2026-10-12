@@ -218,7 +218,7 @@ export type { FABProps, FABConfig } from './fab';
 export type { SkeletonProps, SkeletonShape } from './skeleton';
 
 // 2.0 (#16): Table follows the Figma [RDS]: caption, status, TableHead is the column header (<th>), TableCell the cell.
-export { Table, TableHeader, TableBody, TableFooter, TableRow, TableHead, TableCell, TableStatus } from './table';
+export { Table, TableHeader, TableBody, TableFooter, TableRow, TableGroupRow, TableHead, TableCell, TableStatus } from './table';
 export type {
   TableProps,
   TableHeadProps,
@@ -226,6 +226,7 @@ export type {
   TableStatusProps,
   TableAlign,
   TableSort,
+  TableGroupRowProps,
 } from './table';
 
 export { Textarea } from './textarea';

@@ -12231,6 +12231,38 @@ tbody > tr:last-child > .rds-table__status {
   font-weight: 600;
 }
 
+/*
+ * TableGroupRow (Figma 12/10, .table/group-row): the row that opens a group, full width, table/group/background, 8 16
+ * inside, the label semibold 14/20 and an optional count on the right, a line below. One tbody per group: the line
+ * above a group (the last row of the one before has none) closes the group above.
+ */
+.rds-table__group {
+  box-sizing: border-box;
+  padding: var(--space-8) var(--space-16);
+  border-bottom: var(--border-width) solid var(--table-border);
+  background: var(--table-group-background);
+  color: var(--table-group-label);
+  font-weight: 600;
+  text-align: start;
+}
+
+.rds-table__group-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-16);
+}
+
+.rds-table__group-count {
+  color: var(--table-group-count);
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+tbody + tbody > .rds-table__group-row > .rds-table__group {
+  border-top: var(--border-width) solid var(--table-border);
+}
+
 .rds-table__sort {
   display: inline-flex;
   align-items: center;

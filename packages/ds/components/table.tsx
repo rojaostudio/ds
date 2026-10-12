@@ -60,6 +60,33 @@ export function TableRow(props: HTMLAttributes<HTMLTableRowElement>) {
   return <tr {...props} />;
 }
 
+export interface TableGroupRowProps extends Omit<HTMLAttributes<HTMLTableRowElement>, 'children'> {
+  /** What groups the rows below ("Hoje, 12/10"). */
+  label: ReactNode;
+  /** An optional count on the right ("12 registros"; Figma: `showCount` + `count`). */
+  count?: ReactNode;
+  /** How many columns the table has: the row spans them all. */
+  colSpan: number;
+}
+
+/**
+ * The row that opens a group of rows (Figma: .table/group-row): full width, table/group/background, the label semibold,
+ * a line below, an optional count on the right. Put one TableBody per group with the TableGroupRow first: its <th
+ * scope="rowgroup"> names the rows of that body. Between two groups a line closes the one above.
+ */
+export function TableGroupRow({ label, count, colSpan, className, ...rest }: TableGroupRowProps) {
+  return (
+    <tr {...rest} className={['rds-table__group-row', className].filter(Boolean).join(' ')}>
+      <th scope="rowgroup" colSpan={colSpan} className="rds-table__group">
+        <span className="rds-table__group-inner">
+          <span className="rds-table__group-label">{label}</span>
+          {count != null && count !== false && <span className="rds-table__group-count">{count}</span>}
+        </span>
+      </th>
+    </tr>
+  );
+}
+
 export interface TableHeadProps extends Omit<ThHTMLAttributes<HTMLTableCellElement>, 'align'> {
   /** start for text columns, end for number columns. Same as the column's cells. */
   align?: TableAlign;
