@@ -19,6 +19,12 @@ export interface DialogProps extends ModalProps {
    * When the buttons don't fit beside it (sm, and always on the compact sheet) it goes above them.
    */
   footerStart?: ReactNode;
+  /**
+   * The × in the header (Figma: `showClose`, on by default). Turn it off only for a decision that has to be made,
+   * where the × would be one more, ambiguous way out: the footer's Cancel is the exit, and it stays on the compact
+   * sheet too. Escape still cancels.
+   */
+  closeButton?: boolean;
 }
 
 /**
@@ -33,14 +39,15 @@ export interface DialogProps extends ModalProps {
  * above the on-screen keyboard and clears the safe area. A custom `footer` stacks full width, the last (the main
  * action) on top. Styles: internal/modal.css and dialog.css.
  */
-export function Dialog({ size = 'md', open, defaultOpen, onOpenChange, ...props }: DialogProps) {
+export function Dialog({ size = 'md', closeButton = true, open, defaultOpen, onOpenChange, ...props }: DialogProps) {
   const sheet = useDragDismiss({ open, defaultOpen, onOpenChange });
   const keyboard = useKeyboardInset(sheet.isOpen);
   const style = keyboard ? ({ ...sheet.boxStyle, '--_kb': `${keyboard}px` } as CSSProperties) : sheet.boxStyle;
   return (
     <ModalShell
       prefix="rds-dialog"
-      modifiers={[`rds-dialog--${size}`]}
+      modifiers={[`rds-dialog--${size}`, !closeButton && 'rds-dialog--no-close'].filter((m): m is string => Boolean(m))}
+      closeButton={closeButton}
       handle={sheet.handle}
       open={sheet.isOpen}
       onOpenChange={sheet.setOpen}
