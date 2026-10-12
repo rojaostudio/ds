@@ -118,8 +118,12 @@ export function Pagination({
       {!(hideOnSinglePage && totalPages <= 1) && (
         <ul className="rds-pagination__pages">
           <li>{control(page - 1, 'Página anterior', arrow(<ChevronLeftIcon />))}</li>
+          <li className="rds-pagination__compact">
+            <span className="rds-visually-hidden">Página </span>
+            {page} de {totalPages}
+          </li>
           {pageItems(page, totalPages, siblings, boundaries).map((entry) => (
-            <li key={entry}>
+            <li key={entry} className="rds-pagination__num">
               {typeof entry === 'string' ? (
                 <span className="rds-pagination__item rds-pagination__item--ellipsis" aria-hidden="true">
                   …

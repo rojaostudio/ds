@@ -9267,6 +9267,39 @@ body:has(.rds-modal) {
   }
 }
 
+/*
+ * Compact (Figma 12/10, arrangement by mode, layout/compact below 1024): the summary takes its own line above the
+ * controls; the numbers leave and "5 de 26" sits between the arrows, which go to the ends. Targets stay 44.
+ */
+.rds-pagination__compact {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .rds-pagination__summary {
+    flex: 1 1 100%;
+  }
+
+  .rds-pagination__pages {
+    flex: 1 1 100%;
+    flex-wrap: nowrap;
+    align-items: center;
+    margin: 0;
+  }
+
+  .rds-pagination__num {
+    display: none;
+  }
+
+  .rds-pagination__compact {
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    color: var(--pagination-item-label-default);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
 /* components/password-input.css */
 /*
  * PasswordInput strength meter (showStrength), between the box and the hint: four segments that fill the width,
