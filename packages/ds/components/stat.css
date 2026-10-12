@@ -96,6 +96,27 @@
   --_color: var(--delta-inverse);
 }
 
+/*
+ * loading (Figma 12/10): each line keeps the height of the text it stands for (1lh: 20, 30, 16), so the Stat is as tall
+ * as the loaded one; the Skeleton sits in the middle, never wider than the cell.
+ */
+.rds-stat--loading .rds-stat__label,
+.rds-stat--loading .rds-stat__row,
+.rds-stat--loading .rds-stat__caption {
+  display: flex;
+  align-items: center;
+  height: 1lh;
+}
+
+.rds-stat--loading .rds-stat__row {
+  font-size: var(--type-value-size);
+  line-height: var(--type-value-line);
+}
+
+.rds-stat--loading .rds-skeleton {
+  max-width: 100%;
+}
+
 @media (forced-colors: active) {
   .rds-stat--framed {
     border-color: CanvasText;

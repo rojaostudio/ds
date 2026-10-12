@@ -83,8 +83,8 @@ export { Chart } from './chart';
 export type { ChartProps, ChartSeries, ChartType } from './chart';
 export { Carousel, CarouselPlaceholder } from './carousel';
 export type { CarouselProps } from './carousel';
-export { Item, ItemGroup } from './item';
-export type { ItemProps, ItemGroupProps, ItemVariant, ItemSize } from './item';
+export { Item, ItemGroup, ItemSkeleton } from './item';
+export type { ItemProps, ItemGroupProps, ItemVariant, ItemSize, ItemSkeletonProps } from './item';
 
 export { Pricing, PricingPlan } from './pricing';
 export type { PricingProps, PricingPlanProps } from './pricing';

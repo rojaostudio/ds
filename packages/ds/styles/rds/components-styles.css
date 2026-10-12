@@ -2043,6 +2043,13 @@ button.rds-breadcrumb__link:focus-visible {
   flex: none;
 }
 
+/* size=lg (Figma 12/10): the title in type/heading (24/30 bold), the action band as tall as its line. */
+.rds-card__header--lg .rds-card__title {
+  font-size: var(--type-heading-size);
+  line-height: var(--type-heading-line);
+  font-weight: var(--type-heading-weight);
+}
+
 /*
  * align=start (Figma 04/10: actionSlot): the action sits in a band as tall as the title's line (type/label/line, 24;
  * type/small/line, 20, on sm), centred in it, with or without a description. A 44 IconButton or a 36 sm Button
@@ -2056,6 +2063,10 @@ button.rds-breadcrumb__link:focus-visible {
 
 .rds-card--sm .rds-card__header--start .rds-card__action {
   height: var(--type-small-line);
+}
+
+.rds-card__header--lg.rds-card__header--start .rds-card__action {
+  height: var(--type-heading-line);
 }
 
 /*
@@ -7722,6 +7733,21 @@ body:has(.rds-modal) {
   text-overflow: ellipsis;
 }
 
+/*
+ * ItemSkeleton (Figma 12/10): the row's frame with Skeleton lines in rows as tall as the text (1lh), so it has the
+ * height of the Item row it stands for. The Skeleton never gets wider than its line.
+ */
+.rds-item--skeleton .rds-item__title,
+.rds-item--skeleton .rds-item__description {
+  display: flex;
+  align-items: center;
+  height: 1lh;
+}
+
+.rds-item--skeleton .rds-skeleton {
+  max-width: 100%;
+}
+
 /* selected (Figma 10/10), in any variant: the tint and a 3px band on the start edge. */
 .rds-item--selected {
   background: var(--item-selected-background);
@@ -11551,6 +11577,27 @@ input:focus-visible + .rds-radio__circle {
 
 .rds-stat--inverse .rds-delta {
   --_color: var(--delta-inverse);
+}
+
+/*
+ * loading (Figma 12/10): each line keeps the height of the text it stands for (1lh: 20, 30, 16), so the Stat is as tall
+ * as the loaded one; the Skeleton sits in the middle, never wider than the cell.
+ */
+.rds-stat--loading .rds-stat__label,
+.rds-stat--loading .rds-stat__row,
+.rds-stat--loading .rds-stat__caption {
+  display: flex;
+  align-items: center;
+  height: 1lh;
+}
+
+.rds-stat--loading .rds-stat__row {
+  font-size: var(--type-value-size);
+  line-height: var(--type-value-line);
+}
+
+.rds-stat--loading .rds-skeleton {
+  max-width: 100%;
 }
 
 @media (forced-colors: active) {

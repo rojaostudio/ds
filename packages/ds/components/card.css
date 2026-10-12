@@ -115,6 +115,13 @@
   flex: none;
 }
 
+/* size=lg (Figma 12/10): the title in type/heading (24/30 bold), the action band as tall as its line. */
+.rds-card__header--lg .rds-card__title {
+  font-size: var(--type-heading-size);
+  line-height: var(--type-heading-line);
+  font-weight: var(--type-heading-weight);
+}
+
 /*
  * align=start (Figma 04/10: actionSlot): the action sits in a band as tall as the title's line (type/label/line, 24;
  * type/small/line, 20, on sm), centred in it, with or without a description. A 44 IconButton or a 36 sm Button
@@ -128,6 +135,10 @@
 
 .rds-card--sm .rds-card__header--start .rds-card__action {
   height: var(--type-small-line);
+}
+
+.rds-card__header--lg.rds-card__header--start .rds-card__action {
+  height: var(--type-heading-line);
 }
 
 /*
