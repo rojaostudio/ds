@@ -1,0 +1,15 @@
+/* @tokens internal */
+/*
+ * The floating layer of a field's list (internal/floating-list.tsx): as wide as the field's box, at z overlay, over
+ * the sticky bars (z sticky); with a modal open, over the modal (--_layer-floating, internal/modal.css). The list
+ * inside is capped by the room Radix measures on the chosen side.
+ */
+.rds-floating-list {
+  box-sizing: border-box;
+  width: var(--radix-popper-anchor-width);
+  z-index: var(--_layer-floating, var(--z-overlay));
+}
+
+.rds-floating-list > .rds-listbox {
+  max-height: min(var(--_list-max-height, 100vh), var(--radix-popover-content-available-height, 100vh));
+}

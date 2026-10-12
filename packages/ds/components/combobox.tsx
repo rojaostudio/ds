@@ -1,13 +1,26 @@
-'use client';
+"use client";
 
-import { useMemo, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react';
-import { Chip } from './chip';
-import { announce } from './internal/announce';
-import { FieldShell, useFieldIds, warnIfUnlabelled, type FieldTextProps } from './internal/field';
-import { ChevronDownIcon, PlusIcon } from './internal/icons';
-import { ShortcutKeys } from './internal/shortcut';
-import { OptionContent } from './internal/option-content';
-import { toggleValue, useListbox } from './internal/use-listbox';
+import {
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type KeyboardEvent,
+  type ReactNode,
+} from "react";
+import { Chip } from "./chip";
+import { announce } from "./internal/announce";
+import {
+  FieldShell,
+  useFieldIds,
+  warnIfUnlabelled,
+  type FieldTextProps,
+} from "./internal/field";
+import { ChevronDownIcon, PlusIcon } from "./internal/icons";
+import { ShortcutKeys } from "./internal/shortcut";
+import { FloatingList } from "./internal/floating-list";
+import { OptionContent } from "./internal/option-content";
+import { toggleValue, useListbox } from "./internal/use-listbox";
 
 export interface ComboboxOption {
   /** The value sent with the form. */
@@ -53,8 +66,8 @@ interface ComboboxBaseProps extends FieldTextProps {
   className?: string;
   style?: CSSProperties;
   /** The name when there is no visible label. */
-  'aria-label'?: string;
-  'aria-labelledby'?: string;
+  "aria-label"?: string;
+  "aria-labelledby"?: string;
 }
 
 export interface ComboboxSingleProps extends ComboboxBaseProps {
@@ -81,8 +94,12 @@ export type ComboboxProps = ComboboxSingleProps | ComboboxMultipleProps;
 
 type Row = ComboboxOption & { create?: string };
 
-const CREATE = '\u0000create';
-const normalize = (text: string) => text.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase();
+const CREATE = "\u0000create";
+const normalize = (text: string) =>
+  text
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .toLowerCase();
 
 /**
  * Combobox — Figma [RDS] Forms/Combobox. A field that filters a long list while the person types: audiences,
@@ -99,8 +116,9 @@ export function Combobox(props: ComboboxProps) {
     errorMessage,
     required,
     options: rawOptions,
-    emptyMessage = 'Nenhum resultado',
-    resultsMessage = (count: number) => `${count} ${count === 1 ? 'resultado' : 'resultados'}`,
+    emptyMessage = "Nenhum resultado",
+    resultsMessage = (count: number) =>
+      `${count} ${count === 1 ? "resultado" : "resultados"}`,
     onCreate,
     creatable = onCreate !== undefined,
     createLabel = (text: string) => `Cadastrar "${text}"`,
@@ -112,46 +130,68 @@ export function Combobox(props: ComboboxProps) {
     id,
     className,
     style,
-    'aria-label': ariaLabel,
-    'aria-labelledby': ariaLabelledBy,
+    "aria-label": ariaLabel,
+    "aria-labelledby": ariaLabelledBy,
   } = props;
   const multiple = props.multiple === true;
-  warnIfUnlabelled('Combobox', label, ariaLabel, ariaLabelledBy);
-  const { controlId, hintId, errorId, invalid, describedBy } = useFieldIds(id, hint, error, errorMessage);
+  warnIfUnlabelled("Combobox", label, ariaLabel, ariaLabelledBy);
+  const { controlId, hintId, errorId, invalid, describedBy } = useFieldIds(
+    id,
+    hint,
+    error,
+    errorMessage,
+  );
 
   const [created, setCreated] = useState<ComboboxOption[]>([]);
   const options = useMemo(
-    () => [...rawOptions.map((o) => (typeof o === 'string' ? { value: o, label: o } : o)), ...created],
+    () => [
+      ...rawOptions.map((o) =>
+        typeof o === "string" ? { value: o, label: o } : o,
+      ),
+      ...created,
+    ],
     [rawOptions, created],
   );
   const labelOf = (v: string) => options.find((o) => o.value === v)?.label ?? v;
 
-  const [ownSingle, setOwnSingle] = useState(multiple ? '' : ((props.defaultValue as string | undefined) ?? ''));
-  const [ownMany, setOwnMany] = useState<string[]>(multiple ? ((props.defaultValue as string[] | undefined) ?? []) : []);
+  const [ownSingle, setOwnSingle] = useState(
+    multiple ? "" : ((props.defaultValue as string | undefined) ?? ""),
+  );
+  const [ownMany, setOwnMany] = useState<string[]>(
+    multiple ? ((props.defaultValue as string[] | undefined) ?? []) : [],
+  );
   const chosen: string[] = multiple
     ? ((props.value as string[] | undefined) ?? ownMany)
-    : [((props.value as string | undefined) ?? ownSingle)].filter(Boolean);
-  const chosenLabel = !multiple && chosen[0] ? labelOf(chosen[0]) : '';
+    : [(props.value as string | undefined) ?? ownSingle].filter(Boolean);
+  const chosenLabel = !multiple && chosen[0] ? labelOf(chosen[0]) : "";
 
   const input = useRef<HTMLInputElement>(null);
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   // Single: while typing, the field shows the query; otherwise the chosen label.
   const [typing, setTyping] = useState(false);
   const [open, setOpen] = useState(false);
 
   /** The options that match a query, then the create option when nothing matches the text exactly. */
   function listFor(text: string, filtering: boolean) {
-    const matches: Row[] = filtering ? options.filter((o) => normalize(o.label).includes(normalize(text))) : options;
+    const matches: Row[] = filtering
+      ? options.filter((o) => normalize(o.label).includes(normalize(text)))
+      : options;
     const typed = text.trim();
     const exact = options.some((o) => normalize(o.label) === normalize(typed));
     const rows: Row[] =
-      creatable && filtering && typed && !exact ? [...matches, { value: CREATE, label: createLabel(typed), create: typed }] : matches;
+      creatable && filtering && typed && !exact
+        ? [
+            ...matches,
+            { value: CREATE, label: createLabel(typed), create: typed },
+          ]
+        : matches;
     return { matches, rows };
   }
   /** Figma menu=empty-create: the create option alone is already under the cursor, so Enter creates. */
-  const onlyCreate = (rows: Row[]) => rows.length === 1 && rows[0].create !== undefined;
+  const onlyCreate = (rows: Row[]) =>
+    rows.length === 1 && rows[0].create !== undefined;
 
-  const filtering = multiple ? query !== '' : typing && query !== '';
+  const filtering = multiple ? query !== "" : typing && query !== "";
   const { matches, rows } = listFor(query, filtering);
   const showList = open && rows.length > 0;
   const empty = open && rows.length === 0;
@@ -169,12 +209,22 @@ export function Combobox(props: ComboboxProps) {
   function create(text: string): ComboboxOption {
     const made = onCreate?.(text);
     const option: ComboboxOption =
-      typeof made === 'string' ? { value: made, label: text } : (made ?? { value: text, label: text });
-    if (!options.some((o) => o.value === option.value)) setCreated((all) => [...all, option]);
+      typeof made === "string"
+        ? { value: made, label: text }
+        : (made ?? { value: text, label: text });
+    if (!options.some((o) => o.value === option.value))
+      setCreated((all) => [...all, option]);
     return option;
   }
 
-  const { setActive, isSelected, onKeyDown: listKeyDown, controlProps, listProps, optionProps } = useListbox({
+  const {
+    setActive,
+    isSelected,
+    onKeyDown: listKeyDown,
+    controlProps,
+    listProps,
+    optionProps,
+  } = useListbox({
     items: rows,
     showing: showList,
     selected: chosen,
@@ -189,11 +239,11 @@ export function Combobox(props: ComboboxProps) {
         } else {
           const adding = !chosen.includes(row.value);
           commitMany(toggleValue(chosen, row.value));
-          announce(`${row.label} ${adding ? 'adicionado' : 'removido'}`);
+          announce(`${row.label} ${adding ? "adicionado" : "removido"}`);
         }
         // Without a query the list stays the same: the active option stays, for the next arrow.
-        if (query !== '') {
-          setQuery('');
+        if (query !== "") {
+          setQuery("");
           setActive(-1);
         }
       } else {
@@ -207,7 +257,7 @@ export function Combobox(props: ComboboxProps) {
 
   function keyDown(event: KeyboardEvent<HTMLInputElement>) {
     if (listKeyDown(event)) return;
-    if (event.key === 'Escape') {
+    if (event.key === "Escape") {
       if (open) {
         event.preventDefault();
         setOpen(false);
@@ -215,7 +265,12 @@ export function Combobox(props: ComboboxProps) {
       } else if (!multiple) {
         setTyping(false);
       }
-    } else if (multiple && event.key === 'Backspace' && query === '' && chosen.length) {
+    } else if (
+      multiple &&
+      event.key === "Backspace" &&
+      query === "" &&
+      chosen.length
+    ) {
       const last = chosen[chosen.length - 1];
       commitMany(chosen.slice(0, -1));
       announce(`${labelOf(last)} removido`);
@@ -229,7 +284,7 @@ export function Combobox(props: ComboboxProps) {
     if (next.length === 0) requestAnimationFrame(() => input.current?.focus());
   }
 
-  const listName = typeof label === 'string' ? label : ariaLabel;
+  const listName = typeof label === "string" ? label : ariaLabel;
 
   return (
     <FieldShell
@@ -244,7 +299,7 @@ export function Combobox(props: ComboboxProps) {
       invalid={invalid}
       required={required}
       disabled={disabled}
-      boxClassName={multiple ? 'rds-combobox__box--multiple' : undefined}
+      boxClassName={multiple ? "rds-combobox__box--multiple" : undefined}
       className={className}
       style={style}
     >
@@ -254,7 +309,10 @@ export function Combobox(props: ComboboxProps) {
         </span>
       )}
       {multiple && chosen.length > 0 && (
-        <ul className="rds-combobox__chips" aria-label={`Escolhidos: ${chosen.length}`}>
+        <ul
+          className="rds-combobox__chips"
+          aria-label={`Escolhidos: ${chosen.length}`}
+        >
           {chosen.map((v) => (
             <li key={v}>
               <Chip disabled={disabled} onRemove={() => remove(v)}>
@@ -281,29 +339,43 @@ export function Combobox(props: ComboboxProps) {
         aria-required={required || undefined}
         disabled={disabled}
         // Floating reads :placeholder-shown to know the field is empty; the real placeholder would sit under the label.
-        placeholder={multiple && chosen.length ? undefined : labelPosition === 'floating' && label ? ' ' : placeholder}
+        placeholder={
+          multiple && chosen.length
+            ? undefined
+            : labelPosition === "floating" && label
+              ? " "
+              : placeholder
+        }
         value={multiple ? query : typing ? query : chosenLabel}
         onChange={(event) => {
           const text = event.target.value;
           setQuery(text);
           setTyping(true);
           setOpen(true);
-          setActive(onlyCreate(listFor(text, text !== '').rows) ? 0 : -1);
+          setActive(onlyCreate(listFor(text, text !== "").rows) ? 0 : -1);
           // Single: emptying the field takes the choice away.
-          if (!multiple && text === '' && chosen.length) commitSingle('');
+          if (!multiple && text === "" && chosen.length) commitSingle("");
         }}
         onClick={() => setOpen((current) => !current)}
         onKeyDown={keyDown}
         onBlur={() => {
           setOpen(false);
           setTyping(false);
-          setQuery('');
+          setQuery("");
           setActive(-1);
         }}
       />
-      {shortcut && <ShortcutKeys shortcut={shortcut} className="rds-field__shortcut" />}
+      {shortcut && (
+        <ShortcutKeys shortcut={shortcut} className="rds-field__shortcut" />
+      )}
       <span
-        className={['rds-field__icon', 'rds-combobox__chevron', open && 'rds-combobox__chevron--open'].filter(Boolean).join(' ')}
+        className={[
+          "rds-field__icon",
+          "rds-combobox__chevron",
+          open && "rds-combobox__chevron--open",
+        ]
+          .filter(Boolean)
+          .join(" ")}
         aria-hidden="true"
         onMouseDown={(event) => {
           // The chevron opens the list like the field does, keeping the focus in the field.
@@ -316,29 +388,51 @@ export function Combobox(props: ComboboxProps) {
         <ChevronDownIcon />
       </span>
       {name &&
-        (chosen.length ? chosen : multiple ? [] : ['']).map((v) => <input key={v} type="hidden" name={name} value={v} />)}
-      {showList && (
-        <ul {...listProps} aria-label={listName} className="rds-listbox rds-combobox__list">
-          {rows.map((row, index) => (
-            <li
-              key={row.value}
-              {...optionProps(row, index)}
-              className={row.create ? 'rds-listbox__option rds-combobox__create' : 'rds-listbox__option'}
-            >
-              <OptionContent icon={row.create ? <PlusIcon /> : row.icon} selected={!row.create && isSelected(row.value)}>
-                {row.label}
-              </OptionContent>
-            </li>
-          ))}
-        </ul>
-      )}
-      {empty && (
-        <div className="rds-listbox rds-combobox__list rds-combobox__empty" aria-hidden="true">
-          {emptyMessage}
-        </div>
-      )}
+        (chosen.length ? chosen : multiple ? [] : [""]).map((v) => (
+          <input key={v} type="hidden" name={name} value={v} />
+        ))}
+      <FloatingList open={showList || empty} field={input}>
+        {showList && (
+          <ul
+            {...listProps}
+            aria-label={listName}
+            className="rds-listbox rds-combobox__list"
+          >
+            {rows.map((row, index) => (
+              <li
+                key={row.value}
+                {...optionProps(row, index)}
+                className={
+                  row.create
+                    ? "rds-listbox__option rds-combobox__create"
+                    : "rds-listbox__option"
+                }
+              >
+                <OptionContent
+                  icon={row.create ? <PlusIcon /> : row.icon}
+                  selected={!row.create && isSelected(row.value)}
+                >
+                  {row.label}
+                </OptionContent>
+              </li>
+            ))}
+          </ul>
+        )}
+        {empty && (
+          <div
+            className="rds-listbox rds-combobox__list rds-combobox__empty"
+            aria-hidden="true"
+          >
+            {emptyMessage}
+          </div>
+        )}
+      </FloatingList>
       <span className="rds-visually-hidden" aria-live="polite">
-        {open && filtering ? (matches.length ? resultsMessage(matches.length) : emptyMessage) : ''}
+        {open && filtering
+          ? matches.length
+            ? resultsMessage(matches.length)
+            : emptyMessage
+          : ""}
       </span>
     </FieldShell>
   );

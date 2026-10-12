@@ -1,16 +1,28 @@
-'use client';
+"use client";
 
-import { useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react';
-import { Chip } from './chip';
-import { announce } from './internal/announce';
-import { FieldShell, useFieldIds, warnIfUnlabelled, type FieldTextProps } from './internal/field';
-import { PlusIcon } from './internal/icons';
-import { OptionContent } from './internal/option-content';
-import { useListbox } from './internal/use-listbox';
-import { useReorder } from './internal/use-reorder';
-import { Tooltip } from './tooltip';
+import {
+  useRef,
+  useState,
+  type CSSProperties,
+  type KeyboardEvent,
+  type ReactNode,
+} from "react";
+import { Chip } from "./chip";
+import { announce } from "./internal/announce";
+import {
+  FieldShell,
+  useFieldIds,
+  warnIfUnlabelled,
+  type FieldTextProps,
+} from "./internal/field";
+import { PlusIcon } from "./internal/icons";
+import { OptionContent } from "./internal/option-content";
+import { useListbox } from "./internal/use-listbox";
+import { useReorder } from "./internal/use-reorder";
+import { Tooltip } from "./tooltip";
+import { FloatingList } from "./internal/floating-list";
 
-export interface ChipInputProps extends Omit<FieldTextProps, 'labelPosition'> {
+export interface ChipInputProps extends Omit<FieldTextProps, "labelPosition"> {
   /** Controlled: the values, one Chip each (Figma: `filled` is `value.length > 0`). */
   value?: string[];
   /** Uncontrolled: the values at first. */
@@ -29,7 +41,9 @@ export interface ChipInputProps extends Omit<FieldTextProps, 'labelPosition'> {
    * refuse it; nothing (undefined) adds the text as typed. May be async. With suggestions, the list offers
    * `Criar "<texto>"` when nothing matches exactly.
    */
-  onCreate?: (text: string) => string | null | void | Promise<string | null | void>;
+  onCreate?: (
+    text: string,
+  ) => string | null | void | Promise<string | null | void>;
   /** The create option's text. By default `Criar "<texto>"`. */
   createLabel?: (text: string) => string;
   /** The most values: past it the text does not become a Chip. Say it in the hint and show the errorMessage. */
@@ -42,7 +56,7 @@ export interface ChipInputProps extends Omit<FieldTextProps, 'labelPosition'> {
    * it into a field of the same size (Enter adds and keeps the focus for the next one, Escape or leaving it empty
    * closes). For the options of a product variation, a short ordered set edited in place. No suggestions in list.
    */
-  layout?: 'field' | 'list';
+  layout?: "field" | "list";
   /** The "+" button's text in `list` (Figma: the exposed `add`'s `label`). By default "Adicionar". */
   addLabel?: string;
   /**
@@ -56,9 +70,13 @@ export interface ChipInputProps extends Omit<FieldTextProps, 'labelPosition'> {
    * Per value: `locked` takes the × and the editing away (a value in use elsewhere), `count` shows after the name in
    * secondary text ("Branco · 2"), `tooltip` says what it means ("Usada em 2 produtos") and makes the Chip focusable.
    */
-  getChipProps?: (value: string) => { locked?: boolean; count?: ReactNode; tooltip?: string };
+  getChipProps?: (value: string) => {
+    locked?: boolean;
+    count?: ReactNode;
+    tooltip?: string;
+  };
   /** list only: the Chips' and the "+"'s height (Figma: Chip and .chip-input/add `size`), sm 32 or md 44 (on a phone). */
-  size?: 'sm' | 'md';
+  size?: "sm" | "md";
   /** The form field name: one hidden input per value. */
   name?: string;
   disabled?: boolean;
@@ -66,14 +84,18 @@ export interface ChipInputProps extends Omit<FieldTextProps, 'labelPosition'> {
   className?: string;
   style?: CSSProperties;
   /** The name when there is no visible label. */
-  'aria-label'?: string;
-  'aria-labelledby'?: string;
+  "aria-label"?: string;
+  "aria-labelledby"?: string;
 }
 
 type Row = { value: string; label: string; create?: string };
 
-const CREATE = '\u0000create';
-const normalize = (text: string) => text.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase();
+const CREATE = "\u0000create";
+const normalize = (text: string) =>
+  text
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .toLowerCase();
 
 /**
  * ChipInput — Figma [RDS] Forms/ChipInput. A field that turns what is typed into Chips: Enter or a comma makes the
@@ -97,46 +119,57 @@ export function ChipInput({
   createLabel = (text: string) => `Criar "${text}"`,
   max,
   removeLabel,
-  layout = 'field',
-  addLabel = 'Adicionar',
+  layout = "field",
+  addLabel = "Adicionar",
   reorderable,
   editable,
   getChipProps,
-  size = 'sm',
+  size = "sm",
   name,
   disabled,
   id,
   className,
   style,
-  'aria-label': ariaLabel,
-  'aria-labelledby': ariaLabelledBy,
+  "aria-label": ariaLabel,
+  "aria-labelledby": ariaLabelledBy,
 }: ChipInputProps) {
-  warnIfUnlabelled('ChipInput', label, ariaLabel, ariaLabelledBy);
-  const { controlId, hintId, errorId, invalid, describedBy } = useFieldIds(id, hint, error, errorMessage);
+  warnIfUnlabelled("ChipInput", label, ariaLabel, ariaLabelledBy);
+  const { controlId, hintId, errorId, invalid, describedBy } = useFieldIds(
+    id,
+    hint,
+    error,
+    errorMessage,
+  );
   const [own, setOwn] = useState<string[]>(defaultValue);
   const values = value ?? own;
   const input = useRef<HTMLInputElement>(null);
-  const [text, setText] = useState('');
+  const [text, setText] = useState("");
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
-  const list = layout === 'list';
-  const md = list && size === 'md';
+  const list = layout === "list";
+  const md = list && size === "md";
   /** list: the "+" became the field. */
   const [adding, setAdding] = useState(false);
   /** The value whose name is being edited, and the draft. */
   const [editing, setEditing] = useState<string | null>(null);
-  const [draft, setDraft] = useState('');
+  const [draft, setDraft] = useState("");
   const [draftError, setDraftError] = useState(false);
   const addButton = useRef<HTMLButtonElement>(null);
   const chipRefs = useRef(new Map<string, HTMLElement>());
   const full = max !== undefined && values.length >= max;
 
   const typed = text.trim();
-  const offered = (suggestions ?? []).filter((s) => !values.includes(s) && normalize(s).includes(normalize(typed)));
-  const exact = [...(suggestions ?? []), ...values].some((s) => normalize(s) === normalize(typed));
+  const offered = (suggestions ?? []).filter(
+    (s) => !values.includes(s) && normalize(s).includes(normalize(typed)),
+  );
+  const exact = [...(suggestions ?? []), ...values].some(
+    (s) => normalize(s) === normalize(typed),
+  );
   const rows: Row[] = offered.map((s) => ({ value: s, label: s }));
-  if (suggestions && typed && !exact) rows.push({ value: CREATE, label: createLabel(typed), create: typed });
-  const showList = !list && open && !disabled && suggestions !== undefined && rows.length > 0;
+  if (suggestions && typed && !exact)
+    rows.push({ value: CREATE, label: createLabel(typed), create: typed });
+  const showList =
+    !list && open && !disabled && suggestions !== undefined && rows.length > 0;
 
   function commit(next: string[]) {
     if (value === undefined) setOwn(next);
@@ -163,7 +196,7 @@ export function ChipInput({
 
   async function create(raw: string) {
     const parts = raw
-      .split(',')
+      .split(",")
       .map((part) => part.trim())
       .filter(Boolean);
     if (!parts.length) return;
@@ -173,17 +206,25 @@ export function ChipInput({
     }
     setBusy(true);
     try {
-      const made = await Promise.all(parts.map(async (part) => {
-        const result = await onCreate(part);
-        return result === undefined ? part : result;
-      }));
-      add(made.filter((m): m is string => typeof m === 'string'));
+      const made = await Promise.all(
+        parts.map(async (part) => {
+          const result = await onCreate(part);
+          return result === undefined ? part : result;
+        }),
+      );
+      add(made.filter((m): m is string => typeof m === "string"));
     } finally {
       setBusy(false);
     }
   }
 
-  const { setActive, onKeyDown: listKeyDown, controlProps, listProps, optionProps } = useListbox({
+  const {
+    setActive,
+    onKeyDown: listKeyDown,
+    controlProps,
+    listProps,
+    optionProps,
+  } = useListbox({
     items: rows,
     showing: showList,
     selected: [],
@@ -191,29 +232,29 @@ export function ChipInput({
     onChoose: (row) => {
       if (row.create) void create(row.create);
       else add([row.value]);
-      setText('');
+      setText("");
       setActive(-1);
     },
   });
 
   function keyDown(event: KeyboardEvent<HTMLInputElement>) {
     if (suggestions && listKeyDown(event)) return;
-    if (event.key === 'Enter' || event.key === ',') {
+    if (event.key === "Enter" || event.key === ",") {
       // Enter on an empty field submits the form, as in any field.
       if (!typed) {
-        if (event.key === ',') event.preventDefault();
+        if (event.key === ",") event.preventDefault();
         return;
       }
       event.preventDefault();
       if (busy) return;
       void create(text);
-      setText('');
+      setText("");
       setActive(-1);
-    } else if (event.key === 'Escape' && open) {
+    } else if (event.key === "Escape" && open) {
       event.preventDefault();
       setOpen(false);
       setActive(-1);
-    } else if (event.key === 'Backspace' && text === '' && values.length) {
+    } else if (event.key === "Backspace" && text === "" && values.length) {
       const last = values[values.length - 1];
       commit(values.slice(0, -1));
       announce(`${last} removido`);
@@ -224,7 +265,10 @@ export function ChipInput({
     const next = values.filter((v) => v !== item);
     commit(next);
     // The Chip moves the focus to the next ×; with none left, back to the field.
-    if (next.length === 0) requestAnimationFrame(() => (list ? addButton.current : input.current)?.focus());
+    if (next.length === 0)
+      requestAnimationFrame(() =>
+        (list ? addButton.current : input.current)?.focus(),
+      );
   }
 
   function startEdit(item: string) {
@@ -246,9 +290,11 @@ export function ChipInput({
     if (next && next !== item && onCreate) {
       const made = await onCreate(next);
       if (made === null) refused = true;
-      else if (typeof made === 'string') next = made;
+      else if (typeof made === "string") next = made;
     }
-    const repeated = next !== item && values.some((v) => v !== item && normalize(v) === normalize(next));
+    const repeated =
+      next !== item &&
+      values.some((v) => v !== item && normalize(v) === normalize(next));
     if (next && (refused || repeated)) {
       if (leaving) {
         cancelEdit(false);
@@ -264,33 +310,49 @@ export function ChipInput({
       announce(`${item} renomeado para ${next}`);
     }
     const target = next || item;
-    if (!leaving) requestAnimationFrame(() => chipRefs.current.get(target)?.focus());
+    if (!leaving)
+      requestAnimationFrame(() => chipRefs.current.get(target)?.focus());
   }
 
   function cancelEdit(refocus = true) {
     const item = editing;
     setEditing(null);
-    if (item && refocus) requestAnimationFrame(() => chipRefs.current.get(item)?.focus());
+    if (item && refocus)
+      requestAnimationFrame(() => chipRefs.current.get(item)?.focus());
   }
 
-  function chipKeyDown(event: KeyboardEvent<HTMLElement>, item: string, locked: boolean) {
+  function chipKeyDown(
+    event: KeyboardEvent<HTMLElement>,
+    item: string,
+    locked: boolean,
+  ) {
     if (reorder.onKeyDown(event, item)) return;
     if (event.target !== event.currentTarget || disabled) return;
-    if ((event.key === 'Enter' || event.key === 'F2') && editable && !locked) {
+    if ((event.key === "Enter" || event.key === "F2") && editable && !locked) {
       event.preventDefault();
       startEdit(item);
-    } else if ((event.key === 'Delete' || event.key === 'Backspace') && !locked) {
+    } else if (
+      (event.key === "Delete" || event.key === "Backspace") &&
+      !locked
+    ) {
       event.preventDefault();
       const index = values.indexOf(item);
       const neighbour = values[index + 1] ?? values[index - 1];
       commit(values.filter((v) => v !== item));
       announce(`${item} removido`);
-      requestAnimationFrame(() => (neighbour ? chipRefs.current.get(neighbour) : list ? addButton.current : input.current)?.focus());
+      requestAnimationFrame(() =>
+        (neighbour
+          ? chipRefs.current.get(neighbour)
+          : list
+            ? addButton.current
+            : input.current
+        )?.focus(),
+      );
     }
   }
 
   function addKeyDown(event: KeyboardEvent<HTMLInputElement>) {
-    if (event.key === 'Enter') {
+    if (event.key === "Enter") {
       event.preventDefault();
       if (!typed) {
         closeAdd();
@@ -298,8 +360,8 @@ export function ChipInput({
       }
       if (busy) return;
       void create(text);
-      setText('');
-    } else if (event.key === 'Escape') {
+      setText("");
+    } else if (event.key === "Escape") {
       event.preventDefault();
       closeAdd();
     }
@@ -307,11 +369,12 @@ export function ChipInput({
 
   function closeAdd() {
     setAdding(false);
-    setText('');
+    setText("");
     requestAnimationFrame(() => addButton.current?.focus());
   }
 
-  const listName = typeof label === 'string' ? `Sugestões para ${label}` : 'Sugestões';
+  const listName =
+    typeof label === "string" ? `Sugestões para ${label}` : "Sugestões";
 
   return (
     <FieldShell
@@ -325,16 +388,29 @@ export function ChipInput({
       invalid={invalid}
       required={required}
       disabled={disabled}
-      boxClassName={list ? 'rds-chip-input__box rds-chip-input__box--list' : 'rds-chip-input__box'}
+      boxClassName={
+        list
+          ? "rds-chip-input__box rds-chip-input__box--list"
+          : "rds-chip-input__box"
+      }
       className={className}
       style={style}
     >
       {(values.length > 0 || list) && (
         <ul
           ref={reorder.listRef}
-          className={['rds-chip-input__chips', reorder.held && 'rds-chip-input__chips--moving'].filter(Boolean).join(' ')}
+          className={[
+            "rds-chip-input__chips",
+            reorder.held && "rds-chip-input__chips--moving",
+          ]
+            .filter(Boolean)
+            .join(" ")}
           role="list"
-          aria-label={list && typeof label === 'string' ? `${label}: ${values.length}` : `Valores: ${values.length}`}
+          aria-label={
+            list && typeof label === "string"
+              ? `${label}: ${values.length}`
+              : `Valores: ${values.length}`
+          }
         >
           {reorder.order.map((item) => {
             const meta = getChipProps?.(item) ?? {};
@@ -342,7 +418,13 @@ export function ChipInput({
             if (editing === item) {
               return (
                 <li key={item} data-reorder-item={item}>
-                  <span className={md ? 'rds-chip rds-chip--md rds-chip--editing' : 'rds-chip rds-chip--editing'}>
+                  <span
+                    className={
+                      md
+                        ? "rds-chip rds-chip--md rds-chip--editing"
+                        : "rds-chip rds-chip--editing"
+                    }
+                  >
                     <input
                       className="rds-chip__input"
                       aria-label={`Editar ${item}`}
@@ -356,10 +438,10 @@ export function ChipInput({
                         setDraftError(false);
                       }}
                       onKeyDown={(event) => {
-                        if (event.key === 'Enter') {
+                        if (event.key === "Enter") {
                           event.preventDefault();
                           void saveEdit(false);
-                        } else if (event.key === 'Escape') {
+                        } else if (event.key === "Escape") {
                           event.preventDefault();
                           cancelEdit();
                         }
@@ -372,10 +454,11 @@ export function ChipInput({
             }
             const movable = Boolean(reorderable) && !disabled;
             const renamable = Boolean(editable) && !locked && !disabled;
-            const focusable = !disabled && (movable || renamable || Boolean(meta.tooltip));
+            const focusable =
+              !disabled && (movable || renamable || Boolean(meta.tooltip));
             const chip = (
               <Chip
-                size={md ? 'md' : 'sm'}
+                size={md ? "md" : "sm"}
                 ref={(node: HTMLSpanElement | null) => {
                   if (node) chipRefs.current.set(item, node);
                   else chipRefs.current.delete(item);
@@ -385,21 +468,22 @@ export function ChipInput({
                 onRemove={locked ? undefined : () => remove(item)}
                 removeLabel={removeLabel?.(item)}
                 tabIndex={focusable ? 0 : undefined}
-                aria-roledescription={movable ? 'item reordenável' : undefined}
+                aria-roledescription={movable ? "item reordenável" : undefined}
                 className={
                   [
-                    movable && 'rds-chip--reorderable',
-                    renamable && 'rds-chip--editable',
-                    reorder.held === item && 'rds-chip--dragging',
+                    movable && "rds-chip--reorderable",
+                    renamable && "rds-chip--editable",
+                    reorder.held === item && "rds-chip--dragging",
                   ]
                     .filter(Boolean)
-                    .join(' ') || undefined
+                    .join(" ") || undefined
                 }
                 onPointerDown={(event) => reorder.onPointerDown(event, item)}
                 onKeyDown={(event) => chipKeyDown(event, item, locked)}
                 onClick={(event) => {
                   if (reorder.dragged.current) return;
-                  if ((event.target as HTMLElement).closest('.rds-chip__label')) startEdit(item);
+                  if ((event.target as HTMLElement).closest(".rds-chip__label"))
+                    startEdit(item);
                 }}
               >
                 {item}
@@ -407,14 +491,25 @@ export function ChipInput({
             );
             return (
               <li key={item} data-reorder-item={item}>
-                {meta.tooltip ? <Tooltip text={meta.tooltip}>{chip}</Tooltip> : chip}
+                {meta.tooltip ? (
+                  <Tooltip text={meta.tooltip}>{chip}</Tooltip>
+                ) : (
+                  chip
+                )}
               </li>
             );
           })}
           {list && !full && !disabled && (
             <li className="rds-chip-input__add-item">
               {adding ? (
-                <span className={['rds-chip rds-chip-input__add rds-chip-input__add--editing', md && 'rds-chip--md'].filter(Boolean).join(' ')}>
+                <span
+                  className={[
+                    "rds-chip rds-chip-input__add rds-chip-input__add--editing",
+                    md && "rds-chip--md",
+                  ]
+                    .filter(Boolean)
+                    .join(" ")}
+                >
                   <input
                     ref={input}
                     id={controlId}
@@ -435,13 +530,22 @@ export function ChipInput({
                     onKeyDown={addKeyDown}
                     onBlur={() => {
                       if (typed) void create(text);
-                      setText('');
+                      setText("");
                       setAdding(false);
                     }}
                   />
                 </span>
               ) : (
-                <button ref={addButton} type="button" className={md ? 'rds-chip rds-chip--md rds-chip-input__add' : 'rds-chip rds-chip-input__add'} onClick={() => setAdding(true)}>
+                <button
+                  ref={addButton}
+                  type="button"
+                  className={
+                    md
+                      ? "rds-chip rds-chip--md rds-chip-input__add"
+                      : "rds-chip rds-chip-input__add"
+                  }
+                  onClick={() => setAdding(true)}
+                >
                   <span className="rds-chip__icon" aria-hidden="true">
                     <PlusIcon />
                   </span>
@@ -453,56 +557,78 @@ export function ChipInput({
         </ul>
       )}
       {!list && (
-      <input
-        ref={input}
-        id={controlId}
-        className="rds-field__control"
-        type="text"
-        autoComplete="off"
-        enterKeyHint="enter"
-        {...(suggestions ? { role: 'combobox', 'aria-autocomplete': 'list' as const, ...controlProps } : {})}
-        aria-label={ariaLabel}
-        aria-labelledby={ariaLabelledBy}
-        aria-invalid={invalid || undefined}
-        aria-describedby={describedBy}
-        aria-required={required || undefined}
-        aria-busy={busy || undefined}
-        disabled={disabled}
-        placeholder={values.length ? undefined : placeholder}
-        value={text}
-        onChange={(event) => {
-          const next = event.target.value;
-          // A pasted "a, b, c" becomes Chips up to the last comma; the rest stays typed.
-          const cut = next.lastIndexOf(',');
-          if (cut >= 0) {
-            void create(next.slice(0, cut));
-            setText(next.slice(cut + 1).trimStart());
-          } else {
-            setText(next);
-          }
-          setOpen(true);
-          setActive(-1);
-        }}
-        onFocus={() => setOpen(true)}
-        onKeyDown={keyDown}
-        onBlur={() => {
-          setOpen(false);
-          setActive(-1);
-        }}
-      />
+        <input
+          ref={input}
+          id={controlId}
+          className="rds-field__control"
+          type="text"
+          autoComplete="off"
+          enterKeyHint="enter"
+          {...(suggestions
+            ? {
+                role: "combobox",
+                "aria-autocomplete": "list" as const,
+                ...controlProps,
+              }
+            : {})}
+          aria-label={ariaLabel}
+          aria-labelledby={ariaLabelledBy}
+          aria-invalid={invalid || undefined}
+          aria-describedby={describedBy}
+          aria-required={required || undefined}
+          aria-busy={busy || undefined}
+          disabled={disabled}
+          placeholder={values.length ? undefined : placeholder}
+          value={text}
+          onChange={(event) => {
+            const next = event.target.value;
+            // A pasted "a, b, c" becomes Chips up to the last comma; the rest stays typed.
+            const cut = next.lastIndexOf(",");
+            if (cut >= 0) {
+              void create(next.slice(0, cut));
+              setText(next.slice(cut + 1).trimStart());
+            } else {
+              setText(next);
+            }
+            setOpen(true);
+            setActive(-1);
+          }}
+          onFocus={() => setOpen(true)}
+          onKeyDown={keyDown}
+          onBlur={() => {
+            setOpen(false);
+            setActive(-1);
+          }}
+        />
       )}
-      {name && values.map((item) => <input key={item} type="hidden" name={name} value={item} />)}
-      {showList && (
-        <ul {...listProps} aria-label={listName} className="rds-listbox rds-chip-input__list">
-          {rows.map((row, index) => (
-            <li key={row.value} {...optionProps(row, index)} className="rds-listbox__option">
-              <OptionContent icon={row.create ? <PlusIcon /> : undefined} selected={false}>
-                {row.label}
-              </OptionContent>
-            </li>
-          ))}
-        </ul>
-      )}
+      {name &&
+        values.map((item) => (
+          <input key={item} type="hidden" name={name} value={item} />
+        ))}
+      <FloatingList open={showList} field={input}>
+        {showList && (
+          <ul
+            {...listProps}
+            aria-label={listName}
+            className="rds-listbox rds-chip-input__list"
+          >
+            {rows.map((row, index) => (
+              <li
+                key={row.value}
+                {...optionProps(row, index)}
+                className="rds-listbox__option"
+              >
+                <OptionContent
+                  icon={row.create ? <PlusIcon /> : undefined}
+                  selected={false}
+                >
+                  {row.label}
+                </OptionContent>
+              </li>
+            ))}
+          </ul>
+        )}
+      </FloatingList>
     </FieldShell>
   );
 }

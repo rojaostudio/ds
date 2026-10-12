@@ -2847,12 +2847,10 @@ input:focus-visible + .rds-checkbox__box {
   padding-inline-start: var(--space-4);
 }
 
+/* In the floating layer (internal/floating-list.css, ds#157): as wide as the box, 5 options at most. */
 .rds-chip-input__list {
-  position: absolute;
-  top: calc(100% + var(--space-4));
-  inset-inline: calc(var(--border-width) * -1);
-  z-index: var(--_layer-floating, var(--z-dropdown));
-  max-height: calc(5 * (var(--space-12) * 2 + var(--type-button-line)) + var(--space-8));
+  --_list-max-height: calc(5 * (var(--space-12) * 2 + var(--type-button-line)) + var(--space-8));
+  width: 100%;
 }
 
 /* list (Figma: layout=list): no box, the Chips wrap 8 apart and the "+" closes the row. */
@@ -3790,15 +3788,13 @@ button.rds-chip-input__add:focus-visible {
 /* @tokens combobox */
 /*
  * Combobox (Forms collection, combobox/*): the Input's field (internal/field.css, input/*) with the Listbox
- * 4 below the box and as wide (internal/listbox.css). Nothing matches (Figma: menu=empty): the list shows the
+ * 4 below the box and as wide, in a floating layer that flips and shrinks (internal/floating-list.css). Nothing matches (Figma: menu=empty): the list shows the
  * empty message in combobox/empty, 14/20, 12 inside.
  */
+/* In the floating layer (internal/floating-list.css, ds#157): as wide as the box, 7 options at most. */
 .rds-combobox__list {
-  position: absolute;
-  top: calc(100% + var(--space-4));
-  inset-inline: calc(var(--border-width) * -1);
-  z-index: var(--_layer-floating, var(--z-dropdown));
-  max-height: calc(7 * (var(--space-12) * 2 + var(--type-button-line)) + var(--space-8));
+  --_list-max-height: calc(7 * (var(--space-12) * 2 + var(--type-button-line)) + var(--space-8));
+  width: 100%;
 }
 
 .rds-combobox__empty {
@@ -6893,6 +6889,23 @@ button.rds-chip-input__add:focus-visible {
   flex-direction: column;
 }
 
+/* components/internal/floating-list.css */
+/* @tokens internal */
+/*
+ * The floating layer of a field's list (internal/floating-list.tsx): as wide as the field's box, at z overlay, over
+ * the sticky bars (z sticky); with a modal open, over the modal (--_layer-floating, internal/modal.css). The list
+ * inside is capped by the room Radix measures on the chosen side.
+ */
+.rds-floating-list {
+  box-sizing: border-box;
+  width: var(--radix-popper-anchor-width);
+  z-index: var(--_layer-floating, var(--z-overlay));
+}
+
+.rds-floating-list > .rds-listbox {
+  max-height: min(var(--_list-max-height, 100vh), var(--radix-popover-content-available-height, 100vh));
+}
+
 /* components/internal/google.css */
 /* @tokens google */
 /*
@@ -7635,7 +7648,8 @@ button.rds-chip-input__add:focus-visible {
   line-height: var(--type-small-line);
 }
 
-.rds-modal__close {
+.rds-modal__close,
+.rds-modal__back {
   flex: none;
 }
 
@@ -12910,12 +12924,10 @@ tbody + tbody > .rds-table__group-row > .rds-table__group {
   cursor: not-allowed;
 }
 
+/* In the floating layer (internal/floating-list.css, ds#157): as wide as the box, 5 options at most. */
 .rds-time-picker__list {
-  position: absolute;
-  top: calc(100% + var(--space-4));
-  inset-inline: calc(var(--border-width) * -1);
-  z-index: var(--_layer-floating, var(--z-dropdown));
-  max-height: calc(5 * (var(--space-12) * 2 + var(--type-button-line)) + var(--space-8));
+  --_list-max-height: calc(5 * (var(--space-12) * 2 + var(--type-button-line)) + var(--space-8));
+  width: 100%;
 }
 
 /* components/timeline.css */
