@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { page } from 'vitest/browser';
+import { page, userEvent } from 'vitest/browser';
 import { DataTableHeader } from './data-table-header';
 import { FilterChip, FilterChipGroup } from './filter-chip';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './tabs';
@@ -94,5 +94,33 @@ describe('bleed', () => {
       mode,
     );
     expect(await axeViolations(el)).toEqual([]);
+  });
+
+  it('compactFilters="drawer" below 1024: no quick group in the bar; "Filtros" counts them and opens them first', async () => {
+    await page.viewport(390, 800);
+    const el = await render(
+      <Page>
+        <DataTableHeader bleed compactFilters="drawer" quickActiveCount={1} search={{ value: '', onChange: () => {} }} quickFilters={quick} />
+      </Page>,
+    );
+    const shown = Array.from(el.querySelectorAll<HTMLElement>('[aria-label="Filtros rápidos"]')).filter((g) => g.offsetParent !== null);
+    expect(shown).toHaveLength(0);
+    const trigger = Array.from(el.querySelectorAll<HTMLElement>('[data-filter-toggle]')).find((b) => b.offsetParent !== null)!;
+    expect(trigger.getAttribute('aria-label')).toBe('Filtros, 1 ativo');
+    await userEvent.click(trigger);
+    const dialog = document.querySelector<HTMLElement>('[role="dialog"]')!;
+    expect(dialog.querySelector('[aria-label="Filtros rápidos"]')).not.toBeNull();
+    expect(dialog.querySelectorAll('[aria-label="Filtros rápidos"] button').length).toBe(6);
+  });
+
+  it('compactFilters="drawer" from 1024: the quick filters stay inline', async () => {
+    await page.viewport(1280, 800);
+    const el = await render(
+      <Page>
+        <DataTableHeader bleed compactFilters="drawer" search={{ value: '', onChange: () => {} }} quickFilters={quick} />
+      </Page>,
+    );
+    const shown = Array.from(el.querySelectorAll<HTMLElement>('[aria-label="Filtros rápidos"]')).filter((g) => g.offsetParent !== null);
+    expect(shown).toHaveLength(1);
   });
 });
