@@ -1,5 +1,16 @@
 # @rojaostudio/ds
 
+## 2.12.0
+
+### Minor Changes
+
+- 49f18a2: Dialog: `closeButton` (Figma `showClose`, on by default). Off for a decision that has to be made, where the × would be one more, ambiguous way out; the footer's Cancel stays as the exit, also on the compact sheet (which otherwise hides it). Escape still cancels.
+- 750f377: Tooltip: neutral inverse instead of the brand's primary. `tooltip/background` → `surface/inverse`, `tooltip/text` → `text/on-inverse` (dark on light, light on dark). A tooltip is a system label, not an action; in the brand colour it looked like a button.
+
+### Patch Changes
+
+- 2186309: PageShell: the PageHeader is 24 above the Body (the shell is a flex column with gap 24, as the Figma's content slot). Before, the first section touched the header's description.
+
 ## 2.11.0
 
 ### Minor Changes
