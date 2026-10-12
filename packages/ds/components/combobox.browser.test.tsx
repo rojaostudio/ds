@@ -1,9 +1,13 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { userEvent } from 'vitest/browser';
+import { page, userEvent } from 'vitest/browser';
 import { Combobox } from './combobox';
 import { MODES, axeViolations, cleanup, render } from './__tests__/render';
 
 afterEach(cleanup);
+
+// The list lives in a floating layer at the end of <body> (ds#157), outside the page's landmarks like any transient
+// popup (the Select's too): axe's best-practice region rule is the one rule left out.
+const floatingAxe = async () => (await axeViolations(document.body)).filter((v) => !v.startsWith('region:'));
 
 const audiences = ['Compradores SP', 'Compradores RJ', 'Comerciantes', 'Lojistas SP', { value: 'adm', label: 'Administradores', disabled: true }];
 
@@ -40,20 +44,20 @@ describe.each(MODES)('Combobox (%s)', (mode) => {
     input.focus();
     await userEvent.keyboard('{ArrowDown}');
     expect(listbox()).not.toBeNull();
-    expect(await axeViolations(el)).toEqual([]);
+    expect(await floatingAxe()).toEqual([]);
     await userEvent.clear(input);
     await userEvent.type(input, 'Com');
-    expect(el.textContent).toContain('Cadastrar "Com"');
-    expect(await axeViolations(el)).toEqual([]);
+    expect(document.body.textContent).toContain('Cadastrar "Com"');
+    expect(await floatingAxe()).toEqual([]);
     // The create option under the arrows (menu=create, hover on it).
     await userEvent.keyboard('{ArrowUp}');
     expect(activeOption(input)?.textContent).toBe('Cadastrar "Com"');
-    expect(await axeViolations(el)).toEqual([]);
+    expect(await floatingAxe()).toEqual([]);
     // menu=empty-create: the create option alone, already active.
     await userEvent.clear(input);
     await userEvent.type(input, 'xyz');
     expect(activeOption(input)?.textContent).toBe('Cadastrar "xyz"');
-    expect(await axeViolations(el)).toEqual([]);
+    expect(await floatingAxe()).toEqual([]);
   });
 
   it('the empty menu passes axe (menu=empty)', async () => {
@@ -66,9 +70,9 @@ describe.each(MODES)('Combobox (%s)', (mode) => {
     const input = field(el);
     input.focus();
     await userEvent.type(input, 'Lojistas BH');
-    expect(el.querySelector('.rds-combobox__empty')?.textContent).toBe('Nenhum público com esse nome.');
+    expect(document.querySelector('.rds-combobox__empty')?.textContent).toBe('Nenhum público com esse nome.');
     expect(listbox()).toBeNull();
-    expect(await axeViolations(el)).toEqual([]);
+    expect(await floatingAxe()).toEqual([]);
   });
 
   it('is 44px tall, as the Input', async () => {
@@ -240,5 +244,33 @@ describe('Combobox behaviour', () => {
     expect(b.getAttribute('aria-invalid')).toBe('true');
     expect(document.getElementById(b.getAttribute('aria-describedby')!)?.textContent).toBe('Escolha um público.');
     expect(c.disabled).toBe(true);
+  });
+});
+
+describe('Combobox list in a floating layer (ds#157)', () => {
+  afterEach(() => page.viewport(1280, 800));
+
+  it('is not cut by a Card, sits over a sticky bar and flips up at the foot of the page', async () => {
+    await page.viewport(800, 600);
+    const el = await render(
+      <div style={{ height: 600, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
+        <div style={{ overflow: 'hidden', padding: 16 }}>
+          <Combobox label="Público" options={audiences} />
+        </div>
+        <div style={{ position: 'sticky', bottom: 0, height: 64, zIndex: 'var(--z-sticky)' as unknown as number, background: 'gray' }} />
+      </div>,
+      'light',
+      { host: 'div' },
+    );
+    const input = field(el);
+    const before = document.documentElement.scrollHeight;
+    input.focus();
+    await userEvent.keyboard('{ArrowDown}');
+    const list = listbox()!;
+    await vi.waitFor(() => expect(list.getBoundingClientRect().bottom).toBeLessThanOrEqual(input.getBoundingClientRect().top));
+    expect(el.contains(list)).toBe(false);
+    const layer = list.closest<HTMLElement>('[data-radix-popper-content-wrapper]')!;
+    expect(Number(getComputedStyle(layer).zIndex)).toBeGreaterThan(1100);
+    expect(document.documentElement.scrollHeight).toBe(before);
   });
 });

@@ -1,15 +1,13 @@
 /* @tokens combobox */
 /*
  * Combobox (Forms collection, combobox/*): the Input's field (internal/field.css, input/*) with the Listbox
- * 4 below the box and as wide (internal/listbox.css). Nothing matches (Figma: menu=empty): the list shows the
+ * 4 below the box and as wide, in a floating layer that flips and shrinks (internal/floating-list.css). Nothing matches (Figma: menu=empty): the list shows the
  * empty message in combobox/empty, 14/20, 12 inside.
  */
+/* In the floating layer (internal/floating-list.css, ds#157): as wide as the box, 7 options at most. */
 .rds-combobox__list {
-  position: absolute;
-  top: calc(100% + var(--space-4));
-  inset-inline: calc(var(--border-width) * -1);
-  z-index: var(--_layer-floating, var(--z-dropdown));
-  max-height: calc(7 * (var(--space-12) * 2 + var(--type-button-line)) + var(--space-8));
+  --_list-max-height: calc(7 * (var(--space-12) * 2 + var(--type-button-line)) + var(--space-8));
+  width: 100%;
 }
 
 .rds-combobox__empty {

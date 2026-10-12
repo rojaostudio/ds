@@ -48,12 +48,10 @@
   padding-inline-start: var(--space-4);
 }
 
+/* In the floating layer (internal/floating-list.css, ds#157): as wide as the box, 5 options at most. */
 .rds-chip-input__list {
-  position: absolute;
-  top: calc(100% + var(--space-4));
-  inset-inline: calc(var(--border-width) * -1);
-  z-index: var(--_layer-floating, var(--z-dropdown));
-  max-height: calc(5 * (var(--space-12) * 2 + var(--type-button-line)) + var(--space-8));
+  --_list-max-height: calc(5 * (var(--space-12) * 2 + var(--type-button-line)) + var(--space-8));
+  width: 100%;
 }
 
 /* list (Figma: layout=list): no box, the Chips wrap 8 apart and the "+" closes the row. */
