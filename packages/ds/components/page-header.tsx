@@ -66,6 +66,12 @@ export interface PageHeaderProps extends Omit<HTMLAttributes<HTMLElement>, 'titl
    * page's <h1>). From 1024 up nothing changes.
    */
   compactTitle?: 'inline' | 'bar';
+  /**
+   * The title's line (Figma: `showTitle`, default true). false: the title, its help and the titleAddon leave the
+   * PageHeader at every width and the description is its first line, for when the app's bar shows the screen's title.
+   * The title stays for screen readers (the page's <h1>).
+   */
+  showTitle?: boolean;
 }
 
 /** The title as plain text, for the help's accessible name. */
@@ -92,6 +98,7 @@ export function PageHeader({
   help,
   titleAddon,
   compactTitle = 'inline',
+  showTitle = true,
   className,
   ...rest
 }: PageHeaderProps) {
@@ -102,7 +109,7 @@ export function PageHeader({
   return (
     <Root
       {...rest}
-      className={['rds-page-header', compactTitle === 'bar' && 'rds-page-header--bar-title', className].filter(Boolean).join(' ')}
+      className={['rds-page-header', compactTitle === 'bar' && 'rds-page-header--bar-title', !showTitle && 'rds-page-header--no-title', className].filter(Boolean).join(' ')}
     >
       {breadcrumb}
       <div className="rds-page-header__row">
@@ -120,7 +127,7 @@ export function PageHeader({
             <div className="rds-page-header__title-row">
               <div className="rds-page-header__title-group">
                 <Title className="rds-page-header__title">{title}</Title>
-                {help && (
+                {help && showTitle && (
                   <div className="rds-page-header__help">
                     <Tooltip text={help.label}>
                       {help.href ? (
@@ -134,7 +141,7 @@ export function PageHeader({
                   </div>
                 )}
               </div>
-              {titleAddon && <div className="rds-page-header__addon">{titleAddon}</div>}
+              {titleAddon && showTitle && <div className="rds-page-header__addon">{titleAddon}</div>}
             </div>
             {description && <p className="rds-page-header__description">{description}</p>}
           </div>
