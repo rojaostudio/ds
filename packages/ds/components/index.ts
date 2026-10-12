@@ -60,7 +60,7 @@ export type { ButtonProps, ButtonTone, ButtonVariant, ButtonSize, ButtonIconPosi
 
 // 2.0 (#15): Indicators follow the Figma [RDS]. The status-with-dot left the Badge and is the Status.
 export { Badge, formatBadgeValue } from './badge';
-export type { BadgeProps, BadgeTone, BadgeVariant } from './badge';
+export type { BadgeSize, BadgeProps, BadgeTone, BadgeVariant } from './badge';
 export { Status } from './status';
 export type { StatusProps, StatusTone, StatusVariant, StatusSize } from './status';
 export { Delta } from './delta';

@@ -1,5 +1,8 @@
 /* @tokens badge */
-/* Badge (Indicators collection, badge/*): 32 tall, pill, caption bold, 8 × 12 inside; the number is a 32 circle. */
+/*
+ * Badge (Indicators collection, badge/*): 32 tall, pill, caption bold, 8 × 12 inside; the number is a 32 circle.
+ * size sm (Figma 12/10): 24 tall, 4 × 8 inside; the number a 24 circle.
+ */
 .rds-badge {
   box-sizing: border-box;
   display: inline-flex;
@@ -50,6 +53,18 @@
   --_background: var(--badge-accent-highlight-background);
   --_label: var(--badge-accent-highlight-label);
 }
+/* In a line of text 24 tall (the row's title) it fills the line: aligned to its top, it does not push it taller. */
+.rds-badge--sm {
+  min-height: var(--size-24);
+  padding: var(--space-4) var(--space-8);
+  vertical-align: top;
+}
+
+.rds-badge--sm.rds-badge--number {
+  min-width: var(--size-24);
+  padding: var(--space-4);
+}
+
 /* Windows high contrast drops backgrounds: keep the pill visible with a border. */
 @media (forced-colors: active) {
   .rds-badge {
