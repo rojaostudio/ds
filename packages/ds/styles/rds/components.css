@@ -565,8 +565,8 @@
   --toast-border: var(--border-default);
   --toast-title: var(--text-heading);
   --toast-text: var(--text-muted);
-  --tooltip-background: var(--colors-primary-default);
-  --tooltip-text: var(--text-on-primary-strong);
+  --tooltip-background: var(--surface-inverse);
+  --tooltip-text: var(--text-on-inverse);
   --toast-neutral-soft-background: var(--surface-neutral);
   --toast-neutral-soft-text: var(--text-neutral);
   --toast-neutral-fill-background: var(--colors-state-neutral);
