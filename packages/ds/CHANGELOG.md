@@ -1,5 +1,12 @@
 # @rojaostudio/ds
 
+## 2.9.2
+
+### Patch Changes
+
+- Updated dependencies [7801c64]
+  - @rojaostudio/ds-core@1.1.1
+
 ## 2.9.1
 
 ### Patch Changes
