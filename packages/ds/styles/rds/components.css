@@ -66,6 +66,8 @@
   --toggle-label-disabled: var(--text-disabled);
   --toggle-border-pressed: var(--text-selected);
   --toggle-border-disabled: var(--border-default);
+  --toggle-border-error: var(--border-error);
+  --toggle-group-error-message: var(--text-error);
   --bottom-bar-text: var(--text-on-primary);
   --fab-cta-background-default: var(--colors-primary-default);
   --fab-cta-background-hover: var(--colors-primary-default);
@@ -281,6 +283,8 @@
   --description-list-label-width-md: 160px;
   --description-list-label-width-sm: 104px;
   --empty-title: var(--text-heading);
+  --empty-error-message: var(--text-error);
+  --empty-error-ring: var(--border-error);
   --empty-description: var(--text-muted);
   --item-title: var(--text-heading);
   --item-description: var(--text-muted);
@@ -331,6 +335,9 @@
   --choice-card-container-background-default: var(--surface-card);
   --choice-card-container-background-selected: var(--surface-tint-subtle);
   --choice-card-container-border-default: var(--border-default);
+  --choice-card-container-border-error: var(--border-error);
+  --choice-card-group-required: var(--text-error);
+  --choice-card-group-error-message: var(--text-error);
   --choice-card-container-border-hover: var(--border-strong);
   --choice-card-container-border-selected: var(--colors-primary-default);
   --choice-card-label-color-default: var(--text-body);

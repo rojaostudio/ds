@@ -1,5 +1,5 @@
 /* @tokens toggle-group */
-/* ToggleGroup: Toggles side by side, 4 apart (Figma: slot items, gap space/4). No tokens of its own. */
+/* ToggleGroup: Toggles side by side, 4 apart (Figma: slot items, gap space/4). Its own tokens: toggle-group/* (the error message). */
 .rds-toggle-group {
   display: inline-flex;
   flex-wrap: wrap;
@@ -14,4 +14,21 @@
   .rds-toggle-group--sm {
     gap: calc(var(--button-size-md-height) - var(--button-size-sm-height));
   }
+}
+
+/*
+ * In error (ds#145): every item that is not on takes the error border, ghost included (its border is transparent,
+ * so it shows only here). The message is the group's next sibling: the group sits in a vertical stack.
+ */
+.rds-toggle-group--error .rds-toggle:not([data-state='on']) {
+  --_border: var(--toggle-border-error);
+}
+
+.rds-toggle-group__error-message {
+  display: block;
+  margin-top: var(--space-4);
+  color: var(--toggle-group-error-message);
+  font-family: var(--type-font-stack);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
 }
