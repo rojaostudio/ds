@@ -146,3 +146,48 @@ describe("emitClaudeMd — hostile description and options", () => {
     expect(emitClaudeMd(def, { install: "npm install @rojaostudio/ds@next" })).toContain("\nnpm install @rojaostudio/ds@next\n");
   });
 });
+
+describe("isSafeColor: no catastrophic backtracking (ReDoS, CWE-1333)", () => {
+  it("a long run of digits is refused at once", () => {
+    for (const n of [400, 800, 5000]) {
+      const start = performance.now();
+      expect(isSafeColor(`rgb(${"1".repeat(n)}!`)).toBe(false);
+      expect(performance.now() - start).toBeLessThan(50);
+    }
+  });
+
+  it("still takes the forms it took: spaces, commas, the alpha slash", () => {
+    for (const ok of ["rgb(1 2 3)", "rgb(1,2,3)", "rgba(1, 2, 3, 0.5)", "oklch(0.62 0.19 259.8deg / 50%)", "oklch(0.62 0.19 259.8/0.5)"])
+      expect(isSafeColor(ok), ok).toBe(true);
+    // Channels glued together are not three channels.
+    expect(isSafeColor("rgb(123)")).toBe(false);
+  });
+});
+
+describe("emitCss: a hostile recipe never reaches the stylesheet (CSS injection, CWE-74)", () => {
+  it("refuses a name, a font or a palette that would break out", async () => {
+    const { emitCss } = await import("../emitCss");
+    const bad: BrandDef[] = [
+      { ...def, name: "acme { } body" },
+      { ...def, fonts: { body: "x), red; } body { color: red" } },
+      { ...def, palettes: { "a;b": "#ff0000" } },
+      { ...def, palettes: { ok: { "500": "red; } x {" } } },
+    ];
+    for (const recipe of bad) expect(() => emitCss(recipe)).toThrow(/invalid input/);
+  });
+
+  it("keeps the description on one line and inside its comment", async () => {
+    const { emitCss } = await import("../emitCss");
+    const css = emitCss({ ...def, description: "ok */ @import url(https://evil.example/x.css); /*\n} body {" });
+    // The text may stay inside the header comment, but it cannot close it: its line has no "*/".
+    const lines = css.split(/\r?\n/);
+    const line = lines.find((l) => l.includes("evil.example"))!;
+    expect(line).not.toContain("*/");
+    expect(lines.some((l) => l.trimStart().startsWith("@import") || l.trimStart().startsWith("} body"))).toBe(false);
+  });
+
+  it("a normal recipe still emits", async () => {
+    const { emitCss } = await import("../emitCss");
+    expect(emitCss(def)).toContain(".theme-acme {");
+  });
+});

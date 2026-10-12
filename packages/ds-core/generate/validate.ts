@@ -15,14 +15,19 @@ const HEX = /^#[0-9a-f]{3,8}$/i;
 /** One channel: a number (optionally signed, decimal, exponent) with an optional % or deg, or `none`. */
 const CH = String.raw`(?:[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?(?:%|deg)?|none)`;
 /** `rgb(…)`, `rgba(…)`, `oklch(…)`: 3 or 4 channels, separated by spaces, commas or the alpha slash. Nothing else. */
-const COLOR_FN = new RegExp(String.raw`^(?:rgba?|oklch)\(\s*${CH}(?:\s*[,/]?\s*${CH}){2,3}\s*\)$`, "i");
+// The separator between channels is required (a comma, the alpha slash, or spaces): an optional one let a run of
+// digits split between channels in many ways, and a long hostile value took seconds (ReDoS, CWE-1333).
+const COLOR_FN = new RegExp(String.raw`^(?:rgba?|oklch)\(\s*${CH}(?:(?:\s*[,/]\s*|\s+)${CH}){2,3}\s*\)$`, "i");
+/** No colour is longer than this; checked before any regex runs. */
+const COLOR_MAX = 64;
 /** A variable or primitive name: `marca/ciano`, `colors-primary-default`, `black/a10`. */
 const VAR_NAME = /^[a-z0-9]+(?:[/-][a-z0-9]+)*$/;
 /** What a font family may not carry: it is written inside `"…"` in the stylesheet. */
 // eslint-disable-next-line no-control-regex -- control characters are exactly what is refused
 const FONT_BAD = /["';{}\\<>\u0000-\u001f\u007f]/;
 
-export const isSafeColor = (v: unknown): v is string => typeof v === "string" && (HEX.test(v) || COLOR_FN.test(v));
+export const isSafeColor = (v: unknown): v is string =>
+  typeof v === "string" && v.length <= COLOR_MAX && (HEX.test(v) || COLOR_FN.test(v));
 export const isSafeVarName = (v: unknown): v is string => typeof v === "string" && VAR_NAME.test(v);
 export const isSafeFont = (v: unknown): v is string =>
   typeof v === "string" && v.trim().length > 0 && v.length <= 100 && !FONT_BAD.test(v);
@@ -121,3 +126,16 @@ export function oneLine(v: unknown, max = 200): string {
   if (s.length > max) s = `${s.slice(0, max - 1).trimEnd()}…`;
   return s;
 }
+
+/** A theme name written into a selector (`.theme-<name>`): lowercase letters, digits and `-`, at most 32. */
+export const isSafeThemeName = (v: unknown): v is string => typeof v === "string" && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(v) && v.length <= 32;
+
+/**
+ * A generated CSS value (a size, a font stack, a shadow, a `var()`): nothing that closes the declaration or the rule,
+ * opens a comment or an at-rule, or fetches (`url(`, `image-set(`, `expression(`). The last check before writing.
+ */
+export const isSafeCssValue = (v: unknown): boolean =>
+  typeof v === "string" &&
+  v.length <= 300 &&
+  // eslint-disable-next-line no-control-regex -- control characters are exactly what is refused
+  !/[;{}<>\\@\u0000-\u001f\u007f]|\/\*|\*\/|url\(|image-set\(|expression\(/i.test(v);
