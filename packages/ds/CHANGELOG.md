@@ -1,5 +1,37 @@
 # @rojaostudio/ds
 
+## 2.10.0
+
+### Minor Changes
+
+- 1743444: **Badge `size`** (ds#133): `md` (32, o padrão) | `sm` (24, respiro 4 × 8; o contador vira um círculo de 24). O sm vai ao lado do título de uma linha (Item, célula de tabela) sem a linha crescer: dentro de uma linha de texto de 24 ele se alinha ao topo dela.
+- 0924101: **`bleed`** (ds#134), para as faixas que rolam de lado chegarem à borda da tela em vez de serem cortadas na margem:
+
+  - **`<TabsList bleed>`:** a faixa devolve o respiro lateral da página (`--layout-content-padding-x`) com margem negativa e o põe por dentro; a primeira aba fica alinhada com o conteúdo e a rolagem corta na borda da tela. Com `trailing`, o respiro do fim vai depois dele.
+  - **`<DataTableHeader bleed>`:** abaixo de 1024, os filtros rápidos ganham uma linha própria que sangra do mesmo jeito; a busca, o filtro e a ação ficam onde estão. A partir de 1024 nada muda. Só uma das duas cópias aparece de cada vez, então o leitor de tela encontra o grupo uma vez.
+
+  Sem `bleed`, nada muda.
+
+- 83d355b: **DataTableHeader `compactFilters`** (ds#134): abaixo de 1024, onde ficam os filtros rápidos. `strip` (padrão) mantém a faixa à vista (de ponta a ponta com `bleed`). `drawer` tira os filtros rápidos da barra: o "Filtros" compacto abre um Drawer com eles no topo ("Filtros rápidos") e depois os outros filtros; `quickActiveCount` soma os rápidos ligados à contagem do botão. Use o `drawer` quando a lista quase nunca é filtrada, quando os rápidos são todos menus, ou quando a tela já tem outra faixa que rola. No Drawer, use FilterChips (não FilterChipMenu). A partir de 1024 nada muda.
+- 08d15cc: Pedidos de ds#127, aditivos:
+
+  - **Stat `loading`:** rótulo, valor e legenda viram Skeleton em linhas da mesma altura do texto, então o Stat fica com a altura do estado carregado (com e sem legenda e sparkline) e a grade não pula quando os números chegam. `aria-busy`; o rótulo continua para leitor de tela.
+  - **`ItemSkeleton` (novo):** uma linha de lista carregando, no formato do `Item variant="row"`: mesmo padding, mesma altura e a linha embaixo (a última do `ItemGroup` sai sem). `size` md | sm e `showMedia`, `showDescription`, `showTrailing`, `showDivider`. Escondido do leitor de tela: ponha `aria-busy` no `ItemGroup`.
+  - **`CardHeader size="lg"`:** o título em `type/heading` (24/30, peso do heading), para o cabeçalho de seção de um painel em que o conteúdo traz números grandes. A faixa da ação acompanha a linha do título. md e sm continuam vindo do Card.
+  - **Chart:** nada muda no código; uma série é `series` com um item. No Figma, o `showSeries2` desliga a segunda linha e a legenda dela.
+  - **CardHeader `align="start"` sem descrição:** o Tile, o título e a ação ficam no mesmo centro (antes o título de uma linha colava no topo do Tile de 48). Com descrição nada muda: a ação segue na linha do título.
+  - **Sparkline `inverse`:** linha e ponto em `text/on-inverse` (tokens `sparkline/inverse/*`). Dentro do Stat `inverse` a Sparkline vira inversa sozinha, como o Delta; antes ela sumia na chapa escura.
+
+- f87b998: **IconButton `dot`** (ds#139): um ponto de 8 no canto, sem número, para um aviso fixo e informativo ("tem algo aqui"): `neutral` (`text/muted`), `info` (`text/info`) e `danger` (`text/error`), todos com 3:1 ou mais sobre a superfície em todos os temas e na chapa. É decorativo: o que ele significa vai no `label`. Com `count`, vale o contador. Tokens novos: `icon-button/dot/neutral`, `icon-button/dot/info`, `icon-button/dot/danger`.
+- 93fccc8: **PageHeader `showTitle`** (ds#136, padrão `true`): com `false`, o título, a ajuda e o `titleAddon` saem do PageHeader em qualquer largura e a descrição vira a primeira linha, para quando a barra do app mostra o título da tela. O título continua como `<h1>` só para o leitor de tela.
+- 7014745: **Pagination no estreito** (ds#138): abaixo de 1024, o resumo ("51 a 100 de 1.284 eventos") vai para uma linha própria acima dos controles, e os números saem: fica "‹ 5 de 26 ›", com as setas nas pontas e alvos de 44. O leitor de tela ouve "Página 5 de 26". A partir de 1024 nada muda.
+- 6dfd093: **`TableGroupRow`** (ds#137, novo): a linha que abre um grupo de linhas da tabela ("Hoje, 12/10"). Largura toda (`colSpan`), fundo `table/group/background` (surface/muted), rótulo semibold, contagem opcional à direita e linha embaixo; um `<th scope="rowgroup">`. Use um `TableBody` por grupo com a `TableGroupRow` primeiro; entre dois grupos uma linha fecha o de cima. Tokens novos: `table/group/background`, `table/group/label`, `table/group/count`.
+
+### Patch Changes
+
+- Updated dependencies [7aba070]
+  - @rojaostudio/ds-core@1.1.2
+
 ## 2.9.2
 
 ### Patch Changes
