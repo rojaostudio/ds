@@ -1,5 +1,12 @@
 # rojao-ds
 
+## 0.1.2
+
+### Patch Changes
+
+- Updated dependencies [7aba070]
+  - @rojaostudio/ds-core@1.1.2
+
 ## 0.1.1
 
 ### Patch Changes
