@@ -71,6 +71,13 @@ export type DataTableHeaderProps = {
   className?: string;
   /** In the compact arrangement (bar below 1024), moves the filters and the actions into a Drawer. The quick filters stay in view. */
   mobileCollapse?: boolean;
+  /**
+   * Below 1024 the quick filters get a line of their own that bleeds to the edge of the screen (Figma: `bleed=true`):
+   * the page's side padding (--layout-content-padding-x) goes inside the strip, so the first chip lines up with the
+   * content and the scroll cuts at the screen edge. The search, the trigger and the action stay where they are. From
+   * 1024 nothing changes (the quick filters share the search's line).
+   */
+  bleed?: boolean;
 };
 
 function optionLabel(filter: DataTableFilterDef) {
@@ -320,6 +327,7 @@ export function DataTableHeader({
   actions,
   className,
   mobileCollapse = false,
+  bleed = false,
 }: DataTableHeaderProps) {
   const searchRef = useRef<HTMLInputElement>(null);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -367,7 +375,11 @@ export function DataTableHeader({
           )}
 
           {quickFilters && (
-            <div className="rds-data-table-header__quick" role="group" aria-label="Filtros rápidos">
+            <div
+              className={['rds-data-table-header__quick', bleed && 'rds-data-table-header__quick--inline'].filter(Boolean).join(' ')}
+              role="group"
+              aria-label="Filtros rápidos"
+            >
               {quickFilters}
             </div>
           )}
@@ -419,6 +431,12 @@ export function DataTableHeader({
           </div>
         )}
       </div>
+
+      {bleed && quickFilters && (
+        <div className="rds-data-table-header__quick rds-data-table-header__quick--bleed" role="group" aria-label="Filtros rápidos">
+          {quickFilters}
+        </div>
+      )}
 
       {activeFilters.length > 0 && (
         <div className="rds-data-table-header__active">

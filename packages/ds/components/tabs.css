@@ -26,6 +26,28 @@
   scrollbar-width: none;
 }
 
+/*
+ * bleed (Figma 12/10, Tabs bleed=true): the bar takes the page's side padding back (negative margin) and the list puts
+ * it inside, so the first tab lines up with the content and the scroll cuts at the screen edge; scroll-padding keeps a
+ * focused tab off the edge. With a trailing slot, the padding at the end goes after it.
+ */
+.rds-tabs__bar--bleed {
+  margin-inline: calc(var(--layout-content-padding-x) * -1);
+}
+
+.rds-tabs__bar--bleed .rds-tabs__list {
+  padding-inline: var(--layout-content-padding-x);
+  scroll-padding-inline: var(--layout-content-padding-x);
+}
+
+.rds-tabs__bar--bleed:has(.rds-tabs__trailing) .rds-tabs__list {
+  padding-inline-end: 0;
+}
+
+.rds-tabs__bar--bleed .rds-tabs__trailing {
+  padding-inline-end: var(--layout-content-padding-x);
+}
+
 .rds-tabs__trailing {
   display: flex;
   flex: none;
