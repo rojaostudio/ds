@@ -106,6 +106,9 @@
   --button-size-lg-text-line: var(--type-body-line);
   --icon-button-count-background: var(--colors-state-error);
   --icon-button-count-label: var(--text-on-error);
+  --icon-button-dot-neutral: var(--text-muted);
+  --icon-button-dot-info: var(--text-info);
+  --icon-button-dot-danger: var(--text-error);
   --bottom-bar-focus-ring: var(--text-on-primary);
   --bottom-bar-button-fill-background: var(--text-on-primary);
   --bottom-bar-button-fill-label: var(--colors-primary-default);

@@ -88,6 +88,8 @@ export const PAIRS: Pair[] = [
   ...field('--textarea', { icon: true }), ...field('--select', { icon: true, float: true }), ...field('--chip-input'),
   ...field('--number-input'), ['--number-input-unit-default', '--number-input-background-default', 't'],
   ['--number-input-step-icon-default', '--number-input-background-default', 'u'],
+  // ds#139: the IconButton's dot, a non-text indicator on the surface it sits on.
+  ['--icon-button-dot-neutral', CTX, 'u'], ['--icon-button-dot-info', CTX, 'u'], ['--icon-button-dot-danger', CTX, 'u'],
   ...field('--color-input'),
   ['--otp-label', CTX, 't'], ['--otp-hint', CTX, 't'], ['--otp-error-message', CTX, 't'],
   ['--otp-digit-default', '--otp-slot-background-default', 't'], ['--otp-slot-border-default', CTX, 'u'],
