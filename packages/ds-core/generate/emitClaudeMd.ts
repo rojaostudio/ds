@@ -117,8 +117,9 @@ export function emitClaudeMd(source: BrandDef | RdsBrandTable, opts: ClaudeMdOpt
   if (name !== undefined && name !== "" && !(typeof name === "string" && NAME.test(name)))
     throw new Error(`emitClaudeMd: name ${preview(name)} is not valid (letters, digits, space, "-" and "_", up to 64)`);
   const Name = name ? name[0].toUpperCase() + name.slice(1) : "Brand";
-  const desc = !isTable(source) ? oneLine(source.description) : "";
-  const description = desc ? ` — ${desc}` : "";
+  // The description is account data read by an AI: short, and quoted so it reads as a name, not an instruction.
+  const desc = !isTable(source) ? oneLine(source.description, 120).replace(/["“”]/g, "") : "";
+  const description = desc ? ` — “${desc}”` : "";
   const cssFile = opts.cssFile ?? "rds-theme.css";
   if (!CSS_FILE.test(cssFile)) throw new Error(`emitClaudeMd: cssFile ${preview(cssFile)} is not a valid .css path`);
   if (opts.cssUrl !== undefined && !CSS_URL.test(opts.cssUrl))
