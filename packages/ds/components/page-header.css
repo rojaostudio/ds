@@ -121,3 +121,21 @@
   }
 }
 
+
+/*
+ * showTitle=false (Figma 12/10): the app's bar shows the title, so the title's line leaves the PageHeader at every width
+ * (the help and the addon are not rendered) and the description is the first line. The <h1> stays for screen readers:
+ * the line is clipped to 1px, its min-height reset so it takes no room.
+ */
+.rds-page-header--no-title .rds-page-header__title-row {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  min-height: 0;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
