@@ -280,3 +280,23 @@
     outline-color: Highlight;
   }
 }
+
+/*
+ * Group in error (ds#145): the unchosen cards take the error border, the chosen one keeps its own (the error stays
+ * next to what is missing, as in the RadioGroup). The message goes under the group, across every grid column.
+ */
+.rds-choice-card-group--error .rds-choice-card:not(.rds-choice-card--selected, .rds-choice-card--disabled) {
+  --_border: var(--choice-card-container-border-error);
+}
+
+.rds-choice-card-group__required {
+  color: var(--choice-card-group-required);
+}
+
+.rds-choice-card-group__error-message {
+  grid-column: 1 / -1;
+  color: var(--choice-card-group-error-message);
+  font-family: var(--type-font-stack);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+}

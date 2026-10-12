@@ -1,6 +1,7 @@
 'use client';
 
-import { createContext, useContext, useMemo, type ComponentPropsWithRef, type ReactNode } from 'react';
+import { createContext, useContext, useId, useMemo, type ComponentPropsWithRef, type ReactNode } from 'react';
+import { hasContent } from './internal/field';
 import * as ToggleGroupPrimitive from '@radix-ui/react-toggle-group';
 import { blockWhenDisabled } from './internal/button';
 import { toggleClassName, warnIfUnnamed, type ToggleSize, type ToggleVariant } from './internal/toggle';
@@ -17,6 +18,13 @@ export type ToggleGroupProps = ComponentPropsWithRef<typeof ToggleGroupPrimitive
   size?: ToggleSize;
   /** Required: what the group chooses ("Vista", "Estilo do texto"). */
   'aria-label': string;
+  /** The group is in error (Figma: `error`): the items take the error border. `errorMessage` turns it on too. */
+  error?: boolean;
+  /**
+   * What is missing ("Escolha um tamanho"), rendered right after the group and tied by aria-describedby. Put the
+   * group in a vertical stack so the message lands under it.
+   */
+  errorMessage?: ReactNode;
 };
 
 /**
@@ -24,14 +32,26 @@ export type ToggleGroupProps = ComponentPropsWithRef<typeof ToggleGroupPrimitive
  * `type="single"`: only one on (Lista or Grade). `type="multiple"`: each one on its own (bold, italic).
  * Tab enters the group, the arrow keys move between items. Styles: toggle-group.css and toggle.css.
  */
-export function ToggleGroup({ variant = 'outline', size = 'md', className, ...rest }: ToggleGroupProps) {
+export function ToggleGroup({ variant = 'outline', size = 'md', error, errorMessage, className, ...rest }: ToggleGroupProps) {
   const context = useMemo(() => ({ variant, size }), [variant, size]);
+  const id = useId();
+  const invalid = Boolean(error || hasContent(errorMessage));
+  const errorId = invalid && hasContent(errorMessage) ? `${id}-error` : undefined;
   return (
     <VariantContext.Provider value={context}>
       <ToggleGroupPrimitive.Root
+        aria-invalid={invalid || undefined}
         {...rest}
-        className={['rds-toggle-group', size === 'sm' && 'rds-toggle-group--sm', className].filter(Boolean).join(' ')}
+        aria-describedby={[rest['aria-describedby'], errorId].filter(Boolean).join(' ') || undefined}
+        className={['rds-toggle-group', size === 'sm' && 'rds-toggle-group--sm', invalid && 'rds-toggle-group--error', className]
+          .filter(Boolean)
+          .join(' ')}
       />
+      {errorId && (
+        <span id={errorId} className="rds-toggle-group__error-message">
+          {errorMessage}
+        </span>
+      )}
     </VariantContext.Provider>
   );
 }

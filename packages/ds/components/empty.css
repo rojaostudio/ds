@@ -39,3 +39,18 @@
   justify-content: center;
   gap: var(--space-8);
 }
+
+/* Required list left empty (ds#146): the message in the error colour, under the description. */
+.rds-empty__error-message {
+  margin: 0;
+  color: var(--empty-error-message);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  font-weight: 500;
+}
+
+.rds-empty--error:focus-visible {
+  outline: var(--focus-ring-width) solid var(--empty-error-ring);
+  outline-offset: calc(0px - var(--focus-ring-width));
+  border-radius: var(--radius-container);
+}

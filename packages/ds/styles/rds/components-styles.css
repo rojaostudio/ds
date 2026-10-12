@@ -3399,6 +3399,26 @@ button.rds-chip-input__add:focus-visible {
   }
 }
 
+/*
+ * Group in error (ds#145): the unchosen cards take the error border, the chosen one keeps its own (the error stays
+ * next to what is missing, as in the RadioGroup). The message goes under the group, across every grid column.
+ */
+.rds-choice-card-group--error .rds-choice-card:not(.rds-choice-card--selected, .rds-choice-card--disabled) {
+  --_border: var(--choice-card-container-border-error);
+}
+
+.rds-choice-card-group__required {
+  color: var(--choice-card-group-required);
+}
+
+.rds-choice-card-group__error-message {
+  grid-column: 1 / -1;
+  color: var(--choice-card-group-error-message);
+  font-family: var(--type-font-stack);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+}
+
 /* components/choice-carousel.css */
 /* @tokens choice-carousel */
 /*
@@ -4762,6 +4782,21 @@ button.rds-chip-input__add:focus-visible {
   flex-wrap: wrap;
   justify-content: center;
   gap: var(--space-8);
+}
+
+/* Required list left empty (ds#146): the message in the error colour, under the description. */
+.rds-empty__error-message {
+  margin: 0;
+  color: var(--empty-error-message);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+  font-weight: 500;
+}
+
+.rds-empty--error:focus-visible {
+  outline: var(--focus-ring-width) solid var(--empty-error-ring);
+  outline-offset: calc(0px - var(--focus-ring-width));
+  border-radius: var(--radius-container);
 }
 
 /* components/fab.css */
@@ -13201,7 +13236,7 @@ tbody + tbody > .rds-table__group-row > .rds-table__group {
 
 /* components/toggle-group.css */
 /* @tokens toggle-group */
-/* ToggleGroup: Toggles side by side, 4 apart (Figma: slot items, gap space/4). No tokens of its own. */
+/* ToggleGroup: Toggles side by side, 4 apart (Figma: slot items, gap space/4). Its own tokens: toggle-group/* (the error message). */
 .rds-toggle-group {
   display: inline-flex;
   flex-wrap: wrap;
@@ -13216,6 +13251,23 @@ tbody + tbody > .rds-table__group-row > .rds-table__group {
   .rds-toggle-group--sm {
     gap: calc(var(--button-size-md-height) - var(--button-size-sm-height));
   }
+}
+
+/*
+ * In error (ds#145): every item that is not on takes the error border, ghost included (its border is transparent,
+ * so it shows only here). The message is the group's next sibling: the group sits in a vertical stack.
+ */
+.rds-toggle-group--error .rds-toggle:not([data-state='on']) {
+  --_border: var(--toggle-border-error);
+}
+
+.rds-toggle-group__error-message {
+  display: block;
+  margin-top: var(--space-4);
+  color: var(--toggle-group-error-message);
+  font-family: var(--type-font-stack);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
 }
 
 /* components/toggle.css */

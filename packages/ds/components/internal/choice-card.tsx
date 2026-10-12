@@ -3,6 +3,7 @@
 // Styles: choice-card.css.
 import { createContext, useContext, useId, useState, type InputHTMLAttributes, type ReactNode } from 'react';
 import { Media } from '../media';
+import { hasContent } from './field';
 import { CheckIcon, ImageIcon } from './icons';
 
 /** row: the line with the radio; tile: a grid cell, icon on top; preview: an image on top. */
@@ -14,6 +15,7 @@ interface GroupContext {
   select: (value: string) => void;
   disabled?: boolean;
   layout?: ChoiceCardLayout;
+  required?: boolean;
 }
 
 const Group = createContext<GroupContext | null>(null);
@@ -86,6 +88,7 @@ export function ChoiceCardControl({
         value={value}
         checked={checked}
         disabled={isDisabled}
+        required={rest.required ?? group?.required}
         aria-describedby={description ? descriptionId : undefined}
         onChange={(event) => {
           onChange?.(event);
@@ -137,12 +140,20 @@ export interface ChoiceCardGroupProps {
    * every card's default.
    */
   layout?: ChoiceCardLayout;
+  /** Shows the asterisk after the legend and says "required" to a screen reader. */
+  required?: boolean;
+  /** The group is in error (Figma: `error`): the unchosen cards take the error border. `errorMessage` turns it on too. */
+  error?: boolean;
+  /** What is missing ("Escolha a forma de pagamento"), under the group, tied by aria-describedby. */
+  errorMessage?: ReactNode;
   className?: string;
 }
 
 /** A set of ChoiceCards where one is chosen at a time: a <fieldset> of native radios with a legend. */
-export function ChoiceCardGroup({ legend, children, value, defaultValue, onValueChange, name, disabled, layout = 'row', className }: ChoiceCardGroupProps) {
+export function ChoiceCardGroup({ legend, children, value, defaultValue, onValueChange, name, disabled, layout = 'row', required, error, errorMessage, className }: ChoiceCardGroupProps) {
   const generated = useId();
+  const invalid = Boolean(error || hasContent(errorMessage));
+  const errorId = invalid && hasContent(errorMessage) ? `${generated}-error` : undefined;
   const [own, setOwn] = useState(defaultValue);
   const current = value ?? own;
   return (
@@ -152,15 +163,34 @@ export function ChoiceCardGroup({ legend, children, value, defaultValue, onValue
         value: current,
         disabled,
         layout,
+        required,
         select: (next) => {
           setOwn(next);
           onValueChange?.(next);
         },
       }}
     >
-      <fieldset className={['rds-choice-card-group', `rds-choice-card-group--${layout}`, className].filter(Boolean).join(' ')}>
-        <legend className="rds-choice-card-group__legend">{legend}</legend>
+      <fieldset
+        aria-invalid={invalid || undefined}
+        aria-describedby={errorId}
+        className={['rds-choice-card-group', `rds-choice-card-group--${layout}`, invalid && 'rds-choice-card-group--error', className]
+          .filter(Boolean)
+          .join(' ')}
+      >
+        <legend className="rds-choice-card-group__legend">
+          {legend}
+          {required && (
+            <span className="rds-choice-card-group__required" aria-hidden="true">
+              {' *'}
+            </span>
+          )}
+        </legend>
         {children}
+        {errorId && (
+          <span id={errorId} className="rds-choice-card-group__error-message">
+            {errorMessage}
+          </span>
+        )}
       </fieldset>
     </Group.Provider>
   );

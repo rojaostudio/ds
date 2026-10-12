@@ -132,6 +132,7 @@ export type { TimelineProps, TimelineDayProps, TimelineItemProps } from './timel
 
 // 2.0 (#16): EmptyState became Empty, with the icon by prop.
 export { Empty } from './empty';
+export { focusFirstInvalid } from './focus-first-invalid';
 export type { EmptyProps } from './empty';
 
 export { InsightCard } from './insight-card';
