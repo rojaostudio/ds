@@ -25,6 +25,14 @@ export interface DialogProps extends ModalProps {
    * sheet too. Escape still cancels.
    */
   closeButton?: boolean;
+  /**
+   * A back action before the title (Figma: `showBack`, ds#152), for a Dialog in two steps (a list, then one item's
+   * detail): a ghost IconButton with a left chevron. Swap the content yourself and send the focus back to the item
+   * that opened the detail.
+   */
+  onBack?: () => void;
+  /** The back button's name for screen readers and its Tooltip. */
+  backLabel?: string;
 }
 
 /**

@@ -5,6 +5,7 @@ import { Chip } from './chip';
 import { announce } from './internal/announce';
 import { FieldShell, useFieldIds, warnIfUnlabelled, type FieldTextProps } from './internal/field';
 import { ChevronDownIcon, PlusIcon } from './internal/icons';
+import { ShortcutKeys } from './internal/shortcut';
 import { OptionContent } from './internal/option-content';
 import { toggleValue, useListbox } from './internal/use-listbox';
 
@@ -40,6 +41,11 @@ interface ComboboxBaseProps extends FieldTextProps {
   placeholder?: string;
   /** An icon on the left, as in the Input (Figma: `showLeadingIcon` + `leadingIcon`). Decorative. */
   leadingIcon?: ReactNode;
+  /**
+   * A key that focuses the field (ds#153), in the aria-keyshortcuts syntax ("/"): shown as a Kbd before the chevron
+   * (Figma: `showShortcut` + `shortcut`), hidden on a compact screen, and set as aria-keyshortcuts.
+   */
+  shortcut?: string;
   /** The form field name: hidden inputs carry the chosen values. */
   name?: string;
   disabled?: boolean;
@@ -100,6 +106,7 @@ export function Combobox(props: ComboboxProps) {
     createLabel = (text: string) => `Cadastrar "${text}"`,
     placeholder,
     leadingIcon,
+    shortcut,
     name,
     disabled,
     id,
@@ -269,6 +276,7 @@ export function Combobox(props: ComboboxProps) {
         aria-label={ariaLabel}
         aria-labelledby={ariaLabelledBy}
         aria-invalid={invalid || undefined}
+        aria-keyshortcuts={shortcut}
         aria-describedby={describedBy}
         aria-required={required || undefined}
         disabled={disabled}
@@ -293,6 +301,7 @@ export function Combobox(props: ComboboxProps) {
           setActive(-1);
         }}
       />
+      {shortcut && <ShortcutKeys shortcut={shortcut} className="rds-field__shortcut" />}
       <span
         className={['rds-field__icon', 'rds-combobox__chevron', open && 'rds-combobox__chevron--open'].filter(Boolean).join(' ')}
         aria-hidden="true"

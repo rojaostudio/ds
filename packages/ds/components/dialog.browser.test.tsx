@@ -166,6 +166,22 @@ describe('Dialog on a compact screen (the sheet, #45)', () => {
     expect(d.querySelector<HTMLElement>('.rds-modal__handle-area')!.offsetParent).not.toBeNull();
   });
 
+  it('onBack draws a back button before the title that runs it (ds#152)', async () => {
+    const back = vi.fn();
+    const el = await render(
+      <Dialog trigger={<Button>Abrir</Button>} title="Detalhe" onBack={back}>
+        <p>x</p>
+      </Dialog>,
+    );
+    const d = await open(el);
+    const button = d.querySelector<HTMLButtonElement>('.rds-modal__back')!;
+    expect(button.getAttribute('aria-label')).toBe('Voltar');
+    expect(button.compareDocumentPosition(d.querySelector('.rds-modal__title')!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    button.click();
+    expect(back).toHaveBeenCalledTimes(1);
+    expect(await axeViolations(document.body)).toEqual([]);
+  });
+
   it('without the × (closeButton={false}) keeps the Cancel as the exit', async () => {
     const el = await render(<Example closeButton={false} />);
     const d = await open(el);

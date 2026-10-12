@@ -341,3 +341,14 @@
     animation-duration: 3s;
   }
 }
+
+/* The shortcut's keys after the label (ds#153), from 1024 up: on a compact screen there is no keyboard to use. */
+.rds-button__shortcut {
+  display: inline-flex;
+}
+
+@media (max-width: 1023px) {
+  .rds-button__shortcut {
+    display: none;
+  }
+}
