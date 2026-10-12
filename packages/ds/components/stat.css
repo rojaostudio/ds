@@ -96,6 +96,13 @@
   --_color: var(--delta-inverse);
 }
 
+/* The Sparkline inside turns inverse too (Figma 12/10, the exposed Sparkline at inverse=true). */
+.rds-stat--inverse .rds-sparkline {
+  --sparkline-line: var(--sparkline-inverse-line);
+  --sparkline-dot: var(--sparkline-inverse-dot);
+  --sparkline-previous: var(--sparkline-inverse-previous);
+}
+
 /*
  * loading (Figma 12/10): each line keeps the height of the text it stands for (1lh: 20, 30, 16), so the Stat is as tall
  * as the loaded one; the Skeleton sits in the middle, never wider than the cell.

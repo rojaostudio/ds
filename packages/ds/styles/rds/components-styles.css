@@ -1995,6 +1995,15 @@ button.rds-breadcrumb__link:focus-visible {
   padding: var(--_pad) var(--_pad) 0;
 }
 
+/*
+ * align=start without a description (Figma 12/10): the Tile, the title and the action share one centre, so a one-line
+ * title no longer sits on the top edge of the 48 Tile. With a description the row stays on top, the action on the
+ * title's line.
+ */
+.rds-card__header--start:not(:has(.rds-card__description)) {
+  align-items: center;
+}
+
 .rds-card__header--center {
   flex-direction: column;
   align-items: center;
@@ -11314,6 +11323,13 @@ input:focus-visible + .rds-radio__circle {
   transform: translate(-50%, -50%);
 }
 
+/* inverse (Figma 12/10): on the brand's dark fill, line and dot in text/on-inverse, the previous in its subtle. */
+.rds-sparkline--inverse {
+  --sparkline-line: var(--sparkline-inverse-line);
+  --sparkline-dot: var(--sparkline-inverse-dot);
+  --sparkline-previous: var(--sparkline-inverse-previous);
+}
+
 @media (forced-colors: active) {
   .rds-sparkline__line {
     stroke: CanvasText;
@@ -11577,6 +11593,13 @@ input:focus-visible + .rds-radio__circle {
 
 .rds-stat--inverse .rds-delta {
   --_color: var(--delta-inverse);
+}
+
+/* The Sparkline inside turns inverse too (Figma 12/10, the exposed Sparkline at inverse=true). */
+.rds-stat--inverse .rds-sparkline {
+  --sparkline-line: var(--sparkline-inverse-line);
+  --sparkline-dot: var(--sparkline-inverse-dot);
+  --sparkline-previous: var(--sparkline-inverse-previous);
 }
 
 /*

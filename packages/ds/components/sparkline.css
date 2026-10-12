@@ -50,6 +50,13 @@
   transform: translate(-50%, -50%);
 }
 
+/* inverse (Figma 12/10): on the brand's dark fill, line and dot in text/on-inverse, the previous in its subtle. */
+.rds-sparkline--inverse {
+  --sparkline-line: var(--sparkline-inverse-line);
+  --sparkline-dot: var(--sparkline-inverse-dot);
+  --sparkline-previous: var(--sparkline-inverse-previous);
+}
+
 @media (forced-colors: active) {
   .rds-sparkline__line {
     stroke: CanvasText;

@@ -308,6 +308,9 @@
   --sparkline-line: var(--chart-series-1);
   --sparkline-previous: var(--border-strong);
   --sparkline-dot: var(--chart-series-1);
+  --sparkline-inverse-line: var(--text-on-inverse);
+  --sparkline-inverse-dot: var(--text-on-inverse);
+  --sparkline-inverse-previous: var(--text-on-inverse-subtle);
   --chart-grid: var(--border-default);
   --chart-axis: var(--text-subtle);
   --chart-crosshair: var(--border-strong);
