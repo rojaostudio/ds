@@ -1,5 +1,14 @@
 # @rojaostudio/ds
 
+## 2.13.0
+
+### Minor Changes
+
+- bf5adcc: Dialog back and visible shortcuts (ds#152, ds#153):
+  - Dialog `onBack` + `backLabel` (Figma `showBack`): a ghost IconButton with a left chevron before the title, for a Dialog in two steps.
+  - Button, Input and Combobox `shortcut` (Figma `showShortcut`): the keys (Kbd, or a KbdGroup for "Control+Enter") after the label or at the end of the field, from 1024 up, and set as aria-keyshortcuts.
+- 44ae310: Combobox, ChipInput and TimePicker lists in a floating layer (ds#157): portaled over everything, so a Card's overflow never cuts them and a sticky bar (SavingBar, FormActions) never covers them. Below the field when it fits, above when it doesn't, and shrinking to the room there is (scrolling inside) when neither side has it; the BottomBar counts as the foot of the useful area. The page never grows nor scrolls because of the list. Inside a modal, the layer goes above it.
+
 ## 2.12.0
 
 ### Minor Changes
