@@ -1,7 +1,11 @@
 # Contributing
 
-Thanks for looking. Read [SUPPORT.md](./SUPPORT.md) first — it says what this project maintains
-and what it doesn't, which is the fastest way to know whether your change will land.
+**This project does not accept outside contributions.** Issues and pull requests are limited to
+collaborators, and a pull request from outside is closed without review. The code it ships reaches
+the AI assistants of the people who use it, so every line is written and reviewed by the maintainers.
+Security reports go through [SECURITY.md](./SECURITY.md).
+
+What follows is how the maintainers work.
 
 ## Setup
 
