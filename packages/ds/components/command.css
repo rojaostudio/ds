@@ -20,7 +20,7 @@
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  width: min(560px, calc(100vw - var(--space-32)));
+  width: min(var(--layout-surface-lg), calc(100vw - var(--space-32)));
   max-height: 60vh;
   overflow: hidden;
   border: var(--border-width) solid var(--command-border);

@@ -1,6 +1,6 @@
 /*
  * PageShell (Figma Navigation/PageShell): no tokens of its own. Full width up to narrow 768
- * (layout/content/max-width/narrow) or wide 1536 (layout/content/max-width/wide, the default); full has no cap. Centred
+ * (layout/content/max-width/narrow), medium 1152 (layout/content/max-width/medium) or wide 1536 (layout/content/max-width/wide, the default); full has no cap. Centred
  * by default; align start puts the capped content at the inline start (next to a side menu) and the space left over at
  * the end. Padded: layout/content/padding-y above and below and layout/content/padding-x at the sides, both by the
  * screen's viewport mode (16 on base; 24 from sm 640; 32 from lg 1024; 48 at the sides from 2xl 1536), emitted from the
@@ -18,6 +18,10 @@
 
 .rds-page-shell--narrow {
   max-width: var(--layout-content-max-width-narrow);
+}
+
+.rds-page-shell--medium {
+  max-width: var(--layout-content-max-width-medium);
 }
 
 .rds-page-shell--wide {

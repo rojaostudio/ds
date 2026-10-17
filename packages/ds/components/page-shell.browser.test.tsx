@@ -37,8 +37,8 @@ describe.each(SCHEMES)('PageShell (%s)', (mode) => {
 });
 
 describe('PageShell behaviour', () => {
-  it('is centred and capped at narrow 768 and wide 1536, full has no cap; wide is the default', async () => {
-    const widths: Record<PageShellWidth, string> = { narrow: '768px', wide: '1536px', full: 'none' };
+  it('is centred and capped at narrow 768, medium 1152 and wide 1536, full has no cap; wide is the default', async () => {
+    const widths: Record<PageShellWidth, string> = { narrow: '768px', medium: '1152px', wide: '1536px', full: 'none' };
     for (const [maxWidth, px] of Object.entries(widths) as [PageShellWidth, string][]) {
       const el = await render(<PageShell maxWidth={maxWidth}>x</PageShell>);
       const shell = el.querySelector<HTMLElement>('.rds-page-shell')!;
@@ -51,16 +51,18 @@ describe('PageShell behaviour', () => {
     expect(getComputedStyle(plain.querySelector('.rds-page-shell')!).maxWidth).toBe('1536px');
   });
 
-  // Figma: layout/content/max-width/narrow and …/wide; layout/form/max-width stays as an alias of narrow.
-  it('reads narrow and wide from the layout tokens, and keeps --layout-form-max-width', async () => {
+  // Figma: layout/content/max-width/narrow, …/medium and …/wide; layout/form/max-width stays as an alias of narrow.
+  it('reads narrow, medium and wide from the layout tokens, and keeps --layout-form-max-width', async () => {
     const el = await render(
       <div>
         <PageShell maxWidth="narrow">a</PageShell>
+        <PageShell maxWidth="medium">c</PageShell>
         <PageShell maxWidth="wide">b</PageShell>
       </div>,
     );
-    const [narrow, wide] = el.querySelectorAll<HTMLElement>('.rds-page-shell');
+    const [narrow, medium, wide] = el.querySelectorAll<HTMLElement>('.rds-page-shell');
     expect(getComputedStyle(narrow).maxWidth).toBe(cssVar('--layout-content-max-width-narrow'));
+    expect(getComputedStyle(medium).maxWidth).toBe(cssVar('--layout-content-max-width-medium'));
     expect(getComputedStyle(wide).maxWidth).toBe(cssVar('--layout-content-max-width-wide'));
     expect(cssVar('--layout-form-max-width')).toBe('768px');
   });

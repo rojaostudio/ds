@@ -37,7 +37,7 @@
   flex-direction: column;
   flex-shrink: 0;
   gap: var(--space-8);
-  width: 240px;
+  width: var(--layout-surface-xs);
   min-height: 100%;
   padding: var(--space-12) var(--space-8);
   border-right: var(--border-width) solid var(--sidebar-border);
@@ -311,7 +311,7 @@
   top: 0;
   inset-inline-start: calc(100% + var(--space-8));
   z-index: var(--z-dropdown);
-  width: 240px;
+  width: var(--layout-surface-xs);
   min-width: 0;
 }
 
@@ -348,7 +348,7 @@
     inset-block: 0;
     inset-inline-start: 0;
     z-index: var(--z-modal);
-    width: 240px;
+    width: var(--layout-surface-xs);
     max-width: calc(100% - var(--space-48));
     overflow-y: auto;
     visibility: hidden;
