@@ -463,6 +463,7 @@ describe('Dialog stableHeight (ds#160, a wizard)', () => {
   }
 
   const height = () => dialog()!.getBoundingClientRect().height;
+  const footerBottom = () => dialog()!.querySelector('.rds-modal__footer')!.getBoundingClientRect().bottom;
   const toggle = async () => {
     dialog()!.querySelector<HTMLButtonElement>('.rds-modal__footer button')!.click();
     await settle();
@@ -473,8 +474,11 @@ describe('Dialog stableHeight (ds#160, a wizard)', () => {
     await render(<Wizard stableHeight />);
     await settle();
     const tall = height();
+    const foot = footerBottom();
     await toggle();
     expect(Math.round(height())).toBe(Math.round(tall));
+    // The footer stays at the foot of the box, not under the shorter content.
+    expect(Math.round(footerBottom())).toBe(Math.round(foot));
     await toggle();
     expect(Math.round(height())).toBe(Math.round(tall));
   });
@@ -502,8 +506,10 @@ describe('Dialog stableHeight (ds#160, a wizard)', () => {
     await render(<Wizard stableHeight />);
     await settle();
     const tall = height();
+    const foot = footerBottom();
     await toggle();
     expect(Math.round(height())).toBe(Math.round(tall));
     expect(Math.round(height())).toBeLessThanOrEqual(844 - 48);
+    expect(Math.round(footerBottom())).toBe(Math.round(foot));
   });
 });
