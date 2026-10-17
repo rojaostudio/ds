@@ -42,3 +42,15 @@ layout/aside/panel/max-width|F|9999|9999|380|380|380|380
 layout/aside/panel/min-width|F|0|0|380|380|380|380
 layout/content/max-width/narrow|F|768|768|768|768|768|768
 layout/content/max-width/wide|F|1536|1536|1536|1536|1536|1536
+viewport/from/2xl|B|false|false|false|false|false|true
+viewport/below/sm|B|true|false|false|false|false|false
+viewport/below/md|B|true|true|false|false|false|false
+viewport/below/lg|B|true|true|true|false|false|false
+viewport/below/xl|B|true|true|true|true|false|false
+viewport/below/2xl|B|true|true|true|true|true|false
+viewport/only/base|B|true|false|false|false|false|false
+viewport/only/sm|B|false|true|false|false|false|false
+viewport/only/md|B|false|false|true|false|false|false
+viewport/only/lg|B|false|false|false|true|false|false
+viewport/only/xl|B|false|false|false|false|true|false
+viewport/only/2xl|B|false|false|false|false|false|true
