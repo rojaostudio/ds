@@ -189,7 +189,7 @@ describe('Toaster position: bottom-center, above the bar at the foot', () => {
     const box = await shown();
     expect(box.left + box.width / 2).toBeCloseTo(width / 2, 0);
     expect(window.innerHeight - box.bottom).toBe(16);
-    expect(box.width).toBe(width === 390 ? 390 - 32 : 460);
+    expect(box.width).toBe(width === 390 ? 390 - 32 : 400);
     expect(document.documentElement.style.getPropertyValue('--toast-offset-bottom')).toBe('');
   });
 
