@@ -54,7 +54,9 @@
   font-weight: 500;
 }
 
-.rds-modal__description {
+/* The eyebrow above the title (ds#160) takes the description's type: one small line of context. */
+.rds-modal__description,
+.rds-modal__eyebrow {
   margin: 0;
   font-size: var(--type-small-size);
   line-height: var(--type-small-line);

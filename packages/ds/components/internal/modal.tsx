@@ -3,7 +3,7 @@
 // The parts shared by Dialog, Sheet and Drawer (Radix Dialog): the veil, the box, the header (title, description
 // and the close IconButton), the content and the footer. Each component gives the box its place (centre, side,
 // bottom) and its colours in its own stylesheet. Not exported from the package.
-import { useRef, type CSSProperties, type ReactElement, type ReactNode } from 'react';
+import { useCallback, useId, useRef, type CSSProperties, type ReactElement, type ReactNode } from 'react';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { Button } from '../button';
 import { IconButton } from '../icon-button';
@@ -51,6 +51,13 @@ interface ModalShellProps extends ModalProps {
   /** A back action before the title (the Dialog's `onBack`, ds#152). */
   onBack?: () => void;
   backLabel?: string;
+  /** A small line above the title (the Dialog's `eyebrow`, ds#160). It describes the box, before the description. */
+  eyebrow?: ReactNode;
+  /**
+   * The box keeps the tallest height it has had while open (the Dialog's `stableHeight`, ds#160): sets --_stable-h,
+   * which the component's stylesheet turns into a min-height capped by its max-height.
+   */
+  stableHeight?: boolean;
   /** Something above the header (the sheet's handle, from useDragDismiss). */
   handle?: ReactNode;
   /** The default footer stacked, the confirm first and full width (the Drawer). */
@@ -66,6 +73,8 @@ export function ModalShell({
   closeButton = true,
   onBack,
   backLabel = 'Voltar',
+  eyebrow,
+  stableHeight,
   handle,
   stackedFooter,
   footerStart,
@@ -90,6 +99,28 @@ export function ModalShell({
   // Controlled without a trigger (opened by a button the shell doesn't own, like a control in a bar's leading slot): Radix
   // would give the focus back to its trigger, which there isn't. Keep what had the focus when it opened instead.
   const opener = useRef<HTMLElement | null>(null);
+  const ids = useId();
+  const eyebrowId = `${ids}-eyebrow`;
+  const descriptionId = `${ids}-description`;
+  const describedBy = [eyebrow != null && eyebrowId, description && descriptionId].filter(Boolean).join(' ') || undefined;
+  // stableHeight: watch the box and keep the tallest height seen, until it closes (the box unmounts).
+  const stable = useRef<{ observer: ResizeObserver; tallest: number } | null>(null);
+  const boxRef = useCallback(
+    (box: HTMLDivElement | null) => {
+      stable.current?.observer.disconnect();
+      stable.current = null;
+      if (!box || !stableHeight) return;
+      const state = { tallest: 0, observer: new ResizeObserver(() => {
+        const height = box.getBoundingClientRect().height;
+        if (height <= state.tallest) return;
+        state.tallest = height;
+        box.style.setProperty('--_stable-h', `${height}px`);
+      }) };
+      state.observer.observe(box);
+      stable.current = state;
+    },
+    [stableHeight],
+  );
   const cancel = (
     <DialogPrimitive.Close asChild key="cancel">
       <Button tone="neutral" variant="outline" className="rds-modal__cancel">
@@ -114,6 +145,7 @@ export function ModalShell({
           aria-modal="true"
           className={['rds-modal', prefix, ...modifiers, className].filter(Boolean).join(' ')}
           style={boxStyle}
+          ref={boxRef}
           onOpenAutoFocus={(event) => {
             opener.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
             // The focus opens on the first control of the content, not on the close button.
@@ -137,8 +169,8 @@ export function ModalShell({
             event.preventDefault();
             opener.current.focus();
           }}
-          // Without a description, say so explicitly (Radix warns otherwise).
-          {...(description ? {} : { 'aria-describedby': undefined })}
+          // Described by the eyebrow, then the description; with neither, say so explicitly (Radix warns otherwise).
+          aria-describedby={describedBy}
         >
           {handle}
           <div className="rds-modal__header">
@@ -155,9 +187,14 @@ export function ModalShell({
               </Tooltip>
             )}
             <div className="rds-modal__heading">
+              {eyebrow != null && (
+                <p id={eyebrowId} className={`rds-modal__eyebrow ${prefix}__text`}>
+                  {eyebrow}
+                </p>
+              )}
               <DialogPrimitive.Title className={`rds-modal__title ${prefix}__title`}>{title}</DialogPrimitive.Title>
               {description && (
-                <DialogPrimitive.Description className={`rds-modal__description ${prefix}__text`}>
+                <DialogPrimitive.Description id={descriptionId} className={`rds-modal__description ${prefix}__text`}>
                   {description}
                 </DialogPrimitive.Description>
               )}
