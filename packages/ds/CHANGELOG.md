@@ -1,5 +1,12 @@
 # @rojaostudio/ds
 
+## 2.15.1
+
+### Patch Changes
+
+- ae05f5c: Dialog `stableHeight`: the footer stays at the foot of the box on a shorter step. 2.15.0 kept the box's height, but the body did not take it, so the footer rose with the shorter content and left a gap under it (ds#160).
+- 8159b98: FieldGroup and CheckboxGroup load in a Server Component again (2.15.0 broke them on import: the FieldGroup context was created in a module the server React also reads, where createContext does not exist). FieldGroup is a client component now; the context and the fields' ids hook moved to a client module of their own. The dist contract gained a check: every module without `'use client'` loads under the `react-server` condition, with the client modules stubbed as the App Router does.
+
 ## 2.15.0
 
 ### Minor Changes
