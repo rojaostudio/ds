@@ -7,13 +7,41 @@ import axe from 'axe-core';
 import type { ReactNode } from 'react';
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { commands } from 'vitest/browser';
+import { vi } from 'vitest';
+import { commands, userEvent } from 'vitest/browser';
 
 declare module 'vitest/browser' {
   interface BrowserCommands {
     /** page.emulateMedia (vitest.config.ts): the CSS media type of the page, `null` back to the default. */
     emulateMedia: (media: 'print' | 'screen' | null) => Promise<void>;
   }
+}
+
+/**
+ * Runs `read` with `el` (the element measured) not hovered, so a resting style is read at rest (ds#140). The pointer is shared by the
+ * test files running in parallel: another file can leave it over this element, and Chromium only re-evaluates :hover
+ * when the pointer moves. So: move it off, read, and keep the reading only if it was not hovered meanwhile.
+ */
+export async function atRest<T>(el: HTMLElement, read: () => T | Promise<T>): Promise<T> {
+  let value!: T;
+  await vi.waitFor(
+    async () => {
+      // unhover() lands on the middle of the page, which may be the element itself: park the pointer in a corner.
+      const corner = document.createElement('div');
+      corner.style.cssText = 'position:fixed;left:0;top:0;width:2px;height:2px;z-index:2147483647';
+      document.body.append(corner);
+      try {
+        await userEvent.hover(corner);
+      } finally {
+        corner.remove();
+      }
+      await settle();
+      value = await read();
+      if (el.matches(':hover')) throw new Error('atRest(): the pointer is over the element');
+    },
+    { timeout: 5000, interval: 100 },
+  );
+  return value;
 }
 
 /** Switches the page to the print media type (`'print'`), or back (`null`), as Chromium does when it prints. */
