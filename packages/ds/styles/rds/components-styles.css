@@ -4550,6 +4550,11 @@ button.rds-chip-input__add:focus-visible {
   width: min(400px, calc(100vw - var(--space-32)));
 }
 
+/* stableHeight (ds#160): the tallest height seen while open, never past the max-height above. */
+.rds-dialog--stable {
+  min-height: min(var(--_stable-h, 0px), calc(100dvh - var(--space-48) * 2));
+}
+
 .rds-dialog--lg {
   width: min(720px, calc(100vw - var(--space-32)));
 }
@@ -4605,6 +4610,10 @@ button.rds-chip-input__add:focus-visible {
     border-bottom: 0;
     border-radius: var(--radius-container) var(--radius-container) 0 0;
     transform: none;
+  }
+
+  .rds-dialog--stable {
+    min-height: min(var(--_stable-h, 0px), calc(100dvh - var(--_kb, 0px) - var(--space-48)));
   }
 
   .rds-dialog .rds-modal__handle-area {
@@ -7642,7 +7651,9 @@ button.rds-chip-input__add:focus-visible {
   font-weight: 500;
 }
 
-.rds-modal__description {
+/* The eyebrow above the title (ds#160) takes the description's type: one small line of context. */
+.rds-modal__description,
+.rds-modal__eyebrow {
   margin: 0;
   font-size: var(--type-small-size);
   line-height: var(--type-small-line);

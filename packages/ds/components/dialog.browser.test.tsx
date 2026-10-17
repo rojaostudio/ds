@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { useState } from 'react';
 import { page, userEvent } from 'vitest/browser';
 import { Button } from './button';
 import { Dialog, DialogClose, type DialogSize } from './dialog';
@@ -392,5 +393,117 @@ describe('Dialog max height (Roger 09/10: 48 above, 48 below)', () => {
     expect(start.top).toBeGreaterThanOrEqual(body.getBoundingClientRect().bottom);
     expect(confirm.bottom).toBeLessThanOrEqual(844);
     expect(start.bottom).toBeLessThanOrEqual(confirm.top);
+  });
+});
+
+describe('Dialog eyebrow (ds#160)', () => {
+  it('draws the eyebrow above the title; the name stays the title, the eyebrow describes it before the description', async () => {
+    await render(
+      <Dialog defaultOpen eyebrow="Novo cadastro" title="Endereço" description="Onde o cliente recebe." confirmLabel="Continuar">
+        <Input label="CEP" />
+      </Dialog>,
+    );
+    await settle();
+    const d = dialog()!;
+    const eyebrow = d.querySelector<HTMLElement>('.rds-modal__eyebrow')!;
+    const title = d.querySelector<HTMLElement>('.rds-modal__title')!;
+    const description = d.querySelector<HTMLElement>('.rds-modal__description')!;
+    expect(eyebrow.textContent).toBe('Novo cadastro');
+    expect(eyebrow.getBoundingClientRect().bottom).toBeLessThanOrEqual(title.getBoundingClientRect().top);
+    // Same type and colour as the description (Figma: the eyebrow layer is the description's style).
+    expect(getComputedStyle(eyebrow).fontSize).toBe(getComputedStyle(description).fontSize);
+    expect(getComputedStyle(eyebrow).color).toBe(getComputedStyle(description).color);
+    expect(d.getAttribute('aria-labelledby')).toBe(title.id);
+    expect(d.getAttribute('aria-describedby')).toBe(`${eyebrow.id} ${description.id}`);
+    expect(await axeViolations(d)).toEqual([]);
+  });
+
+  it('without a description the eyebrow alone describes it; without either, nothing does', async () => {
+    const el = await render(
+      <div>
+        <Dialog defaultOpen eyebrow="Novo cadastro" title="Endereço" confirmLabel="Continuar">
+          <Input label="CEP" />
+        </Dialog>
+      </div>,
+    );
+    await settle();
+    const d = dialog()!;
+    expect(d.getAttribute('aria-describedby')).toBe(d.querySelector('.rds-modal__eyebrow')!.id);
+    expect(el).toBeTruthy();
+    cleanup();
+    await render(
+      <Dialog defaultOpen title="Endereço" confirmLabel="Continuar">
+        <Input label="CEP" />
+      </Dialog>,
+    );
+    await settle();
+    expect(dialog()!.hasAttribute('aria-describedby')).toBe(false);
+    expect(dialog()!.querySelector('.rds-modal__eyebrow')).toBeNull();
+  });
+});
+
+describe('Dialog stableHeight (ds#160, a wizard)', () => {
+  afterEach(() => page.viewport(1280, 800));
+
+  function Wizard({ stableHeight }: { stableHeight?: boolean }) {
+    const [step, setStep] = useState(0);
+    return (
+      <Dialog
+        defaultOpen
+        stableHeight={stableHeight}
+        eyebrow="Novo cadastro"
+        title={step === 0 ? 'Dados' : 'Endereço'}
+        footer={<Button onClick={() => setStep(step === 0 ? 1 : 0)}>{step === 0 ? 'Continuar' : 'Voltar'}</Button>}
+      >
+        {Array.from({ length: step === 0 ? 5 : 1 }, (_, i) => (
+          <Input key={i} label={`Campo ${i + 1}`} />
+        ))}
+      </Dialog>
+    );
+  }
+
+  const height = () => dialog()!.getBoundingClientRect().height;
+  const toggle = async () => {
+    dialog()!.querySelector<HTMLButtonElement>('.rds-modal__footer button')!.click();
+    await settle();
+  };
+
+  it('keeps the height of the tallest step it has shown, so the footer does not jump', async () => {
+    await page.viewport(1280, 800);
+    await render(<Wizard stableHeight />);
+    await settle();
+    const tall = height();
+    await toggle();
+    expect(Math.round(height())).toBe(Math.round(tall));
+    await toggle();
+    expect(Math.round(height())).toBe(Math.round(tall));
+  });
+
+  it('without it the box hugs each step (the default)', async () => {
+    await page.viewport(1280, 800);
+    await render(<Wizard />);
+    await settle();
+    const tall = height();
+    await toggle();
+    expect(height()).toBeLessThan(tall);
+  });
+
+  it('never passes the window − 96, and the content still scrolls', async () => {
+    await page.viewport(1280, 500);
+    await render(<Wizard stableHeight />);
+    await settle();
+    expect(Math.round(height())).toBeLessThanOrEqual(500 - 96);
+    await toggle();
+    expect(Math.round(height())).toBeLessThanOrEqual(500 - 96);
+  });
+
+  it('on the compact sheet it keeps the tallest height too, up to the window − 48', async () => {
+    await page.viewport(390, 844);
+    await render(<Wizard stableHeight />);
+    await settle();
+    const tall = height();
+    await toggle();
+    expect(Math.round(height())).toBe(Math.round(tall));
+    expect(Math.round(height())).toBeLessThanOrEqual(844 - 48);
   });
 });

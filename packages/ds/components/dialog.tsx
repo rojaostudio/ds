@@ -33,6 +33,18 @@ export interface DialogProps extends ModalProps {
   onBack?: () => void;
   /** The back button's name for screen readers and its Tooltip. */
   backLabel?: string;
+  /**
+   * A small line above the title (Figma: `showEyebrow` + `eyebrow`, ds#160), the context of a wizard: "Novo cadastro"
+   * above, "Endereço" as the title. The window is still named by the title; the eyebrow describes it, before the
+   * description.
+   */
+  eyebrow?: ReactNode;
+  /**
+   * For a wizard (ds#160): the box keeps the height of the tallest step it has shown, so the footer doesn't jump
+   * between steps; still capped by the window (100dvh − 96, or − 48 on the compact sheet), the content scrolls. Back to
+   * hugging when it closes. In Figma, the project's dialog component has a FIXED height and the Dialog inside is FILL.
+   */
+  stableHeight?: boolean;
 }
 
 /**
@@ -47,15 +59,18 @@ export interface DialogProps extends ModalProps {
  * above the on-screen keyboard and clears the safe area. A custom `footer` stacks full width, the last (the main
  * action) on top. Styles: internal/modal.css and dialog.css.
  */
-export function Dialog({ size = 'md', closeButton = true, open, defaultOpen, onOpenChange, ...props }: DialogProps) {
+export function Dialog({ size = 'md', closeButton = true, stableHeight, open, defaultOpen, onOpenChange, ...props }: DialogProps) {
   const sheet = useDragDismiss({ open, defaultOpen, onOpenChange });
   const keyboard = useKeyboardInset(sheet.isOpen);
   const style = keyboard ? ({ ...sheet.boxStyle, '--_kb': `${keyboard}px` } as CSSProperties) : sheet.boxStyle;
   return (
     <ModalShell
       prefix="rds-dialog"
-      modifiers={[`rds-dialog--${size}`, !closeButton && 'rds-dialog--no-close'].filter((m): m is string => Boolean(m))}
+      modifiers={[`rds-dialog--${size}`, !closeButton && 'rds-dialog--no-close', stableHeight && 'rds-dialog--stable'].filter(
+        (m): m is string => Boolean(m),
+      )}
       closeButton={closeButton}
+      stableHeight={stableHeight}
       handle={sheet.handle}
       open={sheet.isOpen}
       onOpenChange={sheet.setOpen}
