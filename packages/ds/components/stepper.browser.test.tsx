@@ -64,6 +64,67 @@ describe('Stepper behaviour', () => {
   });
 });
 
+describe('Stepper accessibility (ds#159)', () => {
+  it('an ordered list inside the named navigation; each step says its position after its label', async () => {
+    const el = await render(<Stepper steps={STEPS} current="customer" action={{ label: 'Recomeçar', onClick: () => {} }} />);
+    const nav = el.querySelector('[role="navigation"]')!;
+    const list = nav.querySelector('ol')!;
+    expect(list).not.toBeNull();
+    const items = [...list.children];
+    expect(items.map((li) => li.tagName)).toEqual(['LI', 'LI', 'LI']);
+    const names = items.map((li) => li.querySelector('.rds-button')!.textContent);
+    expect(names).toEqual(['Carrinho, etapa 1 de 3', 'Cliente, etapa 2 de 3', 'Pagamento, etapa 3 de 3']);
+    // The position is for screen readers; the visible label stays the step's.
+    const hidden = items[1].querySelector<HTMLElement>('.rds-visually-hidden')!;
+    expect(hidden.textContent).toBe(', etapa 2 de 3');
+    // The action is not a step: after the list, outside it.
+    expect(list.textContent).not.toContain('Recomeçar');
+  });
+
+  it('later steps are aria-disabled, not disabled: readable and reachable by Tab, but they do not navigate', async () => {
+    const onNavigate = vi.fn();
+    const el = await render(<Stepper steps={STEPS} current="customer" onNavigate={onNavigate} />);
+    const payment = el.querySelectorAll<HTMLButtonElement>('.rds-button')[2];
+    expect(payment.disabled).toBe(false);
+    expect(payment.getAttribute('aria-disabled')).toBe('true');
+    payment.focus();
+    expect(document.activeElement).toBe(payment);
+    payment.click();
+    expect(onNavigate).not.toHaveBeenCalled();
+  });
+
+  it('positionLabel words the position', async () => {
+    const el = await render(<Stepper steps={STEPS} current="cart" positionLabel={(i, n) => `step ${i} of ${n}`} />);
+    expect(el.querySelector('.rds-button')!.textContent).toBe('Carrinho, step 1 of 3');
+  });
+});
+
+describe('Stepper embedded (ds#159)', () => {
+  it('floating (the default) is the raised pill; embedded has no surface, border or shadow', async () => {
+    const el = await render(
+      <div>
+        <Stepper steps={STEPS} current="cart" />
+        <Stepper steps={STEPS} current="cart" variant="embedded" />
+      </div>,
+    );
+    const [floating, embedded] = el.querySelectorAll<HTMLElement>('.rds-stepper');
+    expect(getComputedStyle(floating).boxShadow).not.toBe('none');
+    const s = getComputedStyle(embedded);
+    expect(embedded.className).toContain('rds-stepper--embedded');
+    expect(s.boxShadow).toBe('none');
+    expect(s.backgroundColor).toBe('rgba(0, 0, 0, 0)');
+    expect(s.borderTopWidth).toBe('0px');
+    expect(s.paddingLeft).toBe('0px');
+    // The steps stay pills.
+    expect(getComputedStyle(embedded.querySelector('.rds-button')!).borderTopLeftRadius).not.toBe('0px');
+  });
+
+  it.each(MODES)('embedded passes axe (%s)', async (mode) => {
+    const el = await render(<Stepper steps={STEPS} current="customer" variant="embedded" />, mode);
+    expect(await axeViolations(el)).toEqual([]);
+  });
+});
+
 describe('Stepper: the barrel', () => {
   it('the barrel exports the Stepper', () => {
     expect(StepperFromBarrel).toBe(Stepper);
