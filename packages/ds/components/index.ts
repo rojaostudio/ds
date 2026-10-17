@@ -140,7 +140,7 @@ export type { InsightCardProps, InsightCardType } from './insight-card';
 
 export { SectionCard } from './section-card';
 export { Stepper } from './stepper';
-export type { StepperProps, StepperStep } from './stepper';
+export type { StepperProps, StepperStep, StepperVariant } from './stepper';
 export type { SectionCardProps } from './section-card';
 
 // 2.0 (#18): SummaryBar is a strip of Stats (Figma [RDS] Content/Stat and Content/SummaryBar).

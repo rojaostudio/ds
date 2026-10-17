@@ -12041,7 +12041,7 @@ input:focus-visible + .rds-radio__circle {
 /*
  * Stepper: no tokens of its own; the Card and the Buttons bring theirs. A pill (radius/full) of 44 Buttons,
  * 4 inside and 4 apart, raised by elevation/overlay because it floats over the page. A vertical Separator, 24
- * tall, before the action.
+ * tall, before the action. embedded drops the surface, the border and the shadow.
  */
 .rds-stepper {
   flex-direction: row;
@@ -12055,9 +12055,33 @@ input:focus-visible + .rds-radio__circle {
   overflow-x: auto;
 }
 
-.rds-stepper > .rds-button {
+/* The steps are an ordered list (ds#159): the list is the row, 4 apart. */
+.rds-stepper__list {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rds-stepper__item {
+  display: flex;
+  flex: none;
+}
+
+.rds-stepper .rds-button {
   flex: none;
   border-radius: var(--radius-full);
+}
+
+/* embedded (ds#159): inside a Dialog or a card, no surface, border or shadow; the steps stay pills. */
+.rds-stepper.rds-stepper--embedded {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .rds-stepper > .rds-stepper__divider {
