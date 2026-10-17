@@ -1,5 +1,8 @@
+'use client';
+
 import { useId, useMemo, type FieldsetHTMLAttributes, type HTMLAttributes, type ReactNode } from 'react';
-import { FieldGroupContext, hasContent } from './internal/field';
+import { hasContent } from './internal/field';
+import { FieldGroupContext } from './internal/field-ids';
 
 export interface FieldGroupProps extends Omit<FieldsetHTMLAttributes<HTMLFieldSetElement>, 'children'> {
   /** The group's name (Figma: `legend`), which also says what goes in each field: "Tamanho (largura × altura)". */

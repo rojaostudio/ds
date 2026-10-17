@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import * as PopoverPrimitive from '@radix-ui/react-popover';
-import { FieldShell, useFieldIds, warnIfUnlabelled, type FieldTextProps } from './internal/field';
+import { FieldShell, warnIfUnlabelled, type FieldTextProps } from './internal/field';
+import { useFieldIds } from './internal/field-ids';
 
 export interface ColorInputProps extends Omit<FieldTextProps, 'labelPosition'> {
   /** Controlled: the colour, #RRGGBB (Figma: `value`). */

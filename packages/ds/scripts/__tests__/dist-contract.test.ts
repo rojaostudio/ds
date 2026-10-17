@@ -1,6 +1,8 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
+import { execFileSync } from "node:child_process";
+import { pathToFileURL } from "node:url";
 
 // O contrato do pré-build (#100). São dois defeitos que NÃO quebram aqui dentro e quebram na
 // máquina de quem instala — a pior categoria, porque a mensagem de erro não aponta pra cá.
@@ -64,6 +66,25 @@ describe("contrato do dist", () => {
       }
     }
     expect(classicos.slice(0, 5)).toEqual([]);
+  });
+
+  it.skipIf(!temDist)("todo módulo sem 'use client' carrega como Server Component", () => {
+    // Sem a diretiva, o App Router importa o módulo no servidor, com o React de servidor: lá não existem
+    // createContext, useState nem useContext. O FieldGroup saiu assim na 2.15.0 e quebrava no import.
+    // O loader troca cada módulo 'use client' por uma referência vazia, como o Next: só o grafo de servidor roda.
+    const servidor = readdirSync(join(dist, "components"))
+      .filter((f) => f.endsWith(".js") && f !== "index.js")
+      .map((f) => join(dist, "components", f))
+      .filter((f) => !DIRETIVA.test(readFileSync(f, "utf8")));
+    const urls = JSON.stringify(servidor.map((f) => pathToFileURL(f).href));
+    const script = `const falhas = []; for (const u of ${urls}) { try { await import(u); } catch (e) { falhas.push(u.split("/").pop() + ": " + String(e.message).split(/\\r?\\n/)[0]); } } console.log(JSON.stringify(falhas));`;
+    const loader = pathToFileURL(join(__dirname, "react-server-loader.mjs")).href;
+    const registrar = `data:text/javascript,import { register } from "node:module"; register(${JSON.stringify(loader)});`;
+    const saida = execFileSync(process.execPath, ["--conditions=react-server", "--import", registrar, "--input-type=module", "-e", script], {
+      cwd: raiz,
+      encoding: "utf8",
+    });
+    expect(JSON.parse(saida.trim().split(/\r?\n/).pop()!)).toEqual([]);
   });
 
   it.skipIf(!temDist)("o preset do NativeWind continua CJS", () => {

@@ -12,10 +12,10 @@ import { Chip } from "./chip";
 import { announce } from "./internal/announce";
 import {
   FieldShell,
-  useFieldIds,
   warnIfUnlabelled,
   type FieldTextProps,
 } from "./internal/field";
+import { useFieldIds } from "./internal/field-ids";
 import { ChevronDownIcon, PlusIcon } from "./internal/icons";
 import { ShortcutKeys } from "./internal/shortcut";
 import { FloatingList } from "./internal/floating-list";

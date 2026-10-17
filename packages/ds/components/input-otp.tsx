@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, type ChangeEvent, type ComponentPropsWithRef, type ReactNode } from 'react';
-import { hasContent, useFieldIds, warnIfUnlabelled } from './internal/field';
+import { hasContent, warnIfUnlabelled } from './internal/field';
+import { useFieldIds } from './internal/field-ids';
 
 export type InputOTPLength = 4 | 6;
 

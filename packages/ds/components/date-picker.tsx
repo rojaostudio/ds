@@ -4,7 +4,8 @@ import { useRef, useState, type CSSProperties } from 'react';
 import * as PopoverPrimitive from '@radix-ui/react-popover';
 import { Calendar } from './calendar';
 import { formatBr, maskBr, parseBr, type IsoDate } from './internal/dates';
-import { FieldAction, FieldShell, useFieldIds, warnIfUnlabelled, type FieldTextProps } from './internal/field';
+import { FieldAction, FieldShell, warnIfUnlabelled, type FieldTextProps } from './internal/field';
+import { useFieldIds } from './internal/field-ids';
 import { CalendarIcon } from './internal/icons';
 
 export interface DatePickerProps extends FieldTextProps {

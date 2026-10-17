@@ -2,7 +2,8 @@
 
 import type { CSSProperties, ReactNode } from 'react';
 import * as SelectPrimitive from '@radix-ui/react-select';
-import { FieldShell, useFieldIds, warnIfUnlabelled, type FieldTextProps } from './internal/field';
+import { FieldShell, warnIfUnlabelled, type FieldTextProps } from './internal/field';
+import { useFieldIds } from './internal/field-ids';
 import { CheckIcon, ChevronDownIcon } from './internal/icons';
 
 export interface SelectProps extends FieldTextProps {

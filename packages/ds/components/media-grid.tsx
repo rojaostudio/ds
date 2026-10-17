@@ -8,7 +8,8 @@ import { IconButton } from './icon-button';
 import { Media } from './media';
 import { Progress } from './progress';
 import { announce } from './internal/announce';
-import { FieldShell, useFieldIds, warnIfUnlabelled, type FieldTextProps } from './internal/field';
+import { FieldShell, warnIfUnlabelled, type FieldTextProps } from './internal/field';
+import { useFieldIds } from './internal/field-ids';
 import { ImagePlusIcon, MoreVerticalIcon, RotateCcwIcon, TriangleAlertIcon } from './internal/icons';
 import { useReorder } from './internal/use-reorder';
 

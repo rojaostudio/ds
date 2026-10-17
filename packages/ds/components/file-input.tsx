@@ -9,7 +9,8 @@ import {
   type DragEvent,
   type ReactNode,
 } from 'react';
-import { FieldAction, FieldShell, hasContent, useFieldIds, warnIfUnlabelled, type FieldTextProps } from './internal/field';
+import { FieldAction, FieldShell, hasContent, warnIfUnlabelled, type FieldTextProps } from './internal/field';
+import { useFieldIds } from './internal/field-ids';
 import { CloseIcon, ImagePlusIcon, PaperclipIcon, UploadIcon } from './internal/icons';
 
 /** The field's arrangement (Figma: `layout`). */
