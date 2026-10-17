@@ -16,10 +16,6 @@ layout/rail/visible|B|false|false|false|true|true|true
 layout/nav-button/visible|B|true|true|true|false|false|false
 layout/compact|B|true|true|true|false|false|false
 layout/expanded|B|false|false|false|true|true|true
-layout/aside/narrow/max-width|F|9999|9999|9999|9999|248|248
-layout/aside/wide/max-width|F|9999|9999|9999|9999|352|352
-layout/main/min-width|F|358|592|720|752|360|360
-layout/aside/preview/max-width|F|9999|9999|9999|9999|420|420
 viewport/from/sm|B|false|true|true|true|true|true
 viewport/from/md|B|false|false|true|true|true|true
 viewport/from/lg|B|false|false|false|true|true|true
@@ -38,8 +34,6 @@ layout/dialog/max-height|F|796|912|976|672|650|650
 layout/dialog/content/max-height|F|536|652|716|482|460|460
 layout/dialog/footer-start/min-width|F|342|512|512|120|120|120
 layout/alert-dialog/content/max-height|F|616|732|796|540|518|518
-layout/aside/panel/max-width|F|9999|9999|380|380|380|380
-layout/aside/panel/min-width|F|0|0|380|380|380|380
 layout/content/max-width/narrow|F|768|768|768|768|768|768
 layout/content/max-width/wide|F|1536|1536|1536|1536|1536|1536
 viewport/from/2xl|B|false|false|false|false|false|true
