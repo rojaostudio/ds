@@ -19,6 +19,7 @@ import {
   emitViewportCss,
   loadAll,
   loadBrandTable,
+  PUBLIC_LAYOUT_VARS,
   RDS_LAYER_ORDER,
   usedVars,
 } from "./rds-tokens";
@@ -48,7 +49,7 @@ if (failed) process.exit(1);
 
 // The contrast report of the table goes to the console: the table is Figma one to one, a failure is Figma's to fix.
 writeFileSync(join(out, "theme.css"), emitThemeCss(loadBrandTable(pkg, "rojao"), (m) => console.warn(`! ${m}`)));
-writeFileSync(join(out, "foundation.css"), emitFoundationCss(foundation, emitViewportCss(viewport, usedVars(stylesheets))));
+writeFileSync(join(out, "foundation.css"), emitFoundationCss(foundation, emitViewportCss(viewport, new Set([...usedVars(stylesheets), ...PUBLIC_LAYOUT_VARS]))));
 writeFileSync(join(out, "components.css"), emitComponentsCss(tokens));
 
 // Every component stylesheet, in one file, inside the components layer.

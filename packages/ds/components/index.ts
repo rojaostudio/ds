@@ -331,7 +331,7 @@ export { RowActions } from './row-actions';
 export type { RowActionsProps, RowActionItem } from './row-actions';
 
 export { PageShell } from './page-shell';
-export type { PageShellProps, PageShellBodyProps, PageShellWidth } from './page-shell';
+export type { PageShellProps, PageShellBodyProps, PageShellWidth, PageShellAlign } from './page-shell';
 
 export { DangerZone, DangerZoneItem } from './danger-zone';
 export type { DangerZoneProps, DangerZoneItemProps } from './danger-zone';

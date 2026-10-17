@@ -132,6 +132,12 @@ export function emitViewportCss(viewport: Viewport, used: Set<string>): string {
   return `/* The screen modes (viewport.txt): ${viewport.modes.map((m) => `${m.name} ${m.from}`).join(", ")}. */\n${blocks.join("\n")}\n`;
 }
 
+/**
+ * The layout/* emitted even when no stylesheet reads them: public names a consumer may still read. --layout-form-max-width
+ * is the old name of --layout-content-max-width-narrow (an alias in Figma since ds#162), kept until the next major.
+ */
+export const PUBLIC_LAYOUT_VARS: ReadonlySet<string> = new Set(["--layout-form-max-width"]);
+
 /** The var() names every component stylesheet reads. */
 export function usedVars(stylesheets: Array<{ css: string }>): Set<string> {
   return new Set(stylesheets.flatMap(({ css }) => [...css.matchAll(/var\(\s*(--[\w-]+)/g)].map((m) => m[1])));

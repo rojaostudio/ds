@@ -285,6 +285,15 @@ describe('codemod: the vocabulary on a 2.0.0-next project (from: next)', () => {
     expect(r.manual).toEqual([]);
   });
 
+  it('PageShell maxWidth="full" (2.14) is a known value, not a manual change', () => {
+    const src =
+      "import { PageShell } from '@rojaostudio/ds/components/page-shell';\n\n" +
+      'export const A = () => <PageShell maxWidth="full" align="start">x</PageShell>;\n';
+    const r = transformSource(src, 'a.tsx', { from: 'next' });
+    expect(r.output).toBe(src);
+    expect(r.manual).toEqual([]);
+  });
+
   it('what is not mechanical stays as it is and is reported', () => {
     const src = read('manual-next.input.tsx');
     const r = transformSource(src, 'manual-next.tsx', { from: 'next' });
