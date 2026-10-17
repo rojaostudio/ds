@@ -94,6 +94,8 @@ export { Checkbox } from './checkbox';
 export type { CheckboxProps, CheckboxChecked } from './checkbox';
 export { CheckboxGroup } from './checkbox-group';
 export type { CheckboxGroupProps } from './checkbox-group';
+export { FieldGroup, FieldGroupSeparator } from './field-group';
+export type { FieldGroupProps, FieldGroupSeparatorProps } from './field-group';
 
 export { Input } from './input';
 export type { InputProps, FieldLabelPosition } from './input';

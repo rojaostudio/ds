@@ -1,6 +1,6 @@
 // The parts shared by the text fields (Input, PasswordInput, Textarea, Select): label, box, hint and
 // error. Not exported from the package: each field is its own component, as in Figma. Styles: field.css.
-import { useId, type ButtonHTMLAttributes, type CSSProperties, type HTMLAttributes, type ReactNode } from 'react';
+import { createContext, useContext, useId, type ButtonHTMLAttributes, type CSSProperties, type HTMLAttributes, type ReactNode } from 'react';
 
 export type FieldLabelPosition = 'top' | 'floating';
 
@@ -16,20 +16,38 @@ export interface FieldTextProps {
   hint?: ReactNode;
   /** The error state (Figma: `error`): red border and aria-invalid. Passing `errorMessage` turns it on too. */
   error?: boolean;
-  /** What went wrong and how to fix it, never just "campo inválido". Turns the error state on. */
+  /**
+   * What went wrong and how to fix it, never just "campo inválido". Turns the error state on. Inside a FieldGroup the
+   * field draws only its border (Figma: `showErrorMessage` off): the group says the message.
+   */
   errorMessage?: ReactNode;
   /** Shows the asterisk and sets the native required (read as "obrigatório"). */
   required?: boolean;
 }
 
+/**
+ * What a FieldGroup (ds#147) hands to the fields inside it: its error, which a field takes unless it passes its own
+ * `error`, and the ids of its hint and message, which every field points to. Inside a group a field shows no message.
+ */
+export interface FieldGroupContextValue {
+  invalid: boolean;
+  hintId?: string;
+  errorId?: string;
+}
+
+export const FieldGroupContext = createContext<FieldGroupContextValue | null>(null);
+
 /** The ids a field's control points to, and whether it is in error. */
 export function useFieldIds(id: string | undefined, hint: ReactNode, error: boolean | undefined, errorMessage: ReactNode) {
   const generated = useId();
+  const group = useContext(FieldGroupContext);
   const controlId = id ?? generated;
-  const invalid = Boolean(error || hasContent(errorMessage));
-  const errorId = invalid && hasContent(errorMessage) ? `${controlId}-error` : undefined;
+  const invalid = Boolean((error ?? group?.invalid) || hasContent(errorMessage));
+  // In a group the message is the group's, under the whole set: the field keeps only its red border.
+  const errorId = !group && invalid && hasContent(errorMessage) ? `${controlId}-error` : undefined;
   const hintId = hasContent(hint) && !errorId ? `${controlId}-hint` : undefined;
-  return { controlId, hintId, errorId, invalid, describedBy: [hintId, errorId].filter(Boolean).join(' ') || undefined };
+  const describedBy = [hintId, errorId, group?.hintId, invalid ? group?.errorId : undefined].filter(Boolean).join(' ');
+  return { controlId, hintId, errorId, invalid, describedBy: describedBy || undefined };
 }
 
 export const hasContent = (node: ReactNode) => node !== undefined && node !== null && node !== false && node !== '';

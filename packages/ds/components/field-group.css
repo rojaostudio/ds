@@ -1,0 +1,46 @@
+/* @tokens input */
+/*
+ * FieldGroup: a <fieldset> with the field's own type and colours (input/*). Legend 14/20 medium, 8 above the boxes
+ * like a field's label; the fields in a row, 8 apart, sharing the width; the separator centred on the boxes; hint
+ * under the legend and the group's message under the set, 4 apart.
+ */
+.rds-field-group {
+  --_label: var(--input-label-color);
+  --_required: var(--input-required-color);
+  --_hint: var(--input-hint-color);
+  --_error: var(--input-error-message-color);
+  --_support-size: var(--input-support-size);
+  --_support-line: var(--input-support-line);
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-family: var(--type-font-stack);
+}
+
+/* A rendered legend sits outside the flex flow: its 4 below plus the label's own 4 make the field's 8. */
+.rds-field-group__legend {
+  margin-bottom: var(--space-4);
+  padding-inline: 0;
+}
+
+.rds-field-group__fields {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+.rds-field-group__fields > .rds-field {
+  flex: 1 1 0;
+}
+
+.rds-field-group__separator {
+  flex: none;
+  color: var(--input-value-default);
+  font-size: var(--input-text-size);
+  line-height: var(--input-text-line);
+}
