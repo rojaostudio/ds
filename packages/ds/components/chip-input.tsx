@@ -11,10 +11,10 @@ import { Chip } from "./chip";
 import { announce } from "./internal/announce";
 import {
   FieldShell,
-  useFieldIds,
   warnIfUnlabelled,
   type FieldTextProps,
 } from "./internal/field";
+import { useFieldIds } from "./internal/field-ids";
 import { PlusIcon } from "./internal/icons";
 import { OptionContent } from "./internal/option-content";
 import { useListbox } from "./internal/use-listbox";

@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react';
 import { FilterChip, FilterChipGroup } from './filter-chip';
-import { FieldAction, FieldShell, useFieldIds, warnIfUnlabelled, type FieldTextProps } from './internal/field';
+import { FieldAction, FieldShell, warnIfUnlabelled, type FieldTextProps } from './internal/field';
+import { useFieldIds } from './internal/field-ids';
 import { MinusIcon, PlusIcon, TrashIcon } from './internal/icons';
 
 export interface NumberInputStep {

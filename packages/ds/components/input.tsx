@@ -6,11 +6,11 @@ import {
   FieldAction,
   FieldShell,
   hasContent,
-  useFieldIds,
   warnIfUnlabelled,
   type FieldLabelPosition,
   type FieldTextProps,
 } from './internal/field';
+import { useFieldIds } from './internal/field-ids';
 import { CloseIcon } from './internal/icons';
 import { ShortcutKeys } from './internal/shortcut';
 

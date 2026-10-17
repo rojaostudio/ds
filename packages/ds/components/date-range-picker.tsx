@@ -7,7 +7,8 @@ import { Dialog } from './dialog';
 import { FilterChip, FilterChipGroup } from './filter-chip';
 import { announce } from './internal/announce';
 import { addDays, dayName, endOfMonth, formatBr, fromIso, startOfMonth, toIso, type IsoDate } from './internal/dates';
-import { FieldShell, useFieldIds, warnIfUnlabelled, type FieldTextProps } from './internal/field';
+import { FieldShell, warnIfUnlabelled, type FieldTextProps } from './internal/field';
+import { useFieldIds } from './internal/field-ids';
 import { CalendarIcon, CheckIcon } from './internal/icons';
 import { useCompact } from './internal/use-compact';
 

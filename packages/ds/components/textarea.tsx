@@ -1,7 +1,8 @@
 'use client';
 
 import type { ComponentPropsWithRef } from 'react';
-import { FieldShell, hasContent, useFieldIds, warnIfUnlabelled, type FieldTextProps } from './internal/field';
+import { FieldShell, hasContent, warnIfUnlabelled, type FieldTextProps } from './internal/field';
+import { useFieldIds } from './internal/field-ids';
 
 export interface TextareaProps extends FieldTextProps, Omit<ComponentPropsWithRef<'textarea'>, 'children'> {
   /** Visible lines at first (3 to 5 fits most). Never under 2. The person can make it taller. */

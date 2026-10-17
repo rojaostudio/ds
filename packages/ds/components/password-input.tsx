@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState, type ChangeEvent, type ComponentPropsWithRef, type ReactNode } from 'react';
 import { announce } from './internal/announce';
-import { FieldAction, FieldShell, hasContent, useFieldIds, warnIfUnlabelled, type FieldTextProps } from './internal/field';
+import { FieldAction, FieldShell, hasContent, warnIfUnlabelled, type FieldTextProps } from './internal/field';
+import { useFieldIds } from './internal/field-ids';
 import { EyeIcon, EyeOffIcon } from './internal/icons';
 
 export interface PasswordInputProps
