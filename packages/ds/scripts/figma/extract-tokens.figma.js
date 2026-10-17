@@ -174,10 +174,14 @@ if (!cols.some((c) => c.name === "theme")) {
   // breakpoint (layout/content/padding-x…). Values are resolved (aliases followed down).
   const breakpoint = cols.find((c) => c.name === "breakpoint");
   const viewport = cols.find((c) => c.name === "viewport");
-  const resolveValue = async (val) => {
+  // An alias inside viewport is followed in the same screen mode (layout/form/max-width → …/narrow).
+  const resolveValue = async (val, modeId) => {
     while (isAlias(val)) {
       const t = await figma.variables.getVariableByIdAsync(val.id);
-      const tm = t.variableCollectionId === base.id ? baseMode.modeId : Object.keys(t.valuesByMode)[0];
+      const tm =
+        t.variableCollectionId === base.id ? baseMode.modeId
+        : t.variableCollectionId === viewport.id && modeId ? modeId
+        : Object.keys(t.valuesByMode)[0];
       val = t.valuesByMode[tm] ?? Object.values(t.valuesByMode)[0];
     }
     return val;
@@ -194,7 +198,7 @@ if (!cols.some((c) => c.name === "theme")) {
     if (v.resolvedType !== "FLOAT" && v.resolvedType !== "BOOLEAN") continue;
     const values = [];
     for (const m of viewport.modes) {
-      const val = await resolveValue(v.valuesByMode[m.modeId]);
+      const val = await resolveValue(v.valuesByMode[m.modeId], m.modeId);
       values.push(v.resolvedType === "FLOAT" ? num(val) : String(val));
     }
     vpLines.push(`${v.name}|${TYPE[v.resolvedType]}|${values.join("|")}`);
