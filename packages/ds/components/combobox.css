@@ -18,11 +18,30 @@
 }
 
 /*
- * Figma menu=create: "Cadastrar <termo>" after the matches, past a Separator (separator/line). The line is the
- * option's top border, inside its 44 (a <li role="separator"> is not allowed in a listbox). Alone
- * (menu=empty-create), no line.
+ * The foot of the list (Figma: the Listbox's actions-group, ds#181): "Cadastrar <termo>" and the actions, a named
+ * group fixed under the options that scroll (sticky on the list's bottom edge; the group takes the list's 4 of bottom
+ * padding, so no option shows under it). The divider
+ * (separator/line) is the first item's top border, inside its 44 (a <li role="separator"> is not allowed in a
+ * listbox). Alone (menu=empty-create), no line.
  */
-.rds-combobox__create:not(:first-child) {
+.rds-combobox__list:has(> .rds-combobox__actions) {
+  padding-bottom: 0;
+}
+
+.rds-combobox__actions {
+  position: sticky;
+  bottom: 0;
+  padding-bottom: var(--space-4);
+  background: var(--listbox-background);
+}
+
+.rds-combobox__actions-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rds-combobox__actions:not(:first-child) .rds-combobox__actions-list > :first-child {
   border-top: var(--border-width) solid var(--separator-line);
 }
 
