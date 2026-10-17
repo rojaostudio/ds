@@ -16,7 +16,7 @@
   top: 50%;
   left: 50%;
   gap: var(--space-16);
-  width: min(560px, calc(100vw - var(--space-32)));
+  width: min(var(--layout-surface-lg), calc(100vw - var(--space-32)));
   /* 48 above and 48 below, at most (Roger 09/10; Figma layout/dialog/max-height). */
   max-height: calc(100dvh - var(--space-48) * 2);
   border: var(--border-width) solid var(--dialog-border);
@@ -26,7 +26,7 @@
 }
 
 .rds-dialog--sm {
-  width: min(400px, calc(100vw - var(--space-32)));
+  width: min(var(--layout-surface-md), calc(100vw - var(--space-32)));
 }
 
 /* stableHeight (ds#160): the tallest height seen while open, never past the max-height above. */
@@ -40,7 +40,7 @@
 }
 
 .rds-dialog--lg {
-  width: min(720px, calc(100vw - var(--space-32)));
+  width: min(var(--layout-surface-xl), calc(100vw - var(--space-32)));
 }
 
 .rds-dialog__title {
@@ -87,7 +87,7 @@
     bottom: var(--_kb, 0px);
     left: 0;
     width: 100%;
-    max-width: 560px;
+    max-width: var(--layout-surface-lg);
     max-height: calc(100dvh - var(--_kb, 0px) - var(--space-48));
     margin-inline: auto;
     padding: var(--space-12) var(--space-24) calc(var(--space-24) + env(safe-area-inset-bottom, 0px));

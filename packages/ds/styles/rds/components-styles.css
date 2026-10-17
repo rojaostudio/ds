@@ -194,7 +194,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-24);
-  width: min(400px, calc(100vw - var(--space-32)));
+  width: min(var(--layout-surface-md), calc(100vw - var(--space-32)));
   /* 48 above and 48 below, at most (Roger 09/10; Figma layout/dialog/max-height). */
   max-height: calc(100dvh - var(--space-48) * 2);
   padding: var(--space-24);
@@ -249,7 +249,7 @@
     bottom: 0;
     left: 0;
     width: 100%;
-    max-width: 560px;
+    max-width: var(--layout-surface-lg);
     max-height: calc(100dvh - var(--space-48));
     margin-inline: auto;
     padding-bottom: calc(var(--space-24) + env(safe-area-inset-bottom, 0px));
@@ -3888,7 +3888,7 @@ button.rds-chip-input__add:focus-visible {
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  width: min(560px, calc(100vw - var(--space-32)));
+  width: min(var(--layout-surface-lg), calc(100vw - var(--space-32)));
   max-height: 60vh;
   overflow: hidden;
   border: var(--border-width) solid var(--command-border);
@@ -4556,7 +4556,7 @@ button.rds-chip-input__add:focus-visible {
   top: 50%;
   left: 50%;
   gap: var(--space-16);
-  width: min(560px, calc(100vw - var(--space-32)));
+  width: min(var(--layout-surface-lg), calc(100vw - var(--space-32)));
   /* 48 above and 48 below, at most (Roger 09/10; Figma layout/dialog/max-height). */
   max-height: calc(100dvh - var(--space-48) * 2);
   border: var(--border-width) solid var(--dialog-border);
@@ -4566,7 +4566,7 @@ button.rds-chip-input__add:focus-visible {
 }
 
 .rds-dialog--sm {
-  width: min(400px, calc(100vw - var(--space-32)));
+  width: min(var(--layout-surface-md), calc(100vw - var(--space-32)));
 }
 
 /* stableHeight (ds#160): the tallest height seen while open, never past the max-height above. */
@@ -4580,7 +4580,7 @@ button.rds-chip-input__add:focus-visible {
 }
 
 .rds-dialog--lg {
-  width: min(720px, calc(100vw - var(--space-32)));
+  width: min(var(--layout-surface-xl), calc(100vw - var(--space-32)));
 }
 
 .rds-dialog__title {
@@ -4627,7 +4627,7 @@ button.rds-chip-input__add:focus-visible {
     bottom: var(--_kb, 0px);
     left: 0;
     width: 100%;
-    max-width: 560px;
+    max-width: var(--layout-surface-lg);
     max-height: calc(100dvh - var(--_kb, 0px) - var(--space-48));
     margin-inline: auto;
     padding: var(--space-12) var(--space-24) calc(var(--space-24) + env(safe-area-inset-bottom, 0px));
@@ -4736,7 +4736,7 @@ button.rds-chip-input__add:focus-visible {
   bottom: 0;
   left: 0;
   gap: calc(var(--space-16) + var(--space-4));
-  max-width: 560px;
+  max-width: var(--layout-surface-lg);
   max-height: 85dvh;
   margin-inline: auto;
   padding: var(--space-12) var(--space-24) calc(var(--space-32) + env(safe-area-inset-bottom, 0px));
@@ -5853,7 +5853,7 @@ button.rds-chip-input__add:focus-visible {
   box-sizing: border-box;
   display: flex;
   gap: var(--space-12);
-  width: min(320px, calc(100vw - var(--space-32)));
+  width: min(var(--layout-surface-sm), calc(100vw - var(--space-32)));
   padding: var(--space-16);
   border: var(--border-width) solid var(--hovercard-border);
   border-radius: var(--radius-container);
@@ -9251,7 +9251,7 @@ body:has(.rds-modal) {
 /* components/page-shell.css */
 /*
  * PageShell (Figma Navigation/PageShell): no tokens of its own. Full width up to narrow 768
- * (layout/content/max-width/narrow) or wide 1536 (layout/content/max-width/wide, the default); full has no cap. Centred
+ * (layout/content/max-width/narrow), medium 1152 (layout/content/max-width/medium) or wide 1536 (layout/content/max-width/wide, the default); full has no cap. Centred
  * by default; align start puts the capped content at the inline start (next to a side menu) and the space left over at
  * the end. Padded: layout/content/padding-y above and below and layout/content/padding-x at the sides, both by the
  * screen's viewport mode (16 on base; 24 from sm 640; 32 from lg 1024; 48 at the sides from 2xl 1536), emitted from the
@@ -9269,6 +9269,10 @@ body:has(.rds-modal) {
 
 .rds-page-shell--narrow {
   max-width: var(--layout-content-max-width-narrow);
+}
+
+.rds-page-shell--medium {
+  max-width: var(--layout-content-max-width-medium);
 }
 
 .rds-page-shell--wide {
@@ -9968,7 +9972,7 @@ body:has(.rds-modal) {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
-  width: min(320px, calc(100vw - var(--space-32)));
+  width: min(var(--layout-surface-sm), calc(100vw - var(--space-32)));
   padding: var(--space-16);
   border: var(--border-width) solid var(--popover-border);
   border-radius: var(--radius-container);
@@ -10946,7 +10950,7 @@ input:focus-visible + .rds-radio__circle {
   top: 0;
   bottom: 0;
   gap: var(--space-24);
-  width: min(400px, 100vw);
+  width: min(var(--layout-surface-md), 100vw);
   background: var(--sheet-background);
 }
 
@@ -11034,7 +11038,7 @@ input:focus-visible + .rds-radio__circle {
   flex-direction: column;
   flex-shrink: 0;
   gap: var(--space-8);
-  width: 240px;
+  width: var(--layout-surface-xs);
   min-height: 100%;
   padding: var(--space-12) var(--space-8);
   border-right: var(--border-width) solid var(--sidebar-border);
@@ -11308,7 +11312,7 @@ input:focus-visible + .rds-radio__circle {
   top: 0;
   inset-inline-start: calc(100% + var(--space-8));
   z-index: var(--z-dropdown);
-  width: 240px;
+  width: var(--layout-surface-xs);
   min-width: 0;
 }
 
@@ -11345,7 +11349,7 @@ input:focus-visible + .rds-radio__circle {
     inset-block: 0;
     inset-inline-start: 0;
     z-index: var(--z-modal);
-    width: 240px;
+    width: var(--layout-surface-xs);
     max-width: calc(100% - var(--space-48));
     overflow-y: auto;
     visibility: hidden;
@@ -13589,7 +13593,7 @@ tbody + tbody > .rds-table__group-row > .rds-table__group {
 .rds-tooltip {
   z-index: var(--z-tooltip);
   box-sizing: border-box;
-  max-width: 240px;
+  max-width: var(--layout-surface-xs);
   padding: var(--space-8) var(--space-12);
   border-radius: var(--radius-container);
   background: var(--tooltip-background);

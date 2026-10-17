@@ -48,3 +48,9 @@ viewport/only/md|B|false|false|true|false|false|false
 viewport/only/lg|B|false|false|false|true|false|false
 viewport/only/xl|B|false|false|false|false|true|false
 viewport/only/2xl|B|false|false|false|false|false|true
+layout/surface/xs|F|240|240|240|240|240|240
+layout/surface/sm|F|320|320|320|320|320|320
+layout/surface/md|F|400|400|400|400|400|400
+layout/surface/lg|F|560|560|560|560|560|560
+layout/surface/xl|F|720|720|720|720|720|720
+layout/content/max-width/medium|F|1152|1152|1152|1152|1152|1152

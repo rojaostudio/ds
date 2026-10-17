@@ -6,7 +6,7 @@
 .rds-tooltip {
   z-index: var(--z-tooltip);
   box-sizing: border-box;
-  max-width: 240px;
+  max-width: var(--layout-surface-xs);
   padding: var(--space-8) var(--space-12);
   border-radius: var(--radius-container);
   background: var(--tooltip-background);

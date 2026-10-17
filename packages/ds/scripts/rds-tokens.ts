@@ -134,9 +134,17 @@ export function emitViewportCss(viewport: Viewport, used: Set<string>): string {
 
 /**
  * The layout/* emitted even when no stylesheet reads them: public names a consumer may still read. --layout-form-max-width
- * is the old name of --layout-content-max-width-narrow (an alias in Figma since ds#162), kept until the next major.
+ * is the old name of --layout-content-max-width-narrow (an alias in Figma since ds#162), kept until the next major. The
+ * surface scale (ds#189) is the width a product's own panel, column or window takes, so it ships whole.
  */
-export const PUBLIC_LAYOUT_VARS: ReadonlySet<string> = new Set(["--layout-form-max-width"]);
+export const PUBLIC_LAYOUT_VARS: ReadonlySet<string> = new Set([
+  "--layout-form-max-width",
+  "--layout-surface-xs",
+  "--layout-surface-sm",
+  "--layout-surface-md",
+  "--layout-surface-lg",
+  "--layout-surface-xl",
+]);
 
 /** The var() names every component stylesheet reads. */
 export function usedVars(stylesheets: Array<{ css: string }>): Set<string> {

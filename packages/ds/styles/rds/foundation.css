@@ -81,6 +81,12 @@
   --layout-form-max-width: 768px;
   --layout-content-max-width-narrow: 768px;
   --layout-content-max-width-wide: 1536px;
+  --layout-surface-xs: 240px;
+  --layout-surface-sm: 320px;
+  --layout-surface-md: 400px;
+  --layout-surface-lg: 560px;
+  --layout-surface-xl: 720px;
+  --layout-content-max-width-medium: 1152px;
 }
 @media (min-width: 640px) {
 :root {
