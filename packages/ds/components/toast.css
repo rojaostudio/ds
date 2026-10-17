@@ -1,6 +1,6 @@
 /* @tokens toast */
 /*
- * Toast (Feedback collection, toast/*): 460 wide, 8 8 8 16 inside, 12 between icon, text, action and ×,
+ * Toast (Feedback collection, toast/*): 400 wide (layout/surface/md), 8 8 8 16 inside, 12 between icon, text, action and ×,
  * elevation/overlay. outline: white with a border, the icon in the tone; soft and fill: the tone's plate, and
  * everything on it (icon, text, action, ×) in the plate's text colour. Stacked at the bottom centre on every screen
  * width (bottom-center, no switch by breakpoint: the bottom right corner belongs to the floating bar at the foot),
@@ -24,7 +24,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-8);
-  width: min(calc(460px + var(--space-16) * 2), 100vw);
+  width: min(calc(var(--layout-surface-md) + var(--space-16) * 2), 100vw);
   max-width: 100vw;
   margin: 0 auto;
   padding: var(--space-16);
@@ -43,7 +43,7 @@
   display: flex;
   align-items: flex-start;
   gap: var(--space-12);
-  width: min(460px, 100%);
+  width: min(var(--layout-surface-md), 100%);
   padding: var(--space-8) var(--space-8) var(--space-8) var(--space-16);
   border: var(--border-width) solid var(--_border);
   border-radius: var(--radius-container);

@@ -8,7 +8,7 @@ const root = join(__dirname, "..", "..");
 const css = (file: string) => readFileSync(join(root, "components", file), "utf8");
 const SURFACES = [
   "sidebar.css", "tooltip.css", "popover.css", "hover-card.css", "sheet.css", "drawer.css", "dialog.css",
-  "alert-dialog.css", "command.css",
+  "alert-dialog.css", "command.css", "toast.css",
 ];
 
 describe("surface width scale (ds#189)", () => {
