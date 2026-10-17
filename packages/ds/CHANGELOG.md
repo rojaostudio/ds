@@ -1,5 +1,13 @@
 # @rojaostudio/ds
 
+## 2.15.0
+
+### Minor Changes
+
+- d2b6ede: Dialog: `eyebrow`, a small line above the title for a wizard's context (the window is still named by the title; the eyebrow describes it, before the description), and `stableHeight`, which keeps the box at the height of the tallest step it has shown so the footer doesn't jump between steps, still capped by the window and back to hugging when it closes. (ds#160)
+- af5322d: FieldGroup e FieldGroupSeparator (ds#147): campos curtos que formam um valor só (largura × altura, de – até) num `<fieldset>` com uma legend e um erro. O erro do grupo pinta todos os campos (menos o que receber `error={false}`), a mensagem sai uma vez embaixo do conjunto e vai por `aria-describedby` a cada campo em erro; dentro do grupo o campo nunca desenha mensagem própria. `focusFirstInvalid` cai no primeiro campo errado do grupo.
+- 27b076a: Stepper: the steps are an ordered list inside the "Etapas" navigation, and each step says its position after its label for screen readers ("Endereço, etapa 2 de 4"; `positionLabel` words it); later steps stay aria-disabled, readable and reachable by Tab. New `variant="embedded"`: no surface, border or shadow, for a Stepper inside a Dialog or a card (`floating`, the raised pill, stays the default). (ds#159)
+
 ## 2.14.0
 
 ### Minor Changes
