@@ -1,4 +1,4 @@
-# [RDS] Base Tokens · collections breakpoint and viewport · file 1Xn5IkLiq5Yhas680rJQf6 · extracted 2026-10-04
+# [RDS] Base Tokens · collections breakpoint and viewport · file 1Xn5IkLiq5Yhas680rJQf6 · extracted 2026-10-17
 # DO NOT EDIT. Figma is the source: publish in Figma, run the extraction, save the output here.
 # breakpoint/<mode>|F|<min-width in px>: where each viewport mode starts (the base mode starts at 0).
 # Format of the rest: name|type (F number in px, B boolean)|base|sm|md|lg|xl|2xl
@@ -10,7 +10,6 @@ breakpoint/2xl|F|1536
 viewport/width|F|390|640|768|1024|1280|1536
 layout/content/padding-x|F|16|24|24|32|32|48
 layout/content/padding-y|F|16|24|24|32|32|32
-layout/content/max-width|F|1120|1120|1120|1120|1120|1120
 layout/form/max-width|F|768|768|768|768|768|768
 layout/grid/item-min-width|F|300|300|300|300|300|300
 layout/rail/visible|B|false|false|false|true|true|true
@@ -26,3 +25,20 @@ viewport/from/md|B|false|false|true|true|true|true
 viewport/from/lg|B|false|false|false|true|true|true
 viewport/from/xl|B|false|false|false|false|true|true
 data-table-header/search-min|F|200|200|200|320|320|320
+layout/dialog/sm/width|F|390|560|560|400|400|400
+layout/dialog/md/width|F|390|560|560|560|560|560
+layout/dialog/lg/width|F|390|560|560|720|720|720
+layout/sheet/action-min-width|F|342|512|512|0|0|0
+layout/sheet/radius-end|F|0|0|0|12|12|12
+layout/sheet/padding-top|F|12|12|12|24|24|24
+layout/wrap/max-width|F|358|592|720|9999|9999|9999
+layout/stack/min-width|F|358|592|720|0|0|0
+layout/title/max-width|F|258|492|620|9999|9999|9999
+layout/dialog/max-height|F|796|912|976|672|650|650
+layout/dialog/content/max-height|F|536|652|716|482|460|460
+layout/dialog/footer-start/min-width|F|342|512|512|120|120|120
+layout/alert-dialog/content/max-height|F|616|732|796|540|518|518
+layout/aside/panel/max-width|F|9999|9999|380|380|380|380
+layout/aside/panel/min-width|F|0|0|380|380|380|380
+layout/content/max-width/narrow|F|768|768|768|768|768|768
+layout/content/max-width/wide|F|1536|1536|1536|1536|1536|1536
