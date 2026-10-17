@@ -2,7 +2,8 @@
  * run.ts — the `rojao-ds-codemod` command: migrates a consumer of `@rojaostudio/ds` from `0.x` or `1.x` straight to
  * `2.0`, or a `2.0.0-next` one to the single prop vocabulary. `main()` is the whole command; ./cli.ts only calls it.
  * Internal tool, not published on npm. Run from the root of this repo:
- *   pnpm migrate:consumer <consumer-path> [--apply] [--from 1.x|next] [--force] [--verbose] [--report <file.json>]
+ *   pnpm migrate:consumer <consumer-path> [--apply] [--from 1.x|next] [--include <glob>…] [--force] [--verbose]
+ *     [--report <file.json>]
  * Outside consumers migrate with the guide at https://ds.rojao.ai/migrar.
  *
  * Without `--apply` it is a dry run: it prints the plan and writes nothing in the project.
@@ -33,6 +34,14 @@
  * already imports a name only 2.0 has is skipped whole. And package.json is the LAST file written: a run that stops
  * half way leaves the version on 1.x, and the next run resumes in the 1.x mode over the files still on 1.x.
  *
+ * ## Partial migration: `--include`
+ *
+ * A project that moves one area at a time (a route segment on 2.x, the rest still on 0.x) passes `--include` once
+ * per glob, relative to the folder. Only the matching code is rewritten. Everything shared by the whole app is left
+ * as it is, and the report says so: package.json (the 0.x stays installed), .npmrc (the 0.x still comes from GitHub
+ * Packages), next.config (the 0.x still needs transpilePackages) and the global CSS (theme and @source of the 0.x).
+ * How 0.x and 2.x live side by side is in the README ("Migração parcial").
+ *
  * ## Safety
  *
  * `--apply` refuses a folder outside git or with a dirty working tree (the review of the diff is the safety net)
@@ -61,12 +70,14 @@ const TARGET_VERSION = '^2.0.0';
 export const DEFAULT_EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs', '.mts', '.cts'];
 
 export const USAGE = [
-  'uso: pnpm migrate:consumer <pasta-do-projeto> [--apply] [--from 1.x|next] [--force] [--verbose] [--report <arquivo.json>] [--extensions <lista>]',
+  'uso: pnpm migrate:consumer <pasta-do-projeto> [--apply] [--from 1.x|next] [--include <glob>…] [--force] [--verbose] [--report <arquivo.json>] [--extensions <lista>]',
   '',
   '  sem --apply          dry-run: mostra o plano e os casos manuais (arquivo:linha), não escreve nada no projeto',
   '  --apply              escreve as mudanças e um TODO(ds-2.0) acima de cada caso manual',
   '  --from 1.x|next      de onde o projeto vem: 1.x (0.x/1.x → 2.0) ou next (2.0.0-next → vocabulário de props).',
   '                       Obrigatório quando o package.json da pasta não declara a versão do DS',
+  '  --include <glob>     migração parcial: só o código que bate com o glob (relativo à pasta; repita para mais de um).',
+  '                       Não mexe em package.json, .npmrc, next.config nem no CSS global',
   '  --force              aplica mesmo fora do git ou com a working tree suja',
   '  --verbose            lista também cada transformação automática',
   '  --report <json>      grava o relatório completo em JSON',
@@ -100,9 +111,53 @@ function parseExtensions(list: string): string[] {
   return exts;
 }
 
+/**
+ * `--include` globs → one matcher. `**` crosses folders, `*` and `?` stay inside one; anything else is literal (the
+ * `(group)` and `[id]` folders of Next.js included). A file is in when it, or one of its folders, matches a glob, so
+ * `app/(novo)` and `app/(novo)/**` mean the same.
+ */
+export function includeMatcher(globs: string[]): (rel: string) => boolean {
+  const res = globs.map((g) => {
+    const glob = g.replace(/\\/g, '/').replace(/^(\.\/)+/, '').replace(/\/+$/, '');
+    let re = '';
+    for (let i = 0; i < glob.length; i++) {
+      const ch = glob[i];
+      if (ch === '*' && glob[i + 1] === '*') {
+        // `**/` is zero or more folders; a trailing `**` is anything.
+        if (glob[i + 2] === '/') {
+          re += '(?:.*/)?';
+          i += 2;
+        } else {
+          re += '.*';
+          i++;
+        }
+      } else if (ch === '*') re += '[^/]*';
+      else if (ch === '?') re += '[^/]';
+      else re += ch.replace(/[.+^${}()|[\]\\]/g, '\\$&');
+    }
+    return new RegExp(`^${re}$`);
+  });
+  return (rel) => {
+    const parts = rel.split('/');
+    for (let n = parts.length; n > 0; n--) {
+      const path = parts.slice(0, n).join('/');
+      if (res.some((re) => re.test(path))) return true;
+    }
+    return false;
+  };
+}
+
+/** What a partial migration leaves alone, and why: printed and in the report. */
+const PARTIAL_SKIPS = [
+  'package.json: a 0.x segue instalada para o resto do app (a 2.x entra ao lado, sob alias)',
+  '.npmrc: a 0.x ainda vem do GitHub Packages',
+  'next.config: a 0.x ainda precisa de transpilePackages',
+  'CSS global (tema e @source): o resto do app segue no CSS da 0.x',
+];
+
 export function main(argv: string[], io: Io = defaultIo): number {
   // ── arguments ───────────────────────────────────────────────────────────────────────────────────────
-  let values: Record<string, string | boolean | undefined>;
+  let values: Record<string, string | boolean | string[] | undefined>;
   let positionals: string[];
   try {
     ({ values, positionals } = parseArgs({
@@ -117,6 +172,7 @@ export function main(argv: string[], io: Io = defaultIo): number {
         from: { type: 'string' },
         'from-next': { type: 'boolean' },
         extensions: { type: 'string' },
+        include: { type: 'string', multiple: true },
         help: { type: 'boolean', short: 'h' },
       },
     }));
@@ -163,6 +219,10 @@ export function main(argv: string[], io: Io = defaultIo): number {
       return 1;
     }
   }
+
+  const include = (values.include as string[] | undefined) ?? [];
+  const partial = include.length > 0;
+  const included = partial ? includeMatcher(include) : () => true;
 
   const root = positionals[0].replace(/\\/g, '/').replace(/(.)\/$/, '$1');
   if (!existsSync(root) || !statSync(root).isDirectory()) {
@@ -221,7 +281,7 @@ export function main(argv: string[], io: Io = defaultIo): number {
   }
   const fromNext = from === 'next';
 
-  if (dep && !fromNext) {
+  if (dep && !fromNext && !partial) {
     const why = unsafeTarget(root, 'package.json');
     if (why) {
       blockers.push(why);
@@ -263,6 +323,17 @@ export function main(argv: string[], io: Io = defaultIo): number {
 
   // ── one walk of the tree ────────────────────────────────────────────────────────────────────────────
   const scan = scanTree(root, extensions);
+  if (partial && !scan.code.some((f) => included(f.rel))) {
+    io.err(`--include ${include.join(' ')} não bate com nenhum arquivo de código em ${root} (os globs são relativos à pasta)`);
+    return 1;
+  }
+  if (partial && !fromNext) {
+    warnings.push(
+      `migração parcial (--include ${include.join(' ')}): só o código que bate é reescrito. Ficam como estão:\n        ` +
+        PARTIAL_SKIPS.join('\n        ') +
+        '\n        Instale a 2.x ao lado da 0.x e carregue o rds.css só no segmento migrado: veja "Migração parcial" no README do codemod.',
+    );
+  }
   if (scan.links.length) {
     warnings.push(`${scan.links.length} link(s) simbólico(s) ignorado(s), nem lidos nem escritos: ${scan.links.slice(0, 5).join(', ')}${scan.links.length > 5 ? '…' : ''}`);
   }
@@ -270,13 +341,13 @@ export function main(argv: string[], io: Io = defaultIo): number {
   // ── the CSS that imports the DS ─────────────────────────────────────────────────────────────────────
   // `app/globals.css` in most, `src/app/globals.css` in some. Searching is more honest than guessing: if there is
   // more than one, the theme is left for a person to decide.
-  const cssCandidates = fromNext ? [] : scan.css.filter((f) => /@rojao(?:studio)?\/ds\/styles/.test(f.text)).map((f) => f.rel);
+  const cssCandidates = fromNext || partial ? [] : scan.css.filter((f) => /@rojao(?:studio)?\/ds\/styles/.test(f.text)).map((f) => f.rel);
   const cssRel = cssCandidates.length === 1 ? cssCandidates[0] : undefined;
   let theme: string | undefined;
 
   if (cssCandidates.length > 1) {
     warnings.push(`mais de um .css importa o DS (${cssCandidates.join(', ')}) — confira o tema e o @source à mão, o script não escolhe por você`);
-  } else if (!cssRel && !fromNext) {
+  } else if (!cssRel && !fromNext && !partial) {
     warnings.push('nenhum .css importa @rojaostudio/ds/styles — a parte de tema não se aplica aqui');
   }
 
@@ -371,7 +442,7 @@ export function main(argv: string[], io: Io = defaultIo): number {
   }
 
   // ── the 2.0 stylesheet: reported, never written ─────────────────────────────────────────────────────
-  const importsRds = fromNext || scan.css.some((f) => f.text.includes(RDS_CSS));
+  const importsRds = fromNext || partial || scan.css.some((f) => f.text.includes(RDS_CSS));
   if (!importsRds) {
     warnings.push(
       `nenhum CSS importa ${RDS_CSS} — os componentes 2.0 ficam sem estilo. Acrescente em ${cssRel ?? 'o CSS global do app'}:\n` +
@@ -382,7 +453,7 @@ export function main(argv: string[], io: Io = defaultIo): number {
   // ── .npmrc ──────────────────────────────────────────────────────────────────────────────────────────
   // The scope is public on npmjs since 1.0.0 (#102). Only the DS lines go; in a monorepo the .npmrc is at the root.
   const npmrcPath = join(root, '.npmrc');
-  if (!fromNext && existsSync(npmrcPath)) {
+  if (!fromNext && !partial && existsSync(npmrcPath)) {
     const change = cleanNpmrc(readFileSync(npmrcPath, 'utf8'));
     if (change) {
       const why = unsafeTarget(root, '.npmrc');
@@ -408,7 +479,7 @@ export function main(argv: string[], io: Io = defaultIo): number {
   // ── transpilePackages ───────────────────────────────────────────────────────────────────────────────
   // It existed because `exports` pointed at `.ts`/`.tsx`. With the pre-build of #100 it is not needed: keeping it
   // does not break, but every cold build pays again for what publishing already paid.
-  for (const name of fromNext ? [] : ['next.config.ts', 'next.config.mts', 'next.config.js', 'next.config.mjs', 'next.config.cjs']) {
+  for (const name of fromNext || partial ? [] : ['next.config.ts', 'next.config.mts', 'next.config.js', 'next.config.mjs', 'next.config.cjs']) {
     const p = join(root, name);
     if (!existsSync(p) || lstatSync(p).isDirectory()) continue;
     let change;
@@ -440,7 +511,7 @@ export function main(argv: string[], io: Io = defaultIo): number {
   // ── the code: components and props ──────────────────────────────────────────────────────────────────
   const results: FileResult[] = [];
   const skipped: { file: string; names: string[] }[] = [];
-  const sourceFiles = scan.code.filter((f) => mentionsDs(f.text));
+  const sourceFiles = scan.code.filter((f) => included(f.rel) && mentionsDs(f.text));
 
   for (const { rel, text } of sourceFiles) {
     try {
@@ -510,7 +581,10 @@ export function main(argv: string[], io: Io = defaultIo): number {
 
   const allSteps = packageStep ? [...steps, packageStep] : steps;
   const target = fromNext ? 'vocabulário único de props (2.0.0-next)' : TARGET_VERSION;
-  io.out(`\n${basename(resolve(root))} — ${currentVersion ?? 'versão não declarada'} → ${target}  ·  modo ${from}${theme ? `  ·  tema \`${theme}\`` : ''}\n`);
+  io.out(
+    `\n${basename(resolve(root))} — ${currentVersion ?? 'versão não declarada'} → ${target}  ·  modo ${from}${theme ? `  ·  tema \`${theme}\`` : ''}` +
+      `${partial ? `  ·  migração parcial (${include.join(', ')})` : ''}\n`,
+  );
 
   for (const s of allSteps) io.out(`  ${apply ? '✓' : '·'} ${s.title}\n      ${s.detail}`);
 
@@ -553,6 +627,7 @@ export function main(argv: string[], io: Io = defaultIo): number {
       from: currentVersion ?? null,
       mode: from,
       to: target,
+      include: partial ? include : null,
       applied: apply && !blockers.length,
       steps: allSteps.map(({ title, detail }) => ({ title, detail })),
       warnings,

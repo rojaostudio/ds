@@ -21,7 +21,9 @@
  *      `transforms`  named transforms with logic beyond a prop rename (implemented in codemod.ts).
  *      `manual`      every usage is manual (structural change: `options[]` → children, render-props…).
  *  - `TYPES` renames or flags type-only exports.
- *  - `EXPORTS_MANUAL` flags exports that are gone with no mechanical replacement (`buttonVariants`, `Th`…).
+ *  - `EXPORTS_MANUAL` flags exports that are gone with no mechanical replacement (`themeClass`, `homeItem`…).
+ *    `buttonVariants` has one in a single place, the className of an `<a>` or a `Link` (→ `<Button asChild>`): the
+ *    codemod rewrites that use and reports every other one with this message.
  *  - `MOVED_EXPORTS` moves an export to another entry point (`PixIcon` → `@rojaostudio/ds/icons`).
  *  - `DEPRECATED` and `ICON_BUTTON_TOOLTIP` are notices: reported, never transformed.
  *  - `VOCABULARY` and `VOCABULARY_TYPES` are the single prop vocabulary of 2.0.0-next (03/10/2026): the Figma
@@ -121,6 +123,8 @@ export const FILE_OF_EXPORT: Record<string, string> = {
   ImageCropDialog: 'image-crop-dialog',
   ImageCropDialogProps: 'image-crop-dialog',
   CropPreset: 'image-crop-dialog',
+  SelectItem: 'select',
+  ToggleGroupItem: 'toggle-group',
 };
 
 /** Literal value of a JSX attribute after migration. `null` drops the attribute: it is the 2.0 default. */
@@ -174,6 +178,8 @@ export type TransformName =
   | 'chatBubble' // variant bot/user → align (+ variant fill for the user)
   | 'noChildren' // children have no place in the 2.0 component → manual
   | 'quickFilters' // DataTableHeader: pillFilters[] → quickFilters={<FilterChipGroup>…<FilterChip>…}
+  | 'select' // Select: options[] / <option> → <SelectItem>; onChange(e.target.value) → onValueChange
+  | 'toggleGroup' // ToggleGroup: options[] literal → <ToggleGroupItem>; onChange → onValueChange; type
   // The 2.0.0-next vocabulary (VOCABULARY):
   | 'bubbleVocab' // Bubble: variant muted/tinted/error/typing → variant soft + tone, typing
   | 'badgeHighlight' // Badge: variant="highlight" → variant="soft" tone="accent"
@@ -193,8 +199,6 @@ export interface ComponentRule {
   transforms?: TransformName[];
   /** Every usage is manual (structural change), with this guidance. */
   manual?: string;
-  /** With `manual`: the component belongs to a group reported once (the Table's cells). */
-  silent?: boolean;
   /**
    * Part of a family: when one of these components is in the file and stays on the old API (manual), this one stays
    * too, so a Menu left for a person never ends up with DropdownMenuItems inside.
@@ -213,6 +217,10 @@ const OVERLAY_COMMON: Record<string, PropRule> = {
     manual: 'hideClose saiu: o × faz parte do overlay na 2.0. Revise se o fluxo precisa mesmo esconder o fechamento.',
   },
 };
+
+/** Table cells (wave 3, #16): `align` left/right → start/end; the 2.0 cells have no center. */
+const TABLE_ALIGN: ValueMap = { left: 'start', right: 'end' };
+const TABLE_ALIGN_MANUAL = 'align="center" saiu da tabela 2.0: as células alinham em start (texto) ou end (números).';
 
 const FIELD_COMMON: Record<string, PropRule> = {
   helper: { to: 'hint' },
@@ -274,12 +282,18 @@ export const COMPONENTS: Record<string, ComponentRule> = {
   },
   ToggleGroup: {
     wave: 'onda 1 (#14)',
-    newApiProps: ['variant'],
+    newApiProps: ['variant', 'onValueChange'],
+    require: { 'aria-label': 'ToggleGroup 2.0 exige aria-label (o que o grupo escolhe: "Vista", "Período").' },
     props: {
-      options: {
-        manual: 'ToggleGroup virou Radix: troque options[] por filhos <ToggleGroupItem value>…, onChange por onValueChange e dê aria-label.',
+      size: { values: { sm: 'sm', md: null }, manual: 'ToggleGroup size="lg" saiu: o grupo 2.0 tem md (44) e sm (32).' },
+      selectedTone: { drop: true }, // the 2.0 group paints the item that is on by its own variant
+      stretch: { manual: 'ToggleGroup perdeu `stretch`: para ocupar a largura, dê className ao grupo e aos itens.' },
+      label: {
+        manual: 'ToggleGroup perdeu `label` (o rótulo visível em cima): ponha um texto antes do grupo e use o mesmo no aria-label.',
       },
     },
+    // options[] literal → <ToggleGroupItem> children; onChange → onValueChange (with the old single semantics); type.
+    transforms: ['toggleGroup'],
   },
 
   // ── Forms (wave 1, #14) ─────────────────────────────────────────────────────────────────────────
@@ -306,8 +320,10 @@ export const COMPONENTS: Record<string, ComponentRule> = {
   Select: {
     wave: 'onda 1 (#14)',
     newApiProps: ['onValueChange'],
-    manual:
-      'Select virou Radix: troque options[] (ou <option>) por filhos <SelectItem value>…</SelectItem>, onChange(evento) por onValueChange(valor), helper→hint, error→errorMessage.',
+    props: FIELD_COMMON,
+    // options[] (a literal or a simple .map) or <option> → <SelectItem> children; onChange(e.target.value) →
+    // onValueChange. Anything else is manual with SELECT_MANUAL.
+    transforms: ['select'],
   },
   Checkbox: {
     wave: 'onda 1 (#14)',
@@ -643,12 +659,47 @@ export const COMPONENTS: Record<string, ComponentRule> = {
   Table: {
     wave: 'onda 3 (#16)',
     newApiProps: ['caption', 'status', 'showCaption'],
-    manual:
-      'Table 2.0: TableHead (thead) vira TableHeader, Th vira TableHead, Td vira TableCell, align left/right vira start/end e `caption` é obrigatório.',
+    require: {
+      caption: 'Table 2.0 exige `caption`: o nome da tabela para o leitor de tela ("Pedidos do mês"); showCaption o mostra na tela.',
+    },
   },
-  // The old cells: reported once with the Table (they are only migrated together).
-  Th: { wave: 'onda 3 (#16)', manual: 'Th virou TableHead (e o TableHead antigo, o thead, virou TableHeader).', silent: true },
-  Td: { wave: 'onda 3 (#16)', manual: 'Td virou TableCell.', silent: true },
+  // TableHead (the old thead) → TableHeader and Th → TableHead are a swap, like Drawer ↔ Sheet: both renames read the
+  // original text, so nothing is renamed twice. The three cells go together (`follows`): one left for a person keeps
+  // the others on the old names, so a file never mixes the old thead with the new TableHead.
+  TableHead: {
+    wave: 'onda 3 (#16)',
+    to: 'TableHeader',
+    // The 2.0 TableHead is the header cell: `sort`, `onSort` and `align` only exist there.
+    newApiProps: ['sort', 'onSort', 'align'],
+    follows: ['Th', 'Td'],
+  },
+  Th: {
+    wave: 'onda 3 (#16)',
+    to: 'TableHead',
+    props: { align: { values: TABLE_ALIGN, manual: TABLE_ALIGN_MANUAL } },
+    follows: ['TableHead', 'Td'],
+  },
+  Td: {
+    wave: 'onda 3 (#16)',
+    to: 'TableCell',
+    props: {
+      align: { values: TABLE_ALIGN, manual: TABLE_ALIGN_MANUAL },
+      muted: { manual: 'TableCell não tem `muted`: o texto secundário vai num className (ou num <span>) dentro da célula.' },
+      bold: { manual: 'TableCell não tem `bold`: o destaque vai num className (ou num <strong>) dentro da célula.' },
+    },
+    follows: ['TableHead', 'Th'],
+  },
+  TableRow: {
+    wave: 'onda 3 (#16)',
+    props: {
+      header: { drop: true }, // the line under the header row is the TableHeader's
+      noHover: { drop: true }, // the 2.0 rows have no hover
+      onClick: {
+        manual:
+          'TableRow 2.0 é um <tr> comum: o clique na linha perdeu o foco e o Enter/Espaço do 1.x. Ponha um link ou botão de verdade numa célula (o da primeira coluna, por exemplo).',
+      },
+    },
+  },
   Breadcrumb: {
     wave: 'onda 3 (#16)',
     props: { separator: { drop: true } },
@@ -948,6 +999,21 @@ export const BUTTON_VARIANTS: Record<string, string> = {
   outline: 'outline',
   ghost: 'ghost',
 };
+/** The generic guidance for a Select the `select` transform cannot read (options from a variable, a spread…). */
+export const SELECT_MANUAL =
+  'Select virou Radix: troque options[] (ou <option>) por filhos <SelectItem value>…</SelectItem>, onChange(evento) por onValueChange(valor), helper→hint, error→errorMessage.';
+
+/** Old Select props the 2.0 one still takes (with FIELD_COMMON's renames), plus the ones the transform rewrites. */
+export const SELECT_PROPS: ReadonlySet<string> = new Set([
+  'label', 'hint', 'helper', 'error', 'errorMessage', 'size', 'optional', 'required', 'value', 'defaultValue',
+  'placeholder', 'name', 'disabled', 'id', 'className', 'style', 'aria-label', 'aria-labelledby', 'key', 'options',
+  'onChange',
+]);
+
+/** The generic guidance for a ToggleGroup the `toggleGroup` transform cannot read (options from a variable…). */
+export const TOGGLE_GROUP_MANUAL =
+  'ToggleGroup virou Radix: troque options[] por filhos <ToggleGroupItem value>…, onChange por onValueChange e dê aria-label.';
+
 export const BUTTON_MANUAL: Record<string, string> = {
   tonal: 'variant="tonal" saiu do Button 2.0: escolha fill, outline ou ghost (o tom vem de `tone`).',
   link: 'variant="link" saiu: para link use <Button asChild variant="ghost"><a href>…</a></Button> ou um <a> comum.',

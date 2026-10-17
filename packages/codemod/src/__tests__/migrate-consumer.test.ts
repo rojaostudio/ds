@@ -14,10 +14,10 @@ const CLI = join(__dirname, '..', 'cli.ts');
 
 const PAGE = `import { Modal, Select, Dropzone } from '@rojaostudio/ds/components';
 
-export function Page({ open, close }: { open: boolean; close: () => void }) {
+export function Page({ open, close, plans }: { open: boolean; close: () => void; plans: { value: string; label: string }[] }) {
   return (
     <Modal open={open} onClose={close} title="Plano">
-      <Select options={[{ value: 'm', label: 'Mensal' }]} />
+      <Select options={plans} />
       <Dropzone onFiles={() => {}} />
     </Modal>
   );

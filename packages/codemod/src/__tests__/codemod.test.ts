@@ -10,7 +10,7 @@ const read = (name: string) => readFileSync(join(FIXTURES, name), 'utf8');
 // ── auto: every rename and prop rule has an input → output fixture ─────────────────────────────────
 
 const autoFixtures = readdirSync(FIXTURES)
-  .filter((f) => f.endsWith('.input.tsx') && !/^(manual|already|annotate|deprecated|next)/.test(f))
+  .filter((f) => f.endsWith('.input.tsx') && !/^(manual|already|annotate|deprecated|next|partial)/.test(f))
   .map((f) => f.replace('.input.tsx', ''));
 
 describe('codemod: mechanical rules (fixtures)', () => {
@@ -47,6 +47,77 @@ describe('codemod: Drawer ↔ Sheet in the same file', () => {
   });
 });
 
+describe('codemod: the Table swap (TableHead → TableHeader, Th → TableHead, Td → TableCell)', () => {
+  const r = transformSource(read('partial-table.input.tsx'), 'partial-table.tsx');
+
+  it('renames the three in one pass, without renaming anything twice', () => {
+    expect(r.output).toBe(read('partial-table.output.tsx'));
+    expect(r.output.match(/<TableHeader\b/g)).toHaveLength(1);
+    expect(r.output.match(/<TableHead\b/g)).toHaveLength(2);
+  });
+
+  it('leaves only the caption for a person, with a TODO above the Table', () => {
+    expect(r.manual.map((m) => `${m.line} ${m.rule}`)).toEqual(['5 Table.caption']);
+    const annotated = transformSource(read('partial-table.input.tsx'), 'partial-table.tsx', { annotate: true });
+    expect(annotated.output).toContain('    // TODO(ds-2.0): Table 2.0 exige `caption`');
+    expect(annotated.output).toContain('<TableHead align="end">Total</TableHead>');
+  });
+
+  it('a file with only the old thead renames it, and a 2.0 TableHead with sort is left alone', () => {
+    const thead = "import { TableHead } from '@rojaostudio/ds/components';\n\nexport const H = () => <TableHead />;\n";
+    expect(transformSource(thead, 'a.tsx').output).toContain('<TableHeader />');
+    const th = "import { TableHead } from '@rojaostudio/ds/components';\n\nexport const H = () => <TableHead sort=\"none\">x</TableHead>;\n";
+    expect(transformSource(th, 'a.tsx').output).toBe(th);
+  });
+});
+
+describe('codemod: Select, ToggleGroup and links with the look of a button', () => {
+  it('Select: an aliased or local SelectItem is a collision, left for a person', () => {
+    const src =
+      "import { Select } from '@rojaostudio/ds/components';\n\nconst SelectItem = () => null;\n\n" +
+      "export const A = () => <Select options={[{ value: 'a', label: 'A' }]} />;\n";
+    const r = transformSource(src, 'a.tsx');
+    expect(r.output).toBe(src);
+    expect(r.manual.map((m) => m.rule)).toEqual(['Select.collision']);
+  });
+
+  it('Select from a deep import gets SelectItem from the same file', () => {
+    const src = "import { Select } from '@rojaostudio/ds/components/select';\n\nexport const A = () => <Select options={[{ value: 'a', label: 'A' }]} />;\n";
+    const r = transformSource(src, 'a.tsx');
+    expect(r.output).toContain("import { SelectItem } from '@rojaostudio/ds/components/select';");
+    expect(r.output).toContain('<SelectItem value="a">A</SelectItem>');
+  });
+
+  it('Select: the guidance says why an onChange or a native prop stays', () => {
+    const r = transformSource(read('manual-select-shapes.input.tsx'), 'manual-select-shapes.tsx');
+    expect(r.manual.find((m) => m.rule === 'Select.onChange')!.message).toContain('onValueChange(valor)');
+    expect(r.manual.find((m) => m.rule === 'Select.onBlur')!.message).toContain('<select> nativo');
+    expect(r.manual.find((m) => m.rule === 'Select.placeholder')!.message).toContain('placeholder');
+  });
+
+  it('ToggleGroup without aria-label stays manual: the 2.0 group requires it', () => {
+    const r = transformSource(read('manual-misc.input.tsx'), 'manual-misc.tsx');
+    expect(r.manual.find((m) => m.rule === 'ToggleGroup.aria-label')!.message).toContain('aria-label');
+    expect(r.output).toContain("options={[{ value: 'list', label: 'Lista' }]}");
+  });
+
+  it('Button variant="link" with text inside stays manual, with the asChild guidance', () => {
+    const r = transformSource(read('manual-button-variants.input.tsx'), 'manual-button-variants.tsx');
+    expect(r.manual.find((m) => m.rule === 'Button.variant=link')!.message).toContain('asChild variant="ghost"');
+  });
+
+  it('buttonVariants: the import stays while one use is left for a person', () => {
+    const src =
+      "import { buttonVariants } from '@rojaostudio/ds/components';\n\n" +
+      "export const A = () => (\n  <>\n    <a href=\"/a\" className={buttonVariants()}>A</a>\n    <div className={buttonVariants()} />\n  </>\n);\n";
+    const r = transformSource(src, 'a.tsx');
+    expect(r.output).toContain("import { buttonVariants, Button } from '@rojaostudio/ds/components';");
+    expect(r.output).toContain('<Button asChild><a href="/a">A</a></Button>');
+    expect(r.output).toContain('<div className={buttonVariants()} />');
+    expect(r.manual.map((m) => m.rule)).toEqual(['buttonVariants']);
+  });
+});
+
 describe('codemod: every renamed export in the map', () => {
   const renamed = Object.entries(COMPONENTS).filter(([, rule]) => rule.to);
 
@@ -75,6 +146,8 @@ describe('codemod: every renamed export in the map', () => {
 
 const MANUAL: Record<string, string[]> = {
   'manual-select': ['Select', 'RadioGroup.options'],
+  'manual-select-shapes': ['Select', 'Select.onChange', 'Select.onBlur', 'Select.option', 'Select.placeholder'],
+  'manual-toggle-group': ['ToggleGroup.options', 'ToggleGroup.size', 'ToggleGroup.label', 'ToggleGroup.stretch', 'ToggleGroup.type', 'ToggleGroup.allowDeselect'],
   'manual-render-props': ['Menu.renderProp', 'Popover.renderProp'],
   'manual-toast': ['toast.promise', 'toast.loading', 'toast.options', 'type:ToastOptions'],
   'manual-button-variants': [
@@ -86,13 +159,13 @@ const MANUAL: Record<string, string[]> = {
     'Button.iconLeft',
     'Button.spread',
   ],
-  'manual-table': ['Table'],
+  'manual-table': ['Table.caption', 'Th.align', 'Td.muted', 'TableRow.onClick'],
   'manual-card': ['Card.variant', 'Card.interactive', 'CardTitle'],
   'manual-misc': [
     'PageTabs',
     'DatePicker',
     'ContextMenu',
-    'ToggleGroup.options',
+    'ToggleGroup.aria-label',
     'Badge.dot',
     'Modal.headerAction',
     'Tooltip.child',

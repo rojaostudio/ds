@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import { findUp, fromForVersion, gitState, packageManager } from '../environment';
 import { scanTree, writeProjectFile } from '../fs-safe';
-import { main } from '../run';
+import { includeMatcher, main } from '../run';
 
 // The command in process: arguments, the mode, the safety checks, the order of the writes and the exit codes.
 
@@ -281,6 +281,65 @@ describe('configuration of others', () => {
     expect(existsSync(join(root, '.npmrc'))).toBe(false);
     expect(r.out).toContain('next.config.js: `transpilePackages` não é uma lista literal');
     expect(readFileSync(join(root, 'next.config.js'), 'utf8')).toContain('transpilePackages: pkgs');
+  });
+});
+
+describe('partial migration: --include', () => {
+  const css = '@import "tailwindcss";\n@import "@rojaostudio/ds/styles/themes/acme.css";\n';
+  const NPMRC = '@rojaostudio:registry=https://npm.pkg.github.com\n//npm.pkg.github.com/:_authToken=${T}\n';
+  const NEXT = "export default {\n  transpilePackages: ['@rojaostudio/ds'],\n};\n";
+
+  it('rewrites only the matching code; package.json, .npmrc, next.config and the global CSS stay as they are', () => {
+    const root = consumer({
+      'app/(novo)/painel/page.tsx': PAGE_1X,
+      'app/globals.css': css,
+      'node_modules/@rojaostudio/ds/styles/themes/acme.css': ':root{}\n',
+      '.npmrc': NPMRC,
+      'next.config.mjs': NEXT,
+    });
+    const report = join(tmp(), 'r.json');
+    const r = run([root, '--apply', '--include', 'app/(novo)/**', '--report', report]);
+    expect(r.code).toBe(0);
+    expect(readFileSync(join(root, 'app/(novo)/painel/page.tsx'), 'utf8')).toContain('<Dialog');
+    expect(readFileSync(join(root, 'app/page.tsx'), 'utf8')).toBe(PAGE_1X);
+    expect(readFileSync(join(root, 'package.json'), 'utf8')).toBe(PKG_1X);
+    expect(readFileSync(join(root, '.npmrc'), 'utf8')).toBe(NPMRC);
+    expect(readFileSync(join(root, 'next.config.mjs'), 'utf8')).toBe(NEXT);
+    expect(readFileSync(join(root, 'app/globals.css'), 'utf8')).toBe(css);
+    expect(existsSync(join(root, 'app/ds-theme.css'))).toBe(false);
+    expect(r.out).toContain('migração parcial');
+    expect(r.out).toContain('package.json');
+    expect(r.out).toContain('rds.css só no segmento migrado');
+    expect(r.out).toContain('código: 1 arquivo(s) importam o DS');
+    expect(JSON.parse(readFileSync(report, 'utf8'))).toMatchObject({ include: ['app/(novo)/**'], summary: { filesWithDs: 1 } });
+  });
+
+  it('takes several --include: a folder, or a glob where * stays inside one folder', () => {
+    const root = consumer({ 'app/a/page.tsx': PAGE_1X, 'lib/x.tsx': PAGE_1X, 'lib/sub/y.tsx': PAGE_1X });
+    const r = run([root, '--apply', '--include', 'app/a', '--include', './lib/*.tsx']);
+    expect(r.code).toBe(0);
+    expect(readFileSync(join(root, 'app/a/page.tsx'), 'utf8')).toContain('<Dialog');
+    expect(readFileSync(join(root, 'lib/x.tsx'), 'utf8')).toContain('<Dialog');
+    expect(readFileSync(join(root, 'lib/sub/y.tsx'), 'utf8')).toBe(PAGE_1X);
+    expect(readFileSync(join(root, 'app/page.tsx'), 'utf8')).toBe(PAGE_1X);
+  });
+
+  it('reads the globs: ** crosses folders, * does not, and the (group) and [id] folders of Next.js are literal', () => {
+    const m = includeMatcher(['app/(painel)/**/[id]/*.tsx', 'lib\\ui']);
+    expect(m('app/(painel)/pedidos/[id]/page.tsx')).toBe(true);
+    expect(m('app/(painel)/[id]/page.tsx')).toBe(true);
+    expect(m('app/(painel)/pedidos/[id]/edit/page.tsx')).toBe(false);
+    expect(m('app/painel/x/[id]/page.tsx')).toBe(false);
+    expect(m('lib/ui/button.tsx')).toBe(true);
+    expect(m('lib/uikit.tsx')).toBe(false);
+  });
+
+  it('an --include that matches no code file is exit 1, and nothing is written', () => {
+    const root = consumer();
+    const r = run([root, '--apply', '--include', 'nada/**']);
+    expect(r.code).toBe(1);
+    expect(r.err).toContain('--include nada/** não bate com nenhum arquivo de código');
+    expect(readFileSync(join(root, 'app/page.tsx'), 'utf8')).toBe(PAGE_1X);
   });
 });
 
