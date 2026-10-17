@@ -79,6 +79,8 @@
   --layout-content-padding-x: 16px;
   --layout-content-padding-y: 16px;
   --layout-form-max-width: 768px;
+  --layout-content-max-width-narrow: 768px;
+  --layout-content-max-width-wide: 1536px;
 }
 @media (min-width: 640px) {
 :root {

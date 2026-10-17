@@ -1102,11 +1102,11 @@ export const VOCABULARY: Record<string, VocabRule> = {
   Badge: { transforms: ['badgeHighlight'] },
   // RowActions: the items' variant → tone
   RowActions: { transforms: ['rowActionsItems'] },
-  // PageShell: maxWidth default (1280) is gone; narrow (768) and wide (1536, now the default) stay
+  // PageShell: maxWidth default (1280) is gone; narrow (768) and wide (1536, now the default) stay; full since 2.14
   PageShell: {
     props: {
       maxWidth: {
-        values: { narrow: 'narrow', wide: 'wide' },
+        values: { narrow: 'narrow', wide: 'wide', full: 'full' },
         manual:
           'PageShell: maxWidth="default" (1280) saiu. Use "wide" (1536, o novo padrão: basta omitir a prop) ou "narrow" (768, para formulário e leitura).',
       },

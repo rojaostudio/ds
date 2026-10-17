@@ -1,13 +1,29 @@
 import type { ReactNode } from 'react';
 
-/** narrow 768 (layout/form/max-width), for a form or for reading; wide 1536 (the Base's 1536 step), the default. */
-export type PageShellWidth = 'narrow' | 'wide';
+/**
+ * By the type of screen: narrow 768 (layout/content/max-width/narrow) for a record, a form or reading; wide 1536
+ * (layout/content/max-width/wide, the default) for a list, a table or a detail; full, no cap, for a board, a kanban or a map.
+ */
+export type PageShellWidth = 'narrow' | 'wide' | 'full';
+
+/**
+ * Where content capped by maxWidth sits in a wider column: center (default) for a site or a screen without a menu;
+ * start (the inline start, next to the side menu) in an app with a side menu. With full nothing is left over, so
+ * align has no effect.
+ */
+export type PageShellAlign = 'start' | 'center';
 
 // ── Root ──────────────────────────────────────────────────────────────────────
 
 export interface PageShellProps {
-  /** wide (default) up to 1536; narrow up to 768, for a form or for reading (Figma: `maxWidth`). */
+  /**
+   * The cap on the content's width, chosen by the type of screen (Figma: `maxWidth`): wide (default) up to 1536 for a
+   * list, a table or a detail; narrow up to 768 for a record, a form or reading; full with no cap for a board, a
+   * kanban or a map.
+   */
   maxWidth?: PageShellWidth;
+  /** center (default) or start, next to a side menu (Figma: `align`). No effect with full. */
+  align?: PageShellAlign;
   /**
    * The page's margins (Figma: always on; `padded` is code only): layout/content/padding-y above and below and
    * layout/content/padding-x at the sides, by the screen's viewport mode (16; 24 from 640; 32 from 1024; 48 at the
@@ -19,12 +35,27 @@ export interface PageShellProps {
 }
 
 /**
- * PageShell — the page container: centred, at most `maxWidth` wide, with the page's gutters. The page's title is a
- * PageHeader inside it; PageShell.Body stacks the sections 24 apart. Styles: page-shell.css.
+ * PageShell — Figma [RDS] Navigation/PageShell. The page container: at most `maxWidth` wide, centred or at the start,
+ * with the page's gutters. The page's title is a PageHeader inside it; PageShell.Body stacks the sections 24 apart.
+ *
+ * Width by the type of screen: record, form, reading = narrow · list, table, detail = wide · board, kanban, map = full.
+ * In an app with a side menu, pass align="start". A bar fixed to the window lines up with the content through the same
+ * gutter, layout/content/padding-x; a strip that scrolls sideways bleeds to the edge (the `bleed` of Tabs and
+ * DataTableHeader). Styles: page-shell.css.
  */
-export function PageShell({ maxWidth = 'wide', padded = true, children, className }: PageShellProps) {
+export function PageShell({ maxWidth = 'wide', align = 'center', padded = true, children, className }: PageShellProps) {
   return (
-    <div className={['rds-page-shell', `rds-page-shell--${maxWidth}`, padded && 'rds-page-shell--padded', className].filter(Boolean).join(' ')}>
+    <div
+      className={[
+        'rds-page-shell',
+        `rds-page-shell--${maxWidth}`,
+        align === 'start' && 'rds-page-shell--align-start',
+        padded && 'rds-page-shell--padded',
+        className,
+      ]
+        .filter(Boolean)
+        .join(' ')}
+    >
       {children}
     </div>
   );
