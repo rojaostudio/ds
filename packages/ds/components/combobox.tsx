@@ -33,6 +33,18 @@ export interface ComboboxOption {
   disabled?: boolean;
 }
 
+/** An action at the foot of the list (ds#181), for when the search does not find the item: "Criar novo". */
+export interface ComboboxAction {
+  /** The action's text: a verb ("Lançar item livre"). */
+  label: string;
+  /** An icon before the text. Decorative. */
+  icon?: ReactNode;
+  /** Called with the typed text (trimmed) when the person chooses the action. The list closes. */
+  onSelect: (query: string) => void;
+  /** Cannot be chosen now: skipped by the arrows. */
+  disabled?: boolean;
+}
+
 interface ComboboxBaseProps extends FieldTextProps {
   /** The whole list. The field filters it as the person types, ignoring case and accents. */
   options: (ComboboxOption | string)[];
@@ -50,6 +62,15 @@ interface ComboboxBaseProps extends FieldTextProps {
   onCreate?: (text: string) => ComboboxOption | string | void;
   /** The create option's text. By default `Cadastrar "<texto>"`. */
   createLabel?: (text: string) => string;
+  /**
+   * Actions at the foot of the list (Figma: the Listbox's `showActions` + `actions`, ds#181), fixed under the options
+   * that scroll. They are options of a named group at the end of the listbox: the arrows reach them after the last
+   * option and Enter chooses, with no Tab. They show also when nothing matches (after the empty message, the first one
+   * already active) and with the field empty. The create option, when there is one, comes first in the same group.
+   */
+  actions?: ComboboxAction[];
+  /** The name of the actions group, for screen readers. By default "Ações". */
+  actionsLabel?: string;
   /** What shows in the empty field. */
   placeholder?: string;
   /** An icon on the left, as in the Input (Figma: `showLeadingIcon` + `leadingIcon`). Decorative. */
@@ -92,9 +113,10 @@ export interface ComboboxMultipleProps extends ComboboxBaseProps {
 
 export type ComboboxProps = ComboboxSingleProps | ComboboxMultipleProps;
 
-type Row = ComboboxOption & { create?: string };
+type Row = ComboboxOption & { create?: string; action?: ComboboxAction };
 
 const CREATE = "\u0000create";
+const ACTION = "\u0000action";
 const normalize = (text: string) =>
   text
     .normalize("NFD")
@@ -122,6 +144,8 @@ export function Combobox(props: ComboboxProps) {
     onCreate,
     creatable = onCreate !== undefined,
     createLabel = (text: string) => `Cadastrar "${text}"`,
+    actions = [],
+    actionsLabel = "Ações",
     placeholder,
     leadingIcon,
     shortcut,
@@ -171,30 +195,45 @@ export function Combobox(props: ComboboxProps) {
   const [typing, setTyping] = useState(false);
   const [open, setOpen] = useState(false);
 
-  /** The options that match a query, then the create option when nothing matches the text exactly. */
+  /**
+   * The options that match a query, then the foot of the list: the create option when nothing matches the text
+   * exactly, and the actions. One list for the arrows; the foot renders as the fixed group.
+   */
   function listFor(text: string, filtering: boolean) {
     const matches: Row[] = filtering
       ? options.filter((o) => normalize(o.label).includes(normalize(text)))
       : options;
     const typed = text.trim();
     const exact = options.some((o) => normalize(o.label) === normalize(typed));
-    const rows: Row[] =
-      creatable && filtering && typed && !exact
-        ? [
-            ...matches,
-            { value: CREATE, label: createLabel(typed), create: typed },
-          ]
-        : matches;
-    return { matches, rows };
+    const foot: Row[] = [
+      ...(creatable && filtering && typed && !exact
+        ? [{ value: CREATE, label: createLabel(typed), create: typed }]
+        : []),
+      ...actions.map((action, i) => ({
+        value: `${ACTION}${i}`,
+        label: action.label,
+        icon: action.icon,
+        disabled: action.disabled,
+        action,
+      })),
+    ];
+    return { matches, foot, rows: [...matches, ...foot] };
   }
-  /** Figma menu=empty-create: the create option alone is already under the cursor, so Enter creates. */
-  const onlyCreate = (rows: Row[]) =>
-    rows.length === 1 && rows[0].create !== undefined;
+  /**
+   * With no match the first enabled item of the foot is already under the cursor, so Enter takes it (Figma
+   * menu=empty-create).
+   */
+  const firstOfFoot = (list: { matches: Row[]; foot: Row[] }) => {
+    if (list.matches.length) return -1;
+    return list.foot.findIndex((row) => !row.disabled);
+  };
 
   const filtering = multiple ? query !== "" : typing && query !== "";
-  const { matches, rows } = listFor(query, filtering);
+  const { matches, foot, rows } = listFor(query, filtering);
   const showList = open && rows.length > 0;
   const empty = open && rows.length === 0;
+  // With actions, the empty message goes inside the list, above them (they answer it: "not found? create").
+  const emptyAbove = showList && matches.length === 0 && actions.length > 0;
 
   function commitSingle(next: string) {
     if (props.value === undefined) setOwnSingle(next);
@@ -231,6 +270,14 @@ export function Combobox(props: ComboboxProps) {
     multiple,
     onOpen: () => setOpen(true),
     onChoose: (row) => {
+      if (row.action) {
+        row.action.onSelect(query.trim());
+        setOpen(false);
+        setTyping(false);
+        setQuery("");
+        setActive(-1);
+        return;
+      }
       if (multiple) {
         if (row.create) {
           const option = create(row.create);
@@ -352,7 +399,7 @@ export function Combobox(props: ComboboxProps) {
           setQuery(text);
           setTyping(true);
           setOpen(true);
-          setActive(onlyCreate(listFor(text, text !== "").rows) ? 0 : -1);
+          setActive(firstOfFoot(listFor(text, text !== "")));
           // Single: emptying the field takes the choice away.
           if (!multiple && text === "" && chosen.length) commitSingle("");
         }}
@@ -398,24 +445,58 @@ export function Combobox(props: ComboboxProps) {
             aria-label={listName}
             className="rds-listbox rds-combobox__list"
           >
-            {rows.map((row, index) => (
+            {matches.map((row, index) => (
               <li
                 key={row.value}
                 {...optionProps(row, index)}
-                className={
-                  row.create
-                    ? "rds-listbox__option rds-combobox__create"
-                    : "rds-listbox__option"
-                }
+                className="rds-listbox__option"
               >
                 <OptionContent
-                  icon={row.create ? <PlusIcon /> : row.icon}
-                  selected={!row.create && isSelected(row.value)}
+                  icon={row.icon}
+                  selected={isSelected(row.value)}
                 >
                   {row.label}
                 </OptionContent>
               </li>
             ))}
+            {emptyAbove && (
+              // Said by the live region below; here it is only seen.
+              <li
+                role="presentation"
+                aria-hidden="true"
+                className="rds-combobox__empty"
+              >
+                {emptyMessage}
+              </li>
+            )}
+            {foot.length > 0 && (
+              <li role="none" className="rds-combobox__actions">
+                <ul
+                  role="group"
+                  aria-label={actions.length ? actionsLabel : undefined}
+                  className="rds-combobox__actions-list"
+                >
+                  {foot.map((row, i) => (
+                    <li
+                      key={row.value}
+                      {...optionProps(row, matches.length + i)}
+                      className={
+                        row.create
+                          ? "rds-listbox__option rds-combobox__create"
+                          : "rds-listbox__option rds-combobox__action"
+                      }
+                    >
+                      <OptionContent
+                        icon={row.create ? <PlusIcon /> : row.icon}
+                        selected={false}
+                      >
+                        {row.label}
+                      </OptionContent>
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            )}
           </ul>
         )}
         {empty && (

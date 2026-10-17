@@ -274,3 +274,132 @@ describe('Combobox list in a floating layer (ds#157)', () => {
     expect(document.documentElement.scrollHeight).toBe(before);
   });
 });
+
+describe('Combobox actions at the foot of the list (ds#181)', () => {
+  const many = Array.from({ length: 30 }, (_, i) => `Serviço ${String(i + 1).padStart(2, '0')}`);
+  const groupOf = () => listbox()!.querySelector<HTMLElement>('[role="group"]')!;
+
+  function Field(props: { onSelect?: (q: string) => void; creatable?: boolean; disabledSecond?: boolean; options?: string[] }) {
+    return (
+      <div style={{ maxWidth: 320, paddingBottom: 400 }}>
+        <Combobox
+          label="Item"
+          options={props.options ?? many}
+          emptyMessage="Nenhum item com esse nome."
+          creatable={props.creatable}
+          actions={[
+            { label: 'Montar com serviços', onSelect: props.onSelect ?? (() => {}) },
+            { label: 'Lançar item livre', onSelect: () => {}, disabled: props.disabledSecond },
+          ]}
+        />
+      </div>
+    );
+  }
+
+  it.each(MODES)('open and with no match pass axe (%s)', async (mode) => {
+    const el = await render(<Field />, mode);
+    const input = field(el);
+    input.focus();
+    await userEvent.keyboard('{ArrowDown}');
+    expect(await floatingAxe()).toEqual([]);
+    await userEvent.type(input, 'xyz');
+    expect(await floatingAxe()).toEqual([]);
+  });
+
+  it('a named group of options at the end of the listbox, fixed under the options that scroll', async () => {
+    const el = await render(<Field />);
+    const input = field(el);
+    input.focus();
+    await userEvent.keyboard('{ArrowDown}');
+    const list = listbox()!;
+    const group = groupOf();
+    expect(group.getAttribute('aria-label')).toBe('Ações');
+    expect([...group.querySelectorAll('[role="option"]')].map((o) => o.textContent)).toEqual(['Montar com serviços', 'Lançar item livre']);
+    expect(list.scrollHeight).toBeGreaterThan(list.clientHeight);
+    // The sticky foot is the group's <li>, which also carries the list's 4 of bottom padding.
+    const foot = group.parentElement!;
+    const bottomGap = () => Math.round(list.getBoundingClientRect().bottom - foot.getBoundingClientRect().bottom);
+    const atTop = bottomGap();
+    // Only the list's 1px border under the group: no scrolled option shows below it.
+    expect(atTop).toBe(1);
+    list.scrollTop = list.scrollHeight;
+    await new Promise((r) => requestAnimationFrame(r));
+    expect(bottomGap()).toBe(atTop);
+    list.scrollTop = 200;
+    await new Promise((r) => requestAnimationFrame(r));
+    expect(bottomGap()).toBe(atTop);
+    // The divider: the first action's top border, inside its 44.
+    const first = group.querySelector<HTMLElement>('[role="option"]')!;
+    expect(getComputedStyle(first).borderTopWidth).toBe('1px');
+    expect(first.getBoundingClientRect().height).toBe(44);
+  });
+
+  it('the arrows reach the actions after the last option, Enter chooses with the typed text, the list closes', async () => {
+    const onSelect = vi.fn();
+    const el = await render(<Field onSelect={onSelect} />);
+    const input = field(el);
+    input.focus();
+    await userEvent.type(input, 'Serviço 0');
+    // 9 matches, then the two actions.
+    await userEvent.keyboard('{ArrowDown}'.repeat(10));
+    expect(activeOption(input)?.textContent).toBe('Montar com serviços');
+    // Left and right stay in the text: the active option does not move.
+    await userEvent.keyboard('{ArrowLeft}{ArrowRight}');
+    expect(activeOption(input)?.textContent).toBe('Montar com serviços');
+    await userEvent.keyboard('{ArrowUp}');
+    expect(activeOption(input)?.textContent).toBe('Serviço 09');
+    await userEvent.keyboard('{ArrowDown}{Enter}');
+    expect(onSelect).toHaveBeenCalledWith('Serviço 0');
+    expect(listbox()).toBeNull();
+    expect(document.activeElement).toBe(input);
+  });
+
+  it('with no match: the empty message above the actions, the first action already active, Enter takes it', async () => {
+    const onSelect = vi.fn();
+    const el = await render(<Field onSelect={onSelect} />);
+    const input = field(el);
+    input.focus();
+    await userEvent.type(input, ' cartão duplo ');
+    const list = listbox()!;
+    const message = list.querySelector<HTMLElement>('.rds-combobox__empty')!;
+    expect(message.textContent).toBe('Nenhum item com esse nome.');
+    expect(message.getAttribute('aria-hidden')).toBe('true');
+    expect(message.getBoundingClientRect().bottom).toBeLessThanOrEqual(groupOf().getBoundingClientRect().top + 1);
+    expect(activeOption(input)?.textContent).toBe('Montar com serviços');
+    await userEvent.keyboard('{Enter}');
+    expect(onSelect).toHaveBeenCalledWith('cartão duplo');
+  });
+
+  it('with the field empty, opened by the arrow or the chevron, the actions show', async () => {
+    const el = await render(<Field options={[]} />);
+    const input = field(el);
+    input.focus();
+    await userEvent.keyboard('{ArrowDown}');
+    expect(activeOption(input)?.textContent).toBe('Montar com serviços');
+    await userEvent.keyboard('{Escape}');
+    expect(listbox()).toBeNull();
+    await userEvent.click(el.querySelector<HTMLElement>('.rds-combobox__chevron')!);
+    expect(groupOf()).not.toBeNull();
+  });
+
+  it('a disabled action is skipped by the arrows', async () => {
+    const el = await render(<Field options={['Corte']} disabledSecond />);
+    const input = field(el);
+    input.focus();
+    await userEvent.keyboard('{ArrowDown}{ArrowDown}{ArrowDown}');
+    // Corte → Montar → (Lançar is disabled) → back to Corte.
+    expect(activeOption(input)?.textContent).toBe('Corte');
+  });
+
+  it('with creatable, "Cadastrar" comes first in the same fixed group', async () => {
+    const el = await render(<Field creatable />);
+    const input = field(el);
+    input.focus();
+    await userEvent.type(input, 'Serviço 1');
+    expect([...groupOf().querySelectorAll('[role="option"]')].map((o) => o.textContent)).toEqual([
+      'Cadastrar "Serviço 1"',
+      'Montar com serviços',
+      'Lançar item livre',
+    ]);
+  });
+});
