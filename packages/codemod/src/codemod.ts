@@ -22,6 +22,7 @@
  */
 import { Node, Project, SyntaxKind, ts } from 'ts-morph';
 import type {
+  Expression,
   Identifier,
   ImportDeclaration,
   ImportSpecifier,
@@ -50,9 +51,12 @@ import {
   MOVED_EXPORTS,
   NOTICE_TONES,
   PACKAGE_RENAMES,
+  SELECT_MANUAL,
+  SELECT_PROPS,
   SKELETON_VARIANTS,
   TOAST_MANUAL,
   TOAST_TONES,
+  TOGGLE_GROUP_MANUAL,
   TYPES,
   VOCABULARY,
   VOCABULARY_TYPES,
@@ -251,6 +255,8 @@ class ElementCtx {
   readonly needs = new Set<string>();
   /** Imports from other packages (`lucide-react` icons for the EmptyState). */
   readonly externalNeeds: { module: string; name: string }[] = [];
+  /** Edits inside the children, outside the tag (`<option>` → `<SelectItem>`). */
+  readonly childEdits: Edit[] = [];
 
   constructor(
     readonly tag: Tag,
@@ -308,7 +314,14 @@ class ElementCtx {
   }
 
   get dirty() {
-    return this.ops.size > 0 || this.adds.length > 0 || this.childrenText !== undefined || this.dropChildren || !!this.convertTo;
+    return (
+      this.ops.size > 0 ||
+      this.adds.length > 0 ||
+      this.childrenText !== undefined ||
+      this.dropChildren ||
+      !!this.convertTo ||
+      this.childEdits.length > 0
+    );
   }
 
   /** The edits for this usage. `tagName` is the name the element ends up with. */
@@ -352,6 +365,7 @@ class ElementCtx {
       const before = code[gt - 1];
       edits.push({ start: gt, end: el.getEnd(), text: /\s/.test(before) ? '/>' : ' />' });
     }
+    edits.push(...this.childEdits);
     return edits;
   }
 }
@@ -643,7 +657,6 @@ class Migrator {
           continue;
         }
         b.keep = true;
-        if (rule.silent) continue; // reported with its group (the Table)
         if (tags.length) for (const t of tags) this.reportManual(t.getStart(), b.imported, rule.manual);
         else this.reportManual(b.spec.getStart(), b.imported, rule.manual);
         continue;
@@ -668,15 +681,19 @@ class Migrator {
     for (const p of renamed) {
       if (p.ctxs.some((c) => c.manual.length)) p.b.keep = true;
     }
-    // Families: a follower stays with a leader that stays.
-    for (const p of planned) {
-      const leaders = p.rule.follows ?? [];
-      if (this.bindings.some((x) => leaders.includes(x.imported) && x.imp.kind !== 'other' && x.keep)) p.b.keep = true;
-    }
-    // Collisions: the new name must be free, counting the old names that are leaving.
+    // Families: a follower stays with a leader that stays. Collisions: the new name must be free, counting the old
+    // names that are leaving. Each one can keep a binding the other depends on, so both run until nothing changes.
     let changed = true;
     while (changed) {
       changed = false;
+      for (const p of planned) {
+        if (p.b.keep) continue;
+        const leaders = p.rule.follows ?? [];
+        if (this.bindings.some((x) => leaders.includes(x.imported) && x.imp.kind !== 'other' && x.keep)) {
+          p.b.keep = true;
+          changed = true;
+        }
+      }
       const leaving = new Set(renamed.filter((p) => !p.b.keep && !p.b.aliased).map((p) => p.b.local));
       for (const p of renamed) {
         if (p.b.keep) continue;
@@ -725,22 +742,100 @@ class Migrator {
       if (converted && converted === this.refsOf(b).length - this.closingRefs(b)) b.remove = true;
     }
 
-    // The Table's cells, when the Table itself was not in this file.
-    const tableReported = this.manual.some((m) => m.rule === 'Table');
-    if (!tableReported) {
-      const cell = this.bindings.find((b) => COMPONENTS[b.imported]?.silent && b.imp.kind !== 'other');
-      if (cell) this.reportManual(cell.spec.getStart(), 'Table', COMPONENTS.Table.manual!);
-    }
-
-    // Value exports with no replacement.
+    // Value exports with no replacement (buttonVariants on an <a> or a Link has one: <Button asChild>).
     for (const b of this.bindings) {
       const msg = EXPORTS_MANUAL[b.imported];
       if (!msg || b.imp.kind === 'other') continue;
+      if (b.imported === 'buttonVariants' && !b.typeOnly && this.migrateButtonVariants(b)) continue;
       b.keep = true;
       const refs = this.refsOf(b);
       if (refs.length) for (const r of refs) this.reportManual(r.getStart(), b.imported, msg);
       else this.reportManual(b.spec.getStart(), b.imported, msg);
     }
+  }
+
+  /**
+   * buttonVariants left the package. As the className of an `<a>` or a `Link` it has a 2.0 form: that element inside
+   * `<Button asChild>`, with the old variant/color/size read by the Button's own rules. Every other use is manual.
+   * False when the binding has no use at all (reported on the import by the caller).
+   */
+  private migrateButtonVariants(b: Binding): boolean {
+    const refs = this.refsOf(b);
+    if (!refs.length) return false;
+    let left = 0;
+    for (const id of refs) {
+      const wrap = this.buttonVariantsWrap(id);
+      if (!wrap) {
+        left++;
+        this.reportManual(id.getStart(), b.imported, EXPORTS_MANUAL[b.imported]);
+        continue;
+      }
+      this.edits.push(...wrap.edits);
+      this.reportAuto(id.getStart(), 'buttonVariants', `className={buttonVariants(…)} → <Button asChild${wrap.attrs}>`);
+    }
+    if (left < refs.length && !this.bindings.some((x) => !x.typeOnly && x.imported === 'Button' && x.imp.kind !== 'other')) this.toAdd.add('Button');
+    if (left) b.keep = true;
+    else b.remove = true;
+    return true;
+  }
+
+  private buttonVariantsWrap(id: Identifier): { edits: Edit[]; attrs: string } | undefined {
+    const call = id.getParent();
+    if (!Node.isCallExpression(call) || call.getExpression() !== id || call.getArguments().length > 1) return undefined;
+    const jsx = call.getParent();
+    const attr = jsx?.getParent();
+    if (!Node.isJsxExpression(jsx) || !Node.isJsxAttribute(attr) || attr.getNameNode().getText() !== 'className') return undefined;
+    const tag = attr.getParent()?.getParent();
+    if (!(Node.isJsxOpeningElement(tag) || Node.isJsxSelfClosingElement(tag)) || !LINK_TAGS.has(tag.getTagNameNode().getText())) return undefined;
+    // The generated JSX writes <Button>: an aliased or local Button is a clash.
+    if (this.canUse('Button') !== 'Button') return undefined;
+
+    const arg = call.getArguments()[0];
+    const f = arg ? objectFields(arg, ['variant', 'color', 'size', 'fullWidth', 'className']) : new Map<string, Expression>();
+    if (!f) return undefined;
+    // undefined: absent; null: not a literal.
+    const text = (k: string) => {
+      const n = f.get(k);
+      if (!n) return undefined;
+      return isTextLiteral(n) ? (n as Expression & { getLiteralValue(): string }).getLiteralValue() : null;
+    };
+    const variant = text('variant');
+    const color = text('color');
+    const size = text('size');
+    if (variant === null || color === null || size === null) return undefined;
+    // On an <a> or a Link the old link variant is the 2.0 ghost, as with <Button variant="link">.
+    const oldVariant = variant === 'link' ? 'ghost' : (variant ?? 'filled');
+    const oldColor = color ?? 'primary';
+    if (!BUTTON_VARIANTS[oldVariant] || !BUTTON_TONES[oldColor] || oldColor === 'neutral') return undefined;
+    if (size !== undefined && !['sm', 'md', 'lg'].includes(size)) return undefined;
+
+    const full = f.get('fullWidth');
+    if (full && full.getKind() !== SyntaxKind.TrueKeyword && full.getKind() !== SyntaxKind.FalseKeyword) return undefined;
+    const fullWidth = full?.getKind() === SyntaxKind.TrueKeyword;
+    const cls = f.get('className');
+    let classAttr = '';
+    if (cls && isTextLiteral(cls)) {
+      const value = `${(cls as Expression & { getLiteralValue(): string }).getLiteralValue()}${fullWidth ? ' w-full' : ''}`.trim();
+      if (value) classAttr = stringAttr('className', value);
+    } else if (cls) {
+      if (fullWidth) return undefined;
+      classAttr = `className={${cls.getText()}}`;
+    } else if (fullWidth) classAttr = 'className="w-full"';
+
+    const { toneAttr, variantAttr } = gridAttrs(oldVariant, oldColor);
+    const attrs = [toneAttr, variantAttr, size && size !== 'md' ? `size="${size}"` : '', classAttr]
+      .filter(Boolean)
+      .map((a) => ` ${a}`)
+      .join('');
+    const el = Node.isJsxSelfClosingElement(tag) ? tag : tag.getParentOrThrow();
+    return {
+      attrs,
+      edits: [
+        { start: attr.getFullStart(), end: attr.getEnd(), text: '' },
+        { start: el.getStart(), end: el.getStart(), text: `<Button asChild${attrs}>` },
+        { start: el.getEnd(), end: el.getEnd(), text: '</Button>' },
+      ],
+    };
   }
 
   private closingRefs(b: Binding): number {
@@ -1306,12 +1401,15 @@ function buttonGrid(c: ElementCtx, defaults: { variant: string; color: string })
   const color = c.value('color');
   let oldVariant = defaults.variant;
   let oldColor = defaults.color;
+  // variant="link" around one <a> or Link is the 2.0 link with the look of a button: asChild + ghost.
+  let asLink = false;
   if (variant) {
     const lit = literal(variant);
     if (lit === undefined) return c.addManual(`${c.component}.variant`, `${c.component}: variant dinâmico — mapeie filled→fill, outline, ghost e a cor para tone à mão.`);
-    if (BUTTON_MANUAL[lit]) return c.addManual(`${c.component}.variant=${lit}`, BUTTON_MANUAL[lit]);
-    if (!BUTTON_VARIANTS[lit]) return c.addManual(`${c.component}.variant`, `${c.component}: variant="${lit}" não existe na 2.0.`);
-    oldVariant = lit;
+    asLink = lit === 'link' && c.component === 'Button' && onlyLinkChild(c);
+    if (BUTTON_MANUAL[lit] && !asLink) return c.addManual(`${c.component}.variant=${lit}`, BUTTON_MANUAL[lit]);
+    if (!BUTTON_VARIANTS[lit] && !asLink) return c.addManual(`${c.component}.variant`, `${c.component}: variant="${lit}" não existe na 2.0.`);
+    oldVariant = asLink ? 'ghost' : lit;
   }
   if (color) {
     const lit = literal(color);
@@ -1319,10 +1417,7 @@ function buttonGrid(c: ElementCtx, defaults: { variant: string; color: string })
     if (!BUTTON_TONES[lit]) return c.addManual(`${c.component}.color`, `${c.component}: color="${lit}" não tem tone equivalente.`);
     oldColor = lit;
   }
-  const tone = BUTTON_TONES[oldColor];
-  const v = BUTTON_VARIANTS[oldVariant];
-  const toneAttr = tone !== 'action' ? `tone="${tone}"` : '';
-  const variantAttr = v !== 'fill' ? `variant="${v}"` : '';
+  const { toneAttr, variantAttr } = gridAttrs(oldVariant, oldColor);
   const parts = [toneAttr, variantAttr].filter(Boolean).join(' ');
   if (variant && color) {
     // Each one stays where it was written.
@@ -1340,6 +1435,28 @@ function buttonGrid(c: ElementCtx, defaults: { variant: string; color: string })
     c.add(parts);
     c.note(`${parts} explícito (o padrão antigo era ${defaults.variant}/${defaults.color})`);
   }
+  if (asLink) {
+    if (!c.has('asChild')) c.add('asChild');
+    c.note('variant="link" com <a>/Link → asChild variant="ghost"');
+  }
+}
+
+/** The 2.0 tone and variant of an old variant × color pair, written only when they are not the 2.0 default. */
+function gridAttrs(oldVariant: string, oldColor: string): { toneAttr: string; variantAttr: string } {
+  const tone = BUTTON_TONES[oldColor];
+  const v = BUTTON_VARIANTS[oldVariant];
+  return { toneAttr: tone !== 'action' ? `tone="${tone}"` : '', variantAttr: v !== 'fill' ? `variant="${v}"` : '' };
+}
+
+const LINK_TAGS = new Set(['a', 'Link']);
+
+/** The only child is one `<a>` or `Link` element. */
+function onlyLinkChild(c: ElementCtx): boolean {
+  const kids = c.children();
+  if (kids.length !== 1) return false;
+  const only = kids[0];
+  const tag = Node.isJsxElement(only) ? only.getOpeningElement() : Node.isJsxSelfClosingElement(only) ? only : undefined;
+  return !!tag && LINK_TAGS.has(tag.getTagNameNode().getText());
 }
 
 const TRANSFORMS: Record<string, Transform> = {
@@ -1629,6 +1746,104 @@ const TRANSFORMS: Record<string, Transform> = {
     c.note('pillFilters → quickFilters (FilterChipGroup + FilterChip); "Filtros · N" deixa de contar os filtros rápidos');
   },
 
+  select(c) {
+    // The old Select spread every other prop on the native <select>: the 2.0 one (Radix) has no place for them.
+    for (const name of c.attrs.keys()) {
+      if (!SELECT_PROPS.has(name)) {
+        return c.addManual(`Select.${name}`, `Select: ${name} era do <select> nativo e não existe no Select 2.0 (Radix). Migre à mão.`);
+      }
+    }
+    const plan = selectItems(c);
+    if ('rule' in plan) return c.addManual(plan.rule, plan.message);
+    const onChange = c.attrs.get('onChange');
+    if (onChange) {
+      const handler = eventValueHandler(attrValue(onChange));
+      if (!handler) {
+        return c.addManual(
+          'Select.onChange',
+          'Select: o onChange recebia o evento do <select>; o 2.0 chama onValueChange(valor) com o valor pronto. Troque à mão (ex.: onValueChange={setValor}).',
+        );
+      }
+      c.replace('onChange', `onValueChange={${handler}}`);
+      c.note('onChange(e.target.value) → onValueChange');
+    }
+    if (plan.placeholder !== undefined) {
+      c.add(stringAttr('placeholder', plan.placeholder));
+      c.note('opção value="" desabilitada → placeholder');
+    }
+    if (plan.children !== undefined) {
+      c.remove('options');
+      c.childrenText = plan.children;
+    }
+    c.childEdits.push(...(plan.edits ?? []));
+    c.needs.add('SelectItem');
+    c.note(plan.children !== undefined ? 'options → <SelectItem>' : '<option> → <SelectItem>');
+  },
+
+  toggleGroup(c) {
+    const opts = c.value('options');
+    if (!opts || opts.kind !== 'expr' || !Node.isArrayLiteralExpression(opts.node) || !opts.node.getElements().length) {
+      return c.addManual('ToggleGroup.options', TOGGLE_GROUP_MANUAL);
+    }
+    const items: string[] = [];
+    for (const el of opts.node.getElements()) {
+      const f = objectFields(el, ['value', 'label', 'icon', 'style', 'disabled']);
+      if (!f || !f.has('value')) return c.addManual('ToggleGroup.options', TOGGLE_GROUP_MANUAL);
+      if (!f.has('label')) {
+        return c.addManual('ToggleGroup.options', 'ToggleGroup: opção só com ícone. O ToggleGroupItem precisa de um nome: dê aria-label a cada um e migre à mão.');
+      }
+      const icon = f.get('icon');
+      const style = f.get('style');
+      const attrs = [valueAttr(f.get('value')!), icon ? ` icon={${icon.getText()}}` : '', style ? ` style={${style.getText()}}` : '', disabledAttr(f.get('disabled'))];
+      items.push(`<ToggleGroupItem ${attrs.join('')}>${childText(f.get('label')!)}</ToggleGroupItem>`);
+    }
+
+    // The old type was single (the default) or "multi"; Radix wants it spelled out: "single" or "multiple".
+    const type = c.value('type');
+    const typeLit = type ? literal(type) : 'single';
+    if (typeLit !== 'single' && typeLit !== 'multi') {
+      return c.addManual('ToggleGroup.type', 'ToggleGroup: type dinâmico. Na 2.0 é "single" ou "multiple" (era "multi"): mapeie à mão.');
+    }
+    const multiple = typeLit === 'multi';
+    if (multiple) c.replace('type', 'type="multiple"');
+
+    // A single Radix group always lets the item that is on be turned off (onValueChange("")). The old one only did
+    // with allowDeselect, and then sent null.
+    const deselect = c.value('allowDeselect');
+    if (deselect && !isTrue(deselect) && deselect.kind !== 'bool') {
+      return c.addManual(
+        'ToggleGroup.allowDeselect',
+        'ToggleGroup: allowDeselect dinâmico. No 2.0 o type="single" sempre deixa desmarcar (onValueChange recebe ""): trate o valor vazio à mão.',
+      );
+    }
+    const allowsNone = !!deselect && isTrue(deselect);
+    if (deselect) c.remove('allowDeselect');
+
+    const on = c.value('onChange');
+    const typeText = type ? '' : 'type="single" ';
+    if (on) {
+      if (on.kind !== 'expr' || !on.text) return c.addManual('ToggleGroup.onChange', 'ToggleGroup: onChange virou onValueChange(valor). Troque à mão.');
+      const forwarded = forwardedCallee(on.node);
+      const handler = forwarded ?? on.text;
+      const simple = Node.isIdentifier(on.node) || Node.isPropertyAccessExpression(on.node) || forwarded !== undefined;
+      const call = (arg: string) => (simple ? `${handler}(${arg})` : `(${handler})(${arg})`);
+      const p = freshName(handler, ['next', 'nextValue']);
+      let fn: string;
+      if (multiple) fn = /^[A-Za-z_$][\w$]*$/.test(handler) ? handler : `(${p}) => ${call(p)}`;
+      else if (allowsNone) fn = `(${p}) => ${call(`${p} || null`)}`;
+      else fn = `(${p}) => { if (${p}) ${call(p)}; }`;
+      c.replace('onChange', `${typeText}onValueChange={${fn}}`);
+      c.note(multiple ? 'onChange → onValueChange' : 'onChange → onValueChange (com a regra antiga de desmarcar)');
+    } else if (!type) {
+      c.add('type="single"');
+    }
+
+    c.remove('options');
+    c.childrenText = childrenBlock(c, items);
+    c.needs.add('ToggleGroupItem');
+    c.note('options → <ToggleGroupItem>');
+  },
+
   noChildren(c) {
     if (c.children().length) c.addManual(`${c.component}.children`, `${c.component}: children não têm lugar no componente 2.0 — leve o conteúdo para fora ou para as props.`);
   },
@@ -1810,6 +2025,197 @@ const TRANSFORMS: Record<string, Transform> = {
     c.note(`variant="${lit}" → align`);
   },
 };
+
+// ── Select and ToggleGroup items ───────────────────────────────────────────────────────────────────
+
+/** An object literal's fields by name, when every one is in `allowed` (shorthand included); otherwise undefined. */
+function objectFields(obj: Node, allowed: string[]): Map<string, Expression> | undefined {
+  if (!Node.isObjectLiteralExpression(obj)) return undefined;
+  const fields = new Map<string, Expression>();
+  for (const p of obj.getProperties()) {
+    if (Node.isPropertyAssignment(p)) {
+      const init = p.getInitializer();
+      const nameNode = p.getNameNode();
+      const name = Node.isStringLiteral(nameNode) ? nameNode.getLiteralValue() : Node.isIdentifier(nameNode) ? nameNode.getText() : undefined;
+      if (!init || !name || !allowed.includes(name)) return undefined;
+      fields.set(name, init);
+    } else if (Node.isShorthandPropertyAssignment(p) && allowed.includes(p.getName())) {
+      fields.set(p.getName(), p.getNameNode());
+    } else return undefined;
+  }
+  return fields;
+}
+
+const isTextLiteral = (n: Node | undefined) => !!n && (Node.isStringLiteral(n) || Node.isNoSubstitutionTemplateLiteral(n));
+const isEmptyString = (n: Node | undefined) => isTextLiteral(n) && (n as Expression & { getLiteralValue(): string }).getLiteralValue() === '';
+
+/** `value="x"` for a literal (a number becomes its text: the 2.0 value is a string), `value={…}` otherwise. */
+function valueAttr(n: Node): string {
+  if (Node.isStringLiteral(n) || Node.isNoSubstitutionTemplateLiteral(n)) return stringAttr('value', n.getLiteralValue());
+  if (Node.isNumericLiteral(n)) return `value="${n.getLiteralValue()}"`;
+  return `value={${n.getText()}}`;
+}
+
+/** An option label as the item's children. */
+function childText(n: Node): string {
+  if (Node.isStringLiteral(n) || Node.isNoSubstitutionTemplateLiteral(n)) return jsxTextFor(n.getLiteralValue());
+  return `{${n.getText()}}`;
+}
+
+function disabledAttr(n: Node | undefined): string {
+  if (!n || n.getKind() === SyntaxKind.FalseKeyword) return '';
+  return n.getKind() === SyntaxKind.TrueKeyword ? ' disabled' : ` disabled={${n.getText()}}`;
+}
+
+/** The items as children, one per line, one step in from the element's line. */
+function childrenBlock(c: ElementCtx, items: string[]): string {
+  const text = c.tag.getSourceFile().getFullText();
+  const lineStart = text.lastIndexOf('\n', c.tag.getStart() - 1) + 1;
+  const indent = /^[ \t]*/.exec(text.slice(lineStart))![0];
+  return items.map((i) => `\n${indent}  ${i}`).join('') + `\n${indent}`;
+}
+
+/** The first of `names` that does not appear in `text`, for a parameter that must not shadow anything there. */
+function freshName(text: string, names: string[]): string {
+  return names.find((n) => !new RegExp(`\\b${n}\\b`).test(text)) ?? `${names[names.length - 1]}_`;
+}
+
+/** `(x) => f(x)` → `f`: an arrow that only hands its one parameter to a function. Undefined for anything else. */
+function forwardedCallee(node: Node): string | undefined {
+  return forwardedCall(node, (arg, param) => Node.isIdentifier(arg) && arg.getText() === param);
+}
+
+/**
+ * The old Select's `onChange={(e) => set(e.target.value)}` → what `onValueChange` takes: `set`, or
+ * `(value) => form.set(value)` for a method (passed bare it would lose its `this`). Undefined for anything else.
+ */
+function eventValueHandler(v: AttrValue): string | undefined {
+  if (v.kind !== 'expr') return undefined;
+  const callee = forwardedCall(v.node, (arg, param) => {
+    if (!Node.isPropertyAccessExpression(arg) || arg.getName() !== 'value') return false;
+    const target = arg.getExpression();
+    return Node.isPropertyAccessExpression(target) && ['target', 'currentTarget'].includes(target.getName()) && target.getExpression().getText() === param;
+  });
+  if (!callee) return undefined;
+  if (/^[A-Za-z_$][\w$]*$/.test(callee)) return callee;
+  const p = freshName(callee, ['value', 'next', 'nextValue']);
+  return `(${p}) => ${callee}(${p})`;
+}
+
+/** An arrow `(p) => f(arg)` (or `(p) => { f(arg); }`) whose one argument passes `matches`: the callee `f`. */
+function forwardedCall(node: Node, matches: (arg: Node, param: string) => boolean): string | undefined {
+  if (!Node.isArrowFunction(node) || node.getParameters().length !== 1) return undefined;
+  const paramNode = node.getParameters()[0].getNameNode();
+  if (!Node.isIdentifier(paramNode)) return undefined;
+  const param = paramNode.getText();
+  let body: Node = node.getBody();
+  if (Node.isBlock(body)) {
+    const statements = body.getStatements();
+    if (statements.length !== 1 || !Node.isExpressionStatement(statements[0])) return undefined;
+    body = statements[0].getExpression();
+  }
+  if (!Node.isCallExpression(body) || body.getArguments().length !== 1 || !matches(body.getArguments()[0], param)) return undefined;
+  const callee = body.getExpression();
+  if (!(Node.isIdentifier(callee) || Node.isPropertyAccessExpression(callee))) return undefined;
+  if (new RegExp(`\\b${param}\\b`).test(callee.getText())) return undefined;
+  return callee.getText();
+}
+
+type SelectPlan = { children?: string; edits?: Edit[]; placeholder?: string } | { rule: string; message: string };
+
+const SELECT_PLACEHOLDER =
+  'Select: opção com value vazio. No Select 2.0 (Radix) o value "" é o estado sem escolha (mostra o placeholder) e não é um item. Se era só o texto inicial, passe em placeholder; se era uma escolha ("Todos"), dê a ela um value próprio.';
+
+/** The Select's options (an `options` literal or `.map`, or `<option>` children) as 2.0 SelectItems. */
+function selectItems(c: ElementCtx): SelectPlan {
+  const generic = { rule: 'Select', message: SELECT_MANUAL };
+  const opts = c.value('options');
+  const kids = c.children();
+  if (opts && kids.length) return generic;
+  if (opts) {
+    if (opts.kind !== 'expr') return generic;
+    const node = opts.node;
+    if (Node.isArrayLiteralExpression(node)) {
+      const items: string[] = [];
+      let placeholder: string | undefined;
+      for (const [i, el] of node.getElements().entries()) {
+        const f = objectFields(el, ['value', 'label', 'disabled']);
+        if (!f || !f.has('value') || !f.has('label')) return generic;
+        if (isEmptyString(f.get('value'))) {
+          // The old placeholder option: the first one, disabled, with a literal text.
+          const label = f.get('label')!;
+          if (i !== 0 || f.get('disabled')?.getKind() !== SyntaxKind.TrueKeyword || !isTextLiteral(label) || c.has('placeholder')) {
+            return { rule: 'Select.placeholder', message: SELECT_PLACEHOLDER };
+          }
+          placeholder = (label as Expression & { getLiteralValue(): string }).getLiteralValue();
+          continue;
+        }
+        items.push(`<SelectItem ${valueAttr(f.get('value')!)}${disabledAttr(f.get('disabled'))}>${childText(f.get('label')!)}</SelectItem>`);
+      }
+      if (!items.length) return generic;
+      return { children: childrenBlock(c, items), placeholder };
+    }
+    // `list.map((o) => ({ value: o.x, label: o.y }))`: the same item, inside the map.
+    if (Node.isCallExpression(node) && node.getArguments().length === 1) {
+      const callee = node.getExpression();
+      const fn = node.getArguments()[0];
+      if (!Node.isPropertyAccessExpression(callee) || callee.getName() !== 'map' || !Node.isArrowFunction(fn) || fn.getParameters().length !== 1) return generic;
+      const body = fn.getBody();
+      const f = Node.isParenthesizedExpression(body) ? objectFields(body.getExpression(), ['value', 'label', 'disabled']) : undefined;
+      if (!f || !f.has('value') || !f.has('label')) return generic;
+      if (isEmptyString(f.get('value'))) return { rule: 'Select.placeholder', message: SELECT_PLACEHOLDER };
+      const value = f.get('value')!;
+      const item = `<SelectItem key={${value.getText()}} ${valueAttr(value)}${disabledAttr(f.get('disabled'))}>${childText(f.get('label')!)}</SelectItem>`;
+      return { children: childrenBlock(c, [`{${callee.getText()}((${fn.getParameters()[0].getText()}) => ${item})}`]) };
+    }
+    return generic;
+  }
+
+  // <option value>…</option> children: renamed where they are.
+  if (!kids.length) return generic;
+  const text = c.tag.getSourceFile().getFullText();
+  const edits: Edit[] = [];
+  let placeholder: string | undefined;
+  let items = 0;
+  for (const [i, kid] of kids.entries()) {
+    if (!Node.isJsxElement(kid) || kid.getOpeningElement().getTagNameNode().getText() !== 'option') return generic;
+    const opening = kid.getOpeningElement();
+    const attrs = new Map<string, JsxAttribute>();
+    for (const a of opening.getAttributes()) {
+      if (!Node.isJsxAttribute(a) || !['value', 'disabled', 'key'].includes(a.getNameNode().getText())) {
+        return { rule: 'Select.option', message: 'Select: <option> com props que o SelectItem não tem (só value e disabled passam). Migre à mão.' };
+      }
+      attrs.set(a.getNameNode().getText(), a);
+    }
+    const valueNode = attrs.get('value');
+    if (!valueNode) {
+      return { rule: 'Select.option', message: 'Select: <option> sem value (o <select> usava o texto). O SelectItem exige value: escreva um e migre à mão.' };
+    }
+    const v = attrValue(valueNode);
+    if (v.kind === 'string' && v.value === '') {
+      const label = kid.getJsxChildren();
+      const disabled = attrs.get('disabled');
+      const only = label.length === 1 && Node.isJsxText(label[0]) ? label[0].getText().replace(/\s+/g, ' ').trim() : '';
+      if (i !== 0 || !disabled || !isTrue(attrValue(disabled)) || !only || c.has('placeholder')) {
+        return { rule: 'Select.placeholder', message: SELECT_PLACEHOLDER };
+      }
+      placeholder = only;
+      // The whole <option>, with the line it sat on.
+      let start = kid.getStart();
+      while (start > 0 && (text[start - 1] === ' ' || text[start - 1] === '\t')) start--;
+      if (text[start - 1] === '\n') start -= text[start - 2] === '\r' ? 2 : 1;
+      edits.push({ start, end: kid.getEnd(), text: '' });
+      continue;
+    }
+    if (v.kind === 'number') edits.push({ start: valueNode.getStart(), end: valueNode.getEnd(), text: `value="${v.value}"` });
+    for (const name of [opening.getTagNameNode(), kid.getClosingElement().getTagNameNode()]) {
+      edits.push({ start: name.getStart(), end: name.getEnd(), text: 'SelectItem' });
+    }
+    items++;
+  }
+  if (!items) return generic;
+  return { edits, placeholder };
+}
 
 /**
  * `{ label, onClick }` / `{ label, href }` (an object literal) → a `<Button>` element. Undefined when it is not a

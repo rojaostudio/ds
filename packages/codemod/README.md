@@ -72,6 +72,7 @@ retoma do ponto em que parou, porque o `package.json` só muda depois que todo o
 |---|---|
 | `--apply` | escreve as mudanças (sem ela, é dry-run) |
 | `--from 1.x` \| `--from next` | de onde o projeto vem; obrigatório quando o `package.json` da pasta não diz |
+| `--include <glob>` | migração parcial: só o código que bate com o glob (repita para mais de um); veja abaixo |
 | `--force` | aplica fora do git ou com a working tree suja |
 | `--verbose` | lista cada transformação automática |
 | `--report <arquivo.json>` | grava o relatório completo em JSON |
@@ -81,6 +82,67 @@ retoma do ponto em que parou, porque o `package.json` só muda depois que todo o
 
 Opção desconhecida é erro. Saída: `0` ok · `1` falha (argumento inválido, erro em algum arquivo,
 `--apply` recusado) · `2` dry-run com bloqueio (o `--apply` seria recusado).
+
+## Migração parcial (0.x e 2.x no mesmo app)
+
+Para migrar uma área por vez (um segmento de rotas na 2.x, o resto ainda na 0.x):
+
+```bash
+pnpm migrate:consumer ../meu-app --include "app/(novo)/**"            # dry-run
+pnpm migrate:consumer ../meu-app --include "app/(novo)/**" --apply
+```
+
+Os globs são relativos à pasta do projeto e `--include` pode se repetir. `**` atravessa pastas, `*` e
+`?` ficam numa pasta só, o resto vale como texto (as pastas `(grupo)` e `[id]` do Next.js também), e
+uma pasta sozinha (`app/(novo)`) vale por tudo o que está dentro dela. Nesse modo só o código que bate
+é reescrito: `package.json`, `.npmrc`, `next.config` e o CSS global ficam como estão, porque o resto
+do app ainda depende deles na 0.x. O relatório lista o que ficou de fora e por quê.
+
+**A 2.x ao lado da 0.x.** Instale a 2.x com outro nome. A pegadinha: com
+`@rojaostudio:registry=https://npm.pkg.github.com` no `.npmrc` (de onde vêm as 0.x), o registry vale
+para o escopo inteiro. O alias `"npm:@rojaostudio/ds@^2"` vai buscar a 2.x no GitHub Packages, que
+não a tem, e o `@rojaostudio/ds-core` (dependência da 2.x, só no npmjs) também. Nem o npm nem o pnpm
+têm registry por pacote; o que funciona é apontar os dois para o tarball do npmjs, a 2.x na
+dependência e o `ds-core` num override:
+
+```json
+{
+  "dependencies": {
+    "@rojaostudio/ds": "^0.30.0",
+    "@rojaostudio/ds-2": "https://registry.npmjs.org/@rojaostudio/ds/-/ds-2.14.0.tgz"
+  },
+  "pnpm": {
+    "overrides": {
+      "@rojaostudio/ds-core": "https://registry.npmjs.org/@rojaostudio/ds-core/-/ds-core-1.1.2.tgz"
+    }
+  }
+}
+```
+
+No npm, o mesmo `overrides` vai na raiz do `package.json` (fora de `"pnpm"`); num workspace pnpm, no
+`package.json` da raiz. O tarball fixa a versão: o `ds-core` tem de ser o que aquela 2.x pede
+(`npm view @rojaostudio/ds@2.14.0 dependencies --registry https://registry.npmjs.org`), e subir de
+versão é trocar as duas URLs. Conferido em 17/10/2026 com pnpm 10.32 e npm 11.9: o alias `npm:`
+falha com "No matching version" no GitHub Packages, e o tarball sem o override falha no `ds-core`.
+
+O codemod escreve os imports com `@rojaostudio/ds`. Depois do `--apply`, troque no segmento migrado
+por `@rojaostudio/ds-2` (`@rojaostudio/ds-2/components`…); a partir daí o codemod não vê mais esses
+arquivos.
+
+**O `rds.css` só no segmento.** Ele declara variáveis em `:root`, então não entra no CSS global da
+0.x. Importe-o no layout do segmento migrado, num route group do Next.js por exemplo:
+
+```tsx
+// app/(novo)/layout.tsx
+import '@rojaostudio/ds-2/styles/rds.css';
+
+export default function Layout({ children }: { children: React.ReactNode }) {
+  return children;
+}
+```
+
+Confira também a navegação do segmento de volta para o resto do app: o CSS de um layout já carregado
+pode continuar na página.
 
 ## Licença
 
