@@ -32,18 +32,23 @@ function Screen({ delay = 400 }: { delay?: number }) {
 
 describe('LoadingOverlay time', () => {
   it('does not show before the delay, shows after it', async () => {
+    const start = performance.now();
     await render(<LoadingOverlay open label={LABEL} delay={400} />);
     await wait(150);
-    expect(overlay()).toBeNull();
+    const absent = overlay() === null;
+    // Under load the wait can outlast the delay: the check holds only while the delay has not run out (ds#140).
+    if (performance.now() - start < 400) expect(absent).toBe(true);
     await vi.waitFor(() => expect(overlay()).not.toBeNull(), { timeout: 1500 });
   });
 
   it('never shows if open goes back to false before the delay (the page opened first)', async () => {
     const el = await render(<Screen delay={300} />);
     const [create, fail] = el.querySelectorAll('button');
-    await userEvent.click(create);
+    // DOM clicks, not userEvent: this test is about time, and under load a driver round trip can outlast the delay,
+    // so the overlay shows and covers the second button before it is pressed (ds#140).
+    act(() => create.click());
     await wait(100);
-    await userEvent.click(fail);
+    act(() => fail.click());
     await wait(400);
     expect(overlay()).toBeNull();
   });

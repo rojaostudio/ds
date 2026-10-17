@@ -3,7 +3,7 @@ import { page } from 'vitest/browser';
 import { Pricing, PricingPlan } from './pricing';
 import { Button } from './button';
 import { InContainer, WIDTHS } from './__tests__/blocks';
-import { SCHEMES, axeViolations, cleanup, render, renderIn } from './__tests__/render';
+import { SCHEMES, atRest, axeViolations, cleanup, render, renderIn } from './__tests__/render';
 
 afterEach(cleanup);
 
@@ -91,14 +91,15 @@ describe('Pricing behaviour', () => {
       probe.style.color = `var(${v})`;
       return getComputedStyle(probe).color;
     };
-    expect(getComputedStyle(cta).backgroundColor).toBe(colour('--pricing-plan-recommended-cta-background'));
-    expect(getComputedStyle(cta).color).toBe(colour('--pricing-plan-recommended-cta-label'));
+    const painted = await atRest(cta, () => ({ bg: getComputedStyle(cta).backgroundColor, fg: getComputedStyle(cta).color }));
+    expect(painted.bg).toBe(colour('--pricing-plan-recommended-cta-background'));
+    expect(painted.fg).toBe(colour('--pricing-plan-recommended-cta-label'));
     // A plain plan's neutral Button keeps the regular neutral fill.
     const plain = await render(<PricingPlan name="Pro" price="R$ 1" cta={<Button tone="neutral">Assinar</Button>} />);
     const plainCta = plain.querySelector<HTMLElement>('.rds-button')!;
     const probe2 = document.createElement('span');
     plain.appendChild(probe2);
     probe2.style.color = 'var(--button-neutral-fill-background-default)';
-    expect(getComputedStyle(plainCta).backgroundColor).toBe(getComputedStyle(probe2).color);
+    expect(await atRest(plainCta, () => getComputedStyle(plainCta).backgroundColor)).toBe(getComputedStyle(probe2).color);
   });
 });
