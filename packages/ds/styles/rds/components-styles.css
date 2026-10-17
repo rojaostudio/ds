@@ -4555,6 +4555,11 @@ button.rds-chip-input__add:focus-visible {
   min-height: min(var(--_stable-h, 0px), calc(100dvh - var(--space-48) * 2));
 }
 
+/* The body takes the kept height, so the footer stays at the foot of the box on a shorter step. */
+.rds-dialog--stable .rds-modal__body {
+  flex: 1 1 auto;
+}
+
 .rds-dialog--lg {
   width: min(720px, calc(100vw - var(--space-32)));
 }
