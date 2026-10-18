@@ -16,7 +16,7 @@
   width: var(--_size);
   height: var(--_size);
   border-radius: var(--_radius);
-  font-family: var(--type-font-stack);
+  font-family: var(--type-stack-text);
   font-size: var(--type-small-size);
   line-height: var(--type-small-line);
   vertical-align: middle;

@@ -6,7 +6,7 @@
  */
 .rds-heading {
   margin: 0;
-  font-family: var(--type-font-stack);
+  font-family: var(--type-stack-text);
   font-weight: var(--type-heading-weight);
   color: var(--heading-default);
   text-wrap: balance;

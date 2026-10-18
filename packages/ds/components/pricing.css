@@ -68,7 +68,7 @@
   border: var(--border-width) solid var(--_border);
   border-radius: var(--radius-container);
   background: var(--_surface);
-  font-family: var(--type-font-stack);
+  font-family: var(--type-stack-text);
 }
 
 .rds-pricing-plan--recommended {

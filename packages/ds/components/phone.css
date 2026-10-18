@@ -18,7 +18,7 @@
   border-radius: 56px;
   background: var(--phone-frame);
   color: var(--phone-status-bar-content);
-  font-family: var(--type-font-stack);
+  font-family: var(--type-stack-text);
 }
 
 .rds-phone--android {

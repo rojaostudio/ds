@@ -30,7 +30,7 @@
   border-radius: var(--radius-control);
   background: var(--_background);
   color: var(--_label);
-  font-family: var(--type-font-stack);
+  font-family: var(--type-stack-text);
   font-size: var(--type-button-size);
   line-height: var(--type-button-line);
   font-weight: 500;

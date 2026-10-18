@@ -17,7 +17,7 @@
   width: 100%;
   container-type: inline-size;
   color-scheme: light;
-  font-family: 'Google Sans', Roboto, var(--type-font-stack);
+  font-family: 'Google Sans', Roboto, var(--type-stack-text);
 }
 
 .rds-google--m3 {

@@ -26,7 +26,7 @@
   --_button-size: 15px;
 
   color-scheme: light;
-  font-family: Roboto, var(--type-font-stack);
+  font-family: Roboto, var(--type-stack-text);
 }
 
 .rds-whatsapp--ios {
@@ -50,5 +50,5 @@
   --_button-size: 17px;
 
   color-scheme: light;
-  font-family: -apple-system, 'SF Pro Text', var(--type-font-stack);
+  font-family: -apple-system, 'SF Pro Text', var(--type-stack-text);
 }

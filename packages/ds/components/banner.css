@@ -11,7 +11,7 @@
   container-type: inline-size;
   background: var(--banner-background);
   color: var(--banner-text);
-  font-family: var(--type-font-stack);
+  font-family: var(--type-stack-text);
   font-size: var(--type-small-size);
   line-height: var(--type-small-line);
 }

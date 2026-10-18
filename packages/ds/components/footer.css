@@ -12,7 +12,7 @@
   width: 100%;
   container-type: inline-size;
   background: var(--footer-background);
-  font-family: var(--type-font-stack);
+  font-family: var(--type-stack-text);
 }
 
 .rds-footer__inner {

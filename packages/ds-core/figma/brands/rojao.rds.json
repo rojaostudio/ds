@@ -201,7 +201,14 @@
       "text/on-inverse-subtle": "white/a70",
       "text/on/success-strong": "white/a100",
       "text/selected": "navy/900",
-      "text/accent": "flare/800"
+      "text/accent": "flare/800",
+      "type/font/text": "Inter",
+      "type/font/display": "Inter",
+      "type/font/editorial": "Inter",
+      "type/stack/text": "Inter, Arial, Helvetica, sans-serif",
+      "type/stack/display": "Inter, Arial, Helvetica, sans-serif",
+      "type/stack/editorial": "Inter, Arial, Helvetica, sans-serif",
+      "type/stack/mono": "\"Roboto Mono\", monospace"
     },
     "dark": {
       "colors/primary/light": "navy/400",
@@ -316,7 +323,14 @@
       "text/on-inverse-subtle": "coal/600",
       "text/on/success-strong": "black/a100",
       "text/selected": "navy/200",
-      "text/accent": "flare/700"
+      "text/accent": "flare/700",
+      "type/font/text": "Inter",
+      "type/font/display": "Inter",
+      "type/font/editorial": "Inter",
+      "type/stack/text": "Inter, Arial, Helvetica, sans-serif",
+      "type/stack/display": "Inter, Arial, Helvetica, sans-serif",
+      "type/stack/editorial": "Inter, Arial, Helvetica, sans-serif",
+      "type/stack/mono": "\"Roboto Mono\", monospace"
     },
     "brand": {
       "colors/primary/light": "navy/300",
@@ -431,7 +445,14 @@
       "text/on-inverse-subtle": "coal/600",
       "text/on/success-strong": "black/a100",
       "text/selected": "white/a100",
-      "text/accent": "flare/300"
+      "text/accent": "flare/300",
+      "type/font/text": "Inter",
+      "type/font/display": "Inter",
+      "type/font/editorial": "Inter",
+      "type/stack/text": "Inter, Arial, Helvetica, sans-serif",
+      "type/stack/display": "Inter, Arial, Helvetica, sans-serif",
+      "type/stack/editorial": "Inter, Arial, Helvetica, sans-serif",
+      "type/stack/mono": "\"Roboto Mono\", monospace"
     }
   },
   "vars": {

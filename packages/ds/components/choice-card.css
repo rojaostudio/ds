@@ -20,7 +20,7 @@
   margin: 0;
   padding: 0;
   border: 0;
-  font-family: var(--type-font-stack);
+  font-family: var(--type-stack-text);
 }
 
 .rds-choice-card-group--tile,
@@ -60,7 +60,7 @@
   border: var(--_border-width) solid var(--_border);
   border-radius: var(--radius-container);
   background: var(--_background);
-  font-family: var(--type-font-stack);
+  font-family: var(--type-stack-text);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
@@ -296,7 +296,7 @@
 .rds-choice-card-group__error-message {
   grid-column: 1 / -1;
   color: var(--choice-card-group-error-message);
-  font-family: var(--type-font-stack);
+  font-family: var(--type-stack-text);
   font-size: var(--type-small-size);
   line-height: var(--type-small-line);
 }

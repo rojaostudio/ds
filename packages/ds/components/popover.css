@@ -13,7 +13,7 @@
   background: var(--popover-background);
   box-shadow: var(--elevation-overlay);
   color: var(--popover-text);
-  font-family: var(--type-font-stack);
+  font-family: var(--type-stack-text);
   font-size: var(--type-small-size);
   line-height: var(--type-small-line);
 }

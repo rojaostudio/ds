@@ -34,7 +34,7 @@
   padding: calc(var(--_pad-y) - var(--border-width)) calc(var(--_pad-x) - var(--border-width));
   border: var(--border-width) solid transparent;
   border-radius: var(--radius-container);
-  font-family: var(--type-font-stack);
+  font-family: var(--type-stack-text);
 }
 
 .rds-item--sm {

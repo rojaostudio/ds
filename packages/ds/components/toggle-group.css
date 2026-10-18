@@ -28,7 +28,7 @@
   display: block;
   margin-top: var(--space-4);
   color: var(--toggle-group-error-message);
-  font-family: var(--type-font-stack);
+  font-family: var(--type-stack-text);
   font-size: var(--type-small-size);
   line-height: var(--type-small-line);
 }

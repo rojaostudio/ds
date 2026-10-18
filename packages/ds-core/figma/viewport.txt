@@ -57,3 +57,10 @@ layout/content/max-width/medium|F|1152|1152|1152|1152|1152|1152
 layout/floating-panel/width|F|390|640|768|400|400|400
 layout/floating-panel/height|F|844|900|1024|640|640|640
 layout/floating-panel/radius|F|0|0|0|12|12|12
+type/display/hero/size|F|40|44|48|60|64|72
+type/display/hero/line|F|38|42|46|58|60|68
+type/display/section/size|F|28|32|36|40|44|48
+type/display/section/line|F|28|30|34|38|42|46
+form/field/short-max|F|88|88|168|168|168|168
+form/field/number-max|F|96|96|168|168|168|168
+form/field/key-max|F|9999|9999|168|168|168|168

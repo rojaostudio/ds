@@ -75,6 +75,9 @@ describe('base.css (rds.legacy) with rds.css', () => {
   it('Heading: the 2.0 font stack wins over the h1–h6 rule of base.css', async () => {
     const el = await render(<Heading as="h1">Título</Heading>);
     const h1 = el.querySelector('h1')!;
-    expect(getComputedStyle(h1).fontFamily).toBe(getComputedStyle(document.documentElement).getPropertyValue('--type-font-stack').trim());
+    // The computed font-family drops the quotes the stack is written with ("Inter", "Arial"…).
+    const stack = getComputedStyle(document.documentElement).getPropertyValue('--type-stack-text').trim();
+    expect(getComputedStyle(h1).fontFamily).toBe(stack.replaceAll('"', ''));
+    expect(stack).toMatch(/^"Inter", /);
   });
 });

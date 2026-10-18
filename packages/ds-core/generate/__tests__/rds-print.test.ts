@@ -11,6 +11,7 @@ import {
   rdsPrintMode, ROLES, roleVar,
 } from "../rdsTheme";
 import { contrastRatio } from "../scale";
+import { FONT_ROLE_VARS, STACK_ROLE_VARS, stackCss } from "../validate";
 import type { BrandDef } from "../../tokens/recipe.schema";
 import { emitClaudeMd } from "../emitClaudeMd";
 import { recipes } from "../../recipes";
@@ -81,7 +82,12 @@ describe("emitRdsCss — the print block", () => {
   it("forces the light values, with the print swaps, for every role", () => {
     const print = rdsPrintMode(theme);
     for (const [k, v] of Object.entries(print))
-      expect(decl(printRule, k), k).toBe(k === "--type-font-mono" ? `"${v}", monospace` : v);
+      expect(decl(printRule, k), k).toBe(
+        k === "--type-font-mono" ? `"${v}", monospace`
+        : FONT_ROLE_VARS.has(k) ? `"${v}"`
+        : STACK_ROLE_VARS.has(k) ? stackCss(v)
+        : v,
+      );
     expect(decl(printRule, "--surface-page")).toBe("#ffffff");
     expect(decl(printRule, "--surface-attention-high")).toBe("#ffffff");
     expect(decl(printRule, "--shadow-strong")).toBe("#00000000");

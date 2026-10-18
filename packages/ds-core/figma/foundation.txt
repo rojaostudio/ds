@@ -14,8 +14,6 @@ radius/xs|F|4|--radius-xs
 border-width|F|1|--border-width
 border-width-strong|F|2|--border-width-strong
 focus/ring-width|F|2|--focus-ring-width
-type/font/family|S|Inter|--type-font-family
-type/font/stack|S|Inter, Arial, Helvetica, sans-serif|--type-font-stack
 type/heading/size|F|24|--type-heading-size
 type/heading/line|F|30|--type-heading-line
 type/heading/weight|F|700|--type-heading-weight
