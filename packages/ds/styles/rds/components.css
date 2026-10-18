@@ -231,6 +231,7 @@
   --attachment-done-icon: var(--colors-state-success-strong);
   --bubble-typing-background: var(--surface-muted);
   --bubble-typing-dot: var(--text-muted);
+  --message-failed: var(--text-error);
 
   /* content */
   --avatar-fallback-background: var(--surface-muted);

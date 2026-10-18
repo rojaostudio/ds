@@ -87,17 +87,31 @@
   --layout-surface-lg: 560px;
   --layout-surface-xl: 720px;
   --layout-content-max-width-medium: 1152px;
+  --layout-floating-panel-width: 390px;
+  --layout-floating-panel-height: 844px;
+  --layout-floating-panel-radius: 0px;
 }
 @media (min-width: 640px) {
 :root {
   --layout-content-padding-x: 24px;
   --layout-content-padding-y: 24px;
+  --layout-floating-panel-width: 640px;
+  --layout-floating-panel-height: 900px;
+}
+}
+@media (min-width: 768px) {
+:root {
+  --layout-floating-panel-width: 768px;
+  --layout-floating-panel-height: 1024px;
 }
 }
 @media (min-width: 1024px) {
 :root {
   --layout-content-padding-x: 32px;
   --layout-content-padding-y: 32px;
+  --layout-floating-panel-width: 400px;
+  --layout-floating-panel-height: 640px;
+  --layout-floating-panel-radius: 12px;
 }
 }
 @media (min-width: 1536px) {

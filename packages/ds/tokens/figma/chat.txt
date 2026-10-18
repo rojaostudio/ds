@@ -40,3 +40,4 @@ scroller/background|C|@theme:surface/card|=
 attachment/done/icon|C|@theme:colors/state/success-strong|=
 bubble/typing/background|C|@theme:surface/muted|=
 bubble/typing/dot|C|@theme:text/muted|=
+message/failed|C|@theme:text/error|=
