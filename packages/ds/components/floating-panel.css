@@ -1,0 +1,128 @@
+/* @tokens floating-panel */
+/*
+ * FloatingPanel (Overlays, ds#180): the Dialog's surface (dialog/background, dialog/border, elevation/modal) in three
+ * rows. Header: 8 inside (12 on the left), 8 between back, avatar, the title (label 16/24, 500, dialog/title) over the
+ * status (small 14/20, dialog/text), and close, with a 1px line under it. Body: 16 inside, the only part that scrolls.
+ * Footer: 12 16 inside, a 1px line over it.
+ * Compact (below 1024, layout/compact): the whole screen, no radius (layout/floating-panel/radius), back instead of
+ * close. From 1024: at the bottom right, 24 from the edges, layout/floating-panel/width (400) and
+ * layout/floating-panel/height (640), never taller than the screen less 96, corners radius/container.
+ */
+.rds-floating-panel {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: var(--border-width) solid var(--dialog-border);
+  border-radius: var(--layout-floating-panel-radius);
+  background: var(--dialog-background);
+  box-shadow: var(--elevation-modal);
+  font-family: var(--type-font-stack);
+  outline: none;
+}
+
+@media (min-width: 1024px) {
+  .rds-floating-panel {
+    inset: auto var(--space-24) var(--space-24) auto;
+    width: min(var(--layout-floating-panel-width), calc(100vw - var(--space-24) * 2));
+    height: min(var(--layout-floating-panel-height), calc(100dvh - var(--space-48) * 2));
+  }
+
+  .rds-floating-panel__back {
+    display: none;
+  }
+}
+
+@media (max-width: 1023px) {
+  .rds-floating-panel {
+    border: 0;
+  }
+
+  .rds-floating-panel__close {
+    display: none;
+  }
+}
+
+.rds-floating-panel__header {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-8);
+  padding: var(--space-8) var(--space-8) var(--space-8) var(--space-12);
+  border-bottom: var(--border-width) solid var(--dialog-border);
+}
+
+.rds-floating-panel__avatar {
+  display: flex;
+  flex: none;
+}
+
+.rds-floating-panel__heading {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.rds-floating-panel__title {
+  margin: 0;
+  overflow: hidden;
+  color: var(--dialog-title);
+  font-size: var(--type-label-size);
+  font-weight: 500;
+  line-height: var(--type-label-line);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rds-floating-panel__status {
+  margin: 0;
+  color: var(--dialog-text);
+  font-size: var(--type-small-size);
+  line-height: var(--type-small-line);
+}
+
+.rds-floating-panel__body {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: var(--space-16);
+  min-height: 0;
+  padding: var(--space-16);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.rds-floating-panel__body:focus-visible {
+  outline: var(--focus-ring-width) solid var(--button-focus-ring);
+  outline-offset: calc(var(--focus-ring-width) * -1);
+}
+
+.rds-floating-panel__footer {
+  flex: none;
+  padding: var(--space-12) var(--space-16);
+  padding-bottom: max(var(--space-12), env(safe-area-inset-bottom));
+  border-top: var(--border-width) solid var(--dialog-border);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .rds-floating-panel[data-state='open'] {
+    animation: rds-floating-panel-in var(--motion-duration-base) var(--motion-easing-enter);
+  }
+}
+
+@keyframes rds-floating-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--space-16));
+  }
+}
+
+@media (forced-colors: active) {
+  .rds-floating-panel__body:focus-visible {
+    outline-color: Highlight;
+  }
+}

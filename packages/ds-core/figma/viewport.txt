@@ -54,3 +54,6 @@ layout/surface/md|F|400|400|400|400|400|400
 layout/surface/lg|F|560|560|560|560|560|560
 layout/surface/xl|F|720|720|720|720|720|720
 layout/content/max-width/medium|F|1152|1152|1152|1152|1152|1152
+layout/floating-panel/width|F|390|640|768|400|400|400
+layout/floating-panel/height|F|844|900|1024|640|640|640
+layout/floating-panel/radius|F|0|0|0|12|12|12

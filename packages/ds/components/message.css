@@ -62,3 +62,33 @@
   display: flex;
   align-items: center;
 }
+
+/*
+ * Delivery (ds#179, align=end). sending: a 16 Spinner and the label (12/16, message/time) 4 apart, in place of the time.
+ * failed: the Bubble in soft + danger (bubble/error/*) and, under it, the label (12/16, message/failed) 8 from a
+ * ghost sm "try again" Button.
+ */
+.rds-message__sending {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-4);
+  color: var(--message-time);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+}
+
+.rds-message--failed .rds-message__content > .rds-bubble {
+  --_background: var(--bubble-error-background);
+  --_text: var(--bubble-error-text);
+
+  border-color: transparent;
+}
+
+.rds-message__failed {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  color: var(--message-failed);
+  font-size: var(--type-caption-size);
+  line-height: var(--type-caption-line);
+}
