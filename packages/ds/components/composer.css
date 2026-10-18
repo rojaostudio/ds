@@ -1,0 +1,80 @@
+/* @tokens composer */
+/*
+ * Composer (Chat, ds#178): the Textarea's box (textarea/* colours, radius/field, the 1px border and the 2px focus
+ * border) around the text and a 32 send IconButton (sm, action, fill), 8 apart. Inside: 8 on the top, right and
+ * bottom, 12 on the left; the text (16/24) gets 4 above and below, so one line stands as tall as the button (48 in
+ * all, 50 with the border). The button stays at the bottom right while the text grows to 4 lines; then the text
+ * scrolls.
+ */
+.rds-composer {
+  --_edge: var(--textarea-border-default);
+
+  box-sizing: border-box;
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-8);
+  width: 100%;
+  padding: var(--space-8) var(--space-8) var(--space-8) var(--space-12);
+  border: var(--border-width) solid var(--_edge);
+  border-radius: var(--radius-field);
+  background: var(--textarea-background-default);
+  font-family: var(--type-font-stack);
+}
+
+@media (hover: hover) {
+  .rds-composer:not(.rds-composer--disabled):hover {
+    --_edge: var(--textarea-border-hover);
+  }
+}
+
+/* Focus on the text, not on the button: 2px border without moving the content (1px border + 1px inset shadow). */
+.rds-composer:has(.rds-composer__field:focus) {
+  --_edge: var(--textarea-border-focus);
+
+  box-shadow: inset 0 0 0 var(--border-width) var(--_edge);
+}
+
+.rds-composer--disabled {
+  --_edge: var(--textarea-border-disabled);
+
+  background: var(--textarea-background-disabled);
+}
+
+.rds-composer__field {
+  box-sizing: content-box;
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  padding: var(--space-4) 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--textarea-value-default);
+  font: inherit;
+  font-size: var(--textarea-text-size);
+  line-height: var(--textarea-text-line);
+  resize: none;
+}
+
+.rds-composer__field::placeholder {
+  color: var(--textarea-placeholder-default);
+  opacity: 1;
+}
+
+.rds-composer__field:disabled {
+  color: var(--textarea-value-disabled);
+}
+
+.rds-composer__field:disabled::placeholder {
+  color: var(--textarea-placeholder-disabled);
+}
+
+.rds-composer__send {
+  flex: none;
+}
+
+@media (forced-colors: active) {
+  .rds-composer:has(.rds-composer__field:focus) {
+    outline: 2px solid Highlight;
+  }
+}
