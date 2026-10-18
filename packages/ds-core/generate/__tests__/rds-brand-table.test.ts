@@ -1,13 +1,20 @@
 import { describe, expect, it } from "vitest";
 import { emitRdsCss, rdsThemeFromTable, ROLES, roleVar, type RdsBrandTable } from "../rdsTheme";
 
+// The type roles of ds#190, as Figma's table carries them: a family, or a stack.
+const TYPE: Record<string, string> = {
+  "type/font/text": "Inter", "type/font/display": "Inter", "type/font/editorial": "Inter", "type/font/mono": "Roboto Mono",
+  "type/stack/text": "Inter, Arial, sans-serif", "type/stack/display": "Inter, Arial, sans-serif",
+  "type/stack/editorial": "Inter, Arial, sans-serif", "type/stack/mono": '"Roboto Mono", monospace',
+};
+
 // A brand table as figma/export-brand.js writes it: every role of every mode points to a primitive by name.
 function table(): RdsBrandTable {
   const mode = (primary: string) =>
     Object.fromEntries(
       ROLES.map(([role]) => [
         role,
-        role === "type/font/mono" ? "Roboto Mono" : role === "colors/primary/default" ? primary : role === "surface/disabled" ? "black/a10" : "zinc/500",
+        TYPE[role] ?? (role === "colors/primary/default" ? primary : role === "surface/disabled" ? "black/a10" : "zinc/500"),
       ]),
     );
   return {
@@ -52,6 +59,32 @@ describe("[RDS] theme from a brand table", () => {
     expect(warnings[0]).toMatch(/exported before "border\/error"[\s\S]*Export the table again with figma\/export-brand\.js/);
     delete t.modes.dark["colors/state/error-strong"];
     expect(() => rdsThemeFromTable(t, { warn: () => {} })).toThrow(/dark: role "colors\/state\/error-strong" is missing[\s\S]*dark: role "border\/error" is missing/);
+  });
+
+  // The type roles of ds#190 came after tables were exported: Figma had one family, Inter in every brand.
+  it("a table without the type roles takes Inter, and its own mono for the mono stack, with a warning to export again", () => {
+    const t = table();
+    const added = Object.keys(TYPE).filter((r) => r !== "type/font/mono");
+    for (const mode of ["light", "dark", "brand"] as const) {
+      for (const r of added) delete t.modes[mode][r];
+      t.modes[mode]["type/font/mono"] = "JetBrains Mono";
+    }
+    const warnings: string[] = [];
+    const theme = rdsThemeFromTable(t, { warn: (m) => warnings.push(m) });
+    for (const m of [theme.light, theme.dark, theme.brand]) {
+      expect([m["--type-font-text"], m["--type-font-display"], m["--type-font-editorial"]]).toEqual(["Inter", "Inter", "Inter"]);
+      expect(m["--type-stack-text"]).toBe("Inter, Arial, Helvetica, sans-serif");
+      expect(m["--type-stack-mono"]).toBe('"JetBrains Mono", monospace');
+    }
+    expect(warnings[0]).toMatch(/exported before "type\/font\/text"[\s\S]*Export the table again/);
+  });
+
+  it("writes each font role in quotes and each stack with every family quoted", () => {
+    const css = emitRdsCss(rdsThemeFromTable(table(), { warn: () => {} }));
+    expect(css).toContain('  --type-font-display: "Inter";');
+    expect(css).toContain('  --type-font-mono: "Roboto Mono", monospace;');
+    expect(css).toContain('  --type-stack-text: "Inter", "Arial", sans-serif;');
+    expect(css).toContain('  --type-stack-mono: "Roboto Mono", monospace;');
   });
 
   // surface/attention/* came after tables were exported: one amber for every brand, taken when the table lacks it.

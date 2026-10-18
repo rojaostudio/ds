@@ -42,7 +42,7 @@
   padding: var(--space-12) var(--space-8);
   border-right: var(--border-width) solid var(--sidebar-border);
   background: var(--_background);
-  font-family: var(--type-font-stack);
+  font-family: var(--type-stack-text);
 }
 
 .rds-sidebar--collapsed {

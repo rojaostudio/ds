@@ -20,7 +20,7 @@
   background: var(--fab-cta-background-default);
   box-shadow: var(--elevation-raised);
   color: var(--fab-cta-text);
-  font-family: var(--type-font-stack);
+  font-family: var(--type-stack-text);
   font-size: var(--type-button-size);
   font-weight: 500;
   line-height: var(--type-button-line);

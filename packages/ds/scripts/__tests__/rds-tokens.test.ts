@@ -1,10 +1,10 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { RDS_TOKEN_SCOPE } from "@rojaostudio/ds-core/generate";
+import { RDS_TOKEN_SCOPE, stackCss } from "@rojaostudio/ds-core/generate";
 import {
-  check, emitComponentsCss, emitThemeCss, emitViewportCss, foundationCss, loadAll, loadBrandTable, parseCollection,
-  parseViewport, pathVar, PUBLIC_LAYOUT_VARS, RDS_LAYER_ORDER, TOKEN_SCOPE, tokenCss,
+  check, DEPRECATED_FOUNDATION_ALIASES, emitComponentsCss, emitFoundationCss, emitThemeCss, emitViewportCss, foundationCss, loadAll, loadBrandTable, parseCollection,
+  parseViewport, pathVar, PUBLIC_VIEWPORT_VARS, RDS_LAYER_ORDER, TOKEN_SCOPE, tokenCss,
 } from "../rds-tokens";
 
 const roles = new Set(["text/body", "surface/card", "focus/ring"]);
@@ -64,6 +64,14 @@ describe("rds-tokens checks", () => {
     const t = parseCollection("forms", "input/value|C|@theme:text/body|=");
     const css = "/* @tokens input */ .x { color: var(--input-value); background: var(--surface-card); }";
     expect(check(t, roles, foundation, [{ file: "a.css", css }]).themeRoleInComponent).toEqual(["a.css: --surface-card"]);
+  });
+
+  it("lets a stylesheet read the type roles (the brand's font) directly, and the 2.x foundation names", () => {
+    const withType = new Set([...roles, "type/stack/text", "type/font/mono"]);
+    const css = ".x { font-family: var(--type-stack-text); } .y { font-family: var(--type-font-stack); }";
+    const p = check([], withType, foundation, [{ file: "a.css", css }]);
+    expect(p.themeRoleInComponent).toEqual([]);
+    expect(p.orphanVars).toEqual([]);
   });
 
   it("does not ask a stylesheet to read a token Figma marks obsolete; it is still emitted", () => {
@@ -127,9 +135,17 @@ describe("viewport.txt (the screen modes)", () => {
   });
 
   it("keeps the public layout/* aliases with no stylesheet reading them (--layout-form-max-width)", () => {
-    expect(PUBLIC_LAYOUT_VARS.has("--layout-form-max-width")).toBe(true);
-    const css = emitViewportCss(parseViewport(txt), new Set(PUBLIC_LAYOUT_VARS));
+    expect(PUBLIC_VIEWPORT_VARS.has("--layout-form-max-width")).toBe(true);
+    const css = emitViewportCss(parseViewport(txt), new Set(PUBLIC_VIEWPORT_VARS));
     expect(css).toContain("--layout-form-max-width: 768px;");
+  });
+
+  it("ships the display sizes and the field ceilings with no stylesheet reading them; a component's own number stays out", () => {
+    const more = [txt, "type/display/hero/size|F|40|44|60", "form/field/key-max|F|9999|9999|168"].join("\n");
+    const css = emitViewportCss(parseViewport(more), new Set([...PUBLIC_VIEWPORT_VARS, "--data-table-header-search-min"]));
+    expect(css).toContain(":root {\n  --layout-form-max-width: 768px;\n  --type-display-hero-size: 40px;\n  --form-field-key-max: 9999px;\n}");
+    expect(css).toContain("@media (min-width: 1024px) {\n:root {\n  --type-display-hero-size: 60px;\n  --form-field-key-max: 168px;\n}\n}");
+    expect(css).not.toContain("search-min");
   });
 
   it("fails on a mode without a breakpoint", () => {
@@ -148,6 +164,13 @@ describe("rds-tokens output", () => {
     expect(
       foundationCss({ name: "elevation/modal", type: "E", value: "0 24 48 -12 @theme:shadow/strong", cssVar: "--elevation-modal" }),
     ).toBe("0px 24px 48px -12px var(--shadow-strong)");
+  });
+
+  it("keeps --type-font-family and --type-font-stack as var() of the theme roles that replace them", () => {
+    expect(DEPRECATED_FOUNDATION_ALIASES).toEqual({ "--type-font-family": "--type-font-text", "--type-font-stack": "--type-stack-text" });
+    const css = emitFoundationCss([]);
+    expect(css).toContain("  --type-font-family: var(--type-font-text);");
+    expect(css).toContain("  --type-font-stack: var(--type-stack-text);");
   });
 
   it("emits every token inside @layer rds.tokens", () => {
@@ -182,18 +205,22 @@ describe("styles/rds/theme.css is the Figma brand table of the Rojão, role by r
     expect(print["--text-body"]).toBe(resolved.light["--text-body"]);
     expect(print["--media-type-body-size"]).toBe("10pt");
     expect(resolved.light["--media-type-body-size"]).toBe("var(--type-body-size, 16px)");
-    expect(Object.keys(print).filter((k) => !k.startsWith("--media-type-"))).toHaveLength(113);
+    expect(Object.keys(print).filter((k) => !k.startsWith("--media-type-"))).toHaveLength(120);
   });
 
   it.each(["light", "dark", "brand"] as const)("%s: every role is the colour of the primitive Figma points to", (mode) => {
     const wrong: string[] = [];
     for (const [role, ref] of Object.entries(table.modes[mode])) {
-      const expected = role === "type/font/mono" ? `"${ref}", monospace` : (table.primitives[ref] ?? ref).toLowerCase();
+      const expected =
+        role === "type/font/mono" ? `"${ref}", monospace`
+        : role.startsWith("type/font/") ? `"${ref}"`
+        : role.startsWith("type/stack/") ? stackCss(ref)
+        : (table.primitives[ref] ?? ref).toLowerCase();
       const got = resolved[mode][pathVar(role)];
       if (got !== expected) wrong.push(`${role}: css ${got}, Figma ${expected} (${ref})`);
     }
     expect(wrong).toEqual([]);
-    expect(Object.keys(table.modes[mode])).toHaveLength(113);
+    expect(Object.keys(table.modes[mode])).toHaveLength(120);
   });
 
   it("the brand's own variables (--rojao-*) are in the light scope", () => {

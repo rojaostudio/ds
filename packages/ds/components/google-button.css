@@ -22,7 +22,7 @@
   background: var(--_background);
   color: var(--_label);
   cursor: pointer;
-  font-family: 'Google Sans', Roboto, var(--type-font-stack);
+  font-family: 'Google Sans', Roboto, var(--type-stack-text);
   font-size: var(--type-small-size);
   font-weight: 500;
   line-height: var(--type-small-line);

@@ -144,7 +144,7 @@
 
 /* Figma `count`: "128 resultados", a live region at the end of the tools. */
 .rds-data-table-header__count {
-  font-family: var(--type-font-stack);
+  font-family: var(--type-stack-text);
   font-size: var(--type-small-size);
   line-height: var(--type-small-line);
   color: var(--table-header-label);
@@ -189,7 +189,7 @@
 
 .rds-data-table-header__group-label {
   margin: 0;
-  font-family: var(--type-font-stack);
+  font-family: var(--type-stack-text);
   font-size: var(--type-caption-size);
   font-weight: var(--type-caption-weight);
   line-height: var(--type-caption-line);

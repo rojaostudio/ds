@@ -115,6 +115,13 @@ exports[`[RDS] rojao is untouched by the derivation of secondary and accent > th
   --text-on-success-strong: #ffffff;
   --text-selected: #1b2a4a;
   --text-accent: #d95a00;
+  --type-font-text: "Inter";
+  --type-font-display: "Inter";
+  --type-font-editorial: "Inter";
+  --type-stack-text: "Inter", "Arial", "Helvetica", sans-serif;
+  --type-stack-display: "Inter", "Arial", "Helvetica", sans-serif;
+  --type-stack-editorial: "Inter", "Arial", "Helvetica", sans-serif;
+  --type-stack-mono: "Roboto Mono", monospace;
   --media-type-caption-size: var(--type-caption-size, 12px);
   --media-type-caption-line: var(--type-caption-line, 16px);
   --media-type-small-size: var(--type-small-size, 14px);
@@ -409,6 +416,13 @@ exports[`[RDS] rojao is untouched by the derivation of secondary and accent > th
   --text-on-success-strong: #ffffff;
   --text-selected: #1b2a4a;
   --text-accent: #d95a00;
+  --type-font-text: "Inter";
+  --type-font-display: "Inter";
+  --type-font-editorial: "Inter";
+  --type-stack-text: "Inter", "Arial", "Helvetica", sans-serif;
+  --type-stack-display: "Inter", "Arial", "Helvetica", sans-serif;
+  --type-stack-editorial: "Inter", "Arial", "Helvetica", sans-serif;
+  --type-stack-mono: "Roboto Mono", monospace;
   --media-type-caption-size: 8pt;
   --media-type-caption-line: 10pt;
   --media-type-small-size: 9pt;

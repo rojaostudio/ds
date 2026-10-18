@@ -7,7 +7,7 @@
  */
 .rds-navmenu {
   position: relative;
-  font-family: var(--type-font-stack);
+  font-family: var(--type-stack-text);
 }
 
 .rds-navmenu__items {

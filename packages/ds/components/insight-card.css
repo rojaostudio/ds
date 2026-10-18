@@ -13,7 +13,7 @@
   border: var(--border-width) solid var(--_border);
   border-radius: var(--radius-container);
   background: var(--_background);
-  font-family: var(--type-font-stack);
+  font-family: var(--type-stack-text);
 }
 
 .rds-insight-card__body {

@@ -12,7 +12,7 @@
   container-type: inline-size;
   border-bottom: var(--border-width) solid var(--topnav-border);
   background: var(--topnav-background);
-  font-family: var(--type-font-stack);
+  font-family: var(--type-stack-text);
 }
 
 .rds-topnav__bar {

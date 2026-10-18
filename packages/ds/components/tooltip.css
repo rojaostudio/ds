@@ -12,7 +12,7 @@
   background: var(--tooltip-background);
   box-shadow: var(--elevation-overlay);
   color: var(--tooltip-text);
-  font-family: var(--type-font-stack);
+  font-family: var(--type-stack-text);
   font-size: var(--type-caption-size);
   line-height: var(--type-caption-line);
 }

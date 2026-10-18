@@ -35,7 +35,7 @@
   padding: calc(var(--bottom-bar-padding-y) + 2px) var(--bottom-bar-padding-x);
   background: var(--bottom-bar-background);
   color: var(--bottom-bar-text);
-  font-family: var(--type-font-stack);
+  font-family: var(--type-stack-text);
 
   /* The Button tokens the action fill and the neutral ghost read, in the bar's colours. */
   --button-focus-ring: var(--bottom-bar-focus-ring);

@@ -18,7 +18,7 @@ import {
   buildScale, contrastRatio, hexToHsl, hslToHex, isHex, onColor, refToHex, relativeLuminance, SCALE_STEPS,
   type Scale, type ScaleStep,
 } from "./scale";
-import { assertSafeTheme, collector, isSafeSelectorList, preview } from "./validate";
+import { assertSafeTheme, collector, FONT_ROLE_VARS, isSafeSelectorList, preview, STACK_ROLE_VARS, stackCss } from "./validate";
 import { deriveAccent } from "./derive";
 
 export type RdsMode = "light" | "dark" | "brand";
@@ -282,7 +282,26 @@ export const ROLES: ReadonlyArray<readonly [string, "l" | "d" | "p", "l" | "d" |
   ["surface/attention/low", "p", "p"], ["surface/attention/medium", "p", "p"], ["surface/attention/high", "p", "p"],
   ["surface/inverse", "d", "d"], ["text/on-inverse", "d", "d"], ["text/on-inverse-subtle", "d", "d"],
   ["text/on/success-strong", "d", "d"], ["text/selected", "d", "b"], ["text/accent", "d", "d"],
+  ["type/font/text", "l", "l"], ["type/font/display", "l", "l"], ["type/font/editorial", "l", "l"],
+  ["type/stack/text", "l", "l"], ["type/stack/display", "l", "l"], ["type/stack/editorial", "l", "l"],
+  ["type/stack/mono", "l", "l"],
 ];
+
+/**
+ * The type roles of a brand (ds#190) as Figma draws them today: Inter for text, display and editorial in every brand
+ * (one family, so the four roles point to it), Roboto Mono for mono, and each one's stack. Used by the generator, and
+ * for a brand table exported before these roles existed (Figma had only type/font/family, Inter in every brand).
+ */
+const TYPE_ROLES: Record<string, string> = {
+  "type/font/text": "Inter",
+  "type/font/display": "Inter",
+  "type/font/editorial": "Inter",
+  "type/font/mono": "Roboto Mono",
+  "type/stack/text": "Inter, Arial, Helvetica, sans-serif",
+  "type/stack/display": "Inter, Arial, Helvetica, sans-serif",
+  "type/stack/editorial": "Inter, Arial, Helvetica, sans-serif",
+  "type/stack/mono": '"Roboto Mono", monospace',
+};
 
 /**
  * text/on/success-strong: the icon on colors/state/success-strong (the success fill Tile). White on the light green/600,
@@ -457,7 +476,7 @@ export function generateRdsTheme(def: BrandDef, opts: RdsThemeOptions = {}): Rds
     "chart/series/2": orange[600], "chart/series/3": teal[500],
     "chart/series/4": purple[500], "chart/series/5": green[500],
     "shadow/ambient": black(5), "shadow/key": black(10), "shadow/strong": black(20),
-    "type/font/mono": "Roboto Mono",
+    ...TYPE_ROLES,
     "logo/mono": BLACK, "logo/inverse": WHITE, "logo/inverse-signature": WHITE, "social/ink": BLACK,
     "surface/inverse": inverseOf(P.base), "text/on-inverse": WHITE, "text/on-inverse-subtle": inverseSubtle(inverseOf(P.base)),
     "text/on/success-strong": SUCCESS_STRONG_ON.light,
@@ -820,6 +839,17 @@ const covered = (sel: string) => {
  * Throws when a selector would leave the components of @rojaostudio/ds on the root colours (see
  * RDS_SCOPE_SELECTORS), unless `allowUncovered`.
  */
+/**
+ * A role's value as CSS. A font role is one family inside quotes; --type-font-mono keeps its 2.x fallback
+ * (`"Roboto Mono", monospace`) until 3.0, now that --type-stack-mono carries it. A stack quotes each family.
+ */
+function roleCss(k: string, v: string): string {
+  if (k === "--type-font-mono") return `"${v}", monospace`;
+  if (FONT_ROLE_VARS.has(k)) return `"${v}"`;
+  if (STACK_ROLE_VARS.has(k)) return stackCss(v);
+  return v;
+}
+
 export function emitRdsCss(theme: RdsTheme, opts: RdsCssOptions = {}): string {
   // Defence in depth: the theme may have been built by hand, not by the generators. Nothing reaches the stylesheet
   // without passing the allow list again.
@@ -836,7 +866,7 @@ export function emitRdsCss(theme: RdsTheme, opts: RdsCssOptions = {}): string {
   const block = (sels: string[], map: Record<string, string>, only?: Record<string, string>, extra: string[] = []) => {
     const lines = Object.entries(map)
       .filter(([k, v]) => !only || only[k] !== v)
-      .map(([k, v]) => `  ${k}: ${k === "--type-font-mono" ? `"${v}", monospace` : v};`);
+      .map(([k, v]) => `  ${k}: ${roleCss(k, v)};`);
     return `${sels.join(", ")} {\n${[...lines, ...extra].join("\n")}\n}`;
   };
   const darkSels = scopes.flatMap((s) =>
@@ -975,7 +1005,10 @@ export type RdsBrandTable = {
  * A role a table exported before it existed (the inverse roles, text/on/success-strong): the generator's rule, the
  * inverse fill from the table's light primary.
  */
-function laterFallback(role: string, mode: RdsMode, primary: string | undefined): string | undefined {
+function laterFallback(role: string, mode: RdsMode, primary: string | undefined, mono?: string): string | undefined {
+  // The stack of mono follows the table's own mono family; the other type roles are Figma's single family.
+  if (role === "type/stack/mono" && mono) return `"${mono}", monospace`;
+  if (role in TYPE_ROLES) return TYPE_ROLES[role];
   if (role === "text/on/success-strong") return mode === "light" ? SUCCESS_STRONG_ON.light : SUCCESS_STRONG_ON.dark;
   if (!(role in INVERSE_DARK)) return undefined;
   if (mode !== "light") return INVERSE_DARK[role];
@@ -1051,7 +1084,12 @@ export function rdsThemeFromTable(table: RdsBrandTable, opts: RdsThemeOptions = 
         continue;
       }
       // Roles added later (inverse, text/on/success-strong): the generator's rule (laterFallback).
-      const later = ref === undefined ? laterFallback(role, mode, out[mode][roleVar("colors/primary/default")]) : undefined;
+      const later = ref === undefined ? laterFallback(
+            role,
+            mode,
+            out[mode][roleVar("colors/primary/default")],
+            out[mode][roleVar("type/font/mono")],
+          ) : undefined;
       if (later !== undefined) {
         out[mode][roleVar(role)] = later;
         derived.add(role);

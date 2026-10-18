@@ -10,7 +10,7 @@
   align-items: center;
   gap: var(--space-8);
   color: var(--_label);
-  font-family: var(--type-font-stack);
+  font-family: var(--type-stack-text);
   font-size: var(--type-small-size);
   line-height: var(--type-small-line);
   vertical-align: middle;

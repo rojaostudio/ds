@@ -13,8 +13,6 @@
   --border-width: 1px;
   --border-width-strong: 2px;
   --focus-ring-width: 2px;
-  --type-font-family: "Inter";
-  --type-font-stack: Inter, Arial, Helvetica, sans-serif;
   --type-heading-size: 24px;
   --type-heading-line: 30px;
   --type-heading-weight: 700;
@@ -73,6 +71,8 @@
   --elevation-raised: 0px 2px 4px -2px var(--shadow-ambient), 0px 4px 8px -2px var(--shadow-key);
   --elevation-overlay: 0px 4px 8px -4px var(--shadow-ambient), 0px 8px 16px -4px var(--shadow-key);
   --elevation-modal: 0px 24px 48px -12px var(--shadow-strong);
+  --type-font-family: var(--type-font-text);
+  --type-font-stack: var(--type-stack-text);
 }
 /* The screen modes (viewport.txt): base 0, sm 640, md 768, lg 1024, xl 1280, 2xl 1536. */
 :root {
@@ -90,6 +90,13 @@
   --layout-floating-panel-width: 390px;
   --layout-floating-panel-height: 844px;
   --layout-floating-panel-radius: 0px;
+  --type-display-hero-size: 40px;
+  --type-display-hero-line: 38px;
+  --type-display-section-size: 28px;
+  --type-display-section-line: 28px;
+  --form-field-short-max: 88px;
+  --form-field-number-max: 96px;
+  --form-field-key-max: 9999px;
 }
 @media (min-width: 640px) {
 :root {
@@ -97,12 +104,23 @@
   --layout-content-padding-y: 24px;
   --layout-floating-panel-width: 640px;
   --layout-floating-panel-height: 900px;
+  --type-display-hero-size: 44px;
+  --type-display-hero-line: 42px;
+  --type-display-section-size: 32px;
+  --type-display-section-line: 30px;
 }
 }
 @media (min-width: 768px) {
 :root {
   --layout-floating-panel-width: 768px;
   --layout-floating-panel-height: 1024px;
+  --type-display-hero-size: 48px;
+  --type-display-hero-line: 46px;
+  --type-display-section-size: 36px;
+  --type-display-section-line: 34px;
+  --form-field-short-max: 168px;
+  --form-field-number-max: 168px;
+  --form-field-key-max: 168px;
 }
 }
 @media (min-width: 1024px) {
@@ -112,11 +130,27 @@
   --layout-floating-panel-width: 400px;
   --layout-floating-panel-height: 640px;
   --layout-floating-panel-radius: 12px;
+  --type-display-hero-size: 60px;
+  --type-display-hero-line: 58px;
+  --type-display-section-size: 40px;
+  --type-display-section-line: 38px;
+}
+}
+@media (min-width: 1280px) {
+:root {
+  --type-display-hero-size: 64px;
+  --type-display-hero-line: 60px;
+  --type-display-section-size: 44px;
+  --type-display-section-line: 42px;
 }
 }
 @media (min-width: 1536px) {
 :root {
   --layout-content-padding-x: 48px;
+  --type-display-hero-size: 72px;
+  --type-display-hero-line: 68px;
+  --type-display-section-size: 48px;
+  --type-display-section-line: 46px;
 }
 }
 }

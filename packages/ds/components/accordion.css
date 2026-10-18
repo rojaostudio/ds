@@ -5,7 +5,7 @@
  * title; focus draws the ring.
  */
 .rds-accordion {
-  font-family: var(--type-font-stack);
+  font-family: var(--type-stack-text);
 }
 
 .rds-accordion__item {

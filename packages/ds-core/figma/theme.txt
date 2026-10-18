@@ -115,3 +115,10 @@ text/on-inverse-subtle|C|--text-on-inverse-subtle|@base:text/on-inverse-subtle|@
 text/on/success-strong|C|--text-on-success-strong|@base:text/on/success-strong|@base:dark/text/on/success-strong|@base:dark/text/on/success-strong
 text/selected|C|--text-selected|@base:text/selected|@base:dark/text/selected|@base:brand/text/selected
 text/accent|C|--text-accent|@base:text/accent|@base:dark/text/accent|@base:dark/colors/accent/default
+type/font/text|S|--type-font-text|@base:type/font/text|@base:type/font/text|@base:type/font/text
+type/font/display|S|--type-font-display|@base:type/font/display|@base:type/font/display|@base:type/font/display
+type/font/editorial|S|--type-font-editorial|@base:type/font/editorial|@base:type/font/editorial|@base:type/font/editorial
+type/stack/text|S|--type-stack-text|@base:type/stack/text|@base:type/stack/text|@base:type/stack/text
+type/stack/display|S|--type-stack-display|@base:type/stack/display|@base:type/stack/display|@base:type/stack/display
+type/stack/editorial|S|--type-stack-editorial|@base:type/stack/editorial|@base:type/stack/editorial|@base:type/stack/editorial
+type/stack/mono|S|--type-stack-mono|@base:type/stack/mono|@base:type/stack/mono|@base:type/stack/mono

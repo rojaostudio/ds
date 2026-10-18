@@ -11,7 +11,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--space-8);
-  font-family: var(--type-font-stack);
+  font-family: var(--type-stack-text);
 }
 
 .rds-rating--sm {

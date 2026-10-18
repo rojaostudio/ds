@@ -19,7 +19,7 @@
   background: var(--browser-frame-background);
   box-shadow: 0 12px 32px var(--browser-shadow);
   color: var(--browser-address-text);
-  font-family: var(--type-font-stack);
+  font-family: var(--type-stack-text);
 }
 
 .rds-browser__toolbar {

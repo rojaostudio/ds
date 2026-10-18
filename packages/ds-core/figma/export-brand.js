@@ -52,7 +52,9 @@ const vars = {};
 const brandCol = cols.find((c) => c.name === "brand");
 for (const id of brandCol?.variableIds ?? []) {
   const v = await figma.variables.getVariableByIdAsync(id);
-  if (v.name.startsWith(`${BRAND}/`)) vars[v.name] = await resolve(v, theme.modes[0].modeId);
+  // Only the colours: the brand's fonts and stacks (`<brand>/font/*`, `<brand>/stack/*`) reach the theme through the
+  // type/font/* and type/stack/* roles.
+  if (v.name.startsWith(`${BRAND}/`) && v.resolvedType === "COLOR") vars[v.name] = await resolve(v, theme.modes[0].modeId);
 }
 const sorted = Object.fromEntries(Object.entries(primitives).sort(([a], [b]) => a.localeCompare(b)));
 return { $schema: "rds-brand-table/1", name: BRAND, primitives: sorted, modes, vars };

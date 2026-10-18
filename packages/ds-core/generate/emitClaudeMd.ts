@@ -83,12 +83,15 @@ export const CLAUDE_MD_COMPONENTS = [
   "page-header", "sidebar", "empty", "skeleton", "pagination",
 ] as const;
 
-/** Foundation tokens named in the file. The ds-core tests check them against figma/foundation.txt. */
+/**
+ * Foundation tokens named in the file. The ds-core tests check them against figma/foundation.txt; `font` is the theme
+ * role of the brand's text font with its fallbacks (ds#190), checked against figma/theme.txt.
+ */
 export const CLAUDE_MD_FOUNDATION = {
   space: ["--space-4", "--space-8", "--space-12", "--space-16", "--space-24", "--space-32", "--space-40", "--space-48", "--space-56", "--space-64"],
   radius: ["--radius-xs", "--radius-control", "--radius-field", "--radius-card", "--radius-container", "--radius-full"],
   type: ["heading", "lead", "body", "label", "button", "small", "caption"],
-  font: "--type-font-stack",
+  font: "--type-stack-text",
 } as const;
 
 function isTable(x: BrandDef | RdsBrandTable): x is RdsBrandTable {

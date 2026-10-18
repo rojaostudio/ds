@@ -16,7 +16,7 @@
   border-radius: var(--radius-container);
   background: var(--actionbar-background);
   color: var(--actionbar-text);
-  font-family: var(--type-font-stack);
+  font-family: var(--type-stack-text);
 
   /* The neutral ghost Button (the actions and the X), in the bar's colours. */
   --button-focus-ring: var(--actionbar-text);

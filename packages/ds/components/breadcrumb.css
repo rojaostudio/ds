@@ -10,7 +10,7 @@
   --_separator: var(--breadcrumb-separator);
   --_ring: var(--breadcrumb-focus-ring);
 
-  font-family: var(--type-font-stack);
+  font-family: var(--type-stack-text);
   font-size: var(--type-small-size);
   line-height: var(--type-small-line);
 }

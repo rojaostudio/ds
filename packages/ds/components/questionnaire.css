@@ -16,7 +16,7 @@
   border: var(--border-width) solid var(--questionnaire-border);
   border-radius: var(--radius-container);
   background: var(--questionnaire-background);
-  font-family: var(--type-font-stack);
+  font-family: var(--type-stack-text);
 }
 
 .rds-questionnaire__title {

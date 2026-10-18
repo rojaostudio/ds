@@ -17,7 +17,7 @@
   border-radius: var(--radius-container);
   background: var(--media-tile-background);
   color: var(--media-tile-label);
-  font-family: var(--type-font-stack);
+  font-family: var(--type-stack-text);
   text-decoration: none;
 }
 

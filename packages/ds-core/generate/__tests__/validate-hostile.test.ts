@@ -1,14 +1,21 @@
 import { describe, expect, it } from "vitest";
 import { emitClaudeMd } from "../emitClaudeMd";
 import { emitRdsCss, generateRdsTheme, rdsThemeFromTable, ROLES, roleVar, type RdsBrandTable, type RdsTheme } from "../rdsTheme";
-import { isSafeColor, isSafeFont, isSafeVarName, oneLine } from "../validate";
+import { isSafeColor, isSafeFont, isSafeStack, isSafeVarName, oneLine, stackCss } from "../validate";
 import type { BrandDef } from "../../tokens/recipe.schema";
+
+// The type roles of ds#190, as Figma's table carries them: a family, or a stack.
+const TYPE: Record<string, string> = {
+  "type/font/text": "Inter", "type/font/display": "Inter", "type/font/editorial": "Inter", "type/font/mono": "Roboto Mono",
+  "type/stack/text": "Inter, Arial, sans-serif", "type/stack/display": "Inter, Arial, sans-serif",
+  "type/stack/editorial": "Inter, Arial, sans-serif", "type/stack/mono": '"Roboto Mono", monospace',
+};
 
 const def: BrandDef = { name: "acme", brand: { primary: "#7C3AED" }, surface: "zinc", text: "zinc", fonts: { body: "inter" } };
 
 function table(over: { primitives?: Record<string, string>; vars?: Record<string, string>; literal?: [string, string] } = {}): RdsBrandTable {
   const mode = Object.fromEntries(
-    ROLES.map(([r]) => [r, r === "type/font/mono" ? "Roboto Mono" : r === "colors/primary/default" ? "brand/500" : "zinc/500"]),
+    ROLES.map(([r]) => [r, TYPE[r] ?? (r === "colors/primary/default" ? "brand/500" : "zinc/500")]),
   );
   if (over.literal) mode[over.literal[0]] = over.literal[1];
   return {
@@ -42,6 +49,21 @@ describe("allow lists", () => {
   it("font: no quote, semicolon, brace, backslash or line break", () => {
     expect(isSafeFont("Roboto Mono")).toBe(true);
     for (const bad of ['Mono"; } body { x: y', "a;b", "a{", "a\\b", "a\nb", ""]) expect(isSafeFont(bad), bad).toBe(false);
+  });
+
+  it("stack: safe families separated by commas, a whole \"…\" around one allowed", () => {
+    for (const ok of ["Inter, Arial, Helvetica, sans-serif", '"Roboto Mono", monospace', "Fraunces"])
+      expect(isSafeStack(ok), ok).toBe(true);
+    const many = Array.from({ length: 11 }, (_, i) => `F${i}`).join(", ");
+    for (const bad of ['Inter", } body { x: y', 'a"b, serif', "Inter; } * {", "Inter,, serif", "Inter, \nserif", many, ""])
+      expect(isSafeStack(bad), bad).toBe(false);
+  });
+
+  it("stack as CSS: each family quoted, a generic family bare", () => {
+    expect(stackCss('Inter, Arial, "Roboto Mono", SANS-SERIF, ui-monospace')).toBe(
+      '"Inter", "Arial", "Roboto Mono", sans-serif, ui-monospace',
+    );
+    expect(() => stackCss("Inter; } * {")).toThrow(/not a valid font stack/);
   });
 });
 
@@ -83,6 +105,15 @@ describe("rdsThemeFromTable — hostile table", () => {
   it("a mono font that breaks out of its quotes is refused", () => {
     expect(() => rdsThemeFromTable(table({ literal: ["type/font/mono", 'Mono"; } body { x: y'] }), { warn: () => {} })).toThrow(
       /--type-font-mono/,
+    );
+  });
+
+  it("a text font or a stack that breaks out of its quotes is refused", () => {
+    expect(() => rdsThemeFromTable(table({ literal: ["type/font/display", 'Serif"; } body { x: y'] }), { warn: () => {} })).toThrow(
+      /--type-font-display/,
+    );
+    expect(() => rdsThemeFromTable(table({ literal: ["type/stack/text", 'Inter", } body { x: y'] }), { warn: () => {} })).toThrow(
+      /--type-stack-text/,
     );
   });
 

@@ -19,7 +19,7 @@
   border-radius: var(--radius-container);
   background: var(--_background);
   color: var(--_text);
-  font-family: var(--type-font-stack);
+  font-family: var(--type-stack-text);
   font-size: var(--type-body-size);
   line-height: var(--type-body-line);
 }

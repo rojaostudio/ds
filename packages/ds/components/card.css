@@ -22,7 +22,7 @@
   border-radius: var(--radius-container);
   background: var(--card-background);
   box-shadow: var(--elevation-raised);
-  font-family: var(--type-font-stack);
+  font-family: var(--type-stack-text);
 }
 
 .rds-card--sm {

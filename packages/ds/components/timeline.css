@@ -8,7 +8,7 @@
  * and the change in 14/20 (timeline/meta); 2 between them, 16 below the item.
  */
 .rds-timeline {
-  font-family: var(--type-font-stack);
+  font-family: var(--type-stack-text);
 }
 
 .rds-timeline__day-label {
