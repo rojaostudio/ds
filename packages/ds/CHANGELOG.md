@@ -1,5 +1,34 @@
 # @rojaostudio/ds
 
+## 2.17.0
+
+### Minor Changes
+
+- acb37c8: Fonts as brand identity, display sizes and form field ceilings (ds#190, ds#194).
+
+  - New theme roles for the brand's fonts, one family each: `--type-font-text`, `--type-font-display`, `--type-font-editorial` (with `--type-font-mono`), and their stacks for `font-family`: `--type-stack-text`, `--type-stack-display`, `--type-stack-editorial`, `--type-stack-mono`. In Figma each brand's families and stacks live in the `brand` collection (`<brand>/font/<family>`, `<brand>/stack/<family>`) and the roles point to them; a brand with one font points every role to it. Every component now reads `--type-stack-text`.
+  - `--type-font-family` and `--type-font-stack` keep working as `var()` of `--type-font-text` and `--type-stack-text` until 3.0. `--type-font-mono` keeps its fallback (`"Roboto Mono", monospace`) until 3.0; the stack is `--type-stack-mono`.
+  - Display sizes by viewport, for marketing titles (the Figma text styles `display/hero`, `display/section`, `editorial/hero`, `editorial/section`): `--type-display-hero-size|line` (40 → 72) and `--type-display-section-size|line` (28 → 48).
+  - Form field ceilings by viewport, as the `max-width` of a short field next to a FILL one: `--form-field-short-max` (88, 168 from md), `--form-field-number-max` (96, 168 from md) and `--form-field-key-max` (no ceiling, 168 from md).
+  - ds-core: the theme validates and writes the new roles (a family inside quotes; a stack with each family quoted and a generic one bare), and exports `isSafeStack` and `stackCss`. A brand table exported before these roles still loads, with Inter and its own mono, and a warning to export it again.
+
+- 95c1af2: Chat set: Composer, FloatingPanel and the delivery status of a Message (ds#178, ds#179, ds#180).
+
+  - `Composer` (new): where a chat is written, the text and the send button in one box. It grows from 1 to 4 lines (`maxRows`) and then scrolls. Enter sends the trimmed text, Shift+Enter breaks the line; `sending` turns the button and blocks a second send; `disabled`. Controlled (`value` + `onValueChange`) or not (`defaultValue`, emptied after each send).
+  - `FloatingPanel` (new): a window over the page that does not block it (support chat, help, assistant). Non-modal dialog: no veil, the focus is not trapped, a click outside keeps it open, Esc and the close button close it and the focus goes back to the opener. From lg: 400 × 640 at the bottom right, 24 from the edges, never taller than the screen less 96; compact: the whole screen with a back button. Parts: `title`, `status`, `avatar`, the scrolling body (`children`) and `footer`. New viewport tokens `--layout-floating-panel-width|height|radius`.
+  - `Message`: `status="sending" | "sent" | "failed"` on the person's own message (`align="end"`), with `onRetry`. sending shows a Spinner and "Enviando" in place of the time; failed turns the Bubble to the error colours and adds "Não enviada · Tentar de novo". Each change is announced by a polite live region. New token `--message-failed`.
+
+- 63545a6: Surface width scale (ds#189) and PageShell `maxWidth="medium"` (ds#177).
+
+  - New tokens `--layout-surface-xs|sm|md|lg|xl` (240 · 320 · 400 · 560 · 720), always shipped: the width of a panel, menu, dialog or floating window. Sidebar, Tooltip, Popover, HoverCard, Sheet, Drawer, Dialog, AlertDialog and Command now read them, with no width change. Toast goes from 460 to 400 (md).
+  - PageShell: `maxWidth="medium"` caps the content at 1152 (`--layout-content-max-width-medium`), for a site or a marketing page, between narrow (768) and wide (1536).
+
+### Patch Changes
+
+- e90d0b7: `styles/rds/components-styles.css` ships without the stylesheet comments (the spec of each component, kept in the sources): 389 KB → 294 KB raw, about 39 KB less in the tarball. No rule changes.
+- Updated dependencies [acb37c8]
+  - @rojaostudio/ds-core@1.2.0
+
 ## 2.16.0
 
 ### Minor Changes
