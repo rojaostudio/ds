@@ -100,7 +100,7 @@
   border-radius: var(--space-8);
   background: var(--media-grid-status-background);
   color: var(--media-grid-status-text);
-  font-family: var(--type-font-stack);
+  font-family: var(--type-stack-text);
   font-size: var(--type-caption-size);
   line-height: var(--type-caption-line);
   font-weight: 500;
@@ -145,7 +145,7 @@
   border: var(--border-width) dashed var(--chip-input-add-border);
   border-radius: var(--media-radius);
   color: var(--chip-input-add-label);
-  font-family: var(--type-font-stack);
+  font-family: var(--type-stack-text);
   font-size: var(--type-caption-size);
   line-height: var(--type-caption-line);
   font-weight: 500;

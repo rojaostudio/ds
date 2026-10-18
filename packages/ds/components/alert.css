@@ -14,7 +14,7 @@
   border: var(--border-width) solid var(--_border, transparent);
   border-radius: var(--radius-container);
   background: var(--_background);
-  font-family: var(--type-font-stack);
+  font-family: var(--type-stack-text);
   font-size: var(--type-small-size);
   line-height: var(--type-small-line);
 }

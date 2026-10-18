@@ -15,7 +15,7 @@
   border: var(--border-width) solid var(--calendar-border);
   border-radius: var(--radius-container);
   background: var(--calendar-background);
-  font-family: var(--type-font-stack);
+  font-family: var(--type-stack-text);
 }
 
 .rds-calendar__header {

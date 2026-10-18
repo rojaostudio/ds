@@ -56,11 +56,11 @@ describe("emitClaudeMd — 2.0 ([RDS])", () => {
     const names = [
       ...CLAUDE_MD_FOUNDATION.space,
       ...CLAUDE_MD_FOUNDATION.radius,
-      CLAUDE_MD_FOUNDATION.font,
       "--border-width",
       ...CLAUDE_MD_FOUNDATION.type.flatMap((t) => [`--type-${t}-size`, `--type-${t}-line`]),
     ];
     expect(names.filter((n) => !foundationVars.has(n))).toEqual([]);
+    expect(ROLES.map(([r]) => roleVar(r))).toContain(CLAUDE_MD_FOUNDATION.font);
   });
 
   it("every component it names exists in @rojaostudio/ds", () => {

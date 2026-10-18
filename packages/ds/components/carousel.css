@@ -9,7 +9,7 @@
   flex-direction: column;
   align-items: center;
   gap: var(--space-16);
-  font-family: var(--type-font-stack);
+  font-family: var(--type-stack-text);
 }
 
 .rds-carousel__stage {

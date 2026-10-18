@@ -22,7 +22,7 @@
   border: var(--border-width) solid var(--table-border);
   border-radius: var(--radius-container);
   background: var(--table-background);
-  font-family: var(--type-font-stack);
+  font-family: var(--type-stack-text);
 }
 
 .rds-table:focus-visible {

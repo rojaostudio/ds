@@ -88,7 +88,7 @@
 .rds-image-crop__hint {
   margin: 0;
   color: var(--dialog-text);
-  font-family: var(--type-font-stack);
+  font-family: var(--type-stack-text);
   font-size: var(--type-small-size);
   line-height: var(--type-small-line);
 }

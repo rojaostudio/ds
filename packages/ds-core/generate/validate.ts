@@ -7,7 +7,8 @@
  * written, and the check runs again in each emitter (defence in depth: a theme object can be built by hand).
  *
  * Allow lists, never deny lists: a colour is a hex or a closed `rgb()/rgba()/oklch()`; a variable name is lowercase
- * words joined by `-` or `/`; a font family has no quote, semicolon, brace, backslash or line break.
+ * words joined by `-` or `/`; a font family has no quote, semicolon, brace, backslash or line break; a font stack is a
+ * short list of such families separated by commas.
  */
 
 /** `#rgb` … `#rrggbbaa`. */
@@ -35,8 +36,56 @@ export const isSafeFont = (v: unknown): v is string =>
 /** A CSS custom property name built from a safe name: `--` + the name with `/` as `-`. */
 const isSafeCustomProperty = (k: string) => k.startsWith("--") && isSafeVarName(k.slice(2));
 
-/** The role whose value is a font family, not a colour. */
+/** The role whose value is a font family, not a colour. Kept for 2.x callers; FONT_ROLE_VARS lists every one. */
 export const FONT_ROLE_VAR = "--type-font-mono";
+
+/** The roles whose value is one font family (ds#190), not a colour. The stylesheet writes each inside `"…"`. */
+export const FONT_ROLE_VARS: ReadonlySet<string> = new Set([
+  "--type-font-text",
+  "--type-font-display",
+  "--type-font-editorial",
+  FONT_ROLE_VAR,
+]);
+
+/** The roles whose value is a font stack (ds#190): the family and its fallbacks, for `font-family`. */
+export const STACK_ROLE_VARS: ReadonlySet<string> = new Set([
+  "--type-stack-text",
+  "--type-stack-display",
+  "--type-stack-editorial",
+  "--type-stack-mono",
+]);
+
+/** The CSS generic families: written bare in a stack, never quoted (a quoted "serif" is a font named serif). */
+const GENERIC_FAMILIES = new Set([
+  "serif", "sans-serif", "monospace", "cursive", "fantasy", "system-ui", "math", "emoji",
+  "ui-serif", "ui-sans-serif", "ui-monospace", "ui-rounded",
+]);
+
+/** No stack carries more families than this, nor a longer text. */
+const STACK_MAX_FAMILIES = 10;
+const STACK_MAX = 300;
+
+/**
+ * The families of a stack (`Inter, Arial, sans-serif`; Figma may quote one: `"Roboto Mono", monospace`), each a safe
+ * font family with its quotes taken off, or null when one is not. Only a whole pair of double quotes around a family is
+ * taken off; any other quote fails the family, as in a single font role.
+ */
+export function stackFamilies(v: unknown): string[] | null {
+  // eslint-disable-next-line no-control-regex -- control characters are exactly what is refused
+  if (typeof v !== "string" || v.length > STACK_MAX || /[\u0000-\u001f\u007f]/.test(v)) return null;
+  const families = v.split(",").map((f) => f.trim().replace(/^"([^"]*)"$/, "$1").trim());
+  if (!families.length || families.length > STACK_MAX_FAMILIES) return null;
+  return families.every((f) => isSafeFont(f)) ? families : null;
+}
+
+export const isSafeStack = (v: unknown): v is string => stackFamilies(v) !== null;
+
+/** A stack as CSS: each family quoted, a generic family bare. Throws on a stack that fails the allow list. */
+export function stackCss(v: string): string {
+  const families = stackFamilies(v);
+  if (!families) throw new Error(`stackCss: ${preview(v)} is not a valid font stack`);
+  return families.map((f) => (GENERIC_FAMILIES.has(f.toLowerCase()) ? f.toLowerCase() : `"${f}"`)).join(", ");
+}
 
 /** Shows a hostile value in an error without echoing it whole (it may be long, or carry a line break). */
 export function preview(v: unknown): string {
@@ -67,6 +116,13 @@ export function collector(where: string) {
     font(field: string, v: unknown) {
       if (!isSafeFont(v)) problems.push(`${field}: ${preview(v)} is not a valid font family (no quotes, ";", braces, "\\" or line breaks)`);
     },
+    stack(field: string, v: unknown) {
+      if (!isSafeStack(v))
+        problems.push(
+          `${field}: ${preview(v)} is not a valid font stack (up to ${STACK_MAX_FAMILIES} font families separated by ",", ` +
+            `each one without quotes, ";", braces, "\\" or line breaks; a whole "…" around one is allowed)`,
+        );
+    },
     done() {
       if (problems.length) throw new RdsValidationError(where, problems);
     },
@@ -77,7 +133,8 @@ type ThemeLike = { light?: unknown; dark?: unknown; brand?: unknown; vars?: unkn
 
 /**
  * Checks a whole theme before it is written: every key is a safe custom property, every value a safe colour
- * (`--type-font-mono`, a safe font family). Throws an RdsValidationError listing every field that fails.
+ * (a font role of FONT_ROLE_VARS, a safe font family; a stack of STACK_ROLE_VARS, a safe font stack). Throws an
+ * RdsValidationError listing every field that fails.
  */
 export function assertSafeTheme(theme: ThemeLike, where: string): void {
   const c = collector(where);
@@ -95,7 +152,8 @@ export function assertSafeTheme(theme: ThemeLike, where: string): void {
         c.problems.push(`${label}: ${preview(k)} is not a valid CSS variable name`);
         continue;
       }
-      if (fontRole && k === FONT_ROLE_VAR) c.font(`${label}.${k}`, v);
+      if (fontRole && FONT_ROLE_VARS.has(k)) c.font(`${label}.${k}`, v);
+      else if (fontRole && STACK_ROLE_VARS.has(k)) c.stack(`${label}.${k}`, v);
       else c.color(`${label}.${k}`, v);
     }
   };

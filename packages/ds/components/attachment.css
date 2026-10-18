@@ -12,7 +12,7 @@
   border: var(--border-width) solid var(--attachment-border);
   border-radius: var(--radius-container);
   background: var(--attachment-background);
-  font-family: var(--type-font-stack);
+  font-family: var(--type-stack-text);
 }
 
 .rds-attachment--horizontal {

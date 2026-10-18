@@ -4,7 +4,7 @@
  *
  *   styles/rds/theme.css       theme roles of the Rojão brand, one to one with Figma: the brand table
  *                              ds-core/figma/brands/rojao.rds.json (figma/export-brand.js), light, dark, plate
- *   styles/rds/foundation.css  type, radius, space, motion, z, elevation, and the layout/* a stylesheet reads
+ *   styles/rds/foundation.css  type, radius, space, motion, z, elevation, and the viewport numbers a stylesheet reads
  *   styles/rds/components.css  component tokens, each one var(--theme-role)
  *
  * Fails on a missing alias, an orphan var() or an unused token (see rds-tokens.ts).
@@ -17,9 +17,10 @@ import {
   emitFoundationCss,
   emitThemeCss,
   emitViewportCss,
+  isSharedViewportToken,
   loadAll,
   loadBrandTable,
-  PUBLIC_LAYOUT_VARS,
+  PUBLIC_VIEWPORT_VARS,
   RDS_LAYER_ORDER,
   usedVars,
 } from "./rds-tokens";
@@ -29,9 +30,9 @@ const out = join(pkg, "styles", "rds");
 mkdirSync(out, { recursive: true });
 
 const { tokens, roles, foundation, viewport, stylesheets } = loadAll(pkg);
-// The layout/* numbers of the viewport collection are defined (one media query per breakpoint) when a stylesheet reads them.
-const layoutVars = new Set(viewport.tokens.filter((t) => t.name.startsWith("layout/")).map((t) => t.cssVar));
-const problems = check(tokens, roles, foundation, stylesheets, layoutVars);
+// The numbers of the viewport collection are defined (one media query per breakpoint) when a stylesheet reads them.
+const viewportVars = new Set(viewport.tokens.filter((t) => isSharedViewportToken(t.name)).map((t) => t.cssVar));
+const problems = check(tokens, roles, foundation, stylesheets, viewportVars);
 
 const fail = (title: string, list: string[]) => {
   if (!list.length) return false;
@@ -49,7 +50,7 @@ if (failed) process.exit(1);
 
 // The contrast report of the table goes to the console: the table is Figma one to one, a failure is Figma's to fix.
 writeFileSync(join(out, "theme.css"), emitThemeCss(loadBrandTable(pkg, "rojao"), (m) => console.warn(`! ${m}`)));
-writeFileSync(join(out, "foundation.css"), emitFoundationCss(foundation, emitViewportCss(viewport, new Set([...usedVars(stylesheets), ...PUBLIC_LAYOUT_VARS]))));
+writeFileSync(join(out, "foundation.css"), emitFoundationCss(foundation, emitViewportCss(viewport, new Set([...usedVars(stylesheets), ...PUBLIC_VIEWPORT_VARS]))));
 writeFileSync(join(out, "components.css"), emitComponentsCss(tokens));
 
 // Every component stylesheet, in one file, inside the components layer. The comments (the spec of each stylesheet)

@@ -31,7 +31,7 @@
   background: var(--loading-overlay-background);
   box-shadow: var(--elevation-modal);
   color: var(--loading-overlay-text);
-  font-family: var(--type-font-stack);
+  font-family: var(--type-stack-text);
   outline: none;
 }
 

@@ -19,7 +19,7 @@
   margin: 0;
   padding: 0;
   border: 0;
-  font-family: var(--type-font-stack);
+  font-family: var(--type-stack-text);
 }
 
 /* A rendered legend sits outside the flex flow: its 4 below plus the label's own 4 make the field's 8. */

@@ -12,7 +12,7 @@
   width: 100%;
   container-type: inline-size;
   background: var(--_background);
-  font-family: var(--type-font-stack);
+  font-family: var(--type-stack-text);
 }
 
 .rds-block__inner {

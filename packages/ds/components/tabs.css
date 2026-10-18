@@ -7,7 +7,7 @@
  * 15% with a 6 dot inside. The trailing slot sits at the right end of the strip, on the same baseline.
  */
 .rds-tabs {
-  font-family: var(--type-font-stack);
+  font-family: var(--type-stack-text);
 }
 
 .rds-tabs__bar {
