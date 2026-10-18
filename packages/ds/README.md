@@ -160,6 +160,19 @@ import { PixIcon } from '@rojaostudio/ds/icons';
 <PixIcon size={16} />
 ```
 
+Logos of networks and services (the Figma `social/*` family) are a component, `SocialLogo`, with no icon library
+behind it. `color="brand"` keeps the brand's colours and turns its black parts white in the dark theme; `color="mono"`
+takes the colour of the text around it. Decorative unless you give it an `aria-label`.
+
+```tsx
+import { SocialLogo } from '@rojaostudio/ds/components/social-logo';
+
+<SocialLogo name="github" />
+<SocialLogo name="youtube" color="mono" size={20} />
+```
+
+The marks belong to their owners (see `THIRD_PARTY_NOTICES.md`).
+
 ## React Native
 
 > **Experimental, outside semver in 2.0.** The native target (`@rojaostudio/ds/native/*`) still follows the 1.x

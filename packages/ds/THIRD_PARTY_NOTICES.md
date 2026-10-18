@@ -49,6 +49,12 @@ DEALINGS IN THE SOFTWARE.
 
 O símbolo do Pix (`packages/ds/icons/pix.tsx`) é marca do Banco Central do Brasil. Ele está aqui só para indicar o Pix como meio de pagamento, conforme o manual de uso da marca. A licença MIT deste projeto não se estende a ele.
 
+### Logos de redes e serviços (`SocialLogo`)
+
+Os desenhos de `packages/ds/components/internal/social-logos.ts` (a família `social/*` da biblioteca [RDS] Icons) vêm do [Simple Icons](https://simpleicons.org), sob a licença CC0 1.0, quando o logo existe lá, conferidos com o guia de cada marca; os demais (e as versões coloridas que o Simple Icons não traz) vêm do material oficial que a própria marca publica para imprensa e parceiros.
+
+Cada logo é marca registrada do seu dono. Eles estão aqui só para indicar o serviço (um link para o perfil, uma linha numa lista de integrações), conforme as regras de uso de cada marca, e não sugerem parceria nem endosso. A licença MIT deste projeto não se estende a eles.
+
 ## Dependências (instaladas pelo gerenciador de pacotes, não redistribuídas)
 
 | Pacote | Licença | Uso |
