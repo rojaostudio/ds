@@ -263,6 +263,10 @@ export type { HeadingProps, HeadingMarkProps, HeadingLevel, HeadingTone, Heading
 export { Avatar, AvatarGroup, initials } from './avatar';
 export type { AvatarProps, AvatarGroupProps, AvatarSize, AvatarGroupSize, AvatarType, AvatarContent } from './avatar';
 
+// ds#196: the Figma [RDS] Icons social/* family (networks and services), tone light · dark × color brand · mono.
+export { SocialLogo, socialLogoNames } from './social-logo';
+export type { SocialLogoProps, SocialLogoName, SocialLogoColor, SocialLogoTone } from './social-logo';
+
 export { IconButton } from './icon-button';
 export { Link } from './link';
 export type { LinkProps, LinkTone } from './link';
