@@ -2,9 +2,11 @@
 
 ## Where to ask
 
-- **Bug in the published packages** → [open an issue](https://github.com/rojaostudio/ds/issues)
-- **Security** → [SECURITY.md](./SECURITY.md), not a public issue
-- **How do I…** → open an issue with the `question` label
+This project is not open to outside contributions: issues and pull requests are limited to
+collaborators.
+
+- **Security** → [SECURITY.md](./SECURITY.md)
+- **Anything else** → the people who use the system reach the maintainers directly
 
 ## What is maintained, honestly
 
@@ -24,17 +26,8 @@ than discovered by you six months in:
 - Support for a design approach the system doesn't take — this has opinions, and they're the point
 - Migration work for your codebase
 
-**Welcome as a pull request, not promised as a feature**
-
-- Support for another framework or bundler
-- A new emitter target (SCSS, Style Dictionary, iOS, Android)
-- Documentation and translations
-
 ## Why the scope is written down
 
 An open source project with no revenue is paid for in the maintainer's evenings. The way that
 ends badly is a maintainer who says yes to everything and then goes quiet for a year. Saying no
 early, in writing, is what keeps the yeses reliable.
-
-If you need something outside this and it matters to your business, say so in the issue — that's
-a different conversation, not a rejection.
